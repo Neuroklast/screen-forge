@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "scene": "countdown",
+  "title": "SEQUENCE CONTROL",
+  "subtitle": "AUTONOMOUS DEVICE / SERIES 09",
+  "identifier": "VS-204 / UNIT 07",
+  "accent": "#ff8a62",
+  "mood": "clinical",
+  "effects": 0.25,
+  "density": "detailed",
+  "duration": 180,
+  "brightness": 1,
+  "actorMode": true,
+  "script": "inspect relay --sector 07 --verify",
+  "seed": 2048
+}

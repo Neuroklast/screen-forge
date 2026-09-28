@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "scene": "corporate",
+  "title": "VESPER",
+  "subtitle": "BIOLOGICAL RESEARCH DIVISION",
+  "identifier": "VS-204 / UNIT 07",
+  "accent": "#cf233c",
+  "mood": "clinical",
+  "effects": 0.25,
+  "density": "detailed",
+  "duration": 180,
+  "brightness": 1,
+  "actorMode": true,
+  "script": "inspect relay --sector 07 --verify",
+  "seed": 2048
+}

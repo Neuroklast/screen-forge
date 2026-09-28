@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "scene": "tracking",
+  "title": "ORBITAL SURVEY",
+  "subtitle": "REMOTE OBSERVATION / SECTOR 07",
+  "identifier": "VS-204 / UNIT 07",
+  "accent": "#9ad9c0",
+  "mood": "clinical",
+  "effects": 0.25,
+  "density": "detailed",
+  "duration": 180,
+  "brightness": 1,
+  "actorMode": true,
+  "script": "inspect relay --sector 07 --verify",
+  "seed": 2048
+}
