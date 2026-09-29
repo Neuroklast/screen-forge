@@ -11,6 +11,7 @@ import { newState, type TrainingState } from "./training";
 import { applyEvent, domainEventSchema, type DomainEvent } from "./events";
 import { isCommandType, newEventId, PROTOCOL } from "./protocol";
 import { ServerClock } from "./clock";
+import * as outbox from "./outbox";
 import type { Role } from "./session";
 export type Signal = {
   type: "signal";
@@ -56,6 +57,9 @@ export function useExercise(role: Role, room: string, station: string) {
   } | null>(null);
   const [error, setError] = useState(""),
     [invitation, setInvitation] = useState<Invitation | null>(null);
+  const [pendingCount, setPendingCount] = useState(0);
+  const device = useRef(outbox.deviceId());
+  const deviceSeq = useRef(0);
   const ws = useRef<WebSocket | null>(null),
     listeners = useRef(new Set<(signal: Signal) => void>());
   const invite = useRef(
@@ -74,6 +78,17 @@ export function useExercise(role: Role, room: string, station: string) {
     },
     [key],
   );
+  const flushOutbox = useCallback(async () => {
+    const list = outbox.pending(await outbox.entries());
+    for (const entry of list) {
+      if (ws.current?.readyState !== WebSocket.OPEN) break;
+      ws.current.send(JSON.stringify(entry.message));
+      await outbox.update(entry.eventId, "sent");
+    }
+    const rest = await outbox.entries();
+    setPendingCount(outbox.pending(rest).length);
+    for (const id of outbox.pruneAcked(rest)) await outbox.remove(id);
+  }, []);
   useEffect(() => {
     if (role === "film" || (!token && !invite.current)) return;
     let disposed = false,
@@ -121,7 +136,16 @@ export function useExercise(role: Role, room: string, station: string) {
             setServerSeq(lastSeq.current);
             clockRef.current.observe(Number(msg.serverNow));
             setClockRevision(Number(msg.clockRevision) || 0);
+            void flushOutbox();
           }
+          if (
+            (msg.type === "ack" || msg.type === "rejected") &&
+            typeof msg.eventId === "string"
+          )
+            void outbox.update(
+              msg.eventId,
+              msg.type === "ack" ? "acked" : "rejected",
+            );
           if (msg.type === "ack") {
             const seq = Number(msg.serverSeq) || 0;
             if (seq > lastSeq.current) {
@@ -208,18 +232,48 @@ export function useExercise(role: Role, room: string, station: string) {
       setOnline(false);
     };
   }, [role, room, station, token, key, loginAttempt]);
-  const send = useCallback((msg: Record<string, unknown>) => {
-    if (ws.current?.readyState !== WebSocket.OPEN) {
-      setError("Nicht verbunden. Änderung wurde nicht gesendet.");
-      return false;
-    }
-    const payload =
-      typeof msg.type === "string" && isCommandType(msg.type) && !msg.eventId
-        ? { ...msg, eventId: newEventId() }
-        : msg;
-    ws.current.send(JSON.stringify(payload));
-    return true;
-  }, []);
+  const send = useCallback(
+    (msg: Record<string, unknown>) => {
+      const isCommand =
+        typeof msg.type === "string" && isCommandType(msg.type);
+      if (!isCommand) {
+        if (ws.current?.readyState !== WebSocket.OPEN) {
+          setError("Nicht verbunden. Änderung wurde nicht gesendet.");
+          return false;
+        }
+        ws.current.send(JSON.stringify(msg));
+        return true;
+      }
+      const eventId =
+        typeof msg.eventId === "string" && msg.eventId
+          ? msg.eventId
+          : newEventId();
+      const message = {
+        ...msg,
+        eventId,
+        deviceId: device.current,
+        deviceSeq: ++deviceSeq.current,
+      };
+      const entry: outbox.OutboxEntry = {
+        eventId,
+        room,
+        deviceId: device.current,
+        deviceSeq: deviceSeq.current,
+        message,
+        state: "queued",
+        createdAt: Date.now(),
+      };
+      void outbox.put(entry);
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify(message));
+        void outbox.update(eventId, "sent");
+      } else {
+        setPendingCount((count) => count + 1);
+      }
+      return true;
+    },
+    [room],
+  );
   const subscribe = useCallback((fn: (signal: Signal) => void) => {
     listeners.current.add(fn);
     return () => {
@@ -253,6 +307,7 @@ export function useExercise(role: Role, room: string, station: string) {
     serverSeq,
     clockRevision,
     serverNow: () => clockRef.current.now(),
+    pendingCount,
     subscribe,
     role,
     station,
