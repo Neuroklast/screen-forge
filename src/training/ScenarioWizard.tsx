@@ -121,7 +121,7 @@ export function ScenarioWizard({
           <div className="form-grid">
             {draft.stations.map((st) => (
               <label key={st.id}>
-                {st.scene} · {st.id}
+                {st.module} · {st.id}
                 <input
                   value={st.name}
                   onChange={(e) =>
@@ -166,10 +166,10 @@ export function ScenarioWizard({
               type="number"
               min="0"
               max="86400"
-              value={draft.rules[0]?.at ?? 180}
+              value={draft.injects[0]?.at ?? 180}
               onChange={(e) =>
                 update({
-                  rules: draft.rules.map((r, i) =>
+                  injects: draft.injects.map((r, i) =>
                     i === 0 ? { ...r, at: Number(e.target.value) } : r,
                   ),
                 })
@@ -179,10 +179,10 @@ export function ScenarioWizard({
           <label className="check">
             <input
               type="checkbox"
-              checked={draft.rules[0]?.enabled ?? false}
+              checked={draft.injects[0]?.enabled ?? false}
               onChange={(e) =>
                 update({
-                  rules: draft.rules.map((r, i) =>
+                  injects: draft.injects.map((r, i) =>
                     i === 0 ? { ...r, enabled: e.target.checked } : r,
                   ),
                 })
@@ -214,7 +214,7 @@ export function ScenarioWizard({
               <span>Patienten</span>
             </div>
             <div>
-              <b>{draft.rules.filter((r) => r.enabled).length}</b>
+              <b>{draft.injects.filter((r) => r.enabled).length}</b>
               <span>Ereignisse</span>
             </div>
           </div>

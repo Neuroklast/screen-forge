@@ -1,7 +1,7 @@
 import { configuration, closeConfiguration, osApp } from "./helpers";
 import { test, expect, type Page } from "@playwright/test";
 async function enter(page: Page) {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await page
     .getByRole("button", { name: /Netzwerkterminal/ })
     .first()

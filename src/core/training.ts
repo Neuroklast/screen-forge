@@ -27,6 +27,13 @@ export const modules = [
   "lock",
   "slide",
 ] as const;
+export const propKinds = [
+  "ordnance",
+  "beacon",
+  "payload",
+  "keycard",
+  "custom",
+] as const;
 export const moduleEvents: Record<string, string[]> = {
   comms: ["comms.channel", "comms.ptt"],
   slide: ["slide.open"],
@@ -79,12 +86,17 @@ export const pointSchema = z.object({
   lat: finite.min(-85).max(85),
   lng: finite.min(-180).max(180),
 });
+export const bindingSchema = z.object({
+  patient: z.string().max(40).default(""),
+  prop: z.string().max(40).default(""),
+  objective: z.string().max(40).default(""),
+});
 export const stationSchema = z.object({
   id,
   name: label,
   role: z.enum(["hq", "element"]),
-  scene: z.enum(modules),
-  entityId: z.string().max(40).default(""),
+  module: z.enum(modules),
+  bindings: bindingSchema.default({ patient: "", prop: "", objective: "" }),
   team: z.string().max(40).default("ALPHA"),
   player: z.boolean().default(false),
   duration: finite.min(1).max(86400).default(900),
@@ -94,11 +106,35 @@ export const stationSchema = z.object({
     .default("7392"),
   route: z.array(pointSchema).max(20).default([]),
 });
+export const propSchema = z.object({
+  id,
+  kind: z.enum(propKinds),
+  name: label,
+  states: z.array(z.string().max(40)).min(1).max(20).default(["off", "on"]),
+  initial: z.string().max(40).default("off"),
+  visible: z.boolean().default(true),
+});
+export const teamSchema = z.object({
+  id,
+  name: label,
+  color: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i)
+    .default("#80dce5"),
+});
+export const actorSchema = z.object({
+  id,
+  name: label,
+  character: z.string().max(120).default(""),
+  briefing: text.default(""),
+  dossierId: z.string().max(40).default(""),
+});
 const zoneSchema = pointSchema.extend({
   id,
   name: label,
   radius: finite.min(5).max(10000),
 });
+const objectiveSchema = z.object({ id, name: label });
 export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("patient"), target: id, kind: z.enum(kinds) }),
   z.object({ type: z.literal("release"), target: id }),
@@ -106,7 +142,7 @@ export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("objective"), target: id }),
   z.object({ type: z.literal("message"), text: label }),
 ]);
-export const ruleSchema = z.object({
+export const injectSchema = z.object({
   id,
   name: label,
   trigger: z.enum(["timer", "zone", "intervention", "prop", "signal"]),
@@ -119,9 +155,9 @@ export const ruleSchema = z.object({
   actions: z.array(actionSchema).min(1).max(10),
   enabled: z.boolean().default(true),
 });
-export const scenarioSchema = z
+const scenarioV2Schema = z
   .object({
-    version: z.literal(1),
+    version: z.literal(2),
     name: label,
     mode: z.enum(["LIVE", "PLAYBACK"]),
     seed: finite.int().min(1).max(2147483647),
@@ -134,15 +170,19 @@ export const scenarioSchema = z
           (v) =>
             v === "" || /^https:\/\/[^\s]+\{z\}[^\s]*\{x\}[^\s]*\{y\}/.test(v),
           "Use an HTTPS XYZ tile URL",
-        ),
+        )
+        .transform((v) => (v.includes("tile.openstreetmap.org") ? "" : v)),
       attribution: z.string().max(200),
     }),
     stations: z.array(stationSchema).min(1).max(40),
-    patients: z.array(patientSchema).max(40),
-    dossiers: z.array(dossierSchema).max(40),
-    zones: z.array(zoneSchema).max(40),
-    rules: z.array(ruleSchema).max(100),
-    objectives: z.array(z.object({ id, name: label })).max(40),
+    patients: z.array(patientSchema).max(40).default([]),
+    props: z.array(propSchema).max(40).default([]),
+    dossiers: z.array(dossierSchema).max(40).default([]),
+    teams: z.array(teamSchema).max(20).default([]),
+    actors: z.array(actorSchema).max(20).default([]),
+    zones: z.array(zoneSchema).max(40).default([]),
+    injects: z.array(injectSchema).max(100).default([]),
+    objectives: z.array(objectiveSchema).max(40).default([]),
   })
   .superRefine((s, ctx) => {
     const issue = (message: string) =>
@@ -150,21 +190,32 @@ export const scenarioSchema = z
     for (const rows of [
       s.stations,
       s.patients,
+      s.props,
       s.dossiers,
+      s.teams,
+      s.actors,
       s.zones,
-      s.rules,
+      s.injects,
       s.objectives,
     ])
       if (new Set(rows.map((x) => x.id)).size !== rows.length)
         issue("IDs must be unique within each collection");
-    for (const st of s.stations)
+    for (const st of s.stations) {
       if (
-        st.scene === "medical" &&
-        !s.patients.some((p) => p.id === st.entityId)
+        st.module === "medical" &&
+        !s.patients.some((p) => p.id === st.bindings.patient)
       )
         issue(`Patient missing for ${st.name}`);
+      if (
+        st.bindings.patient &&
+        !s.patients.some((p) => p.id === st.bindings.patient)
+      )
+        issue(`Unknown patient for ${st.name}`);
+      if (st.bindings.prop && !s.props.some((p) => p.id === st.bindings.prop))
+        issue(`Unknown prop for ${st.name}`);
+    }
     for (const st of s.stations)
-      if (st.role === "hq" && st.scene !== "tracking")
+      if (st.role === "hq" && st.module !== "tracking")
         issue(`HQ ${st.name} must use the tracking module`);
     for (const p of s.patients) {
       if (
@@ -179,23 +230,23 @@ export const scenarioSchema = z
       )
         issue(`Arrest cannot have a pulse or blood pressure for ${p.name}`);
     }
-    for (const rule of s.rules) {
+    for (const rule of s.injects) {
       const station = s.stations.find((st) => st.id === rule.station);
       if (
         rule.trigger === "signal" &&
-        !(moduleEvents[station?.scene || ""] || []).includes(rule.intervention)
+        !(moduleEvents[station?.module || ""] || []).includes(rule.intervention)
       )
         issue(`Unsupported module event for ${rule.name}`);
       if (rule.trigger === "zone" && !station?.player)
         issue(`GPS trigger requires a player station for ${rule.name}`);
-      if (rule.trigger === "intervention" && station?.scene !== "medical")
+      if (rule.trigger === "intervention" && station?.module !== "medical")
         issue(`Intervention requires a medical station for ${rule.name}`);
       if (
         rule.trigger === "prop" &&
-        !["countdown", "access", "lock"].includes(station?.scene || "")
+        !["countdown", "access", "lock"].includes(station?.module || "")
       )
         issue(`Prop trigger requires a terminal station for ${rule.name}`);
-      if (rule.unless && station?.scene !== "medical")
+      if (rule.unless && station?.module !== "medical")
         issue(
           `Treatment exception requires a medical station for ${rule.name}`,
         );
@@ -215,7 +266,7 @@ export const scenarioSchema = z
               : a.type === "objective"
                 ? s.objectives
                 : a.type === "camera"
-                  ? s.stations.filter((st) => st.scene === "camera")
+                  ? s.stations.filter((st) => st.module === "camera")
                   : null;
         if (
           rows &&
@@ -226,11 +277,45 @@ export const scenarioSchema = z
       }
     }
   });
+// Migration: read v1 (`scene`/`entityId`/`rules`) and any alias form, always emit v2.
+function normalizeScenario(input: unknown): unknown {
+  if (!input || typeof input !== "object") return input;
+  const raw = input as Record<string, unknown>;
+  const rawStations = Array.isArray(raw.stations) ? raw.stations : [];
+  const stations = rawStations.map((value) => {
+    if (!value || typeof value !== "object") return value;
+    const st = { ...(value as Record<string, unknown>) };
+    const module = st.module ?? st.scene;
+    delete st.scene;
+    const bindings =
+      st.bindings && typeof st.bindings === "object"
+        ? { ...(st.bindings as Record<string, unknown>) }
+        : {};
+    if (typeof st.entityId === "string" && st.entityId)
+      bindings.patient = st.entityId;
+    delete st.entityId;
+    return { ...st, module, bindings };
+  });
+  const injects = Array.isArray(raw.injects)
+    ? raw.injects
+    : Array.isArray(raw.rules)
+      ? raw.rules
+      : [];
+  const next: Record<string, unknown> = {
+    ...raw,
+    version: 2,
+    stations,
+    injects,
+  };
+  delete next.rules;
+  return next;
+}
+export const scenarioSchema = z.preprocess(normalizeScenario, scenarioV2Schema);
 export type Scenario = z.infer<typeof scenarioSchema>;
 export type TrainingStation = Scenario["stations"][number];
 export type TrainingPatient = Scenario["patients"][number];
 export type TrainingDossier = Scenario["dossiers"][number];
-export type Rule = Scenario["rules"][number];
+export type Inject = Scenario["injects"][number];
 export type Action = z.infer<typeof actionSchema>;
 export type Position = z.infer<typeof pointSchema> & {
   accuracy: number;
@@ -282,7 +367,7 @@ export function template(
     since: 0,
   };
   return scenarioSchema.parse({
-    version: 1,
+    version: 2,
     name: {
       sar: "Search & Rescue",
       medical: "Medical exercise",
@@ -295,41 +380,41 @@ export function template(
       lat: 51.23,
       lng: 6.78,
       zoom: 15,
-      tiles: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-      attribution: "© OpenStreetMap contributors",
+      tiles: "",
+      attribution: "",
     },
     stations: [
-      { id: "hq", name: "Headquarters", role: "hq", scene: "tracking" },
+      { id: "hq", name: "Headquarters", role: "hq", module: "tracking" },
       {
         id: "med-1",
         name: "Medic 01",
         role: "element",
-        scene: "medical",
-        entityId: medical.id,
+        module: "medical",
+        bindings: { patient: medical.id },
       },
       {
         id: "player-1",
         name: "Alpha 01",
         role: "element",
-        scene: "tracking",
+        module: "tracking",
         player: true,
         route: [
           { lat: 51.23, lng: 6.78 },
           { lat: 51.233, lng: 6.786 },
         ],
       },
-      { id: "cam-1", name: "Camera 01", role: "element", scene: "camera" },
+      { id: "cam-1", name: "Camera 01", role: "element", module: "camera" },
       {
         id: "prop-1",
         name: "Sequence terminal",
         role: "element",
-        scene: "countdown",
+        module: "countdown",
       },
       {
         id: "files-1",
         name: "Intelligence",
         role: "element",
-        scene: "terminal",
+        module: "terminal",
       },
     ],
     patients: [medical],
@@ -344,7 +429,7 @@ export function template(
       },
     ],
     objectives: [{ id: "objective-1", name: "Locate and report casualty" }],
-    rules: [
+    injects: [
       {
         id: "rule-1",
         name: "Deterioration after 3 minutes unless treated",
@@ -390,7 +475,7 @@ export function distance(
     Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dlng / 2) ** 2;
   return 6371000 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
 }
-export function dueAt(rule: Rule, seed: number) {
+export function dueAt(rule: Inject, seed: number) {
   let hash = seed;
   for (const ch of rule.id) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619);
   return rule.at + ((hash >>> 0) / 4294967296) * rule.jitter;
@@ -405,7 +490,7 @@ export function evaluate(
   now = Date.now(),
 ) {
   if (s.frozen) return;
-  for (const r of s.scenario.rules) {
+  for (const r of s.scenario.injects) {
     if (!r.enabled || s.fired.includes(r.id)) continue;
     let ready = r.trigger === "timer" && s.clock >= dueAt(r, s.scenario.seed);
     if (event && event.type === r.trigger && event.station === r.station) {
@@ -454,7 +539,7 @@ export function advance(s: TrainingState, delta: number, now = Date.now()) {
     }
   evaluate(s, undefined, now);
 }
-// Do not send trainer secrets, hidden rules, locked dossiers or other teams' locations to field devices.
+// Do not send trainer secrets, hidden injects, locked dossiers or other teams' locations to field devices.
 export function projectState(
   s: TrainingState,
   role: "trainer" | "hq" | "element",
@@ -462,7 +547,7 @@ export function projectState(
 ): TrainingState {
   const out = structuredClone(s);
   if (role === "trainer") return out;
-  out.scenario.rules = [];
+  out.scenario.injects = [];
   out.scenario.stations.forEach((st) => {
     st.code = "";
     st.route = [];
@@ -480,7 +565,7 @@ export function projectState(
       (row) => row.id === station || (row.player && row.team === st?.team),
     );
     out.scenario.patients = out.scenario.patients.filter(
-      (p) => p.id === st?.entityId,
+      (p) => p.id === st?.bindings.patient,
     );
     out.positions = Object.fromEntries(
       Object.entries(out.positions).filter(([key]) =>

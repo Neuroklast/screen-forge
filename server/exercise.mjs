@@ -333,9 +333,9 @@ export async function startExercise({
           const targetStation = state.scenario.stations.find(
             (s) => s.id === target[1].station,
           );
-          const publishing = st?.scene === "camera" && target[1].role === "hq";
+          const publishing = st?.module === "camera" && target[1].role === "hq";
           const viewing =
-            meta.role === "hq" && targetStation?.scene === "camera";
+            meta.role === "hq" && targetStation?.module === "camera";
           if (
             !(publishing || viewing) ||
             state.cameraOffline[publishing ? meta.station : target[1].station]
@@ -350,7 +350,7 @@ export async function startExercise({
         }
         if (msg.type === "diagnostic" && meta.role === "element") {
           const st = state.scenario.stations.find((s) => s.id === meta.station);
-          if (!st || !["countdown", "access", "lock"].includes(st.scene))
+          if (!st || !["countdown", "access", "lock"].includes(st.module))
             throw new Error("No diagnostics for this module");
           meta.inspected = true;
           send(ws, { type: "diagnostic", code: st.code, station: st.id });
@@ -381,7 +381,7 @@ export async function startExercise({
           const st = state.scenario.stations.find((s) => s.id === meta.station);
           if (
             state.frozen ||
-            !(moduleEvents[st?.scene] || []).includes(msg.value)
+            !(moduleEvents[st?.module] || []).includes(msg.value)
           )
             throw new Error("Module event not available");
           logEvent(state, `${st.name}: ${msg.value}`);
@@ -394,7 +394,7 @@ export async function startExercise({
           const st = state.scenario.stations.find((s) => s.id === meta.station);
           if (
             state.frozen ||
-            st?.scene !== "medical" ||
+            st?.module !== "medical" ||
             !["treated", "tourniquet", "oxygen", "evacuated"].includes(
               msg.value,
             )
@@ -415,8 +415,8 @@ export async function startExercise({
           if (
             state.frozen ||
             !st ||
-            !["countdown", "access", "lock"].includes(st.scene) ||
-            (st.scene === "countdown" && state.clock >= st.duration)
+            !["countdown", "access", "lock"].includes(st.module) ||
+            (st.module === "countdown" && state.clock >= st.duration)
           )
             throw new Error("Terminal unavailable");
           if (!meta.inspected)

@@ -17,12 +17,14 @@ import "./training/training.css";
 import { TrainerView } from "./views/TrainerView";
 import { HqView } from "./views/HqView";
 import { ElementView } from "./views/ElementView";
+import { StartPage } from "./views/StartPage";
 import "./tokens.css";
 import "./styles.css";
 import "./scenes/corporate.css";
 import "./scenes/os/os.css";
 const session = sessionFromSearch(location.search);
 function Root() {
+  if (!session.explicit || session.demo) return <StartPage />;
   if (session.role === "film") return <App />;
   return (
     <ExerciseProvider

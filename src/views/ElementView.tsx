@@ -17,13 +17,13 @@ export function ElementView({ station }: { station: string }) {
         ex.online &&
         !ex.state.frozen &&
         detail?.type === "signal" &&
-        (moduleEvents[row?.scene || ""] || []).includes(detail.value)
+        (moduleEvents[row?.module || ""] || []).includes(detail.value)
       )
         ex.send({ type: "module-event", value: detail.value });
     };
     window.addEventListener("screenforge:input", handler);
     return () => window.removeEventListener("screenforge:input", handler);
-  }, [row?.scene, ex.online, ex.state.frozen, ex.send]);
+  }, [row?.module, ex.online, ex.state.frozen, ex.send]);
   if (!row)
     return (
       <main className="training-app">
@@ -40,7 +40,7 @@ export function ElementView({ station }: { station: string }) {
           EXERCISE
         </span>
       </header>
-      {row.scene === "tracking" ? (
+      {row.module === "tracking" ? (
         <>
           <TacticalMap />
           <section className="panel">
@@ -53,24 +53,24 @@ export function ElementView({ station }: { station: string }) {
             ))}
           </section>
         </>
-      ) : row.scene === "camera" ? (
+      ) : row.module === "camera" ? (
         <CameraFeed station={row.id} publish />
-      ) : row.scene === "terminal" ? (
+      ) : row.module === "terminal" ? (
         <DossierCards dossiers={ex.state.scenario.dossiers} />
-      ) : ["countdown", "access", "lock"].includes(row.scene) ? (
+      ) : ["countdown", "access", "lock"].includes(row.module) ? (
         <TrainingTerminal station={row} />
       ) : (
         <StageFrame
-          key={`${row.scene}:${row.entityId}`}
-          scene={row.scene}
+          key={`${row.module}:${row.bindings.patient}`}
+          scene={row.module}
           mark
         />
       )}
-      {row.scene === "medical" && (
+      {row.module === "medical" && (
         <section className="panel">
           <p>
             {
-              ex.state.scenario.patients.find((p) => p.id === row.entityId)
+              ex.state.scenario.patients.find((p) => p.id === row.bindings.patient)
                 ?.injuries
             }
           </p>
@@ -100,7 +100,7 @@ export function ElementView({ station }: { station: string }) {
           </small>
         </section>
       )}
-      {["corporate", "hologram"].includes(row.scene) && (
+      {["corporate", "hologram"].includes(row.module) && (
         <section className="panel">
           <button
             disabled={!ex.online || ex.state.frozen}
@@ -108,13 +108,13 @@ export function ElementView({ station }: { station: string }) {
               ex.send({
                 type: "module-event",
                 value:
-                  row.scene === "corporate"
+                  row.module === "corporate"
                     ? "identity.confirmed"
                     : "analysis.complete",
               })
             }
           >
-            {row.scene === "corporate"
+            {row.module === "corporate"
               ? "Identitätsprüfung melden"
               : "Analyseabschluss melden"}
           </button>

@@ -68,7 +68,7 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
               <button type="submit">Zuweisen</button>
             </form>
           )}
-          <a href="/">Filmstudio öffnen</a>
+          <a href="/?mode=film">Filmstudio öffnen</a>
         </section>
       </main>
     );

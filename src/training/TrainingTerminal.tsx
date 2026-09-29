@@ -11,7 +11,7 @@ export function TrainingTerminal({
     [code, setCode] = useState("");
   const done = ex.state.props[st.id],
     remaining = Math.max(0, st.duration - ex.state.clock),
-    expired = st.scene === "countdown" && remaining <= 0;
+    expired = st.module === "countdown" && remaining <= 0;
   const report = ex.diagnostic?.station === st.id ? ex.diagnostic : null;
   return (
     <section className="training-terminal">
@@ -28,7 +28,7 @@ export function TrainingTerminal({
         </b>
       </header>
       <h1>{st.name}</h1>
-      {st.scene === "countdown" && (
+      {st.module === "countdown" && (
         <div className="terminal-countdown">
           {Math.floor(remaining / 60)
             .toString()

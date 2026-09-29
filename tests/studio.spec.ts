@@ -10,7 +10,7 @@ test("all scenes render and operator controls reset a take", async ({
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/?mode=film");
   for (const title of [
     "Konzernsystem",
     "Netzwerkterminal",
@@ -41,7 +41,7 @@ test("all scenes render and operator controls reset a take", async ({
 test("warhead controls, tty and arming rail do not overlap", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await page
     .getByRole("button", { name: /Countdown/ })
     .first()
@@ -65,7 +65,7 @@ test("warhead controls, tty and arming rail do not overlap", async ({
 test("prepared input, preset export, stage escape and persistence", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await page
     .getByRole("button", { name: /Netzwerkterminal/ })
     .first()
@@ -98,7 +98,7 @@ test("prepared input, preset export, stage escape and persistence", async ({
 test("countdown stops at zero and reset restores original time", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await page
     .getByRole("button", { name: /Countdown/ })
     .first()
@@ -117,7 +117,7 @@ test("countdown stops at zero and reset restores original time", async ({
   await expect(page.locator(".countdown-digits")).toHaveText("00:00:01");
 });
 test("multitouch scale, rotate and cancel remain finite", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await page
     .getByRole("button", { name: /Analysetisch/ })
     .first()
@@ -155,7 +155,7 @@ test("multitouch scale, rotate and cancel remain finite", async ({ page }) => {
 });
 test("mobile layout and preset validation", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/?mode=film");
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);

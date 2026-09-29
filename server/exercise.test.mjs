@@ -136,7 +136,7 @@ test("authenticated multi-device lifecycle, validation, diagnostics, revocation 
     const prop = await assign("prop-1"),
       hq = await assign("hq"),
       medic = await assign("med-1");
-    assert.equal(prop.state.scenario.rules.length, 0);
+    assert.equal(prop.state.scenario.injects.length, 0);
     assert.equal(prop.state.scenario.dossiers.length, 0);
     assert.equal(
       prop.state.scenario.stations.find((s) => s.id === "prop-1").code,

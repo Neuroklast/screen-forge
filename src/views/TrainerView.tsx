@@ -307,7 +307,7 @@ export function TrainerView({ room }: { room: string }) {
                 {ex.state.scenario.stations.map((s) => (
                   <article key={s.id} className="device-card">
                     <span className="eyebrow">
-                      {s.role} / {s.scene}
+                      {s.role} / {s.module}
                     </span>
                     <h3>{s.name}</h3>
                     <p>
@@ -317,7 +317,7 @@ export function TrainerView({ room }: { room: string }) {
                       · {s.team}
                     </p>
                     <small>
-                      {s.entityId ? `Datenquelle: ${s.entityId}` : s.id}
+                      {s.bindings.patient ? `Datenquelle: ${s.bindings.patient}` : s.id}
                     </small>
                     <div className="button-row">
                       <button
@@ -411,7 +411,7 @@ export function TrainerView({ room }: { room: string }) {
               <section className="panel">
                 <h2>Verdeckte Ereignisse</h2>
                 <ul className="event-log">
-                  {ex.state.scenario.rules.map((r) => (
+                  {ex.state.scenario.injects.map((r) => (
                     <li key={r.id}>
                       <span>{r.name}</span>
                       <b>
@@ -444,7 +444,7 @@ export function TrainerView({ room }: { room: string }) {
                       </button>
                     ))}
                   {ex.state.scenario.stations
-                    .filter((s) => s.scene === "camera")
+                    .filter((s) => s.module === "camera")
                     .map((s) => (
                       <button
                         key={s.id}

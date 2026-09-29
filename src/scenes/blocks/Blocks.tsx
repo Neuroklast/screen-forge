@@ -74,7 +74,7 @@ export function Access({ config, time, onPlay, onCue }: SceneProps) {
 export function Medical({ config, time, onPlay, onCue }: SceneProps) {
   const ex = useExerciseMaybe();
   const station = ex?.state.scenario.stations.find(s => s.id === ex.station);
-  const assigned = ex?.state.scenario.patients.find(p => p.id === station?.entityId);
+  const assigned = ex?.state.scenario.patients.find(p => p.id === station?.bindings.patient);
   const patient = assigned ?? createPatient();
   const v = { ...vitalsOf(patient, time, config.seed), ...(assigned?.overrides ?? {}) };
   const alarm = patient.kind === "arrest" || patient.kind === "desat";

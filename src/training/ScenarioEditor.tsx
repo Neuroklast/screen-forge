@@ -4,7 +4,7 @@ import {
   modules,
   stationSchema,
   patientSchema,
-  ruleSchema,
+  injectSchema,
   type Scenario,
   type Action,
 } from "../core/training";
@@ -69,8 +69,8 @@ export function ScenarioEditor({
                           ? {
                               ...s,
                               role: e.target.value as "hq" | "element",
-                              scene:
-                                e.target.value === "hq" ? "tracking" : s.scene,
+                              module:
+                                e.target.value === "hq" ? "tracking" : s.module,
                             }
                           : s,
                       ),
@@ -84,18 +84,14 @@ export function ScenarioEditor({
               <label>
                 Modul
                 <select
-                  value={st.scene}
+                  value={st.module}
                   onChange={(e) =>
                     patch({
                       stations: draft.stations.map((s) =>
                         s.id === st.id
                           ? {
                               ...s,
-                              scene: e.target.value as typeof s.scene,
-                              entityId:
-                                e.target.value === "medical"
-                                  ? draft.patients[0]?.id || ""
-                                  : "",
+                              module: e.target.value as typeof s.module, bindings: { ...s.bindings, patient: e.target.value === "medical" ? draft.patients[0]?.id || "" : "" },
                             }
                           : s,
                       ),
@@ -107,16 +103,16 @@ export function ScenarioEditor({
                   ))}
                 </select>
               </label>
-              {st.scene === "medical" && (
+              {st.module === "medical" && (
                 <label>
                   Patient
                   <select
-                    value={st.entityId}
+                    value={st.bindings.patient}
                     onChange={(e) =>
                       patch({
                         stations: draft.stations.map((s) =>
                           s.id === st.id
-                            ? { ...s, entityId: e.target.value }
+                            ? { ...s, bindings: { ...s.bindings, patient: e.target.value } }
                             : s,
                         ),
                       })
@@ -157,7 +153,7 @@ export function ScenarioEditor({
                 />
                 GPS-Spieler
               </label>
-              {["countdown", "access", "lock"].includes(st.scene) && (
+              {["countdown", "access", "lock"].includes(st.module) && (
                 <>
                   <label>
                     Laufzeit (s)
@@ -211,8 +207,7 @@ export function ScenarioEditor({
                     id: uid("station"),
                     name: "Neue Station",
                     role: "element",
-                    scene: "medical",
-                    entityId: draft.patients[0]?.id || "",
+                    module: "medical", bindings: { patient: draft.patients[0]?.id || "" },
                   }),
                 ],
               })
@@ -295,10 +290,10 @@ export function ScenarioEditor({
             Sekunden. Bei Zonen zählt eine frische Position einschließlich
             GPS-Genauigkeit vollständig innerhalb der Zone.
           </p>
-          {draft.rules.map((r) => {
+          {draft.injects.map((r) => {
             const set = (v: Partial<typeof r>) =>
               patch({
-                rules: draft.rules.map((row) =>
+                injects: draft.injects.map((row) =>
                   row.id === r.id ? { ...row, ...v } : row,
                 ),
               });
@@ -398,7 +393,7 @@ export function ScenarioEditor({
                         {(
                           moduleEvents[
                             draft.stations.find((s) => s.id === r.station)
-                              ?.scene || ""
+                              ?.module || ""
                           ] || []
                         ).map((v) => (
                           <option key={v}>{v}</option>
@@ -477,7 +472,7 @@ export function ScenarioEditor({
                   <button
                     onClick={() =>
                       patch({
-                        rules: draft.rules.filter((row) => row.id !== r.id),
+                        injects: draft.injects.filter((row) => row.id !== r.id),
                       })
                     }
                   >
@@ -490,9 +485,9 @@ export function ScenarioEditor({
           <button
             onClick={() =>
               patch({
-                rules: [
-                  ...draft.rules,
-                  ruleSchema.parse({
+                injects: [
+                  ...draft.injects,
+                  injectSchema.parse({
                     id: uid("event"),
                     name: "Neues Ereignis",
                     trigger: "timer",
@@ -525,7 +520,7 @@ export function ScenarioEditor({
               </label>
             ))}
             <label>
-              HTTPS XYZ-Kacheln
+              HTTPS XYZ-Kacheln (leer = Offline-Raster)
               <input
                 value={draft.map.tiles}
                 onChange={(e) =>
@@ -724,7 +719,7 @@ function ActionEditor({
         : a.type === "objective"
           ? s.objectives
           : a.type === "camera"
-            ? s.stations.filter((st) => st.scene === "camera")
+            ? s.stations.filter((st) => st.module === "camera")
             : [];
   return (
     <div className="editor-row">
@@ -745,7 +740,7 @@ function ActionEditor({
                       ? {
                           type,
                           target:
-                            s.stations.find((st) => st.scene === "camera")
+                            s.stations.find((st) => st.module === "camera")
                               ?.id || "",
                           offline: true,
                         }

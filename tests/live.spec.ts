@@ -18,7 +18,7 @@ async function advance(page: Page, seconds: number) {
 test("perspective depth and autonomous target positions move and pause", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await select(page, "Analysetisch");
   const layer = page.locator(".assembly-layer").first();
   const before = await layer.getAttribute("data-depth");
@@ -54,7 +54,7 @@ test("perspective depth and autonomous target positions move and pause", async (
 test("corporate records require retrieval and diagnostics return results", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await select(page, "Konzernsystem");
   await page
     .locator(".corp-nav")
@@ -80,7 +80,7 @@ test("corporate records require retrieval and diagnostics return results", async
 test("actor typing advances distinct commands, timed output and visual channels without scrollbars", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await select(page, "Netzwerkterminal");
   await osApp(page, "Terminal");
   const input = page.getByLabel("Terminaleingabe");
@@ -107,7 +107,7 @@ test("actor typing advances distinct commands, timed output and visual channels 
 test("themes, logo and system profile survive reload and export", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await configuration(page, "Firmen");
   await page
     .getByLabel("Systemvorlage", { exact: true })
@@ -164,7 +164,7 @@ test("themes, logo and system profile survive reload and export", async ({
   await expect(page.getByLabel("Theme background")).toHaveValue("#100d05");
 });
 test("selected company branding applies to every scene", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await configuration(page, "Firmen");
   await page
     .getByLabel("Systemvorlage", { exact: true })
@@ -186,7 +186,7 @@ test("selected company branding applies to every scene", async ({ page }) => {
 test("global overlays exist on every scene, react to sliders and freeze with clock", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   for (const name of [
     "Konzernsystem",
     "Netzwerkterminal",
@@ -220,7 +220,7 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
 test("completed OS process creates a report and messages link to processes", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?mode=film");
   await select(page, "Netzwerkterminal");
   await osApp(page, "Messages");
   await page.getByRole("button", { name: "Recover attachment" }).click();

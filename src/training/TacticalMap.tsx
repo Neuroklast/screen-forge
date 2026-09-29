@@ -101,7 +101,9 @@ export function TacticalMap() {
       <span className="map-mode">
         {mode === "PLAYBACK"
           ? "PLAYBACK · simulierte Positionen · keine Online-Karten"
-          : "LIVE · OpenStreetMap / XYZ"}
+          : area.tiles
+            ? "LIVE · externe XYZ-Kacheln"
+            : "LIVE · Offline-Raster"}
       </span>
     </div>
   );

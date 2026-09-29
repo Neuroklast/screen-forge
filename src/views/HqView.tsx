@@ -56,7 +56,7 @@ export function HqView({ room }: { room: string }) {
       </div>
       <div className="training-columns">
         {ex.state.scenario.stations
-          .filter((s) => s.scene === "camera")
+          .filter((s) => s.module === "camera")
           .map((s) => (
             <CameraFeed key={s.id} station={s.id} />
           ))}

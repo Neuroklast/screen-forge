@@ -37,7 +37,7 @@ describe("exercise runtime", () => {
   it("does not leak rules, codes or unreleased dossiers", () => {
     const s = newState("test");
     const hq = projectState(s, "hq");
-    expect(hq.scenario.rules).toEqual([]);
+    expect(hq.scenario.injects).toEqual([]);
     expect(hq.scenario.stations.every((st) => !st.code)).toBe(true);
     const field = projectState(s, "element", "med-1");
     expect(field.scenario.patients).toHaveLength(1);
@@ -48,16 +48,16 @@ describe("exercise runtime", () => {
   });
   it("validates bindings and physically inconsistent overrides", () => {
     const s = template("sar");
-    s.stations[1].entityId = "missing";
+    s.stations[1].bindings.patient = "missing";
     expect(scenarioSchema.safeParse(s).success).toBe(false);
-    s.stations[1].entityId = "patient-1";
+    s.stations[1].bindings.patient = "patient-1";
     s.patients[0].overrides = { sys: 80, dia: 100 };
     expect(scenarioSchema.safeParse(s).success).toBe(false);
   });
   it("requires fresh, accurate positions in a zone", () => {
     const s = newState("test");
     s.frozen = false;
-    const r = s.scenario.rules[0];
+    const r = s.scenario.injects[0];
     Object.assign(r, {
       trigger: "zone",
       station: "player-1",
@@ -86,8 +86,8 @@ describe("exercise runtime", () => {
     advance(a, 1, 1000);
     advance(b, 1, 1000);
     expect(a.positions).toEqual(b.positions);
-    expect(dueAt(a.scenario.rules[0], 2048)).toBe(
-      dueAt(b.scenario.rules[0], 2048),
+    expect(dueAt(a.scenario.injects[0], 2048)).toBe(
+      dueAt(b.scenario.injects[0], 2048),
     );
     expect(distance({ lat: 0, lng: 0 }, { lat: 0, lng: 0 })).toBe(0);
   });

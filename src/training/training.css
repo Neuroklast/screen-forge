@@ -389,6 +389,13 @@
   background-size: 32px 32px;
   z-index: 0;
 }
+.tactical-map.leaflet-container {
+  background: #172730;
+  background-image:
+    linear-gradient(#223b4444 1px, transparent 1px),
+    linear-gradient(90deg, #223b4444 1px, transparent 1px);
+  background-size: 32px 32px;
+}
 .tactical-map .leaflet-tooltip {
   color: #0d222b;
   font: 12px monospace;
