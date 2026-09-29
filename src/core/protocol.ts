@@ -23,6 +23,7 @@ export type Rejected = {
 export const commandTypes = new Set([
   "configure",
   "fire",
+  "reschedule",
   "transport",
   "action",
   "patient",

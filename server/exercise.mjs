@@ -758,6 +758,18 @@ export async function startExercise({
               type: "inject.fired",
               inject: inject.id,
             });
+          } else if (msg.type === "reschedule") {
+            const inject = state.scenario.injects.find((r) => r.id === msg.inject);
+            if (!inject) throw new Error("Unknown inject");
+            if (state.fired.includes(inject.id)) throw new Error("Already fired");
+            const to = z.number().min(0).max(86400).parse(msg.to);
+            appendEvent(meta.room, meta.role, {
+              type: "msel.rescheduled",
+              inject: inject.id,
+              from: inject.scheduledAt ?? inject.at,
+              to,
+              reason: String(msg.reason || "").slice(0, 120),
+            });
           } else if (msg.type === "message") {
             const to = String(msg.to || "all").slice(0, 40);
             const text = String(msg.text || "").trim().slice(0, 280);

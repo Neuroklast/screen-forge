@@ -48,6 +48,13 @@ export const domainEventSchema = z.discriminatedUnion("type", [
     prop: z.string().max(40),
     state: z.string().max(40),
   }),
+  z.object({
+    type: z.literal("msel.rescheduled"),
+    inject: z.string().max(40),
+    from: z.number().min(0).max(86400),
+    to: z.number().min(0).max(86400),
+    reason: z.string().max(120).default(""),
+  }),
 ]);
 export type DomainEvent = z.infer<typeof domainEventSchema>;
 
@@ -145,5 +152,15 @@ export function applyEvent(state: TrainingState, event: DomainEvent): void {
     case "prop.changed":
       setProp(state, event.prop, event.state);
       return;
+    case "msel.rescheduled": {
+      const inject = state.scenario.injects.find((r) => r.id === event.inject);
+      if (!inject) return;
+      if (inject.plannedAtOriginal == null)
+        inject.plannedAtOriginal = inject.at;
+      inject.scheduledAt = event.to;
+      inject.revision++;
+      logEvent(state, `MEL rescheduled: ${inject.name} → ${event.to}s`);
+      return;
+    }
   }
 }

@@ -165,6 +165,28 @@ export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("message"), text: label }),
   z.object({ type: z.literal("prop"), target: id, state: z.string().max(40) }),
 ]);
+export const injectCategories = [
+  "inject",
+  "contingency",
+  "expected_action",
+  "other",
+] as const;
+export const injectStatuses = [
+  "planned",
+  "held",
+  "armed",
+  "fired",
+  "skipped",
+  "expired",
+  "replaced",
+] as const;
+export const failurePolicies = [
+  "continue",
+  "degrade",
+  "hold",
+  "branch",
+  "trainerDecision",
+] as const;
 export const injectSchema = z.object({
   id,
   name: label,
@@ -177,6 +199,21 @@ export const injectSchema = z.object({
   unless: z.string().max(80).default(""),
   actions: z.array(actionSchema).min(1).max(10),
   enabled: z.boolean().default(true),
+  category: z.enum(injectCategories).default("inject"),
+  status: z.enum(injectStatuses).default("planned"),
+  purpose: z.string().max(300).default(""),
+  expectedOutcome: z.array(z.string().max(120)).max(10).default([]),
+  evidence: z.array(z.string().max(80)).max(10).default([]),
+  failurePolicy: z.enum(failurePolicies).default("continue"),
+  safetyGate: z.string().max(120).default(""),
+  owner: z.string().max(40).default(""),
+  audience: z.array(z.string().max(40)).max(20).default([]),
+  conditions: z.array(z.string().max(120)).max(10).default([]),
+  escalation: z.string().max(40).default(""),
+  plannedAtOriginal: finite.min(0).max(86400).nullable().default(null),
+  scheduledAt: finite.min(0).max(86400).nullable().default(null),
+  timeBasis: z.enum(["exercise", "wall"]).default("exercise"),
+  revision: z.number().int().min(0).default(0),
 });
 const scenarioV2Schema = z
   .object({
@@ -529,7 +566,8 @@ export function distance(
 export function dueAt(rule: Inject, seed: number) {
   let hash = seed;
   for (const ch of rule.id) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619);
-  return rule.at + ((hash >>> 0) / 4294967296) * rule.jitter;
+  const base = rule.scheduledAt ?? rule.at;
+  return base + ((hash >>> 0) / 4294967296) * rule.jitter;
 }
 export function evaluate(
   s: TrainingState,
