@@ -373,6 +373,7 @@ export type TrainingState = {
   propStates: Record<string, string>;
   log: { at: number; message: string }[];
   notes: { at: number; role: string; text: string }[];
+  messages: { at: number; from: string; to: string; text: string }[];
   presence: Record<string, { online: boolean; lastSeen: number }>;
 };
 export function newState(
@@ -395,6 +396,7 @@ export function newState(
     propStates: Object.fromEntries(scenario.props.map((p) => [p.id, p.initial])),
     log: [],
     notes: [],
+    messages: [],
     presence: {},
   };
 }
@@ -614,6 +616,10 @@ export function projectState(
   out.log = out.log.filter(
     (e) => !e.message.startsWith("Skipped:") && !e.message.startsWith("Event:"),
   );
+  if (role === "hq" || role === "element")
+    out.messages = out.messages.filter(
+      (m) => m.to === "all" || m.to === (role === "hq" ? "hq" : station),
+    );
   if (role === "element") {
     const st = s.scenario.stations.find((st) => st.id === station);
     out.scenario.stations = out.scenario.stations.filter(

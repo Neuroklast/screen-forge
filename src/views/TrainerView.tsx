@@ -24,7 +24,9 @@ export function TrainerView({ room }: { room: string }) {
     [message, setMessage] = useState(""),
     [publicOrigin, setPublicOrigin] = useState(location.origin),
     [editorMode, setEditorMode] = useState<"builder" | "classic">("builder"),
-    [gallery, setGallery] = useState(false);
+    [gallery, setGallery] = useState(false),
+    [msgTo, setMsgTo] = useState("all"),
+    [msgText, setMsgText] = useState("");
   useEffect(() => {
     if (!dirty) {
       setDraft(structuredClone(ex.state.scenario));
@@ -319,6 +321,30 @@ export function TrainerView({ room }: { room: string }) {
                   >
                     Protokoll exportieren
                   </button>
+                  <button
+                    onClick={() => {
+                      const rows = [
+                        ["time", "message"],
+                        ...ex.state.log.map((e) => [
+                          e.at.toFixed(1),
+                          e.message.replace(/"/g, '""'),
+                        ]),
+                      ];
+                      const csv = rows
+                        .map((r) => r.map((c) => `"${c}"`).join(","))
+                        .join("\n");
+                      const url = URL.createObjectURL(
+                        new Blob([csv], { type: "text/csv" }),
+                      );
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "screenforge-debrief.csv";
+                      a.click();
+                      setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    }}
+                  >
+                    Protokoll als CSV
+                  </button>
                 </section>
               </div>
             </>
@@ -534,6 +560,53 @@ export function TrainerView({ room }: { room: string }) {
                       </button>
                     ))}
                 </div>
+              </section>
+              <section className="panel">
+                <h2>Meldung senden</h2>
+                <div className="message-compose">
+                  <select
+                    aria-label="Empfänger"
+                    value={msgTo}
+                    onChange={(e) => setMsgTo(e.target.value)}
+                  >
+                    <option value="all">Alle</option>
+                    <option value="hq">HQ</option>
+                    {draft.stations.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    aria-label="Meldung"
+                    value={msgText}
+                    maxLength={280}
+                    placeholder="Meldung"
+                    onChange={(e) => setMsgText(e.target.value)}
+                  />
+                  <button
+                    disabled={!ex.online || !msgText.trim()}
+                    onClick={() => {
+                      if (
+                        ex.send({ type: "message", to: msgTo, text: msgText })
+                      )
+                        setMsgText("");
+                    }}
+                  >
+                    Senden
+                  </button>
+                </div>
+                <ul className="event-log">
+                  {ex.state.messages
+                    .slice(-8)
+                    .reverse()
+                    .map((m, i) => (
+                      <li key={i}>
+                        <time>{m.at.toFixed(1)}s</time>
+                        {m.to}: {m.text}
+                      </li>
+                    ))}
+                </ul>
               </section>
             </>
           )}

@@ -76,6 +76,19 @@ export function HqView({ room }: { room: string }) {
             ))}
         </ol>
       </section>
+      {ex.state.messages.length > 0 && (
+        <section className="panel">
+          <h2>Meldungen</h2>
+          <ul className="event-log">
+            {ex.state.messages.slice(-8).map((m, i) => (
+              <li key={i}>
+                <time>{m.at.toFixed(0)}s</time>
+                {m.text}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <DeviceTools />
     </main>
   );

@@ -100,6 +100,13 @@ test("phase model, manual fire, safety abort and assessor notes", async () => {
     );
     assert.equal(fired.state.phase, "running");
 
+    trainer.send({ type: "message", to: "all", text: "Lage unverändert" });
+    await trainer.next(
+      (m) =>
+        m.type === "state" &&
+        m.state.messages.some((x) => x.text === "Lage unverändert"),
+    );
+
     const safety = await connect("safety");
     safety.send({ type: "abort" });
     const aborted = await trainer.next(

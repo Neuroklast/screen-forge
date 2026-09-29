@@ -524,6 +524,21 @@ export async function startExercise({
             state.fired.push(inject.id);
             logEvent(state, `Event: ${inject.name}`);
             inject.actions.forEach((a) => act(state, a));
+          } else if (msg.type === "message") {
+            const to = String(msg.to || "all").slice(0, 40);
+            const text = String(msg.text || "").trim().slice(0, 280);
+            if (!text) throw new Error("Empty message");
+            if (
+              to !== "all" &&
+              to !== "hq" &&
+              !state.scenario.stations.some((s) => s.id === to)
+            )
+              throw new Error("Unknown recipient");
+            state.messages = [
+              ...state.messages,
+              { at: state.clock, from: "excon", to, text },
+            ].slice(-200);
+            logEvent(state, `Message → ${to}: ${text}`);
           } else if (msg.type === "transport") {
             if (msg.command === "play") {
               state.frozen = false;

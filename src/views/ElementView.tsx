@@ -137,6 +137,16 @@ export function ElementView({ station }: { station: string }) {
           </button>
         </section>
       )}
+      {ex.state.messages.length > 0 && (
+        <section className="panel">
+          <h2>Meldungen</h2>
+          <ul className="event-log">
+            {ex.state.messages.slice(-6).map((m, i) => (
+              <li key={i}>{m.text}</li>
+            ))}
+          </ul>
+        </section>
+      )}
       <DeviceTools />
     </main>
   );

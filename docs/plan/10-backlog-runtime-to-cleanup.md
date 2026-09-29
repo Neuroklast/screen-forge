@@ -7,8 +7,9 @@
 ## Progress
 
 - Done: R1 server phase model + abort, R2 manual trigger + `fire`, R3 prop action, R4 MEL scheduler (fire/enable + effect state), R6 safety view + abort banner, R7 assessor view + notes, R15 tests ([../../server/exercise-control.test.mjs](../../server/exercise-control.test.mjs), [../../src/core/control.test.ts](../../src/core/control.test.ts)).
-- Partial: R10/R11 — event log and notes are available; timeline replay and CSV export are still open.
-- Open: R5 macros, R8/R9 comms and notifications, R12 readiness automation, R13 remote device actions, R14 multi-room dashboard.
+- Done: R8/R9 comms — EXCON message composer (all/HQ/station) with server-side storage and per-role projection; element and HQ views show a message drawer. R11 partial — CSV export of the event log added.
+- Partial: R10/R11 — event log, notes and CSV export done; timeline replay is still open.
+- Open: R5 macros, R12 readiness automation, R13 remote device actions, R14 multi-room dashboard.
 
 ## Phase 4 — Runtime & Control
 

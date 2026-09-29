@@ -612,3 +612,19 @@
   max-height: 62vh;
   overflow: auto;
 }
+.message-compose {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.message-compose select,
+.message-compose input {
+  padding: 6px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  font: inherit;
+}
+.message-compose input {
+  flex: 1;
+}
