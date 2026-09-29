@@ -73,8 +73,10 @@ export function Access({ config, time, onPlay, onCue }: SceneProps) {
 }
 export function Medical({ config, time, onPlay, onCue }: SceneProps) {
   const ex = useExerciseMaybe();
-  const patient = ex?.state.patient ?? createPatient();
-  const v = vitalsOf(patient, time, config.seed);
+  const station = ex?.state.scenario.stations.find(s => s.id === ex.station);
+  const assigned = ex?.state.scenario.patients.find(p => p.id === station?.entityId);
+  const patient = assigned ?? createPatient();
+  const v = { ...vitalsOf(patient, time, config.seed), ...(assigned?.overrides ?? {}) };
   const alarm = patient.kind === "arrest" || patient.kind === "desat";
   return (
     <div className="block-scene scene-inner">
@@ -85,7 +87,7 @@ export function Medical({ config, time, onPlay, onCue }: SceneProps) {
             <b>{patient.kind.toUpperCase()}</b>
           </div>
           <svg className="bio-ecg" viewBox="0 0 320 56" aria-hidden="true">
-            <path d={ecgPath(patient.kind, time)} />
+            <path d={ecgPath(patient.kind, time, v.hr)} />
           </svg>
           <dl className="bio-grid">
             <div>
@@ -121,7 +123,9 @@ export function Medical({ config, time, onPlay, onCue }: SceneProps) {
           </dl>
           <button
             className="block-hold"
+            disabled={!!ex && (!ex.online || ex.state.frozen)}
             onPointerDown={() => {
+              if (ex) { ex.send({ type: "intervention", value: "treated" }); return; }
               onPlay?.();
               onCue("complete");
               signal("medical.enable");

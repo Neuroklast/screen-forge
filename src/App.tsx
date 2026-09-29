@@ -321,6 +321,7 @@ export default function App() {
               Konfiguration
             </button>
           </nav>
+          <a className="training-entry" href="/?role=trainer">Übungsleitung</a>
           <nav className="workspace-switch" aria-label="Arbeitsmodus">
             <button
               className={config.workspace === "film" ? "active" : ""}

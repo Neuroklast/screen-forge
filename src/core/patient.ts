@@ -116,13 +116,13 @@ export function vitalsOf(patient: Patient, time: number, seed: number): Vitals {
       };
   }
 }
-export function ecgPath(kind: PatientKind, time: number) {
+export function ecgPath(kind: PatientKind, time: number, hr = kind === "tachy" ? 128 : kind === "brady" ? 46 : kind === "arrest" ? 0 : 76) {
   const pts: string[] = [];
   for (let i = 0; i < 80; i++) {
     const x = i * 4;
-    const phase = (time * (kind === "tachy" ? 4.2 : kind === "brady" ? 1.4 : 2.2) + i * 0.18) % 1;
+    const phase = ((time - (80 - i) * 0.025) * hr / 60 % 1 + 1) % 1;
     let y = 28;
-    if (kind === "arrest") y = 28 + Math.sin(i * 0.7 + time) * 2;
+    if (hr === 0) y = 28;
     else if (phase < 0.08) y = 28 - phase * 40;
     else if (phase < 0.14) y = 12 + (phase - 0.08) * 280;
     else if (phase < 0.22) y = 28 - (0.22 - phase) * 80;

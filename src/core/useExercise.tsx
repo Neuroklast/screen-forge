@@ -8,6 +8,7 @@ export function useExercise(role: Role, room: string, station: string) {
   const [token, setToken] = useState(() => { try { return sessionStorage.getItem(key) || (role !== 'trainer' ? localStorage.getItem(key) : '') || ''; } catch { return ''; } });
   const [state, setState] = useState<TrainingState>(() => newState(room));
   const [online, setOnline] = useState(false), [authenticated, setAuthenticated] = useState(false);
+  const [diagnostic, setDiagnostic] = useState<{code: string; station: string} | null>(null);
   const [error, setError] = useState(''), [invitation, setInvitation] = useState<Invitation | null>(null);
   const ws = useRef<WebSocket | null>(null), listeners = useRef(new Set<(signal: Signal) => void>());
   const invite = useRef(new URLSearchParams(location.hash.slice(1)).get('invite') || '');
@@ -32,6 +33,7 @@ export function useExercise(role: Role, room: string, station: string) {
           if (msg.type === 'ready') { setOnline(true); setAuthenticated(true); setError(''); attempt = 0; }
           if (msg.type === 'state') setState(msg.state);
           if (msg.type === 'error') setError(msg.message);
+          if (msg.type === 'diagnostic') setDiagnostic(msg);
           if (msg.type === 'invitation') setInvitation(msg);
           if (msg.type === 'signal') listeners.current.forEach(fn => fn(msg));
         } catch { setError('Ungültige Serverantwort'); }
@@ -53,7 +55,7 @@ export function useExercise(role: Role, room: string, station: string) {
   }, []);
   const subscribe = useCallback((fn: (signal: Signal) => void) => { listeners.current.add(fn); return () => { listeners.current.delete(fn); }; }, []);
   const logout = () => { try { localStorage.removeItem(key); sessionStorage.removeItem(key); } catch { /* noop */ } ws.current?.close(); setToken(''); setAuthenticated(false); };
-  return { state, online, authenticated, error, setError, send, login, logout, invitation, subscribe, role, station, room };
+  return { state, online, authenticated, error, setError, send, login, logout, invitation, diagnostic, subscribe, role, station, room };
 }
 const ExerciseCtx = createContext<ReturnType<typeof useExercise> | null>(null);
 export function ExerciseProvider({ role, room, station, children }: { role: Role; room: string; station: string; children: ReactNode }) {

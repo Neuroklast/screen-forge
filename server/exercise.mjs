@@ -106,6 +106,12 @@ export async function startExercise({ port = Number(process.env.EXERCISE_PORT ||
           if (!(publishing || viewing) || state.cameraOffline[publishing ? meta.station : target[1].station]) throw new Error('Camera unavailable');
           send(target[0], { type: 'signal', from: meta.station, data: msg.data }); return;
         }
+        if (msg.type === 'diagnostic' && meta.role === 'element') {
+          const st = state.scenario.stations.find(s => s.id === meta.station);
+          if (!st || !['countdown','access','lock'].includes(st.scene)) throw new Error('No diagnostics for this module');
+          meta.inspected = true;
+          send(ws, { type: 'diagnostic', code: st.code, station: st.id }); return;
+        }
         if (msg.type === 'gps' && meta.role === 'element') {
           const st = state.scenario.stations.find(s => s.id === meta.station);
           if (!st?.player || state.scenario.mode !== 'LIVE') throw new Error('Tracking unavailable for this station');
@@ -123,7 +129,9 @@ export async function startExercise({ port = Number(process.env.EXERCISE_PORT ||
         } else if (msg.type === 'unlock' && meta.role === 'element') {
           const st = state.scenario.stations.find(s => s.id === meta.station);
           if (state.frozen || !st || !['countdown','access','lock'].includes(st.scene) || (st.scene === 'countdown' && state.clock >= st.duration)) throw new Error('Terminal unavailable');
-          if (!equal(st.code, String(msg.code))) throw new Error('Code rejected');
+          if (!meta.inspected) throw new Error('Read the current diagnostic report first');
+          if (Date.now() < (meta.retryAfter || 0)) throw new Error('Input locked briefly after incorrect code');
+          if (!equal(st.code, String(msg.code))) { meta.retryAfter = Date.now() + 3000; throw new Error('Code rejected. Read the ACTIVE shunt entry.'); }
           if (!state.props[st.id]) { state.props[st.id] = true; logEvent(state, `${st.name}: completed`); evaluate(state, { type: 'prop', station: st.id }); }
         } else {
           if (meta.role !== 'trainer') throw new Error('Trainer permission required');
@@ -145,7 +153,7 @@ export async function startExercise({ port = Number(process.env.EXERCISE_PORT ||
           } else if (msg.type === 'transport') {
             if (msg.command === 'play') state.frozen = false;
             else if (msg.command === 'pause') state.frozen = true;
-            else if (msg.command === 'reset') { const next = newState(meta.room, structuredClone(baseline.get(meta.room))); next.revision = state.revision + 1; next.presence = state.presence; rooms.set(meta.room, next); }
+            else if (msg.command === 'reset') { for (const m of sockets.values()) if (m.room === meta.room) m.inspected = false; const next = newState(meta.room, structuredClone(baseline.get(meta.room))); next.revision = state.revision + 1; next.presence = state.presence; rooms.set(meta.room, next); }
             else throw new Error('Unknown transport command');
           } else if (msg.type === 'action') {
             const action = actionSchema.parse(msg.action);

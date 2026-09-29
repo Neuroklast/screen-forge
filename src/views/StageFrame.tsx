@@ -9,6 +9,7 @@ import { sceneComponents } from "../scenes/Scenes";
 import { DisplayOverlays } from "../scenes/os/Overlays";
 import { useSceneClock, type Cue } from "../core/runtime";
 import { stageOf, stageOrient, stageRecipe } from "../core/stage";
+import { useExerciseMaybe } from "../core/useExercise";
 import { onAccent } from "../core/contrast";
 export function StageFrame({
   scene,
@@ -25,10 +26,12 @@ export function StageFrame({
   }));
   const [cue, setCue] = useState<Cue>("idle");
   const clock = useSceneClock();
+  const ex = useExerciseMaybe();
+  const time = ex ? ex.state.clock : clock.elapsed;
   const stage = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 1280, height: 720 });
   useEffect(() => {
-    clock.setPlaying(true);
+    clock.setPlaying(!ex);
   }, []);
   useEffect(() => {
     if (!stage.current) return;
@@ -69,12 +72,12 @@ export function StageFrame({
       >
         <Scene
           config={config}
-          time={clock.elapsed}
+          time={time}
           cue={cue}
           onCue={setCue}
           onPlay={() => clock.setPlaying(true)}
         />
-        <DisplayOverlays config={config} time={clock.elapsed} />
+        <DisplayOverlays config={config} time={time} />
         {mark && <div className="exercise-mark">UNCLASSIFIED // EXERCISE</div>}
       </div>
     </div>

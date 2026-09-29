@@ -12,6 +12,8 @@ import "@fontsource/inter/600.css";
 import App from "./App";
 import { sessionFromSearch } from "./core/session";
 import { ExerciseProvider } from "./core/useExercise";
+import { ConnectionGate } from "./training/ConnectionGate";
+import "./training/training.css";
 import { TrainerView } from "./views/TrainerView";
 import { HqView } from "./views/HqView";
 import { ElementView } from "./views/ElementView";
@@ -28,14 +30,14 @@ function Root() {
       room={session.room}
       station={session.station}
     >
-      {session.role === "trainer" ? (
+      <ConnectionGate>{session.role === "trainer" ? (
         <TrainerView room={session.room} />
       ) : session.role === "hq" ? (
         <HqView room={session.room} />
       ) : (
         <ElementView station={session.station} />
       )}
-    </ExerciseProvider>
+    </ConnectionGate></ExerciseProvider>
   );
 }
 ReactDOM.createRoot(document.getElementById("root")!).render(
