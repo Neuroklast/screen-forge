@@ -18,7 +18,7 @@ export function CameraFeed({
   const ex = useTraining(),
     video = useRef<HTMLVideoElement>(null),
     [stream, setStream] = useState<MediaStream | null>(null),
-    [status, setStatus] = useState("Bereit"),
+    [status, setStatus] = useState("Ready"),
     [devices, setDevices] = useState<MediaDeviceInfo[]>([]),
     [device, setDevice] = useState("");
   const pending = useRef(false),
@@ -36,14 +36,14 @@ export function CameraFeed({
     current.current?.getTracks().forEach((t) => t.stop());
     current.current = null;
     setStream(null);
-    setStatus("Kamera gestoppt");
+    setStatus("Camera stopped");
   };
   const start = async () => {
     if (pending.current) return;
     pending.current = true;
     try {
       if (!isSecureContext || !navigator.mediaDevices)
-        throw new Error("Webcam benötigt HTTPS und Kamerafreigabe.");
+        throw new Error("Webcam requires HTTPS and camera permission.");
       const next = await navigator.mediaDevices.getUserMedia({
         video: device ? { deviceId: { exact: device } } : true,
         audio: false,
@@ -55,7 +55,7 @@ export function CameraFeed({
       current.current?.getTracks().forEach((t) => t.stop());
       current.current = next;
       setStream(next);
-      setStatus("Kamera aktiv");
+      setStatus("Camera active");
       setDevices(
         (await navigator.mediaDevices.enumerateDevices()).filter(
           (d) => d.kind === "videoinput",
@@ -146,7 +146,7 @@ export function CameraFeed({
       } else if (data.type === "stop") {
         close(from);
         if (video.current && !publish) video.current.srcObject = null;
-        setStatus("Kamera gestoppt");
+        setStatus("Camera stopped");
       }
       const pc = peers.get(from);
       if (pc?.remoteDescription) {
@@ -198,7 +198,7 @@ export function CameraFeed({
             value={device}
             onChange={(e) => setDevice(e.target.value)}
           >
-            <option value="">Standardkamera</option>
+              <option value="">Default camera</option>
             {devices.map((d) => (
               <option key={d.deviceId} value={d.deviceId}>
                 {d.label}
@@ -206,7 +206,7 @@ export function CameraFeed({
             ))}
           </select>
           <button onClick={() => void start()}>
-            Kamera starten / wechseln
+            Start / switch camera
           </button>
           <button onClick={stop}>Stoppen</button>
         </div>

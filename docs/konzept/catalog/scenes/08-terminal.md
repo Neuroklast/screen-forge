@@ -20,7 +20,7 @@ The terminal is its own scene: a command line that **has a goal**. Instead of fr
 ## Behaviour
 
 - Prompt with host/user label, blinking block cursor, command history (↑/↓), Tab completion.
-- Scripted typing mode (actor): the expected command is typed automatically for stage use.
+- Scripted typing mode (actor): with `actorMode` on, any key press advances the expected command character by character (same scripted-input behaviour as the OS console); the `Prepared typing` button fills the whole command.
 - On-screen keyboard for touch stages.
 - Output lines appear with a short delay per line (`newline` sound), scrollable log.
 - Reset returns to step 0; failures show a typed error and keep the goal open.

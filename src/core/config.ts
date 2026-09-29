@@ -67,14 +67,15 @@ export function sceneOptionsDefaults() {
       photoOverlay: 0.3,
       density: "compact" as const,
       sounds: true,
+      login: { enabled: false, user: "operator", pass: "2048" },
     },
     terminal: {
-      goal: "Login überbrücken",
+      goal: "Bypass login",
       prompt: "relay-07",
       actorMode: true,
       script: "inspect relay --sector 07 --verify",
       commandsUntilSuccess: 4,
-      successText: "Zugang überbrückt.",
+      successText: "Access bypassed.",
       steps: [] as { command: string; outputs: string[]; hint: string }[],
     },
     corporate: { startApp: "overview" as const, sounds: true },
@@ -121,16 +122,23 @@ export const sceneOptionsSchema = z.object({
       photoOverlay: z.number().min(0).max(1).default(0.3),
       density: z.enum(["compact", "roomy"]).default("compact"),
       sounds: z.boolean().default(true),
+      login: z
+        .object({
+          enabled: z.boolean().default(false),
+          user: z.string().max(40).default("operator"),
+          pass: z.string().max(40).default("2048"),
+        })
+        .default({ enabled: false, user: "operator", pass: "2048" }),
     })
     .default(() => sceneOptionsDefaults().os),
   terminal: z
     .object({
-      goal: z.string().max(60).default("Login überbrücken"),
+      goal: z.string().max(60).default("Bypass login"),
       prompt: z.string().max(40).default("relay-07"),
       actorMode: z.boolean().default(true),
       script: z.string().max(300).default(""),
       commandsUntilSuccess: z.number().int().min(1).max(40).default(4),
-      successText: z.string().max(200).default("Zugang überbrückt."),
+      successText: z.string().max(200).default("Access bypassed."),
       steps: z
         .array(
           z.object({
@@ -383,9 +391,9 @@ export const scenes: {
 }[] = [
   {
     id: "corporate",
-    name: "Konzernsystem",
+    name: "Firmenportal",
     code: "01 / INSTITUTIONAL",
-    description: "Klinische Ordnung. Kontrollierter Zugriff.",
+    description: "Firmen-Intranet: Personal, Archiv, Diagnose.",
     accent: "#cf233c",
     title: "VESPER",
     subtitle: "BIOLOGICAL RESEARCH DIVISION",

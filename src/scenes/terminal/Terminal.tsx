@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { StageKeys } from "../../components/StageKeys";
+import { scriptedInput } from "../../core/runtime";
 import { playSound } from "../../core/sound";
 import type { SceneProps } from "../Scenes";
 import "./terminal.css";
@@ -110,8 +111,8 @@ export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
       <header className="terminal-header">
         <strong>{config.title}</strong>
         <span>
-          {options.goal} · Schritt {Math.min(step + 1, steps.length)}/{steps.length}
-          {cue === "complete" || done ? " · ABGESCHLOSSEN" : ""}
+          {options.goal} · Step {Math.min(step + 1, steps.length)}/{steps.length}
+          {cue === "complete" || done ? " · COMPLETE" : ""}
         </span>
       </header>
       <div
@@ -138,8 +139,18 @@ export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
         <span>{options.prompt} $</span>
         <input
           ref={input}
-          aria-label="Terminaleingabe"
+          aria-label="Terminal input"
           value={value}
+          onKeyDown={(e) => {
+            if (!options.actorMode || done) return;
+            if (e.key.length === 1 || e.key === "Backspace") {
+              e.preventDefault();
+              if (e.key.length === 1) playSound("type");
+              setValue((v) =>
+                scriptedInput(steps[step]?.command ?? "", v, e.key),
+              );
+            }
+          }}
           onChange={(e) => {
             setValue(e.target.value);
             playSound("type");
@@ -156,7 +167,7 @@ export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
               input.current?.focus();
             }}
           >
-            Vorbereitet tippen
+            Prepared typing
           </button>
         )}
       </form>

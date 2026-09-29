@@ -86,6 +86,11 @@ export function OperatingSystem({
   }, []);
   const [cracked, setCracked] = useState<string[]>([]);
   const [soundOn, setSoundOn] = useState(true);
+  const login = config.sceneOptions.os.login;
+  const [loggedIn, setLoggedIn] = useState(!login.enabled);
+  const [loginUser, setLoginUser] = useState("");
+  const [loginPass, setLoginPass] = useState("");
+  const [loginError, setLoginError] = useState(false);
   const files: VirtualFile[] = [
     ...baseFiles,
     ...state.history.map((id, i) => ({
@@ -324,6 +329,51 @@ export function OperatingSystem({
     setCommand("");
   };
   const app = apps.find((x) => x.id === state.app)!;
+  if (!loggedIn)
+    return (
+      <div className="os-login scene-inner">
+        <form
+          className="os-login-mask"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (
+              loginUser.trim().toLowerCase() === login.user.toLowerCase() &&
+              loginPass === login.pass
+            ) {
+              playSound("osStartup");
+              setLoggedIn(true);
+              setLoginError(false);
+            } else {
+              playSound("osError");
+              setLoginError(true);
+            }
+          }}
+        >
+          <strong>{config.title}</strong>
+          <span className="os-kicker">SIGN IN / LOCAL SESSION</span>
+          <label>
+            User
+            <input
+              aria-label="User"
+              value={loginUser}
+              autoComplete="off"
+              onChange={(e) => setLoginUser(e.target.value)}
+            />
+          </label>
+          <label>
+            Password
+            <input
+              aria-label="Password"
+              type="password"
+              value={loginPass}
+              onChange={(e) => setLoginPass(e.target.value)}
+            />
+          </label>
+          <button type="submit">Sign in</button>
+          {loginError && <p role="alert">Access denied. Check credentials.</p>}
+        </form>
+      </div>
+    );
   const className = `cyber-os scene-inner ${cue === "warning" ? "os-warning" : ""}`;
   return (
     <div
@@ -447,7 +497,7 @@ export function OperatingSystem({
               <i />
               <i />
               <button
-                aria-label="Fenster schließen"
+                aria-label="Close window"
                 onClick={() => {
                   playSound("osClose");
                   dispatch({ type: "open", app: "overview" });
@@ -642,7 +692,7 @@ export function OperatingSystem({
                       >
                         <span>~/</span>
                         <input
-                          aria-label="Terminaleingabe"
+                          aria-label="Terminal input"
                           autoComplete="off"
                           spellCheck={false}
                           value={command}
@@ -729,7 +779,7 @@ export function OperatingSystem({
                             }
                           }}
                         />
-                        <button aria-label="Befehl ausführen">↵</button>
+                        <button aria-label="Run command">↵</button>
                       </form>
                       <StageKeys onKey={typeKey} disabled={actor.busy} />
                       <div className="os-between">
@@ -1286,7 +1336,7 @@ export function OperatingSystem({
       <footer className="os-taskbar">
         <button
           className={`os-start ${menu ? "open" : ""}`}
-          aria-label="Startmenü"
+          aria-label="Start menu"
           onClick={() => setMenu((v) => !v)}
         >
           <span className="os-taskbar-logo">
@@ -1311,7 +1361,7 @@ export function OperatingSystem({
         </div>
         <button
           className="os-tray-toggle"
-          aria-label={soundOn ? "Ton aus" : "Ton ein"}
+          aria-label={soundOn ? "Sound off" : "Sound on"}
           aria-pressed={soundOn}
           onClick={() => {
             const next = !soundOn;
@@ -1341,7 +1391,7 @@ export function OperatingSystem({
               className="os-record-modal"
               role="dialog"
               aria-modal="true"
-              aria-label="Dateivorschau"
+              aria-label="File preview"
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.stopPropagation();
@@ -1372,7 +1422,7 @@ export function OperatingSystem({
                 <span>{file.path}</span>
                 <button
                   autoFocus
-                  aria-label="Dateivorschau schließen"
+                  aria-label="Close file preview"
                   onClick={() => setFile(null)}
                 >
                   <X size={16} />

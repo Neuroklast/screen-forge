@@ -100,10 +100,10 @@ export function TacticalMap() {
       <div ref={host} className="tactical-map" aria-label="Einsatzkarte" />
       <span className="map-mode">
         {mode === "PLAYBACK"
-          ? "PLAYBACK · simulierte Positionen · keine Online-Karten"
+          ? "PLAYBACK · simulated positions · no online maps"
           : area.tiles
-            ? "LIVE · externe XYZ-Kacheln"
-            : "LIVE · Offline-Raster"}
+            ? "LIVE · external XYZ tiles"
+            : "LIVE · offline grid"}
       </span>
     </div>
   );

@@ -6,7 +6,7 @@ test("terminal goal chain completes and reports success", async ({ page }) => {
     .getByRole("button", { name: "Terminal", exact: true })
     .first()
     .click();
-  const input = page.getByLabel("Terminaleingabe");
+  const input = page.getByLabel("Terminal input");
   for (const command of [
     "status",
     "scan --local",
@@ -18,6 +18,6 @@ test("terminal goal chain completes and reports success", async ({ page }) => {
   }
   await expect(page.locator(".terminal-log")).toContainText("ACCESS GRANTED");
   await expect(page.locator(".terminal-header")).toContainText(
-    "ABGESCHLOSSEN",
+    "COMPLETE",
   );
 });

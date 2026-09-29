@@ -1895,3 +1895,53 @@
   color: var(--accent);
   border-color: var(--accent);
 }
+.os-login {
+  display: grid;
+  place-items: center;
+  background: var(--os-bg);
+  color: var(--os-text);
+  font-family: "IBM Plex Mono", monospace;
+}
+.os-login-mask {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(320px, 80%);
+  padding: 18px;
+  border: var(--sf-stroke-1px) solid var(--os-line);
+  background: var(--os-panel);
+}
+.os-login-mask strong {
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+.os-login-mask label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--os-muted);
+}
+.os-login-mask input {
+  padding: 6px 8px;
+  border: var(--sf-stroke-1px) solid var(--os-line);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.os-login-mask button {
+  margin-top: 4px;
+  padding: 8px;
+  border: var(--sf-stroke-1px) solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+.os-login-mask p {
+  margin: 0;
+  color: #f36c75;
+  font-size: 11px;
+}

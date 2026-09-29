@@ -55,7 +55,7 @@ test("corporate records require retrieval and diagnostics return results", async
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Konzernsystem");
+  await select(page, "Firmenportal");
   await page
     .locator(".corp-nav")
     .getByRole("button", { name: /Personnel/ })
@@ -83,7 +83,7 @@ test("actor typing advances distinct commands, timed output and visual channels 
   await page.goto("/?mode=film");
   await select(page, "Betriebssystem");
   await osApp(page, "Terminal");
-  const input = page.getByLabel("Terminaleingabe");
+  const input = page.getByLabel("Terminal input");
   await input.fill("xxxx");
   await input.press("Enter");
   await expect(page.getByRole("log")).toContainText("inspect relay");
@@ -171,7 +171,7 @@ test("selected company branding applies to every scene", async ({ page }) => {
     .selectOption({ label: "Umbrella Corporation" });
   await closeConfiguration(page);
   for (const name of [
-    "Konzernsystem",
+    "Firmenportal",
     "Betriebssystem",
     "Countdown",
     "Orbital Tracking",
@@ -188,7 +188,7 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
 }) => {
   await page.goto("/?mode=film");
   for (const name of [
-    "Konzernsystem",
+    "Firmenportal",
     "Betriebssystem",
     "Countdown",
     "Orbital Tracking",

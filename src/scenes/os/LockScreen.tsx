@@ -98,7 +98,7 @@ export function LockScreen({
               <div style={{ width: `${position}%` }} />
               <b className="os-unlock-handle" style={{ left: `${position}%` }} />
               <input
-                aria-label="Zugang ausrichten"
+                aria-label="Align access"
                 type="range"
                 min="0"
                 max="100"

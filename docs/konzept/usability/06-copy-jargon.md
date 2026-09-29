@@ -5,6 +5,7 @@
 
 ## Tone rules
 
+- **Element content (scenes, blocks, field consoles) is English.** The studio/training control chrome stays German.
 - Short, imperative, factual. No exclamation marks, no marketing in operational UI.
 - One concept, one word — always the glossary label.
 - Jargon is paired on first use per session: `"Bake (Signalgerät)"`, afterwards `"Bake"`.

@@ -1190,6 +1190,55 @@ export default function App() {
                 />
               </label>
               {config.scene === "os" && (
+                <>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={config.sceneOptions.os.login.enabled}
+                      onChange={(e) =>
+                        updateSceneOptions("os", {
+                          login: {
+                            ...config.sceneOptions.os.login,
+                            enabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />{" "}
+                    Anmeldemaske
+                  </label>
+                  <label>
+                    Benutzer
+                    <input
+                      value={config.sceneOptions.os.login.user}
+                      maxLength={40}
+                      onChange={(e) =>
+                        updateSceneOptions("os", {
+                          login: {
+                            ...config.sceneOptions.os.login,
+                            user: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Kennwort
+                    <input
+                      value={config.sceneOptions.os.login.pass}
+                      maxLength={40}
+                      onChange={(e) =>
+                        updateSceneOptions("os", {
+                          login: {
+                            ...config.sceneOptions.os.login,
+                            pass: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </>
+              )}
+              {config.scene === "os" && (
                 <label>
                   Sequenzdauer{" "}
                   <output>×{config.sceneOptions.os.sequenceScale}</output>

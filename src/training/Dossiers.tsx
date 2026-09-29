@@ -7,13 +7,13 @@ export function DossierCards({ dossiers }: { dossiers: TrainingDossier[] }) {
   if (!d)
     return (
       <section className="panel">
-        <h2>Personalakten</h2>
-        <p>Noch keine Akten freigegeben.</p>
+        <h2>Personnel files</h2>
+        <p>No files released.</p>
       </section>
     );
   return (
     <section className="panel dossier-reader">
-      <h2>Personalakten</h2>
+      <h2>Personnel files</h2>
       <nav className="tab-bar">
         {dossiers.map((row) => (
           <button key={row.id} onClick={() => setSelected(row.id)}>
@@ -22,7 +22,7 @@ export function DossierCards({ dossiers }: { dossiers: TrainingDossier[] }) {
         ))}
       </nav>
       <div className="dossier-body">
-        {d.photo && <img src={d.photo} alt={`Porträt ${d.name}`} />}
+        {d.photo && <img src={d.photo} alt={`Portrait ${d.name}`} />}
         <div>
           <span className="eyebrow">
             {d.id} · {d.status}
@@ -30,11 +30,11 @@ export function DossierCards({ dossiers }: { dossiers: TrainingDossier[] }) {
           <h3>{d.name}</h3>
           <dl>
             {[
-              ["Rolle", d.role],
-              ["Blutgruppe", d.blood],
-              ["Allergien", d.allergies],
-              ["Freigabestufe", d.clearance],
-              ["Standort", d.facility],
+              ["Role", d.role],
+              ["Blood", d.blood],
+              ["Allergies", d.allergies],
+              ["Clearance", d.clearance],
+              ["Facility", d.facility],
             ].map(([k, v]) => (
               <div key={k}>
                 <dt>{k}</dt>

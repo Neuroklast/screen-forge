@@ -30,8 +30,8 @@ export function ElementView({ station }: { station: string }) {
   if (!row)
     return (
       <main className="training-app">
-        <h1>Station nicht mehr verfügbar</h1>
-        <p>Bitte beim Trainer einen neuen QR-Code anfordern.</p>
+        <h1>Station no longer available</h1>
+        <p>Ask the trainer for a new QR code.</p>
       </main>
     );
   return (
@@ -39,23 +39,23 @@ export function ElementView({ station }: { station: string }) {
       <header className="field-header">
         <b>{row.name}</b>
         <span>
-          {row.team} · {ex.state.frozen ? "PAUSIERT" : ex.state.scenario.mode} ·
+          {row.team} · {ex.state.frozen ? "PAUSED" : ex.state.scenario.mode} ·
           EXERCISE
         </span>
       </header>
       {ex.state.phase === "aborted" && (
         <div className="abort-banner" role="alert">
-          ÜBUNG ABGEBROCHEN
+          EXERCISE ABORTED
         </div>
       )}
       {row.module === "tracking" ? (
         <>
           <TacticalMap />
           <section className="panel">
-            <h2>Auftrag</h2>
+            <h2>Tasking</h2>
             {ex.state.scenario.objectives.map((o) => (
               <p key={o.id}>
-                {ex.state.completed.includes(o.id) ? "Abgeschlossen" : "Offen"}:{" "}
+                {ex.state.completed.includes(o.id) ? "Complete" : "Open"}:{" "}
                 {o.name}
               </p>
             ))}
@@ -93,10 +93,10 @@ export function ElementView({ station }: { station: string }) {
           </p>
           <div className="button-row">
             {[
-              ["treated", "Behandlung melden"],
-              ["tourniquet", "Tourniquet gemeldet"],
-              ["oxygen", "Sauerstoff gemeldet"],
-              ["evacuated", "Evakuierung gemeldet"],
+              ["treated", "Report treatment"],
+              ["tourniquet", "Tourniquet reported"],
+              ["oxygen", "Oxygen reported"],
+              ["evacuated", "Evacuation reported"],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -112,8 +112,8 @@ export function ElementView({ station }: { station: string }) {
             ))}
           </div>
           <small>
-            Simulierte Werte. Maßnahmen werden protokolliert, ihre Wirkung legt
-            das Szenario fest.
+            Simulated values. Actions are logged; the scenario defines
+            their effect.
           </small>
         </section>
       )}
@@ -132,14 +132,14 @@ export function ElementView({ station }: { station: string }) {
             }
           >
             {row.module === "corporate"
-              ? "Identitätsprüfung melden"
-              : "Analyseabschluss melden"}
+              ? "Report identity check"
+              : "Report analysis complete"}
           </button>
         </section>
       )}
       {ex.state.messages.length > 0 && (
         <section className="panel">
-          <h2>Meldungen</h2>
+          <h2>Messages</h2>
           <ul className="event-log">
             {ex.state.messages.slice(-6).map((m, i) => (
               <li key={i}>{m.text}</li>

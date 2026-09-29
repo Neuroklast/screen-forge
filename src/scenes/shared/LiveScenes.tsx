@@ -476,7 +476,7 @@ export function Hologram(props: SceneProps) {
           <p>Scan results are committed after all four passes.</p>
         </aside>
         <div className="holo-object">
-          <GestureSurface label="Hologramm verschieben, zoomen und drehen">
+          <GestureSurface label="Move, zoom and rotate the hologram">
             {model ? (
               <ModelViewport
                 time={time}
@@ -610,7 +610,7 @@ export function Tracking(props: SceneProps) {
         }
       />
       <div className="tracking-main">
-        <GestureSurface label="Karte verschieben, zoomen und drehen">
+        <GestureSurface label="Move, zoom and rotate the map">
           <svg viewBox="0 0 800 500" className="terrain">
             <Terrain />
             <path

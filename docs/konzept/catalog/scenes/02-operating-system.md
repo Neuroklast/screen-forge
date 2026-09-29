@@ -29,6 +29,12 @@
 - Windows: focus ring (1 px accent), inactive dimming, drag by title bar, no resize in v2.
 - Taskbar: start button, pinned apps, open windows, system tray (clock, phase, connection).
 
+## Login mask
+
+- Optional sign-in gate before the desktop: `sceneOptions.os.login { enabled, user, pass }` (default off).
+- Fields `User` / `Password`, `Sign in`; wrong credentials play `osError` and show `Access denied`; success plays `osStartup`.
+- Pairs with the terminal goal (bypass login): enable it for scenes where the challenge is to get past the gate.
+
 ## Apps
 
 | App | Content | Notes |

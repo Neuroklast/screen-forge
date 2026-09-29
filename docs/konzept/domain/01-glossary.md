@@ -1,7 +1,8 @@
 # 01 — Glossary & Jargon
 
 > ScreenForge concept set · Target state (Soll) · Status: [12-gap-analysis.md](12-gap-analysis.md)
-> Rule: one concept, one name. UI uses the German label; code/schema uses the English term.
+> Rule: one concept, one name. **Element content (scenes, blocks, field consoles) is English**; the studio/training control chrome uses German labels; code/schema uses the English term.
+> Distinct surfaces: `Firmenportal` (corporate intranet scene), `Betriebssystem` (OS desktop scene), `Terminal` (command line scene) — never call one the other.
 
 ## Core terms
 

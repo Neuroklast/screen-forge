@@ -3,7 +3,7 @@ import type { TrainingStation } from "../core/training";
 import { useTraining } from "../core/useExercise";
 import "./device.css";
 
-const STAGES = ["Gehäuse prüfen", "Diagnose lesen", "Umgehung setzen", "Entschärfen"];
+const STAGES = ["Inspect casing", "Read diagnostics", "Set bypass", "Disarm"];
 
 export function OrdnanceConsole({ station }: { station: TrainingStation }) {
   const ex = useTraining();
@@ -38,7 +38,7 @@ export function OrdnanceConsole({ station }: { station: TrainingStation }) {
         <span className={`device-state is-${state}`}>{state}</span>
       </header>
       <p className="device-note">
-        Fiktive Wartungskonsole. Stufen in Reihenfolge ausführen.
+        Fictional maintenance console. Run the stages in order.
       </p>
       <ol className="device-stages">
         {STAGES.map((label, i) => (
@@ -50,12 +50,12 @@ export function OrdnanceConsole({ station }: { station: TrainingStation }) {
         ))}
       </ol>
       {state === "tampered" && (
-        <p className="device-alert">Manipuliert. Stufen zurückgesetzt.</p>
+        <p className="device-alert">Tampered. Stages reset.</p>
       )}
       {state === "disarmed" && (
-        <p className="device-ok">Entschärft. Auftrag dokumentieren.</p>
+        <p className="device-ok">Disarmed. Document the task.</p>
       )}
-      <small>{prop?.name || "Kein Sprengkörper gebunden"}</small>
+      <small>{prop?.name || "No ordnance bound"}</small>
     </section>
   );
 }

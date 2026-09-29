@@ -103,7 +103,7 @@ export function Hypercube({
     <svg
       viewBox="0 0 500 410"
       className="os-hypercube"
-      aria-label="Vierdimensionaler Hyperwürfel als zweidimensionale Projektion"
+      aria-label="Four-dimensional hypercube as a two-dimensional projection"
     >
       <defs>
         <radialGradient id="os-space-halo">

@@ -259,12 +259,12 @@ const SUBJECT_DEFAULTS: Record<string, SheetSubject> = {
       "CROSS-REF ARC-09-04 / TIER 04",
     ],
     steps: [
-      "Diagnostics: CHANNEL SCAN abwarten (8 s)",
-      "Shunt-Code A7F3 eingeben",
-      "Phase A/B/C auf Referenz trimmen (±2)",
-      "HOLD 3 s — Restore containment",
+      "Diagnostics: wait for CHANNEL SCAN (8 s)",
+      "Enter shunt code A7F3",
+      "Trim phases A/B/C to reference (±2)",
+      "HOLD 3 s — restore containment",
     ],
-    relayText: "Bypass-Reihenfolge und Toleranzen per Funk durchgeben.",
+    relayText: "Relay bypass order and tolerances via radio.",
   },
   terminal: {
     title: "BLACKLINE / AUTH RECOVERY DATASHEET",
@@ -296,12 +296,12 @@ const SUBJECT_DEFAULTS: Record<string, SheetSubject> = {
       "CROSS-REF AUTH-07",
     ],
     steps: [
-      "status — Link prüfen",
-      "scan --local — Ports erfassen",
-      "inspect auth — Schwachstelle bestätigen",
-      "login --token 07-RELAY — Session anheben",
+      "status — check link",
+      "scan --local — enumerate ports",
+      "inspect auth — confirm weakness",
+      "login --token 07-RELAY — elevate session",
     ],
-    relayText: "Token und Befehlsfolge per Funk durchgeben.",
+    relayText: "Relay token and command order via radio.",
   },
   access: {
     title: "DOOR 02 / INTERLOCK DATASHEET",
@@ -321,8 +321,8 @@ const SUBJECT_DEFAULTS: Record<string, SheetSubject> = {
       },
     ],
     lines: ["HOLD 2.0 s for unlatch", "RE-LOCK delay 30 s", "CROSS-REF ACS-02"],
-    steps: ["Zugangscode eingeben", "HOLD to unlatch", "Verriegelung prüfen"],
-    relayText: "Override-Reihenfolge per Funk durchgeben.",
+    steps: ["Enter access code", "HOLD to unlatch", "Verify interlock"],
+    relayText: "Relay override order via radio.",
   },
 };
 
@@ -365,8 +365,8 @@ export function DataSheet({ config, cue, onCue }: SceneProps) {
         {!found && (
           <>
             <p className="sheet-locked">
-              Kein Datenblatt geladen. Akte im Archiv suchen und die passende
-              Revision öffnen.
+              No datasheet loaded. Search the archive and open the correct
+              revision.
             </p>
             <form
               className="sheet-search"
@@ -379,7 +379,7 @@ export function DataSheet({ config, cue, onCue }: SceneProps) {
               <input
                 aria-label="Archivsuche"
                 value={query}
-                placeholder="SUCHBEGRIFF"
+                placeholder="SEARCH TERM"
                 onChange={(e) => setQuery(e.target.value)}
               />
               <button className="scene-button" type="submit">
@@ -388,7 +388,7 @@ export function DataSheet({ config, cue, onCue }: SceneProps) {
             </form>
             {tries > 0 && (
               <p className="sheet-hint">
-                Hinweis: Revision oder Bauteil eingrenzen — z. B. {hints[0]}.
+                Hint: narrow by revision or component — e.g. {hints[0]}.
               </p>
             )}
             <ul className="sheet-results">
@@ -404,17 +404,17 @@ export function DataSheet({ config, cue, onCue }: SceneProps) {
                   >
                     <span>{e.code}</span>
                     <b>{e.name}</b>
-                    <small>{opened?.code === e.code ? e.body : "öffnen"}</small>
+                    <small>{opened?.code === e.code ? e.body : "open"}</small>
                   </button>
                 </li>
               ))}
               {query && !results.length && (
-                <li className="sheet-empty">Keine Akte zu „{query}“ gefunden.</li>
+                <li className="sheet-empty">No record found for "{query}".</li>
               )}
             </ul>
             {opened && !opened.correct && (
               <p className="sheet-hint">
-                Diese Akte enthält keinen Entschärfungsweg.
+                This record contains no disposal path.
               </p>
             )}
           </>

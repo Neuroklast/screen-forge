@@ -25,3 +25,4 @@
 | 2026-09 | Config | When reusing a scene id for a new meaning, version-gate the migration (config v1 `terminal` → `os`, v2 keeps `terminal` for the new CLI) — a value-based migration would make the new scene unreachable. | high |
 | 2026-09 | UI | FUI layouts never reflow: fixed stage + `transform: scale()`, grid over `flex-wrap`, no visible scrollbars, capped data lists, and the central z-index registry (`--sf-z-*`) instead of local magic numbers. Gate: `npm run check:layout`. | high |
 | 2026-09 | Scenes | A new scene is not usable in training until it is also a training module: add it to `modules`, `moduleEvents` and the builder palette, or missions cannot select it (the data-sheet gap). | med |
+| 2026-09 | UI | Element content (scenes, blocks, field consoles) is English; German belongs to the studio/training chrome only. Keep `Firmenportal` / `Betriebssystem` / `Terminal` distinct — the old "Konzernsystem vs Betriebssystem" naming confused users. | high |

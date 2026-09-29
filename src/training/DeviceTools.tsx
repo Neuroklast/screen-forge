@@ -21,7 +21,7 @@ export function DeviceTools() {
   useEffect(() => {
     if (!tracking || ex.state.scenario.mode !== "LIVE") return;
     if (!navigator.geolocation || !isSecureContext) {
-      setNotice("GPS benötigt HTTPS und Standortfreigabe.");
+      setNotice("GPS requires HTTPS and location permission.");
       setTracking(false);
       return;
     }
@@ -77,7 +77,7 @@ export function DeviceTools() {
         if (stopped) await acquired.release();
         else lock = acquired;
       } catch {
-        setNotice("Bildschirm-Wachhalten wird von diesem Gerät nicht erlaubt.");
+        setNotice("Screen wake lock is not allowed on this device.");
       }
     };
     void acquire();
@@ -90,7 +90,7 @@ export function DeviceTools() {
   }, [awake]);
   return (
     <details className="device-tools">
-      <summary>Gerät · {ex.online ? "verbunden" : "offline"}</summary>
+      <summary>Device · {ex.online ? "online" : "offline"}</summary>
       <div>
         {st?.player && ex.state.scenario.mode === "LIVE" && (
           <button
@@ -107,34 +107,34 @@ export function DeviceTools() {
               setNotice("");
             }}
           >
-            {tracking ? "Standortfreigabe stoppen" : "Standort teilen"}
+            {tracking ? "Stop sharing location" : "Share location"}
           </button>
         )}
         <button
           onClick={() => {
-            if (!navigator.wakeLock) setNotice("Wake Lock nicht verfügbar.");
+            if (!navigator.wakeLock) setNotice("Wake lock not available.");
             else setAwake(!awake);
           }}
         >
-          {awake ? "Display normal" : "Display wach halten"}
+          {awake ? "Display normal" : "Keep display awake"}
         </button>
         <button
           onClick={() =>
             void document.documentElement
               .requestFullscreen?.()
-              .catch(() => setNotice("Vollbild nicht verfügbar."))
+              .catch(() => setNotice("Fullscreen not available."))
           }
         >
-          Vollbild
+          Fullscreen
         </button>
         <p>
-          GPS läuft nur bei aktiver App zuverlässig. Zum Sperren des Geräts
-          Geführten Zugriff (iOS) oder den Kioskmodus des Betriebssystems
-          verwenden.
+          GPS is only reliable while the app is active. To lock the device use
+          Guided Access (iOS) or the operating system kiosk mode.
+          
         </p>
         {notice && <p role="status">{notice}</p>}
         <button onClick={() => ex.logout()}>
-          Zuweisung auf diesem Gerät entfernen
+          Remove assignment on this device
         </button>
       </div>
     </details>

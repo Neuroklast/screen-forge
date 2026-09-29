@@ -32,7 +32,7 @@ export function BeaconControl({ station }: { station: TrainingStation }) {
         <h2>{station.name}</h2>
         <span className={`device-state is-${state}`}>{state}</span>
       </header>
-      <p className="device-note">Signalgerät. Drei Sekunden halten zum Aktivieren.</p>
+      <p className="device-note">Signal device. Hold three seconds to activate.</p>
       <button
         className="device-hold"
         disabled={locked || state === "active"}
@@ -41,7 +41,7 @@ export function BeaconControl({ station }: { station: TrainingStation }) {
         onPointerLeave={release}
         onPointerCancel={release}
       >
-        {state === "active" ? "AKTIV" : "HALTEN ZUM AKTIVIEREN"}
+        {state === "active" ? "ACTIVE" : "HOLD TO ACTIVATE"}
       </button>
       {state === "active" && (
         <button
@@ -49,10 +49,10 @@ export function BeaconControl({ station }: { station: TrainingStation }) {
           disabled={locked}
           onClick={() => ex.send({ type: "prop", state: "off" })}
         >
-          Deaktivieren
+          Deactivate
         </button>
       )}
-      <small>{prop?.name || "Keine Bake gebunden"}</small>
+      <small>{prop?.name || "No beacon bound"}</small>
     </section>
   );
 }

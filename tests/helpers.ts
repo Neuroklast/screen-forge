@@ -4,7 +4,7 @@ export async function osApp(page: Page, name: string) {
     .locator(".os-sidebar")
     .getByRole("button", { name: new RegExp(name) });
   if (!(await item.isVisible()))
-    await page.getByRole("button", { name: "Startmenü" }).click();
+    await page.getByRole("button", { name: "Start menu" }).click();
   await item.click();
 }
 export async function configuration(page: Page, tab: string) {

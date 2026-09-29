@@ -19,7 +19,7 @@ export function Lock({ config, onCue }: SceneProps) {
   return (
     <div className="block-scene scene-inner">
       <HudFrame
-        label={`KEYPAD / ${config.sceneOptions.lock.attempts} VERSUCHE`}
+        label={`KEYPAD / ${config.sceneOptions.lock.attempts} ATTEMPTS`}
         className="block-frame"
       >
       <CodePad
@@ -355,7 +355,7 @@ export function Slide({ config, onCue, onPlay }: SceneProps) {
   return (
     <div className="block-scene scene-inner">
       <HudFrame
-        label={`SLIDE / ${config.sceneOptions.slide.stages} STUFEN`}
+        label={`SLIDE / ${config.sceneOptions.slide.stages} STAGES`}
         className="block-frame"
       >
       <div className="block-body latch-body">
@@ -402,7 +402,7 @@ export function Slide({ config, onCue, onPlay }: SceneProps) {
                 <div
                   role="slider"
                   tabIndex={0}
-                  aria-label="Zugang ausrichten"
+                  aria-label="Align access"
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={latch.pct}

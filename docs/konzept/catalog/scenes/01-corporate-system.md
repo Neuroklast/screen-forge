@@ -1,4 +1,4 @@
-# Catalog — Corporate System (Konzernsystem)
+# Catalog — Corporate System (Firmenportal)
 
 > ScreenForge concept set · Catalog · Target state (Soll) · Language: EN, UI labels DE
 > Scene id `corporate` · Default in-world title `VESPER` (company: Vesper Research) · Code: `src/scenes/shared/LiveScenes.tsx:12-318`, `src/scenes/corporate.css` (365 lines)

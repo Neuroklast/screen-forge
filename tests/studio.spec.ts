@@ -12,7 +12,7 @@ test("all scenes render and operator controls reset a take", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/?mode=film");
   for (const title of [
-    "Konzernsystem",
+    "Firmenportal",
     "Betriebssystem",
     "Terminal",
     "Countdown",
@@ -76,10 +76,10 @@ test("prepared input, preset export, stage escape and persistence", async ({
     .first()
     .click();
   await osApp(page, "Terminal");
-  await page.getByLabel("Terminaleingabe").fill("abcdef");
-  await expect(page.getByLabel("Terminaleingabe")).toHaveValue("inspec");
-  await page.getByLabel("Terminaleingabe").fill("x".repeat(100));
-  await page.getByLabel("Terminaleingabe").press("Enter");
+  await page.getByLabel("Terminal input").fill("abcdef");
+  await expect(page.getByLabel("Terminal input")).toHaveValue("inspec");
+  await page.getByLabel("Terminal input").fill("x".repeat(100));
+  await page.getByLabel("Terminal input").press("Enter");
   await expect(page.locator(".console-lines")).toContainText(
     "analysis complete",
   );

@@ -37,9 +37,9 @@ test("filesystem, personnel, 4D projection and real local command parsing", asyn
   await page.getByLabel("Vorbereitetes Tippen").uncheck();
   await closeConfiguration(page);
   await page
-    .getByLabel("Terminaleingabe")
+    .getByLabel("Terminal input")
     .fill("cat /workspace/operator.notes");
-  await page.getByLabel("Terminaleingabe").press("Enter");
+  await page.getByLabel("Terminal input").press("Enter");
   await expect(page.getByRole("log")).toContainText(
     "Inspect the relay topology",
   );
@@ -73,7 +73,7 @@ test("three slider gates, cancelled scan, successful scan and boot handover", as
 }) => {
   await enter(page);
   await page.getByRole("button", { name: "Sitzung sperren" }).click();
-  const slider = page.getByLabel("Zugang ausrichten");
+  const slider = page.getByLabel("Align access");
   for (let i = 0; i < 3; i++) {
     await slider.focus();
     await slider.press("End");
