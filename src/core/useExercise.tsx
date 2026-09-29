@@ -5,12 +5,14 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { newState, type TrainingState } from "./training";
 import { applyEvent, domainEventSchema, type DomainEvent } from "./events";
 import { isCommandType, newEventId, PROTOCOL } from "./protocol";
 import { ServerClock } from "./clock";
+import { TelemetryStore } from "./telemetry";
 import * as outbox from "./outbox";
 import type { Role } from "./session";
 export type Signal = {
@@ -49,6 +51,7 @@ export function useExercise(role: Role, room: string, station: string) {
   const [clockRevision, setClockRevision] = useState(0);
   const lastSeq = useRef(0);
   const clockRef = useRef(new ServerClock());
+  const telemetryRef = useRef(new TelemetryStore());
   const [online, setOnline] = useState(false),
     [authenticated, setAuthenticated] = useState(false);
   const [diagnostic, setDiagnostic] = useState<{
@@ -182,13 +185,23 @@ export function useExercise(role: Role, room: string, station: string) {
             setState(msg.state);
             setAuthenticated(true);
           }
-          if (msg.type === "tick")
+          if (msg.type === "tick") {
+            const at = Number(msg.serverNow) || Date.now();
+            telemetryRef.current.push("clock", at, Number(msg.clock) || 0);
+            if (msg.positions && typeof msg.positions === "object")
+              for (const [id, pos] of Object.entries(msg.positions))
+                telemetryRef.current.push(
+                  `pos:${id}`,
+                  at,
+                  Number((pos as { lat?: number }).lat) || 0,
+                );
             setState((old) => ({
               ...old,
               clock: msg.clock,
               frozen: msg.frozen,
               positions: msg.positions,
             }));
+          }
           if (msg.type === "tick" || msg.type === "ack")
             clockRef.current.observe(Number(msg.serverNow));
           if (msg.type === "tick" && typeof msg.clockRevision === "number")
@@ -307,6 +320,7 @@ export function useExercise(role: Role, room: string, station: string) {
     serverSeq,
     clockRevision,
     serverNow: () => clockRef.current.now(),
+    telemetry: telemetryRef.current,
     pendingCount,
     subscribe,
     role,
@@ -315,6 +329,9 @@ export function useExercise(role: Role, room: string, station: string) {
   };
 }
 const ExerciseCtx = createContext<ReturnType<typeof useExercise> | null>(null);
+export function useTelemetryVersion(store: TelemetryStore): number {
+  return useSyncExternalStore(store.subscribe, store.getSnapshot);
+}
 export function ExerciseProvider({
   role,
   room,
