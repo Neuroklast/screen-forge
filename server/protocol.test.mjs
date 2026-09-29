@@ -108,6 +108,25 @@ test("protocol v2: handshake, idempotent commands and rejection", async () => {
     const rejected = await c.next(type("rejected"));
     assert.equal(rejected.eventId, "bad-1");
     assert.match(rejected.reason, /Unknown transport/);
+
+    const resume = client(app.port);
+    clients.push(resume);
+    await resume.ready;
+    resume.send({
+      type: "hello",
+      role: "trainer",
+      room: "room",
+      station: "",
+      token: "test-secret",
+      protocol: 2,
+      lastServerSeq: 1,
+    });
+    const resumed = await resume.next(type("resumed"));
+    assert.ok(resumed.serverSeq > 1);
+    const delta = await resume.next(type("events"));
+    assert.ok(
+      delta.events.some((e) => e.type === "message.posted" && e.text === "dup"),
+    );
   } finally {
     for (const c of clients) c.ws.terminate();
     await app?.close();

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { newState, type TrainingState } from "./training";
+import { applyEvent, domainEventSchema, type DomainEvent } from "./events";
 import { isCommandType, newEventId, PROTOCOL } from "./protocol";
 import type { Role } from "./session";
 export type Signal = {
@@ -124,6 +125,30 @@ export function useExercise(role: Role, room: string, station: string) {
             }
           }
           if (msg.type === "rejected") setError(msg.reason || "Befehl abgelehnt");
+          if (msg.type === "resumed") {
+            const seq = Number(msg.serverSeq) || 0;
+            if (seq > lastSeq.current) {
+              lastSeq.current = seq;
+              setServerSeq(seq);
+            }
+          }
+          if (msg.type === "events" && Array.isArray(msg.events)) {
+            const parsed: DomainEvent[] = [];
+            for (const raw of msg.events) {
+              const result = domainEventSchema.safeParse(raw);
+              if (result.success) parsed.push(result.data);
+            }
+            setState((old) => {
+              const next = structuredClone(old);
+              for (const event of parsed) applyEvent(next, event);
+              return next;
+            });
+            const seq = Number(msg.serverSeq) || 0;
+            if (seq > lastSeq.current) {
+              lastSeq.current = seq;
+              setServerSeq(seq);
+            }
+          }
           if (msg.type === "state") {
             setState(msg.state);
             setAuthenticated(true);

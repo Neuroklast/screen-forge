@@ -58,7 +58,8 @@ export async function startExercise({
     invites = new Map(),
     sockets = new Map(),
     roomSeq = new Map(),
-    roomDedup = new Map();
+    roomDedup = new Map(),
+    roomLog = new Map();
   let dirty = false,
     writing = Promise.resolve();
   const nextSeq = (room) => {
@@ -92,6 +93,12 @@ export async function startExercise({
     await writeFile(`${path}.tmp`, payload, { mode: 0o600 });
     await rename(`${path}.tmp`, path);
   };
+  const rememberEvent = (room, serverSeq, event) => {
+    const log = roomLog.get(room) || [];
+    log.push({ serverSeq, event });
+    while (log.length > 500) log.shift();
+    roomLog.set(room, log);
+  };
   const appendEvent = (room, actor, event) => {
     const serverSeq = nextSeq(room);
     appendFileSync(
@@ -99,6 +106,7 @@ export async function startExercise({
       JSON.stringify({ serverSeq, wallAt: Date.now(), actor, event }) + "\n",
     );
     applyEvent(rooms.get(room), event);
+    rememberEvent(room, serverSeq, event);
     return serverSeq;
   };
   const journalNewFired = (room, before) => {
@@ -107,15 +115,17 @@ export async function startExercise({
     for (const id of state.fired)
       if (!before.has(id)) {
         const serverSeq = nextSeq(room);
+        const event = { type: "inject.fired", inject: id };
         appendFileSync(
           journalPath(room),
           JSON.stringify({
             serverSeq,
             wallAt: Date.now(),
             actor: "engine",
-            event: { type: "inject.fired", inject: id },
+            event,
           }) + "\n",
         );
+        rememberEvent(room, serverSeq, event);
       }
   };
   const readJson = async (path) => {
@@ -234,6 +244,10 @@ export async function startExercise({
     const state = rooms.get(room);
     for (const [ws, meta] of sockets)
       if (meta.room === room) {
+        if (meta.skipState) {
+          meta.skipState = false;
+          continue;
+        }
         if (!clockOnly) {
           send(ws, {
             type: "state",
@@ -454,6 +468,27 @@ export async function startExercise({
             serverSeq: roomSeq.get(meta.room) || 0,
             serverNow: Date.now(),
           });
+          const currentSeq = roomSeq.get(meta.room) || 0;
+          if (
+            ["trainer", "safety", "assessor"].includes(meta.role) &&
+            typeof auth.lastServerSeq === "number" &&
+            auth.lastServerSeq > 0 &&
+            auth.lastServerSeq < currentSeq
+          ) {
+            const log = roomLog.get(meta.room) || [];
+            const first = log.length ? log[0].serverSeq : Infinity;
+            if (auth.lastServerSeq >= first - 1) {
+              send(ws, { type: "resumed", serverSeq: currentSeq });
+              send(ws, {
+                type: "events",
+                serverSeq: currentSeq,
+                events: log
+                  .filter((r) => r.serverSeq > auth.lastServerSeq)
+                  .map((r) => r.event),
+              });
+              meta.skipState = true;
+            }
+          }
           broadcast(meta.room);
           return;
         }
