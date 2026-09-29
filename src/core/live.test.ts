@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { processState, type Job } from "../scenes/shared/Process";
 import { project3D, trackTelemetry } from "../scenes/shared/spatial";
-import { schema, defaults } from "./config";
+import { schema, defaults, withScene, applyIdentity } from "./config";
+import { scriptedInput } from "./runtime";
 describe("live process and spatial contracts", () => {
   it("process phases, completion and rewind are driven by scene time", () => {
     const job: Job = {
@@ -52,9 +53,19 @@ describe("live process and spatial contracts", () => {
     expect(
       schema.safeParse({
         ...c,
-        brand: { mark: "hex", logo: "data:image/png;base64,AAAA" },
+        brand: { mark: "atom", logo: "data:image/png;base64,AAAA" },
       }).success,
     ).toBe(true);
+    expect(scriptedInput("inspect relay", "", "i")).toBe("i");
+    expect(scriptedInput("inspect relay", "i", "x")).toBe("in");
+    expect(scriptedInput("inspect relay", "in", "Backspace")).toBe("i");
+    const branded = applyIdentity(defaults("countdown"), {
+      title: "UMBRELLA",
+      brand: { mark: "umbrella", logo: "" },
+    });
+    expect(withScene(branded, "terminal").title).toBe("UMBRELLA");
+    expect(withScene(branded, "tracking").brand?.mark).toBe("umbrella");
+    expect(withScene(branded, "hologram").scene).toBe("hologram");
     expect(
       schema.safeParse({
         ...c,

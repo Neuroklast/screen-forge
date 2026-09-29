@@ -23,8 +23,10 @@ import {
   schema,
   type Config,
   type SceneId,
+  withScene,
 } from "./core/config";
 import { formatTime, useSceneClock, type Cue } from "./core/runtime";
+import { setSoundEnabled } from "./core/sound";
 import { TokenEditor } from "./components/TokenEditor";
 import { CodePad } from "./components/CodePad";
 import { MediaManager } from "./components/MediaManager";
@@ -52,10 +54,10 @@ export default function App() {
     setConfig({
       ...step.config,
       pinEnabled: step.trigger === "pin" || step.config.pinEnabled,
-      pin:
-        step.trigger === "pin" && /^\d{4,8}$/.test(step.value)
-          ? step.value
-          : step.config.pin,
+        pin:
+          step.trigger === "pin" && /^[A-Za-z0-9]{4,8}$/.test(step.value)
+            ? step.value
+            : step.config.pin,
     });
     setCue(step.cue);
     setTake((n) => n + 1);
@@ -130,7 +132,7 @@ export default function App() {
   };
   const select = (id: SceneId) => {
     reset();
-    setConfig(defaults(id));
+    setConfig((c) => withScene(c, id));
     clock.setPlaying(id !== "countdown");
   };
   useEffect(() => {
@@ -139,6 +141,7 @@ export default function App() {
     } catch {
       setNotice("Lokales Speichern nicht verfügbar. Bitte Preset exportieren.");
     }
+    setSoundEnabled(config.sound);
   }, [config]);
   useEffect(() => {
     if (!stage.current) return;
@@ -262,15 +265,30 @@ export default function App() {
           </button>
         </header>
         <nav className="director-scenes" aria-label="Szenen">
-          {scenes.map((scene) => (
-            <button
-              key={scene.id}
-              className={scene.id === config.scene ? "active" : ""}
-              onClick={() => select(scene.id)}
-            >
-              {scene.name}
-            </button>
-          ))}
+          <em>Szenen</em>
+          {scenes
+            .filter((s) => s.kind === "scene")
+            .map((scene) => (
+              <button
+                key={scene.id}
+                className={scene.id === config.scene ? "active" : ""}
+                onClick={() => select(scene.id)}
+              >
+                {scene.name}
+              </button>
+            ))}
+          <em>Bausteine</em>
+          {scenes
+            .filter((s) => s.kind === "block")
+            .map((scene) => (
+              <button
+                key={scene.id}
+                className={scene.id === config.scene ? "active" : ""}
+                onClick={() => select(scene.id)}
+              >
+                {scene.name}
+              </button>
+            ))}
           <span>{running ? "ABLAUF AKTIV" : "MANUELLE REGIE"}</span>
           <button
             onClick={() => setUnlocked(false)}
@@ -306,7 +324,7 @@ export default function App() {
             </div>
             <div className="stage" ref={stage}>
               <div
-                className={`scene-canvas family-${config.scene} skin-${config.skin} mood-${config.mood} density-${config.density}`}
+                className={`scene-canvas family-${config.scene} skin-${config.skin} mood-${config.mood} density-${config.density}${config.overlays.glow < 0.08 && config.overlays.chromatic < 0.08 ? " is-flat" : ""}`}
                 style={
                   {
                     ...config.tokens,
@@ -339,7 +357,7 @@ export default function App() {
                   } as CSSProperties
                 }
               >
-                <Scene
+                 <Scene
                   key={`${config.scene}-${take}`}
                   config={config}
                   operation={
@@ -360,6 +378,8 @@ export default function App() {
                     key={take}
                     title={config.title}
                     code={config.pin}
+                    mode={config.pinMode}
+                    fake={config.pinFake}
                     onUnlock={() => setUnlocked(true)}
                   />
                 )}
@@ -672,19 +692,56 @@ export default function App() {
                 Code-Tastenfeld aktivieren
               </label>
               <label>
+                Tastenfeld
+                <select
+                  aria-label="Tastenfeldmodus"
+                  value={config.pinMode}
+                  onChange={(e) =>
+                    update("pinMode", e.target.value as Config["pinMode"])
+                  }
+                >
+                  <option value="numeric">Numerisch</option>
+                  <option value="alphanumeric">Alphanumerisch</option>
+                </select>
+              </label>
+              <label>
                 Zugangscode
                 <input
                   aria-label="Zugangscode konfigurieren"
-                  inputMode="numeric"
+                  inputMode={
+                    config.pinMode === "numeric" ? "numeric" : "text"
+                  }
                   maxLength={8}
                   defaultValue={config.pin}
-                  key={config.pin}
+                  key={config.pin + config.pinMode}
                   onBlur={(e) => {
-                    if (/^\d{4,8}$/.test(e.target.value))
-                      update("pin", e.target.value);
+                    const ok =
+                      config.pinMode === "numeric"
+                        ? /^\d{4,8}$/.test(e.target.value)
+                        : /^[A-Za-z0-9]{4,8}$/.test(e.target.value);
+                    if (ok) update("pin", e.target.value.toUpperCase());
                     else e.target.value = config.pin;
                   }}
                 />
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={config.pinFake}
+                  onChange={(e) => update("pinFake", e.target.checked)}
+                />{" "}
+                Inszenierung (jeder 4–8-stellige Code)
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={config.sound}
+                  onChange={(e) => {
+                    update("sound", e.target.checked);
+                    setSoundEnabled(e.target.checked);
+                  }}
+                />{" "}
+                Szenen-Sounds
               </label>
               <div className="inspector-section-title">
                 <span>03</span> Ablauf
@@ -703,8 +760,8 @@ export default function App() {
                       });
                     }}
                   >
-                    <option value="antimatter">Antimaterie-Sprengkopf</option>
-                    <option value="nuclear">Nuklearer Sprengkopf</option>
+                    <option value="antimatter">Containment-Baugruppe</option>
+                    <option value="nuclear">Spaltmaterial-Baugruppe</option>
                   </select>
                 </label>
               )}
@@ -785,7 +842,11 @@ export default function App() {
             />
             <button
               className="reset-design"
-              onClick={() => select(config.scene)}
+              onClick={() => {
+                reset();
+                setConfig(defaults(config.scene));
+                clock.setPlaying(config.scene !== "countdown");
+              }}
             >
               Originaldesign wiederherstellen
             </button>

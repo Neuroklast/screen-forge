@@ -26,7 +26,7 @@ import {
   Database,
 } from "lucide-react";
 import type { SceneProps } from "../Scenes";
-import { formatTime } from "../../core/runtime";
+import { formatTime, scriptedInput } from "../../core/runtime";
 import { GestureSurface } from "../../components/GestureSurface";
 import { files as baseFiles, folders, people, type VirtualFile } from "./data";
 import {
@@ -43,6 +43,7 @@ import { Messages } from "./Messages";
 import { BrandMark } from "../../components/BrandMark";
 import { useActorPlayback, TerminalVisual } from "./ActorPlayback";
 import { Changed } from "../shared/Process";
+import { playSound, stopLoop } from "../../core/sound";
 const apps: { id: AppId; name: string; icon: typeof Folder; code: string }[] = [
   { id: "overview", name: "Workspace", icon: LayoutDashboard, code: "00" },
   { id: "terminal", name: "Terminal", icon: TerminalSquare, code: "01" },
@@ -105,7 +106,8 @@ export function CyberOS({
     [tilt, setTilt] = useState(0.4),
     [rotate, setRotate] = useState(true),
     [frozenTime, setFrozenTime] = useState(0),
-    [rotationOffset, setRotationOffset] = useState(0);
+    [rotationOffset, setRotationOffset] = useState(0),
+    [menu, setMenu] = useState(false);
   const actor = useActorPlayback(time, onPlay, config.script, config.title);
   const consoleRef = useRef<HTMLDivElement>(null);
   const displayedLines = config.actorMode ? actor.lines : terminalLines;
@@ -113,14 +115,21 @@ export function CyberOS({
     const el = consoleRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [displayedLines.length, state.app]);
+  useEffect(() => () => stopLoop("openProfile"), []);
   const reduced = useReducedMotion();
   const visualTime = reduced ? 0 : time;
   const open = (app: AppId) => {
+    stopLoop("openProfile");
+    if (app === "personnel") playSound("openProfile");
+    else if (app === "files") playSound("openFolder");
+    else playSound("click");
     dispatch({ type: "open", app });
     setFile(null);
+    setMenu(false);
   };
   const play = () => onPlay?.();
   const run = (id: SequenceId) => {
+    playSound(id === "operation" ? "hack2" : "hack1");
     dispatch({ type: "run", id, time, multiplier: config.sequenceScale });
     onTimelineExtend?.(
       time +
@@ -151,7 +160,7 @@ export function CyberOS({
       ? sequenceState(active, elapsed, state.sequence.multiplier).index
       : -1;
   useEffect(() => {
-    if (active?.id === "operation")
+    if (active?.id === "operation" || active?.id === "counterhack")
       onCue(operationPhase === active.phases.length - 1 ? "warning" : "active");
   }, [active?.id, operationPhase, onCue]);
   const closeSequence = () => {
@@ -172,6 +181,11 @@ export function CyberOS({
     }
     const raw = command.trim();
     if (!raw) return;
+    window.dispatchEvent(
+      new CustomEvent("screenforge:input", {
+        detail: { type: "signal", value: "shell.submit" },
+      }),
+    );
     setCommands((p) => [...p.slice(-30), raw]);
     setHistoryIndex(-1);
     let response: string[] = [];
@@ -303,7 +317,47 @@ export function CyberOS({
           <LockKeyhole size={15} />
         </button>
       </header>
-      <div className="os-body">
+      <div className="os-shell">
+        <div
+          className="os-desktop"
+          aria-label="Desktop"
+          onClick={() => setMenu(false)}
+        >
+          {[
+            ["Archives", "/archives"],
+            ["Datasets", "/datasets"],
+            ["System", "/system"],
+          ].map(([name, path]) => (
+            <button
+              key={path}
+              className="os-desk-icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFolder(path);
+                open("files");
+              }}
+            >
+              <Folder size={28} strokeWidth={1.2} />
+              <span>{name}</span>
+            </button>
+          ))}
+          {apps
+            .filter((a) => a.id !== "overview")
+            .map((a) => (
+              <button
+                key={a.id}
+                className="os-desk-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  open(a.id);
+                }}
+              >
+                <a.icon size={28} strokeWidth={1.2} />
+                <span>{a.name}</span>
+              </button>
+            ))}
+        </div>
+        {menu && (
         <nav className="os-sidebar">
           <span className="os-kicker">APPLICATIONS</span>
           {apps.map((a) => (
@@ -335,6 +389,8 @@ export function CyberOS({
             <span className="os-kicker">OFFLINE ENVIRONMENT</span>
           </div>
         </nav>
+        )}
+        {(active || state.app !== "overview") && (
         <main className="os-workarea">
           <div className="os-window-bar">
             <span>
@@ -347,7 +403,12 @@ export function CyberOS({
                 : config.title + "://WORKSPACE/" + state.app.toUpperCase()}
               <i />
               <i />
-              <i />
+              <button
+                aria-label="Fenster schließen"
+                onClick={() => open("overview")}
+              >
+                <X size={12} />
+              </button>
             </span>
           </div>
           <AnimatePresence mode="wait" initial={false}>
@@ -541,10 +602,10 @@ export function CyberOS({
                           value={command}
                           placeholder={
                             config.actorMode
-                              ? actor.busy
-                                ? "Receiving channel response…"
-                                : "Type any keys to continue the operation"
-                              : "help / ls / scan / decrypt"
+                                ? actor.busy
+                                  ? "Receiving channel response…"
+                                  : "ENTER NEXT SHELL COMMAND"
+                                : "help / ls / scan / decrypt"
                           }
                           onChange={(e) =>
                             setCommand(
@@ -560,11 +621,16 @@ export function CyberOS({
                             ) {
                               e.preventDefault();
                               if (!actor.busy) {
-                                const next = actor.target.slice(
-                                  0,
-                                  command.length + 3,
+                                if (e.key.length === 1) playSound("type");
+                                const next = scriptedInput(
+                                  actor.target,
+                                  command,
+                                  e.key,
                                 );
-                                if (next.length === actor.target.length) {
+                                if (
+                                  e.key.length === 1 &&
+                                  next.length === actor.target.length
+                                ) {
                                   actor.submit(next);
                                   setCommand("");
                                 } else setCommand(next);
@@ -764,7 +830,10 @@ export function CyberOS({
                           <button
                             key={p.id}
                             className={person === i ? "active" : ""}
-                            onClick={() => setPerson(i)}
+                            onClick={() => {
+                              playSound("openProfile");
+                              setPerson(i);
+                            }}
                           >
                             <span>{p.id}</span>
                             <strong>{p.name}</strong>
@@ -818,6 +887,32 @@ export function CyberOS({
                                 <span>STATUS</span>
                                 <b>{people[person].status}</b>
                               </div>
+                              <div>
+                                <span>IMPLANT</span>
+                                <b className="os-id">
+                                  {people[person].implant}
+                                </b>
+                              </div>
+                            </div>
+                            <div className="os-person-chips">
+                              <span>{people[person].facility}</span>
+                              <span>{people[person].terminal}</span>
+                              <span>LAST {people[person].session}</span>
+                            </div>
+                            <div className="os-bio-bars" aria-hidden="true">
+                              {Array.from({ length: 24 }, (_, i) => (
+                                <i
+                                  key={i}
+                                  style={{
+                                    height: `${10 + ((i * 13 + person * 7) % 22)}px`,
+                                    opacity:
+                                      i <
+                                      Math.round(+people[person].signal / 5)
+                                        ? 1
+                                        : 0.25,
+                                  }}
+                                />
+                              ))}
                             </div>
                           </div>
                         </div>
@@ -1097,11 +1192,19 @@ export function CyberOS({
             )}
           </AnimatePresence>
         </main>
+        )}
       </div>
       <footer className="os-taskbar">
-        <span className="os-taskbar-logo">
-          BL<span>://</span>
-        </span>
+        <button
+          className={`os-start ${menu ? "open" : ""}`}
+          aria-label="Startmenü"
+          onClick={() => setMenu((v) => !v)}
+        >
+          <span className="os-taskbar-logo">
+            {config.title.slice(0, 2)}
+            <span>://</span>
+          </span>
+        </button>
         <div className="os-task-buttons">
           {["terminal", "files", "personnel", "sequences"].map((id) => {
             const a = apps.find((x) => x.id === id)!;

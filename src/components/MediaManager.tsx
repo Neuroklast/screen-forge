@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { deleteMedia, saveMedia, useMedia } from "../core/media";
 import type { Config } from "../core/config";
+import { isModelAsset } from "../scenes/shared/ModelViewport";
 export function MediaManager({
   config,
   onChange,
@@ -60,18 +61,22 @@ export function MediaManager({
           <input
             aria-label="Medien hochladen"
             type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif"
+            accept="image/png,image/jpeg,image/webp,image/gif,.glb,.gltf,model/gltf-binary,model/gltf+json"
             multiple
             onChange={async (e) => {
               const files = Array.from(e.target.files ?? []);
               try {
                 for (const file of files) {
+                  const model = /\.(glb|gltf)$/i.test(file.name);
                   if (
                     file.size > 12_000_000 ||
-                    !/^image\/(png|jpeg|webp|gif)$/.test(file.type)
+                    !(
+                      /^image\/(png|jpeg|webp|gif)$/.test(file.type) ||
+                      model
+                    )
                   )
                     throw Error(
-                      "PNG, JPEG, WebP oder GIF bis 12 MB verwenden.",
+                      "PNG, JPEG, WebP, GIF oder GLB/GLTF bis 12 MB verwenden.",
                     );
                   await saveMedia({
                     id: crypto.randomUUID(),
@@ -94,7 +99,13 @@ export function MediaManager({
       <div className="media-grid">
         {visible.slice(page * 6, page * 6 + 6).map((a) => (
           <article key={a.id}>
-            <img src={a.url} alt={a.name} />
+            {isModelAsset(a) ? (
+              <div className="media-model-slot" aria-label={a.name}>
+                3D
+              </div>
+            ) : (
+              <img src={a.url} alt={a.name} />
+            )}
             <input
               aria-label={`Dateiname ${a.name}`}
               defaultValue={a.name}
@@ -167,7 +178,7 @@ export function MediaManager({
       <p>
         {status ||
           error ||
-          `${selected.length} Bilder in der Terminal-Bildfolge. Dateien bleiben in diesem Browser gespeichert.`}
+          `${selected.length} Medien in der Bildfolge. GLB/GLTF erscheinen im Analysetisch.`}
       </p>
     </div>
   );

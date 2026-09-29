@@ -35,23 +35,37 @@
   background-image:
     linear-gradient(var(--sf-color-80dce529) var(--sf-layout-1px), transparent var(--sf-layout-1px)),
     linear-gradient(var(--sf-layout-90deg), var(--sf-color-80dce529) var(--sf-layout-1px), transparent var(--sf-layout-1px));
-  background-size: var(--sf-layout-48px) var(--sf-layout-48px);
+  background-size: var(--sf-layout-16px) var(--sf-layout-16px);
 }
 .fx-scan {
   opacity: var(--scan);
   background: repeating-linear-gradient(
     var(--sf-layout-0deg),
-    var(--sf-color-000b) 0,
-    var(--sf-color-000b) var(--sf-layout-1px),
+    rgb(0 0 0 / 0.16) 0,
+    rgb(0 0 0 / 0.16) var(--sf-layout-1px),
     transparent var(--sf-layout-1px),
-    transparent var(--sf-layout-4px)
+    transparent var(--sf-layout-2px)
   );
 }
 .fx-noise {
-  opacity: var(--grain);
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
-  background-size: var(--sf-layout-150px) var(--sf-layout-150px);
-  mix-blend-mode: soft-light;
+  opacity: calc(var(--grain) * 0.45);
+  background-image:
+    repeating-linear-gradient(
+      var(--sf-layout-0deg),
+      transparent 0,
+      transparent var(--sf-layout-2px),
+      var(--sf-color-80dce529) var(--sf-layout-2px),
+      var(--sf-color-80dce529) var(--sf-layout-3px)
+    ),
+    repeating-linear-gradient(
+      var(--sf-layout-90deg),
+      transparent 0,
+      transparent var(--sf-layout-3px),
+      var(--sf-color-ffffff0b) var(--sf-layout-3px),
+      var(--sf-color-ffffff0b) var(--sf-layout-4px)
+    );
+  background-size: var(--sf-layout-16px) var(--sf-layout-10px), var(--sf-layout-12px) var(--sf-layout-18px);
+  mix-blend-mode: screen;
 }
 .fx-phosphor {
   opacity: var(--glow);
@@ -70,23 +84,29 @@
 .fx-tech-noise {
   width: 100%;
   height: 100%;
+  mix-blend-mode: screen;
+}
+.model-viewport {
+  width: 100%;
+  height: 100%;
+  min-height: var(--sf-layout-260px);
+}
+.model-viewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .fx-vignette {
   opacity: var(--vignette);
   background: radial-gradient(ellipse, transparent 40%, var(--sf-color-000));
 }
 .fx-chroma {
-  box-shadow:
-    inset var(--sf-layout-2px) 0 var(--sf-color-26eaff),
-    inset var(--sf-layout-2px) 0 var(--sf-color-ff406a);
   background: repeating-linear-gradient(
     var(--sf-layout-90deg),
     var(--sf-color-00ffff09) 0,
     var(--sf-color-00ffff09) var(--sf-layout-1px),
     transparent var(--sf-layout-1px),
-    transparent var(--sf-layout-3px),
-    var(--sf-color-ff005509) var(--sf-layout-3px),
-    var(--sf-color-ff005509) var(--sf-layout-4px)
+    transparent var(--sf-layout-8px)
   );
 }
 .display-fx .fx-tear {
@@ -185,7 +205,7 @@
   margin-top: var(--sf-space-12px);
 }
 .corp-main {
-  overflow: auto;
+  overflow: hidden;
 }
 .holo-readout .process-readout {
   padding: var(--sf-space-10px);
@@ -299,19 +319,30 @@
   background: var(--theme-bg);
   color: var(--theme-text);
 }
+.scene-canvas.is-flat .corporate,
+.scene-canvas.is-flat .os-topbar,
+.scene-canvas.is-flat .os-taskbar,
+.scene-canvas.is-flat .os-desktop {
+  background-image: none;
+}
+.scene-canvas.is-flat .fx-phosphor,
+.scene-canvas.is-flat .fx-atmosphere {
+  opacity: 0;
+}
 .family-corporate {
   --scene-bg: var(--theme-bg);
   --corp-ink: var(--theme-text);
-  --corp-muted: var(--theme-secondary);
-  --corp-line: color-mix(in srgb, var(--theme-text) 22%, var(--theme-bg));
+  --corp-muted: color-mix(in srgb, var(--theme-text) 72%, var(--theme-bg));
+  --corp-line: color-mix(in srgb, var(--theme-text) 42%, var(--theme-bg));
+  --corp-card: var(--theme-surface);
 }
 .cyber-os {
   --os-bg: var(--theme-bg);
   --os-panel: var(--theme-surface);
   --os-text: var(--theme-text);
-  --os-cyan: var(--theme-secondary);
-  --os-line: color-mix(in srgb, var(--theme-secondary) 25%, var(--theme-bg));
-  --os-muted: color-mix(in srgb, var(--theme-secondary) 68%, var(--theme-bg));
+  --os-cyan: color-mix(in srgb, var(--theme-secondary) 55%, var(--theme-text));
+  --os-line: color-mix(in srgb, var(--theme-text) 28%, var(--theme-bg));
+  --os-muted: color-mix(in srgb, var(--theme-text) 62%, var(--theme-bg));
 }
 .scene-canvas:not(.family-corporate) .scene-inner {
   color: var(--theme-text);

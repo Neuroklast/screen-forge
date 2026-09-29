@@ -1,4 +1,12 @@
 import type { Page } from "@playwright/test";
+export async function osApp(page: Page, name: string) {
+  const item = page
+    .locator(".os-sidebar")
+    .getByRole("button", { name: new RegExp(name) });
+  if (!(await item.isVisible()))
+    await page.getByRole("button", { name: "Startmenü" }).click();
+  await item.click();
+}
 export async function configuration(page: Page, tab: string) {
   if (!(await page.getByRole("tab", { name: tab, exact: true }).isVisible()))
     await page.getByLabel("Konfiguration öffnen").click();

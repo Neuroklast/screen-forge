@@ -7,6 +7,8 @@ import { formatTime } from "../../core/runtime";
 import { Changed, ProcessReadout, useProcess } from "./Process";
 import { SpatialAssembly } from "./SpatialAssembly";
 import { trackPoint, trackTelemetry } from "./spatial";
+import { useMedia } from "../../core/media";
+import { isModelAsset, ModelViewport } from "./ModelViewport";
 export function Corporate(props: SceneProps) {
   const { config, time, cue, onCue } = props;
   const [tab, setTab] = useState("Overview"),
@@ -318,6 +320,10 @@ export function Hologram(props: SceneProps) {
   const { config, time, cue } = props;
   const [selection, setSelection] = useState("Geometry");
   const process = useProcess(props);
+  const { assets } = useMedia();
+  const model = (config.mediaIds ?? [])
+    .map((id) => assets.find((a) => a.id === id))
+    .find((a): a is NonNullable<typeof a> => !!a && isModelAsset(a));
   return (
     <div className="hologram scene-inner">
       <SceneHeader
@@ -383,15 +389,21 @@ export function Hologram(props: SceneProps) {
         </aside>
         <div className="holo-object">
           <GestureSurface label="Hologramm verschieben, zoomen und drehen">
-            <SpatialAssembly
-              time={time}
-              progress={process.progress}
-              mode={selection}
-            />
+            {model ? (
+              <ModelViewport
+                time={time}
+                url={model.url}
+                accent={config.accent}
+              />
+            ) : (
+              <SpatialAssembly
+                time={time}
+                progress={process.progress}
+                mode={selection}
+              />
+            )}
           </GestureSurface>
-          <div className="holo-hint">
-            3D DEPTH / PAN / PINCH TO SCALE / TWIST VIEW
-          </div>
+
         </div>
         <aside className="holo-readout">
           <div className="micro">{selection.toUpperCase()} / LIVE VIEW</div>
@@ -601,7 +613,14 @@ export function Tracking(props: SceneProps) {
           <button
             className="scene-button"
             onClick={() => {
-              setHold(hold === null ? time : null);
+              if (hold === null) {
+                setHold(time);
+                window.dispatchEvent(
+                  new CustomEvent("screenforge:input", {
+                    detail: { type: "signal", value: "track.lock" },
+                  }),
+                );
+              } else setHold(null);
               setEpoch(time);
               onPlay?.();
             }}

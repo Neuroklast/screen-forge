@@ -32,7 +32,10 @@ const themeSchema = z.object({
 });
 type Theme = z.infer<typeof themeSchema>;
 const colors = [
-  ["Blackline", " #080d12", "#0e171f", "#d6e2e5", "#80dce5", "#f36c75"],
+  ["Carbon red", "#000000", "#0a0a0a", "#f5f5f5", "#c8c8c8", "#e10600"],
+  ["Carbon white", "#000000", "#111111", "#f2f2f2", "#bdbdbd", "#ffffff"],
+  ["Phosphor", "#000000", "#031105", "#b4ffb4", "#5a9a5a", "#7cff7c"],
+  ["Blackline", "#080d12", "#0e171f", "#d6e2e5", "#80dce5", "#f36c75"],
   ["Amber phosphor", "#100d05", "#211a09", "#f7df9c", "#c9ab58", "#ffba42"],
   ["Arctic research", "#07141c", "#102a38", "#d9f5ff", "#78cce5", "#d3efff"],
   ["Crimson lockdown", "#130609", "#290d15", "#f5cdd6", "#cf829b", "#ff3b5d"],
@@ -41,6 +44,7 @@ const colors = [
   ["Vesper laboratory", "#f4f3f0", "#e4e3df", "#151515", "#62636b", "#cf233c"],
   ["Desert telemetry", "#15120b", "#282216", "#e4d7b6", "#b6a77e", "#e8b563"],
 ];
+const flat = new Set(["Carbon red", "Carbon white", "Phosphor"]);
 export function ThemeEditor({
   config,
   onChange,
@@ -70,16 +74,26 @@ export function ThemeEditor({
       palette: { background: background.trim(), surface, text, secondary },
       accent,
       mood: name === "Crimson lockdown" ? "tense" : "clinical",
-      effects: 0.8,
-      overlays: {
-        scanlines: 0.5,
-        glow: 0.55,
-        grid: 0.16,
-        grain: 0.35,
-        vignette: 0.45,
-        glitch: 0.24,
-        chromatic: 0.3,
-      },
+      effects: flat.has(name) ? 0.35 : 0.8,
+      overlays: flat.has(name)
+        ? {
+            scanlines: 0.4,
+            glow: 0,
+            grid: 0.22,
+            grain: 0.08,
+            vignette: 0.15,
+            glitch: 0,
+            chromatic: 0,
+          }
+        : {
+            scanlines: 0.5,
+            glow: 0.55,
+            grid: 0.16,
+            grain: 0.35,
+            vignette: 0.45,
+            glitch: 0.24,
+            chromatic: 0.3,
+          },
     }),
   );
   const palette = config.palette ?? scenePalette(config.scene);
@@ -103,9 +117,18 @@ export function ThemeEditor({
           onChange={(e) => {
             const t = [...presets, ...custom][Number(e.target.value)];
             if (t) {
-              onChange({ ...config, ...t });
+              onChange({
+                ...config,
+                palette: t.palette,
+                accent: t.accent,
+                mood: t.mood,
+                effects: t.effects,
+                overlays: t.overlays,
+                font: t.font,
+                tokens: t.tokens,
+              });
               setName(t.name);
-              setStatus("Theme geladen.");
+              setStatus("Theme geladen. Firma bleibt.");
             }
           }}
         >
@@ -188,7 +211,7 @@ export function ThemeEditor({
       </div>
       <p role="status">
         {status ||
-          "Farben, Stimmung und Effekte werden gemeinsam gespeichert. JSON-Export über Presets."}
+          "Themes setzen nur Farbe. Firma bleibt unter Firmen."}
       </p>
     </details>
   );

@@ -5,6 +5,11 @@ export const sceneIds = [
   "countdown",
   "tracking",
   "hologram",
+  "lock",
+  "access",
+  "medical",
+  "camera",
+  "comms",
 ] as const;
 export type SceneId = (typeof sceneIds)[number];
 const overlaySchema = z.object({
@@ -43,9 +48,12 @@ export const schema = z.object({
   mediaIds: z.array(z.string().max(80)).max(100).default([]),
   pin: z
     .string()
-    .regex(/^\d{4,8}$/)
+    .regex(/^[A-Za-z0-9]{4,8}$/)
     .default("2048"),
   pinEnabled: z.boolean().default(false),
+  pinMode: z.enum(["numeric", "alphanumeric"]).default("numeric"),
+  pinFake: z.boolean().default(false),
+  sound: z.boolean().default(true),
   font: z
     .enum([
       "space",
@@ -72,7 +80,16 @@ export const schema = z.object({
   brand: z
     .object({
       mark: z
-        .enum(["default", "umbrella", "hex", "orbital"])
+          .enum([
+            "default",
+            "umbrella",
+            "hex",
+            "orbital",
+            "atom",
+            "triad",
+            "plate",
+            "ridge",
+          ])
         .default("default"),
       logo: z
         .string()
@@ -110,6 +127,7 @@ export const scenes: {
   accent: string;
   title: string;
   subtitle: string;
+  kind: "scene" | "block";
 }[] = [
   {
     id: "corporate",
@@ -119,6 +137,7 @@ export const scenes: {
     accent: "#cf233c",
     title: "VESPER",
     subtitle: "BIOLOGICAL RESEARCH DIVISION",
+    kind: "scene",
   },
   {
     id: "terminal",
@@ -128,6 +147,7 @@ export const scenes: {
     accent: "#f36c75",
     title: "BLACKLINE",
     subtitle: "NETWORK OPERATIONS / LOCAL SESSION",
+    kind: "scene",
   },
   {
     id: "countdown",
@@ -137,6 +157,7 @@ export const scenes: {
     accent: "#ff8a62",
     title: "SEQUENCE CONTROL",
     subtitle: "AUTONOMOUS DEVICE / SERIES 09",
+    kind: "scene",
   },
   {
     id: "tracking",
@@ -146,6 +167,7 @@ export const scenes: {
     accent: "#9ad9c0",
     title: "ORBITAL SURVEY",
     subtitle: "REMOTE OBSERVATION / SECTOR 07",
+    kind: "scene",
   },
   {
     id: "hologram",
@@ -155,8 +177,121 @@ export const scenes: {
     accent: "#8acde8",
     title: "AEON",
     subtitle: "SPATIAL ANALYSIS ENVIRONMENT",
+    kind: "scene",
+  },
+  {
+    id: "lock",
+    name: "Codeschloss",
+    code: "06 / ACCESS",
+    description: "PIN-Feld. Ein Baustein.",
+    accent: "#e10600",
+    title: "ACCESS GATE",
+    subtitle: "LOCAL AUTH / KEYPAD",
+    kind: "block",
+  },
+  {
+    id: "access",
+    name: "Türsteuerung",
+    code: "07 / INTERLOCK",
+    description: "Riegel. Halten zum Öffnen.",
+    accent: "#dfa943",
+    title: "DOOR 02",
+    subtitle: "INTERLOCK CONTROLLER",
+    kind: "block",
+  },
+  {
+    id: "medical",
+    name: "Medizin",
+    code: "08 / CLINICAL",
+    description: "Vitalwerte. Protokoll halten.",
+    accent: "#76fa96",
+    title: "INFIRMARY",
+    subtitle: "SITE MEDICAL / MED-01",
+    kind: "block",
+  },
+  {
+    id: "camera",
+    name: "Kamera",
+    code: "09 / OPTICAL",
+    description: "Vier Kanäle. Einen wählen.",
+    accent: "#9ad9c0",
+    title: "OPTICS",
+    subtitle: "SITE CAMERA ARRAY",
+    kind: "block",
+  },
+  {
+    id: "comms",
+    name: "Funk",
+    code: "10 / COMMS",
+    description: "Log und Sprechtaste.",
+    accent: "#78cce5",
+    title: "RELAY",
+    subtitle: "VOICE / DATA CHANNEL",
+    kind: "block",
   },
 ];
+export function identityOf(config: Config): Pick<
+  Config,
+  | "title"
+  | "subtitle"
+  | "identifier"
+  | "accent"
+  | "brand"
+  | "palette"
+  | "skin"
+  | "font"
+  | "mood"
+  | "overlays"
+  | "effects"
+  | "brightness"
+  | "mediaIds"
+  | "tokens"
+  | "pin"
+  | "pinEnabled"
+  | "pinMode"
+  | "pinFake"
+  | "sound"
+> {
+  return {
+    title: config.title,
+    subtitle: config.subtitle,
+    identifier: config.identifier,
+    accent: config.accent,
+    brand: config.brand,
+    palette: config.palette,
+    skin: config.skin,
+    font: config.font,
+    mood: config.mood,
+    overlays: config.overlays,
+    effects: config.effects,
+    brightness: config.brightness,
+    mediaIds: config.mediaIds,
+    tokens: config.tokens,
+    pin: config.pin,
+    pinEnabled: config.pinEnabled,
+    pinMode: config.pinMode,
+    pinFake: config.pinFake,
+    sound: config.sound,
+  };
+}
+export function withScene(config: Config, scene: SceneId): Config {
+  return { ...defaults(scene), ...identityOf(config), scene };
+}
+export function applyIdentity(
+  config: Config,
+  identity: Partial<
+    Pick<Config, "title" | "subtitle" | "identifier" | "brand">
+  >,
+): Config {
+  return {
+    ...config,
+    title: identity.title ?? config.title,
+    subtitle: identity.subtitle ?? config.subtitle,
+    identifier: identity.identifier ?? config.identifier,
+    brand: identity.brand ?? config.brand,
+    scene: config.scene,
+  };
+}
 export function defaults(scene: SceneId = "corporate"): Config {
   const s = scenes.find((x) => x.id === scene)!;
   return {
@@ -164,6 +299,9 @@ export function defaults(scene: SceneId = "corporate"): Config {
     mediaIds: [],
     pin: "2048",
     pinEnabled: false,
+    pinMode: "numeric",
+    pinFake: false,
+    sound: true,
     font: "space",
     tokens: {},
     skin: "standard",

@@ -360,11 +360,25 @@ h1 {
   left: 50%;
   transform-origin: center;
   overflow: hidden;
+  scrollbar-width: none;
+  user-select: none;
+  -webkit-user-select: none;
   --scene-bg: var(--sf-color-0b1314);
   --accent: var(--sf-color-b6d7ce);
   background: var(--scene-bg);
   color: var(--accent);
   font-family: "IBM Plex Mono", monospace;
+}
+.scene-canvas *,
+.scene-inner,
+.scene-inner * {
+  user-select: none;
+  -webkit-user-select: none;
+  scrollbar-width: none;
+}
+.scene-canvas *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 .scene-inner {
   height: 100%;

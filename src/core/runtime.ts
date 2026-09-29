@@ -16,6 +16,11 @@ export function noise(index: number, seed: number) {
   const v = Math.sin(index * 127.1 + seed * 311.7) * 43758.5453;
   return v - Math.floor(v);
 }
+export function scriptedInput(target: string, current: string, key: string) {
+  if (key === "Backspace") return current.slice(0, Math.max(0, current.length - 1));
+  if (key.length === 1) return target.slice(0, current.length + 1);
+  return current;
+}
 export function useSceneClock() {
   const [elapsed, setElapsed] = useState(0),
     [playing, setPlaying] = useState(true);

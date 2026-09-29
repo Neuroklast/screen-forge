@@ -106,6 +106,10 @@ export const people = [
     file: "/personnel/vale.record",
     notes:
       "Leads the dimensional reconstruction program. Authorized to inspect the sector 07 archive.",
+    facility: "SECTOR 07 / LAB 3",
+    terminal: "TTY.07",
+    session: "06:42:17",
+    implant: "NV-2048",
     events: [
       "Identity chain renewed",
       "Archive access recorded",
@@ -123,6 +127,10 @@ export const people = [
     file: "/personnel/ward.record",
     notes:
       "Maintains remote relay reference maps. Temporary access to transport diagnostics.",
+    facility: "RELAY 12 / FIELD",
+    terminal: "TTY.12",
+    session: "06:38:02",
+    implant: "NV-1194",
     events: [
       "Relay 12 inspection",
       "Remote session registered",
@@ -140,6 +148,10 @@ export const people = [
     file: "/personnel/mercer.record",
     notes:
       "Historical timestamps disagree with the local reference. Manual review requested.",
+    facility: "ARCHIVE 04 / VAULT",
+    terminal: "TTY.04",
+    session: "05:11:44",
+    implant: "NV-0108",
     events: [
       "Timestamp discrepancy found",
       "Archive session isolated",

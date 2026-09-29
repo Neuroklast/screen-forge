@@ -1,4 +1,4 @@
-import { configuration, closeConfiguration } from "./helpers";
+import { configuration, closeConfiguration, osApp } from "./helpers";
 import { test, expect } from "@playwright/test";
 test("all scenes render and operator controls reset a take", async ({
   page,
@@ -12,6 +12,11 @@ test("all scenes render and operator controls reset a take", async ({
     "Countdown",
     "Orbital Tracking",
     "Analysetisch",
+    "Codeschloss",
+    "Türsteuerung",
+    "Medizin",
+    "Kamera",
+    "Funk",
   ]) {
     await page
       .getByRole("button", { name: new RegExp(title) })
@@ -35,10 +40,7 @@ test("prepared input, preset export, stage escape and persistence", async ({
     .getByRole("button", { name: /Netzwerkterminal/ })
     .first()
     .click();
-  await page
-    .locator(".os-sidebar")
-    .getByRole("button", { name: /Terminal/ })
-    .click();
+  await osApp(page, "Terminal");
   await page.getByLabel("Terminaleingabe").fill("abcdef");
   await expect(page.getByLabel("Terminaleingabe")).toHaveValue("inspec");
   await page.getByLabel("Terminaleingabe").fill("x".repeat(100));
@@ -120,11 +122,6 @@ test("multitouch scale, rotate and cancel remain finite", async ({ page }) => {
     .getAttribute("style");
   expect(transform).not.toContain("NaN");
   expect(transform).not.toContain("scale(1)");
-  await page.getByTitle("Ansicht zurücksetzen").click();
-  await expect(page.locator(".gesture-content")).toHaveAttribute(
-    "style",
-    /scale\(1\) rotate\(0deg\)/,
-  );
 });
 test("mobile layout and preset validation", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

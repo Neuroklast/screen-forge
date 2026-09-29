@@ -5,6 +5,7 @@ import { CyberOS } from "./os/CyberOS";
 
 import type { Config } from "../core/config";
 import { noise, type Cue } from "../core/runtime";
+import { Access, Camera, Comms, Lock, Medical } from "./blocks/Blocks";
 
 export type SceneProps = {
   config: Config;
@@ -12,7 +13,7 @@ export type SceneProps = {
   cue: Cue;
   onCue: (cue: Cue) => void;
   onPlay?: () => void;
-  operation?:string;
+  operation?: string;
   onTimelineExtend?: (end: number) => void;
 };
 function Label({ children }: { children: React.ReactNode }) {
@@ -106,4 +107,9 @@ export const sceneComponents = {
   countdown: Warhead,
   tracking: Tracking,
   hologram: Hologram,
+  lock: Lock,
+  access: Access,
+  medical: Medical,
+  camera: Camera,
+  comms: Comms,
 };

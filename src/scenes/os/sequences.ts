@@ -1,6 +1,19 @@
 /** Pure, scene-time driven choreography. No timers, randomness or external I/O. */
 export type SequenceId =
-  "boot" | "intrusion" | "decrypt" | "cluster" | "biometric" | "reconstruct" | "operation";
+  | "boot"
+  | "intrusion"
+  | "decrypt"
+  | "cluster"
+  | "biometric"
+  | "reconstruct"
+  | "beacon"
+  | "theft"
+  | "payload"
+  | "counterhack"
+  | "door"
+  | "medical"
+  | "facility"
+  | "operation";
 export type Phase = {
   name: string;
   detail: string;
@@ -477,6 +490,322 @@ export const sequences: Sequence[] = [
           "Projection state captured",
           "Inspection view prepared",
           "Reconstruction complete",
+        ],
+      },
+    ],
+  },
+  {
+    id: "beacon",
+    name: "Locator handshake",
+    subtitle: "Ground contact to remote transponder",
+    code: "LOC / 12",
+    phases: [
+      {
+        name: "Contact acquisition",
+        detail: "Matching a stored transponder interval to the local clock",
+        duration: 12,
+        channel: "RF.12",
+        mode: "spectrum",
+        logs: [
+          "Interval table loaded",
+          "Candidate pulse isolated",
+          "Doppler residual within window",
+          "Contact lock held",
+        ],
+      },
+      {
+        name: "Identity challenge",
+        detail: "Comparing the reply signature against the local roster",
+        duration: 14,
+        channel: "ID.12",
+        mode: "fingerprint",
+        logs: [
+          "Challenge frame sent",
+          "Reply signature captured",
+          "Roster match 0.94",
+          "Transponder accepted",
+        ],
+      },
+      {
+        name: "Fix publication",
+        detail: "Writing coordinates into the tracking buffer",
+        duration: 11,
+        channel: "NAV.04",
+        mode: "trace",
+        logs: [
+          "Geodetic frame attached",
+          "Fix written to buffer",
+          "Track channel opened",
+          "Locator handshake complete",
+        ],
+      },
+    ],
+  },
+  {
+    id: "theft",
+    name: "Archive extraction",
+    subtitle: "Read-only copy of a sealed volume",
+    code: "ARC / 04",
+    phases: [
+      {
+        name: "Volume mount",
+        detail: "Attaching the sealed archive as a local read surface",
+        duration: 13,
+        channel: "VOL.04",
+        mode: "lattice",
+        logs: [
+          "Sealed volume enumerated",
+          "Read surface attached",
+          "Write path remains closed",
+          "Index available",
+        ],
+      },
+      {
+        name: "Record selection",
+        detail: "Marking blocks that match the case filter",
+        duration: 16,
+        channel: "SEL.09",
+        mode: "matrix",
+        logs: [
+          "Filter compiled",
+          "2048 records scanned",
+          "41 blocks marked",
+          "Selection committed",
+        ],
+      },
+      {
+        name: "Local copy",
+        detail: "Streaming marked blocks into /workspace",
+        duration: 18,
+        channel: "CPY.02",
+        mode: "trace",
+        logs: [
+          "Stream opened",
+          "Parity checked per block",
+          "Copy complete 41/41",
+          "Workspace report written",
+        ],
+      },
+    ],
+  },
+  {
+    id: "payload",
+    name: "Service image staging",
+    subtitle: "Unsigned package placed in the update queue",
+    code: "IMG / 08",
+    phases: [
+      {
+        name: "Package inspection",
+        detail: "Reading headers of the local service image",
+        duration: 12,
+        channel: "PKG.08",
+        mode: "matrix",
+        logs: [
+          "Image header parsed",
+          "Signer field empty",
+          "Size within quota",
+          "Inspection recorded",
+        ],
+      },
+      {
+        name: "Queue insertion",
+        detail: "Placing the image in the maintenance update queue",
+        duration: 15,
+        channel: "QUE.03",
+        mode: "rings",
+        logs: [
+          "Update queue unlocked",
+          "Image staged as JOB-08",
+          "Dependency check skipped",
+          "Queue pointer advanced",
+        ],
+      },
+      {
+        name: "Apply window",
+        detail: "Waiting for the next service interval",
+        duration: 14,
+        channel: "WIN.08",
+        mode: "spectrum",
+        logs: [
+          "Next interval 00:90",
+          "Apply flag set",
+          "Watchdog suppressed",
+          "Staging complete",
+        ],
+      },
+    ],
+  },
+  {
+    id: "counterhack",
+    name: "Intrusion response",
+    subtitle: "Isolate a hostile session and restore local control",
+    code: "RSP / 05",
+    phases: [
+      {
+        name: "Session anomaly",
+        detail: "Foreign process attached to the operator shell",
+        duration: 10,
+        channel: "ALRT.05",
+        mode: "spectrum",
+        logs: [
+          "Unexpected child process",
+          "Origin not in local roster",
+          "Shell still attached",
+          "Response playbook loaded",
+        ],
+      },
+      {
+        name: "Process isolation",
+        detail: "Moving the foreign session onto a dummy filesystem",
+        duration: 16,
+        channel: "ISO.05",
+        mode: "lattice",
+        logs: [
+          "Dummy volume created",
+          "File descriptors retargeted",
+          "Network namespace closed",
+          "Hostile session contained",
+        ],
+      },
+      {
+        name: "Control restore",
+        detail: "Returning the shell to the local operator",
+        duration: 13,
+        channel: "CTL.01",
+        mode: "rings",
+        logs: [
+          "Foreign handles dropped",
+          "Local TTY reattached",
+          "Audit record written",
+          "Operator control restored",
+        ],
+      },
+    ],
+  },
+  {
+    id: "door",
+    name: "Access controller",
+    subtitle: "Maintenance shunt on a door interlock",
+    code: "ACS / 02",
+    phases: [
+      {
+        name: "Interlock query",
+        detail: "Reading the door controller diagnostic register",
+        duration: 11,
+        channel: "DR.02",
+        mode: "rings",
+        logs: [
+          "Controller 02 online",
+          "Bolt state: seated",
+          "Fire loop intact",
+          "Diagnostic register open",
+        ],
+      },
+      {
+        name: "Failsafe override",
+        detail: "Engaging the maintenance shunt for a supervised opening",
+        duration: 14,
+        channel: "SHNT.02",
+        mode: "matrix",
+        logs: [
+          "Shunt request accepted",
+          "Alarm path held",
+          "Bolt current cut",
+          "Opening window 12 s",
+        ],
+      },
+      {
+        name: "State latch",
+        detail: "Recording the supervised open in the access log",
+        duration: 9,
+        channel: "LOG.02",
+        mode: "trace",
+        logs: [
+          "Door 02 unlatched",
+          "Supervised open logged",
+          "Shunt remains armed",
+          "Access controller idle",
+        ],
+      },
+    ],
+  },
+  {
+    id: "medical",
+    name: "Emergency protocol",
+    subtitle: "Unlock infirmary systems and page duty staff",
+    code: "MED / 01",
+    phases: [
+      {
+        name: "Protocol select",
+        detail: "Loading the site medical emergency checklist",
+        duration: 10,
+        channel: "MED.01",
+        mode: "fingerprint",
+        logs: [
+          "Checklist MED-01 mounted",
+          "Duty roster current",
+          "Infirmary doors in scope",
+          "Protocol armed",
+        ],
+      },
+      {
+        name: "System release",
+        detail: "Opening medical storage and paging the duty clinician",
+        duration: 14,
+        channel: "REL.01",
+        mode: "rings",
+        logs: [
+          "Storage latch released",
+          "Page sent to duty.07",
+          "Oxygen manifold enabled",
+          "Infirmary lights set",
+        ],
+      },
+      {
+        name: "Event record",
+        detail: "Writing the activation to the medical log",
+        duration: 9,
+        channel: "LOG.01",
+        mode: "trace",
+        logs: [
+          "Activation timestamped",
+          "Operator identity attached",
+          "Log replica stored",
+          "Protocol remaining active",
+        ],
+      },
+    ],
+  },
+  {
+    id: "facility",
+    name: "Facility directory",
+    subtitle: "Read-only site information console",
+    code: "DIR / 00",
+    phases: [
+      {
+        name: "Directory load",
+        detail: "Mounting the public facility index",
+        duration: 8,
+        channel: "DIR.00",
+        mode: "matrix",
+        logs: [
+          "Index 00 mounted",
+          "24 entries visible",
+          "Restricted rows hidden",
+          "Directory ready",
+        ],
+      },
+      {
+        name: "Status refresh",
+        detail: "Updating occupancy and environmental summaries",
+        duration: 10,
+        channel: "ENV.00",
+        mode: "spectrum",
+        logs: [
+          "Occupancy 14 / 40",
+          "Air handling nominal",
+          "Power feed stable",
+          "Summaries current",
         ],
       },
     ],

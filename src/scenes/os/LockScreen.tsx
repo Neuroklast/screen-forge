@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ChevronRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { FingerprintGraphic } from "./Visuals";
+import { formatTime } from "../../core/runtime";
 export function LockScreen({
   time,
   onPlay,
@@ -62,6 +63,19 @@ export function LockScreen({
         <span className="os-kicker">OPERATOR ACCESS / 3-POINT ALIGNMENT</span>
         <h2>Establish identity.</h2>
         <p>Align the three access gates, then hold the contact sensor.</p>
+        <dl className="os-lock-tele">
+          {[
+            ["AUTH_CHAIN", `${gate}/3`],
+            ["SLIDE_POS", `${position.toFixed(1)}`],
+            ["GATE", gate < 3 ? `CHK-${gate + 1}` : "SENSOR"],
+            ["CLOCK", formatTime(time)],
+          ].map(([k, v]) => (
+            <div key={k}>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        </dl>
         <div className="os-lock-stages">
           {["CARRIER", "SESSION", "IDENTITY"].map((x, i) => (
             <div
@@ -82,6 +96,7 @@ export function LockScreen({
             </div>
             <div className="os-unlock-rail">
               <div style={{ width: `${position}%` }} />
+              <b className="os-unlock-handle" style={{ left: `${position}%` }} />
               <input
                 aria-label="Zugang ausrichten"
                 type="range"

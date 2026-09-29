@@ -5,4 +5,29 @@
 @font-face{font-family:DigitTech16;src:url('/fonts/digit-tech/DigitTech16-Regular.ttf') format('truetype');font-display:swap;}
 @font-face{font-family:Gridtile;src:url('/fonts/gridtile/Gridtile.ttf') format('truetype');font-display:swap;}
 @font-face{font-family:codiceBinario;src:url('/fonts/codicebinario/codiceBinario.otf') format('opentype');font-display:swap;}
-.scene-canvas .scene-brand strong,.scene-canvas .os-wordmark strong,.scene-canvas .countdown-digits,.scene-canvas h2,.scene-canvas h3 {font-family:var(--scene-font),'Space Grotesk',sans-serif;}
+.scene-canvas .scene-brand strong,
+.scene-canvas .os-wordmark strong {
+  font-family: var(--scene-font), "Space Grotesk", sans-serif;
+}
+.scene-canvas h2,
+.scene-canvas h3 {
+  font-family: "Space Grotesk", sans-serif;
+}
+.scene-canvas .countdown-digits,
+.scene-canvas .codepad-value,
+.scene-canvas .os-person-meta b,
+.scene-canvas .os-id {
+  font-family: "DigitTech7", "IBM Plex Mono", monospace;
+}
+.scene-canvas .micro,
+.scene-canvas .os-kicker,
+.scene-canvas .os-file-table,
+.scene-canvas .os-person-events,
+.scene-canvas .warhead-journal,
+.scene-canvas .os-window-bar {
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+}
+.scene-canvas .os-personnel-hero h3,
+.scene-canvas .os-personnel-layout > nav > button strong {
+  font-family: "Space Grotesk", sans-serif;
+}

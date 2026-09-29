@@ -1,4 +1,4 @@
-import { configuration, closeConfiguration } from "./helpers";
+import { configuration, closeConfiguration, osApp } from "./helpers";
 import { test, expect, type Page } from "@playwright/test";
 async function enter(page: Page) {
   await page.goto("/");
@@ -10,10 +10,7 @@ async function enter(page: Page) {
   await page.getByLabel("Szenenzeit", { exact: true }).fill("0");
 }
 async function app(page: Page, name: string) {
-  await page
-    .locator(".os-sidebar")
-    .getByRole("button", { name: new RegExp(name) })
-    .click();
+  await osApp(page, name);
 }
 async function seek(page: Page, time: number) {
   await page.getByLabel("Szenenzeit", { exact: true }).fill(String(time));

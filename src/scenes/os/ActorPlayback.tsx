@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { SequenceVisual } from "./Visuals";
 import { useMedia } from "../../core/media";
 import { Changed } from "../shared/Process";
+import { playSound } from "../../core/sound";
 import type { Phase } from "./sequences";
 const chain: {
   command: string;
@@ -137,6 +138,9 @@ export function useActorPlayback(
       )
     : [];
   useEffect(() => {
+    if (visible.length) playSound("newline");
+  }, [visible.length]);
+  useEffect(() => {
     if (running && progress === 1) {
       setHistory((h) =>
         [
@@ -151,7 +155,13 @@ export function useActorPlayback(
   }, [running, progress]);
   const submit = (command: string) => {
     if (running || !command.trim()) return;
+    playSound("scroll");
     setRunning({ start: time, index, command: target });
+    window.dispatchEvent(
+      new CustomEvent("screenforge:input", {
+        detail: { type: "signal", value: "shell.submit" },
+      }),
+    );
     onPlay?.();
   };
   return {

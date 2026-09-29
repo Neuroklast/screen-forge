@@ -124,54 +124,6 @@ export function GestureSurface({
       >
         {children}
       </div>
-      <div
-        className="gesture-controls"
-        onPointerDown={(e) => e.stopPropagation()}
-        onWheel={(e) => e.stopPropagation()}
-      >
-        <button
-          title="Verkleinern"
-          aria-label="Verkleinern"
-          onClick={() =>
-            commit({
-              ...current.current,
-              scale: Math.max(0.5, current.current.scale - 0.1),
-            })
-          }
-        >
-          −
-        </button>
-        <button
-          title="Ansicht zurücksetzen"
-          onClick={() => commit({ ...origin })}
-        >
-          {Math.round(transform.scale * 100)}%
-        </button>
-        <button
-          title="Vergrößern"
-          aria-label="Vergrößern"
-          onClick={() =>
-            commit({
-              ...current.current,
-              scale: Math.min(3, current.current.scale + 0.1),
-            })
-          }
-        >
-          +
-        </button>
-        <button
-          title="Drehen"
-          aria-label="Drehen"
-          onClick={() =>
-            commit({
-              ...current.current,
-              rotation: current.current.rotation + 15,
-            })
-          }
-        >
-          ↻
-        </button>
-      </div>
     </div>
   );
 }

@@ -47,6 +47,15 @@ export function SequencePanel({
     .slice(-7);
   return (
     <div className={`os-sequence ${state.done ? "is-complete" : ""}`}>
+      <div className="os-objective">
+        <span>OBJECTIVE</span>
+        <strong>{sequence.phases[sequence.phases.length - 1].name}</strong>
+        <small>
+          {state.done
+            ? "COMPLETE"
+            : `${state.phase.name} · ${state.index + 1}/${sequence.phases.length}`}
+        </small>
+      </div>
       <div className="os-section-head">
         <div>
           <span className="os-kicker">{sequence.code} / SEQUENCE ENGINE</span>

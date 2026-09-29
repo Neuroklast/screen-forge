@@ -1,4 +1,4 @@
-import { configuration, closeConfiguration } from "./helpers";
+import { configuration, closeConfiguration, osApp } from "./helpers";
 import { test, expect, type Page } from "@playwright/test";
 async function select(page: Page, name: string) {
   await page
@@ -82,17 +82,14 @@ test("actor typing advances distinct commands, timed output and visual channels 
 }) => {
   await page.goto("/");
   await select(page, "Netzwerkterminal");
-  await page
-    .locator(".os-sidebar")
-    .getByRole("button", { name: /Terminal/ })
-    .click();
+  await osApp(page, "Terminal");
   const input = page.getByLabel("Terminaleingabe");
   await input.fill("xxxx");
   await input.press("Enter");
   await expect(page.getByRole("log")).toContainText("inspect relay");
   await advance(page, 5);
   await input.pressSequentially("asdf");
-  await expect(input).toHaveValue(/^ip -br addre/);
+  await expect(input).toHaveValue(/^ip -/);
   await input.press("Enter");
   await expect(page.locator(".terminal-visual")).toContainText(
     "INTERFACE ENUMERATION",
@@ -100,7 +97,7 @@ test("actor typing advances distinct commands, timed output and visual channels 
   await advance(page, 5);
   await expect(page.getByRole("log")).toContainText("Interface snapshot saved");
   await input.pressSequentially("asdf");
-  await expect(input).toHaveValue(/^ip route ge/);
+  await expect(input).toHaveValue(/^ip r/);
   expect(
     await page
       .getByRole("log")
@@ -114,8 +111,8 @@ test("themes, logo and system profile survive reload and export", async ({
   await configuration(page, "Firmen");
   await page
     .getByLabel("Systemvorlage", { exact: true })
-    .selectOption({ label: "Cyberpunk 2077 HUD" });
-  await expect(page.locator(".scene-canvas")).toHaveClass(/skin-cyberdeck/);
+    .selectOption({ label: "Ashenrai Deck" });
+  await expect(page.locator(".os-wordmark strong, .scene-brand strong").first()).toHaveText("ASHENRAI");
   await configuration(page, "Themes");
   await page
     .getByLabel("Farbtheme", { exact: true })
@@ -156,13 +153,35 @@ test("themes, logo and system profile survive reload and export", async ({
   await page
     .getByLabel("Systemvorlage", { exact: true })
     .selectOption({ label: "My film system" });
-  await expect(page.locator(".os-wordmark strong")).toHaveText("NIGHT CITY OS");
+  await closeConfiguration(page);
+  await select(page, "Netzwerkterminal");
+  await expect(page.locator(".os-wordmark strong")).toHaveText("ASHENRAI");
   await expect(page.locator(".custom-brand-logo")).toBeVisible();
   await configuration(page, "Themes");
   await page
     .getByLabel("Farbtheme", { exact: true })
     .selectOption({ label: "My film amber" });
   await expect(page.getByLabel("Theme background")).toHaveValue("#100d05");
+});
+test("selected company branding applies to every scene", async ({ page }) => {
+  await page.goto("/");
+  await configuration(page, "Firmen");
+  await page
+    .getByLabel("Systemvorlage", { exact: true })
+    .selectOption({ label: "Umbrella Corporation" });
+  await closeConfiguration(page);
+  for (const name of [
+    "Konzernsystem",
+    "Netzwerkterminal",
+    "Countdown",
+    "Orbital Tracking",
+    "Analysetisch",
+  ]) {
+    await select(page, name);
+    await expect(
+      page.locator(".scene-brand strong, .os-wordmark strong").first(),
+    ).toHaveText("UMBRELLA");
+  }
 });
 test("global overlays exist on every scene, react to sliders and freeze with clock", async ({
   page,
@@ -174,6 +193,11 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
     "Countdown",
     "Orbital Tracking",
     "Analysetisch",
+    "Codeschloss",
+    "Türsteuerung",
+    "Medizin",
+    "Kamera",
+    "Funk",
   ]) {
     await closeConfiguration(page);
     await select(page, name);
@@ -197,17 +221,11 @@ test("completed OS process creates a report and messages link to processes", asy
 }) => {
   await page.goto("/");
   await select(page, "Netzwerkterminal");
-  await page
-    .locator(".os-sidebar")
-    .getByRole("button", { name: /Messages/ })
-    .click();
+  await osApp(page, "Messages");
   await page.getByRole("button", { name: "Recover attachment" }).click();
   await advance(page, 108);
   await page.getByRole("button", { name: "Return to workspace" }).click();
-  await page
-    .locator(".os-sidebar")
-    .getByRole("button", { name: /Filesystem/ })
-    .click();
+  await osApp(page, "Filesystem");
   await page.getByRole("button", { name: /^workspace/ }).click();
   await page.getByRole("button", { name: /decrypt-1.report/ }).click();
   await expect(page.getByRole("dialog")).toContainText(

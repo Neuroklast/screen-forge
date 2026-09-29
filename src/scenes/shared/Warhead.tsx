@@ -1,8 +1,18 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { SceneHeader, Wave, type SceneProps } from "../Scenes";
-import { formatTime, noise } from "../../core/runtime";
+import { SceneHeader, type SceneProps } from "../Scenes";
+import { formatTime, noise, scriptedInput } from "../../core/runtime";
 import { Changed } from "./Process";
+import { AtomEmblem } from "../../components/BrandMark";
+import { playSound } from "../../core/sound";
+import {
+  armingLog,
+  armingProgress,
+  armingStage,
+  armingStages,
+  generateTelemetry,
+  sci,
+} from "./warheadPhysics";
 export function warheadState(
   time: number,
   duration: number,
@@ -22,8 +32,77 @@ export function warheadState(
     left: Math.max(0, duration - (safe ? safeAt : time)),
   };
 }
+function PhaseTrim({
+  label,
+  value,
+  target,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  target: number;
+  disabled: boolean;
+  onChange: (n: number) => void;
+}) {
+  const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
+  const setFromEvent = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    onChange(clamp(((e.clientX - r.left) / Math.max(1, r.width)) * 100));
+  };
+  const aligned = Math.abs(value - target) <= 2;
+  return (
+    <div className={`phase-trim ${aligned ? "is-aligned" : ""}`}>
+      <div className="phase-trim-head">
+        <span>{label}</span>
+        <b>
+          {String(value).padStart(2, "0")}
+          <small>REF {String(target).padStart(2, "0")}</small>
+        </b>
+      </div>
+      <div
+        className="phase-bar"
+        role="slider"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={value}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+            e.preventDefault();
+            onChange(clamp(value + 1));
+          }
+          if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+            e.preventDefault();
+            onChange(clamp(value - 1));
+          }
+        }}
+        onPointerDown={(e) => {
+          if (disabled || e.button !== 0) return;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          setFromEvent(e);
+        }}
+        onPointerMove={(e) => {
+          if (disabled || !e.currentTarget.hasPointerCapture(e.pointerId))
+            return;
+          setFromEvent(e);
+        }}
+      >
+        {Array.from({ length: 20 }, (_, i) => (
+          <i
+            key={i}
+            className={i < Math.round(value / 5) ? "lit" : ""}
+          />
+        ))}
+        <em style={{ left: `${target}%` }} />
+      </div>
+    </div>
+  );
+}
 export function Warhead(props: SceneProps) {
-  const { config, time, onPlay } = props;
+  const { config, time, onPlay, onCue } = props;
   const [diagnostic, setDiagnostic] = useState<number | null>(null),
     [bypass, setBypass] = useState<number | null>(null),
     [hold, setHold] = useState<number | null>(null),
@@ -40,24 +119,67 @@ export function Warhead(props: SceneProps) {
     bypass === null ? 0 : Math.max(0, Math.min(1, (time - bypass) / 7));
   const holdProgress =
     hold === null ? 0 : Math.max(0, Math.min(1, (time - hold) / 3));
-  useEffect(()=>{if(state.safe)window.dispatchEvent(new CustomEvent('screenforge:input',{detail:{type:'signal',value:'device.safe'}}));else if(state.expired)window.dispatchEvent(new CustomEvent('screenforge:input',{detail:{type:'signal',value:'device.expired'}}));},[state.safe,state.expired]);
+  useEffect(() => {
+    if (state.safe)
+      window.dispatchEvent(
+        new CustomEvent("screenforge:input", {
+          detail: { type: "signal", value: "device.safe" },
+        }),
+      );
+    else if (state.expired) {
+      playSound("alert");
+      window.dispatchEvent(
+        new CustomEvent("screenforge:input", {
+          detail: { type: "signal", value: "device.expired" },
+        }),
+      );
+    }
+  }, [state.safe, state.expired]);
+  const warn =
+    state.safe || state.expired
+      ? 0
+      : state.left <= 10
+        ? 3
+        : state.left <= config.duration * 0.25
+          ? 2
+          : state.left <= config.duration * 0.5
+            ? 1
+            : 0;
+  useEffect(() => {
+    if (!warn) return;
+    playSound("alert");
+    onCue("warning");
+  }, [warn]);
+  useEffect(() => {
+    if (!warn) return;
+    const sec = Math.floor(state.left);
+    if (warn >= 2 || sec % 2 === 0) playSound("beep");
+  }, [Math.floor(state.left), warn]);
+  const progress = armingProgress(time, config.duration, state.safe);
+  const arm = armingStage(state.expired ? 1 : progress);
+  const tel = generateTelemetry(
+    state.expired ? 1 : progress,
+    Math.floor(time * 2) / 2,
+    config.seed,
+  );
+  const logs = armingLog(state.expired ? 1 : progress, time, config.seed);
   const phase = state.safe
-    ? "DISARMED"
+    ? "CONTAINMENT_RESTORED"
     : state.expired
-      ? "SIGNAL LOST"
+      ? "LOSS OF CONTAINMENT"
       : state.bypassed
         ? aligned
-          ? "READY TO NEUTRALIZE"
-          : "FIELD ALIGNMENT"
+          ? "SHUNT_READY"
+          : "PHASE_TRIM"
         : bypass !== null
-          ? "CONTROL HANDOVER"
+          ? "KERNEL_HANDOVER"
           : state.diagnosed
-            ? "BYPASS AVAILABLE"
+            ? "FAILSAFE_OVERRIDE_READY"
             : diagnostic !== null
-              ? "DIAGNOSTIC SCAN"
-              : "ARMED / TIMER ACTIVE";
-  const command = "mirror.attach --channel echo --handover local";
-  const hack = () => {
+              ? "DIAGNOSTIC_SWEEP"
+              : arm.title;
+  const command = "A7F3";
+  const stageShunt = () => {
     if (!state.diagnosed || state.expired || bypass !== null || !input) return;
     setBypass(time);
     setInput("");
@@ -72,10 +194,12 @@ export function Warhead(props: SceneProps) {
     if (!state.safe) setHold(null);
   };
   const family =
-    config.device === "nuclear" ? "NUCLEAR WARHEAD" : "ANTIMATTER WARHEAD";
+    config.device === "nuclear"
+      ? "FISSILE ASSEMBLY"
+      : "CONTAINMENT ASSEMBLY";
   return (
     <div
-      className={`countdown warhead scene-inner ${state.safe ? "device-safe" : state.expired ? "device-expired" : state.left < 30 ? "critical" : ""}`}
+      className={`countdown warhead scene-inner ${state.safe ? "device-safe" : state.expired ? "device-expired" : ""} ${warn === 1 ? "warn-half" : warn === 2 ? "warn-quarter" : warn === 3 ? "warn-ten" : ""}`}
       data-device-state={
         state.safe ? "safe" : state.expired ? "expired" : "armed"
       }
@@ -85,7 +209,7 @@ export function Warhead(props: SceneProps) {
         <span>
           {family} / {config.identifier}
         </span>
-        <span>PAYLOAD CONTROL · AUTHORIZATION TIER 04</span>
+        <span>MAINTENANCE CONSOLE · DIAGNOSTIC TIER 04</span>
       </div>
       <div className="warhead-layout">
         <aside className="warhead-core">
@@ -94,95 +218,63 @@ export function Warhead(props: SceneProps) {
               ? "PAYLOAD INTEGRITY"
               : "CONTAINMENT FIELD"}
           </div>
+          <div className="warhead-emblem">
+            <AtomEmblem />
+          </div>
           <svg
-            viewBox="0 0 240 240"
-            aria-label="Fictional containment telemetry"
+            className="warhead-trap"
+            viewBox="0 0 120 56"
+            aria-hidden="true"
           >
-            <g fill="none" stroke="currentColor">
-              {[96, 83, 66, 48].map((r, i) => (
-                <circle
-                  key={r}
-                  cx="120"
-                  cy="120"
-                  r={r}
-                  strokeDasharray={i % 2 ? "5 7" : "90 30"}
-                  strokeWidth={i === 1 ? 2 : 1}
-                  opacity={0.25 + i * 0.18}
-                  transform={`rotate(${time * (i % 2 ? -30 : 18) + i * 40} 120 120)`}
-                />
-              ))}
-              {Array.from({ length: 24 }, (_, i) => {
-                const angle = (i * Math.PI) / 12;
-                return (
-                  <line
-                    key={i}
-                    x1={120 + Math.cos(angle) * 103}
-                    y1={120 + Math.sin(angle) * 103}
-                    x2={120 + Math.cos(angle) * 111}
-                    y2={120 + Math.sin(angle) * 111}
-                    opacity={
-                      i / 24 <
-                      (state.safe ? 1 : 1 - state.left / config.duration)
-                        ? 0.9
-                        : 0.2
-                    }
-                  />
-                );
-              })}
-              <path d="M120 85L151 138H89Z" strokeWidth="2" />
-              <path d="M120 101V119M120 126V129" strokeWidth="3" />
-            </g>
-            <text
-              x="120"
-              y="179"
-              textAnchor="middle"
-              fill="currentColor"
-              fontSize="8"
-            >
-              {state.safe
-                ? "FIELD STABLE"
-                : state.expired
-                  ? "CARRIER LOST"
-                  : "FIELD / ACTIVE"}
-            </text>
+            <ellipse
+              cx="60"
+              cy="28"
+              rx={28}
+              ry={Math.max(3, 22 * (1 - progress * 0.86))}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+            />
+            <ellipse
+              cx="60"
+              cy="28"
+              rx={18}
+              ry={Math.max(2, 12 * (1 - progress * 0.9))}
+              fill="none"
+              stroke="var(--accent)"
+              opacity=".7"
+            />
           </svg>
           <dl>
             {[
-              [
-                "FIELD COHERENCE",
-                state.safe
-                  ? "100.0%"
-                  : `${(97 + Math.sin(time * 1.2) * 1.4).toFixed(1)}%`,
-              ],
-              ["CONTROL PATH", state.bypassed ? "LOCAL MIRROR" : "SEALED"],
-              ["SERVICE LINK", state.diagnosed ? "VERIFIED" : "UNKNOWN"],
+              ["B_FIELD_AXIAL", `${tel.bField.toFixed(3)} T`],
+              ["CRYO_TEMP_LHE", `${tel.cryo.toFixed(2)} K`],
+              ["CHAMBER_VACUUM", `${sci(tel.vacuum)} Torr`],
+              ["ANNIHILATION_BG", `${tel.annihil.toFixed(2)} cps`],
             ].map(([k, v]) => (
               <div key={k}>
                 <dt>{k}</dt>
-                <dd>
-                  <Changed value={v} />
-                </dd>
+                <dd>{v}</dd>
               </div>
             ))}
           </dl>
-          <Wave time={time} seed={config.seed} />
         </aside>
         <main className="warhead-timer">
           <div className="micro">
             {state.safe
-              ? "NEUTRALIZATION CONFIRMED"
+              ? "CONTAINMENT RESTORED"
               : state.expired
-                ? "TERMINAL EVENT"
-                : "TIME TO TERMINAL EVENT"}
+                ? "LOSS OF CONTAINMENT"
+                : "TIME TO MAGNETIC_COLLAPSE"}
           </div>
           <div className="countdown-digits">{formatTime(state.left)}</div>
           <div className="warhead-milliseconds">
             {state.safe
-              ? "TIMER ISOLATED"
+              ? "CRYO ONLINE / B-FIELD HOLDING"
               : state.expired
-                ? "NO CARRIER"
+                ? "00:00:00 — LOSS OF CONTAINMENT"
                 : String(Math.floor((state.left % 1) * 1000)).padStart(3, "0") +
-                  " / MILLISECOND REFERENCE"}
+                  " / TIMED_CIRCUIT_BREAKER"}
           </div>
           <div className="countdown-progress">
             <div
@@ -193,35 +285,12 @@ export function Warhead(props: SceneProps) {
             <Changed value={phase} />
           </div>
           <div className="warhead-journal">
-            <div className="micro">CONTROL EVENT REGISTER</div>
-            {[
-              "Arm-state mirror synchronized",
-              diagnostic === null
-                ? "Service channel awaiting interrogation"
-                : !state.diagnosed
-                  ? "Reading three isolated control channels…"
-                  : "Diagnostic signature verified / bypass route available",
-              bypass === null
-                ? "Remote authority remains attached"
-                : !state.bypassed
-                  ? "Negotiating mirror / verifying local handover…"
-                  : "Local control acquired / field trims enabled",
-              state.safe
-                ? "Neutralization complete / timer isolated"
-                : state.expired
-                  ? "Terminal event reached / telemetry connection lost"
-                  : aligned
-                    ? "Reference phases aligned"
-                    : "Phase field outside neutralization window",
-            ].map((line, i) => (
-              <motion.div
-                key={line}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                <span>0{i + 1}</span>
-                {line}
-              </motion.div>
+            <div className="micro">
+              ARMING {arm.code} / {arm.title}
+            </div>
+            <p className="warhead-arm-sub">{arm.sub}</p>
+            {logs.slice(-4).map((line) => (
+              <div key={line}>{line}</div>
             ))}
           </div>
           <AnimatePresence>
@@ -231,25 +300,26 @@ export function Warhead(props: SceneProps) {
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                DEVICE SAFE
-                <span>LOCAL AUTHORITY / NEUTRALIZATION VERIFIED</span>
+                CONTAINMENT RESTORED
+                <span>CRYO FLOW RESUMED / B_FIELD_AXIAL HOLDING</span>
               </motion.div>
             )}
           </AnimatePresence>
         </main>
         <aside className="warhead-controls">
-          <div className="micro">SERVICE ACCESS / OVERRIDE</div>
+          <div className="micro">SERVICE ACCESS / MAINTENANCE MODE</div>
           <section>
-            <h3>01 / Interrogate</h3>
+            <h3>01 / Channel diagnostics</h3>
             <button
               className="scene-button"
               disabled={diagnostic !== null || state.expired}
               onClick={() => {
+                playSound("prompt");
                 setDiagnostic(time);
                 onPlay?.();
               }}
             >
-              Run diagnostics
+              RUN_CHANNEL_DIAGNOSTICS
             </button>
             <div className="process-rail">
               <i style={{ width: `${diagnosticProgress * 100}%` }} />
@@ -263,25 +333,26 @@ export function Warhead(props: SceneProps) {
             </small>
           </section>
           <section>
-            <h3>02 / Mirror bypass</h3>
+            <h3>02 / Maintenance shunt</h3>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                hack();
+                stageShunt();
               }}
             >
               <input
-                aria-label="Bypass terminal"
+                aria-label="Diagnostic checksum"
                 disabled={!state.diagnosed || bypass !== null || state.expired}
                 value={input}
-                placeholder="Type to stage mirror handover"
+                placeholder="ENTER 16-BIT DIAGNOSTIC CHECKSUM"
                 onChange={(e) =>
                   setInput(command.slice(0, e.target.value.length))
                 }
                 onKeyDown={(e) => {
-                  if (e.key.length === 1) {
+                  if (e.key.length === 1 || e.key === "Backspace") {
                     e.preventDefault();
-                    setInput((v) => command.slice(0, v.length + 4));
+                    if (e.key.length === 1) playSound("type");
+                    setInput((v) => scriptedInput(command, v, e.key));
                   }
                 }}
               />
@@ -289,7 +360,7 @@ export function Warhead(props: SceneProps) {
                 className="scene-button"
                 disabled={!input || bypass !== null || state.expired}
               >
-                Execute bypass
+                INITIATE_MAINTENANCE_SHUNT
               </button>
             </form>
             <div className="process-rail">
@@ -297,40 +368,33 @@ export function Warhead(props: SceneProps) {
             </div>
             <small>
               {state.bypassed
-                ? "LOCAL AUTHORITY ACQUIRED"
+                ? "LOCAL_ADMIN_PRIVILEGES_FORCED"
                 : bypass === null
                   ? "DIAGNOSTIC SIGNATURE REQUIRED"
-                  : `${Math.floor(bypassProgress * 100)}% / HANDOVER`}
+                  : `${Math.floor(bypassProgress * 100)}% / KERNEL_HANDOVER`}
             </small>
           </section>
           <section>
             <h3>03 / Align reference field</h3>
-            {channels.map((value, i) => (
-              <label key={i}>
-                PHASE {["A", "B", "C"][i]}
-                <span>
-                  REF {targets[i]} / <Changed value={value} />
-                </span>
-                <input
-                  aria-label={`Phase ${["A", "B", "C"][i]}`}
-                  type="range"
-                  min="0"
-                  max="100"
+            <div className="phase-trim-row">
+              {channels.map((value, i) => (
+                <PhaseTrim
+                  key={i}
+                  label={`Phase ${["A", "B", "C"][i]}`}
                   value={value}
+                  target={targets[i]}
                   disabled={
                     !state.bypassed ||
                     state.expired ||
                     state.safe ||
                     hold !== null
                   }
-                  onChange={(e) =>
-                    setChannels((v) =>
-                      v.map((n, j) => (j === i ? +e.target.value : n)),
-                    )
+                  onChange={(n) =>
+                    setChannels((v) => v.map((x, j) => (j === i ? n : x)))
                   }
                 />
-              </label>
-            ))}
+              ))}
+            </div>
           </section>
           <button
             className="neutralize-button"
@@ -362,20 +426,38 @@ export function Warhead(props: SceneProps) {
             <i style={{ width: `${holdProgress * 100}%` }} />
             <span>
               {state.safe
-                ? "NEUTRALIZED"
+                ? "CRYO RESTORED"
                 : hold !== null
-                  ? `NEUTRALIZING ${Math.floor(holdProgress * 100)}%`
-                  : "HOLD TO NEUTRALIZE / 3 SEC"}
+                  ? `RESTORE_CONTAINMENT ${Math.floor(holdProgress * 100)}%`
+                  : "HOLD TO RESTORE_CONTAINMENT / 3 SEC"}
             </span>
           </button>
         </aside>
       </div>
+      <nav className="arming-rail" aria-label="Arming sequence">
+        {armingStages.map((s) => {
+          const on = (state.expired ? 1 : progress) >= s.at;
+          const now = arm.code === s.code && !state.safe;
+          return (
+            <div
+              key={s.code}
+              className={`arming-step ${on ? "is-on" : ""} ${now ? "is-now" : ""}`}
+            >
+              <span>{s.code}</span>
+              <strong>{s.title}</strong>
+              <small>{s.sub}</small>
+            </div>
+          );
+        })}
+      </nav>
       <footer className="scene-footer">
         <span>{family} / SERIES 09</span>
         <span>
-          {state.safe
-            ? "SAFE STATE LATCHED"
-            : "EXTERNAL CLOCK / OPERATOR CONTROL"}
+            {state.safe
+              ? "CONTAINMENT RESTORED"
+              : state.expired
+                ? "LOSS OF CONTAINMENT"
+                : arm.sub}
         </span>
       </footer>
     </div>

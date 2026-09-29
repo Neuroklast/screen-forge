@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { scenes, defaults, type Config } from "../core/config";
 import { newStep, showSchema, type Show, type Step } from "../core/director";
+import { showTemplateLabels, showTemplates } from "../core/showTemplates";
+import { sequences } from "../scenes/os/sequences";
 export function SequenceEditor({
   show,
   onChange,
@@ -99,18 +101,61 @@ export function SequenceEditor({
         </label>
       </header>
       <div className="sequence-palette">
-        {scenes.map((s) => (
-          <button
-            key={s.id}
-            draggable
-            onDragStart={(e) =>
-              e.dataTransfer.setData("application/screenforge-scene", s.id)
-            }
-            onClick={() => add(defaults(s.id))}
+        <label>
+          Ablaufvorlage
+          <select
+            aria-label="Ablaufvorlage"
+            defaultValue=""
+            onChange={(e) => {
+              const t = showTemplates(config)[Number(e.target.value)];
+              if (!t) return;
+              onChange(t.show);
+              setSelected(t.show.steps[0]?.id ?? "");
+              setPage(0);
+              setStatus(`${t.name} geladen.`);
+              e.target.value = "";
+            }}
           >
-            + {s.name}
-          </button>
-        ))}
+            <option value="" disabled>
+              Vorlage wählen…
+            </option>
+            {showTemplateLabels.map((name, i) => (
+              <option key={name} value={i}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <span>Szenen</span>
+        {scenes
+          .filter((s) => s.kind === "scene")
+          .map((s) => (
+            <button
+              key={s.id}
+              draggable
+              onDragStart={(e) =>
+                e.dataTransfer.setData("application/screenforge-scene", s.id)
+              }
+              onClick={() => add(defaults(s.id))}
+            >
+              + {s.name}
+            </button>
+          ))}
+        <span>Bausteine</span>
+        {scenes
+          .filter((s) => s.kind === "block")
+          .map((s) => (
+            <button
+              key={s.id}
+              draggable
+              onDragStart={(e) =>
+                e.dataTransfer.setData("application/screenforge-scene", s.id)
+              }
+              onClick={() => add(defaults(s.id))}
+            >
+              + {s.name}
+            </button>
+          ))}
         <button onClick={() => add(config)}>+ Aktuelle Konfiguration</button>
       </div>
       <div className="sequence-body">
@@ -235,16 +280,10 @@ export function SequenceEditor({
                     onChange={(e) => set({ operation: e.target.value })}
                   >
                     <option value="">Keine</option>
-                    {[
-                      "boot",
-                      "intrusion",
-                      "decrypt",
-                      "cluster",
-                      "biometric",
-                      "reconstruct",
-                      "operation",
-                    ].map((id) => (
-                      <option key={id}>{id}</option>
+                    {sequences.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
                     ))}
                   </select>
                 </label>
@@ -294,7 +333,7 @@ export function SequenceEditor({
                           item.trigger === "pin"
                             ? {
                                 ...item.config,
-                                pin: /^\d{4,8}$/.test(e.target.value)
+                                pin: /^[A-Za-z0-9]{4,8}$/.test(e.target.value)
                                   ? e.target.value
                                   : item.config.pin,
                                 pinEnabled: true,

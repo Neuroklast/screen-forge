@@ -108,16 +108,16 @@
   opacity: var(--sf-opacity-1);
 }
 .family-corporate .corp-nav > button:hover {
-  background: var(--sf-color-e5e5e1);
+  background: color-mix(in srgb, var(--corp-ink) 10%, var(--scene-bg));
 }
 .family-corporate .corp-nav > button.selected {
-  color: var(--sf-color-fff);
+  color: var(--scene-bg);
   background: var(--corp-ink);
   border-left: var(--sf-stroke-4px) solid var(--accent);
   padding-left: var(--sf-space-5px);
 }
 .family-corporate .corp-nav > button.selected span {
-  color: var(--sf-color-c9c9c6);
+  color: color-mix(in srgb, var(--scene-bg) 75%, var(--corp-ink));
 }
 .family-corporate .corp-seal {
   opacity: var(--sf-opacity-1);
@@ -177,7 +177,7 @@
   border: var(--sf-stroke-2px) solid var(--corp-ink);
   position: relative;
   padding: var(--sf-space-18px) var(--sf-space-18px) var(--sf-space-16px);
-  background: var(--sf-color-fff);
+  background: var(--corp-card, var(--theme-surface));
 }
 .family-corporate .corp-metrics > div::before,
 .family-corporate .corp-panels > section::before {
@@ -226,13 +226,13 @@
 }
 .family-corporate .corp-panels section {
   border: var(--sf-stroke-1px) solid var(--corp-ink);
-  background: var(--sf-color-fff);
+  background: var(--corp-card, var(--theme-surface));
   padding: var(--sf-space-17px);
   position: relative;
 }
 .family-corporate .corp-panels section > .micro {
   display: inline-block;
-  background: var(--sf-color-fff);
+  background: var(--corp-card, var(--theme-surface));
   padding: 0 var(--sf-space-7px);
   position: absolute;
   left: var(--sf-layout-11px);
@@ -271,7 +271,7 @@
 }
 .family-corporate .scene-button {
   background: var(--corp-ink);
-  color: var(--sf-color-fff);
+  color: var(--scene-bg);
   border: var(--sf-stroke-2px) solid var(--corp-ink);
   font:
     600 var(--sf-type-9px) "Inter",
@@ -321,7 +321,7 @@
 .family-corporate .directory input {
   color: var(--corp-ink);
   border: var(--sf-stroke-2px) solid var(--corp-ink);
-  background: var(--sf-color-fff);
+  background: var(--corp-card, var(--theme-surface));
   border-radius: 0;
 }
 .family-corporate .directory > button {
@@ -330,7 +330,7 @@
   color: var(--corp-ink);
 }
 .family-corporate .directory > button:hover {
-  background: var(--sf-color-e5e5e1);
+  background: color-mix(in srgb, var(--corp-ink) 10%, var(--scene-bg));
 }
 .family-corporate .directory > button span {
   opacity: var(--sf-opacity-1);
@@ -345,14 +345,8 @@
     var(--sf-color-16161624) var(--sf-layout-4px)
   );
 }
-.family-corporate.mood-tense {
-  --scene-bg: var(--sf-color-eeeeea);
-}
 .family-corporate.mood-tense .scene-header {
   border-bottom-color: var(--accent);
-}
-.family-corporate.mood-damaged {
-  --scene-bg: var(--sf-color-e8e6e1);
 }
 .family-corporate.mood-damaged .scene-inner {
   filter: contrast(1.03);

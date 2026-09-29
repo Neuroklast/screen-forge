@@ -1,139 +1,139 @@
 import { useState } from "react";
-import { defaults, schema, type Config, type SceneId } from "../core/config";
-const templates: [string, SceneId, string, string, string, string][] = [
-  [
-    "Umbrella Corporation",
-    "corporate",
-    "UMBRELLA",
-    "BIOLOGICAL RESEARCH / FACILITY 07",
-    "umbrella",
-    "#cf233c",
-  ],
-  [
-    "Umbrella containment",
-    "terminal",
-    "UMBRELLA",
-    "CONTAINMENT OPERATIONS / RED QUEEN",
-    "umbrella",
-    "#f32645",
-  ],
-  [
-    "Cyberpunk 2077 HUD",
-    "terminal",
-    "NIGHT CITY OS",
-    "NEURAL INTERFACE / ACCESS TIER 04",
-    "hex",
-    "#ff394e",
-  ],
-  [
-    "Vesper Research",
-    "corporate",
-    "VESPER",
-    "BIOLOGICAL RESEARCH DIVISION",
-    "default",
-    "#cf233c",
-  ],
-  [
-    "Blackline Operations",
-    "terminal",
-    "BLACKLINE",
-    "NETWORK OPERATIONS / LOCAL SESSION",
-    "default",
-    "#f36c75",
-  ],
-  [
-    "Helix Biotech",
-    "corporate",
-    "HELIX",
-    "CELLULAR SYSTEMS / RESEARCH DIVISION",
-    "hex",
-    "#198a7a",
-  ],
-  [
-    "Asterion Aerospace",
-    "tracking",
-    "ASTERION",
-    "ORBITAL SENSOR / FLIGHT OPERATIONS",
-    "orbital",
-    "#9ad9c0",
-  ],
-  [
-    "Meridian Security",
-    "terminal",
-    "MERIDIAN",
-    "IDENTITY CONTROL / EVIDENCE SYSTEM",
-    "hex",
-    "#dfa943",
-  ],
-  [
-    "AEON Spatial",
-    "hologram",
-    "AEON",
-    "SPATIAL RECONSTRUCTION LABORATORY",
-    "orbital",
-    "#8acde8",
-  ],
-  [
-    "Kestrel Cockpit",
-    "tracking",
-    "KESTREL",
-    "AUTONOMOUS FLIGHT / CONTACT TELEMETRY",
-    "hex",
-    "#79cfed",
-  ],
-  [
-    "Obsidian Sequence",
-    "countdown",
-    "OBSIDIAN",
-    "SEQUENCE CONTROL / SERIES 09",
-    "hex",
-    "#ff8a62",
-  ],
-  [
-    "Ghost Relay",
-    "terminal",
-    "GHOST",
-    "ISOLATED RELAY / MAINTENANCE CONSOLE",
-    "default",
-    "#8bed9e",
-  ],
-];
-export const systemTemplates = templates.map(
-  ([name, scene, title, subtitle, mark, accent]) => ({
-    name,
-    config: {
-      ...defaults(scene),
-      title,
-      subtitle,
-      accent,
-      brand: { mark: mark as NonNullable<Config["brand"]>["mark"], logo: "" },
-      skin:
-        name === "Cyberpunk 2077 HUD" || name === "Umbrella containment"
-          ? ("cyberdeck" as const)
-          : ("standard" as const),
-      ...(name === "Cyberpunk 2077 HUD"
-        ? {
-            palette: {
-              background: "#08070c",
-              surface: "#211015",
-              text: "#f86c75",
-              secondary: "#f3495e",
-            },
-            effects: 0.9,
-            overlays: {
-              scanlines: 0.5,
-              glow: 0.7,
-              grain: 0.35,
-              grid: 0.12,
-              vignette: 0.5,
-              glitch: 0.35,
-              chromatic: 0.4,
-            },
-          }
-        : {}),
+import { applyIdentity, schema, type Config } from "../core/config";
+const companies: {
+  name: string;
+  identity: Pick<Config, "title" | "subtitle" | "identifier"> & {
+    brand: NonNullable<Config["brand"]>;
+  };
+}[] = [
+  {
+    name: "Umbrella Corporation",
+    identity: {
+      title: "UMBRELLA",
+      subtitle: "BIOLOGICAL RESEARCH / FACILITY 07",
+      identifier: "UC-07 / FACILITY",
+      brand: { mark: "umbrella", logo: "" },
     },
-  }),
-);
+  },
+  {
+    name: "Ashenrai Deck",
+    identity: {
+      title: "ASHENRAI",
+      subtitle: "NEURAL INTERFACE / ACCESS TIER 04",
+      identifier: "AR-04 / DECK",
+      brand: { mark: "triad", logo: "" },
+    },
+  },
+  {
+    name: "Vesper Research",
+    identity: {
+      title: "VESPER",
+      subtitle: "BIOLOGICAL RESEARCH DIVISION",
+      identifier: "VS-204 / UNIT 07",
+      brand: { mark: "default", logo: "" },
+    },
+  },
+  {
+    name: "Blackline Operations",
+    identity: {
+      title: "BLACKLINE",
+      subtitle: "NETWORK OPERATIONS / LOCAL SESSION",
+      identifier: "BL-09 / RELAY 07",
+      brand: { mark: "default", logo: "" },
+    },
+  },
+  {
+    name: "Helix Biotech",
+    identity: {
+      title: "HELIX",
+      subtitle: "CELLULAR SYSTEMS / RESEARCH DIVISION",
+      identifier: "HX-12 / LAB 03",
+      brand: { mark: "hex", logo: "" },
+    },
+  },
+  {
+    name: "Asterion Aerospace",
+    identity: {
+      title: "ASTERION",
+      subtitle: "ORBITAL SENSOR / FLIGHT OPERATIONS",
+      identifier: "AS-04 / SENSOR",
+      brand: { mark: "orbital", logo: "" },
+    },
+  },
+  {
+    name: "Meridian Security",
+    identity: {
+      title: "MERIDIAN",
+      subtitle: "IDENTITY CONTROL / EVIDENCE SYSTEM",
+      identifier: "MD-18 / GATE",
+      brand: { mark: "hex", logo: "" },
+    },
+  },
+  {
+    name: "AEON Spatial",
+    identity: {
+      title: "AEON",
+      subtitle: "SPATIAL RECONSTRUCTION LABORATORY",
+      identifier: "AE-09 / TABLE",
+      brand: { mark: "orbital", logo: "" },
+    },
+  },
+  {
+    name: "Kestrel Cockpit",
+    identity: {
+      title: "KESTREL",
+      subtitle: "AUTONOMOUS FLIGHT / CONTACT TELEMETRY",
+      identifier: "KS-02 / HUD",
+      brand: { mark: "hex", logo: "" },
+    },
+  },
+  {
+    name: "Obsidian Sequence",
+    identity: {
+      title: "OBSIDIAN",
+      subtitle: "SEQUENCE CONTROL / SERIES 09",
+      identifier: "OB-09 / CELL",
+      brand: { mark: "atom", logo: "" },
+    },
+  },
+  {
+    name: "Kagetsu Heavy",
+    identity: {
+      title: "KAGETSU",
+      subtitle: "HEAVY INDUSTRY / ZAIBATSU DIVISION",
+      identifier: "KG-11 / TOWER",
+      brand: { mark: "triad", logo: "" },
+    },
+  },
+  {
+    name: "Foldsteel Arms",
+    identity: {
+      title: "FOLDSTEEL",
+      subtitle: "ORDNANCE / CONTRACT MANUFACTURING",
+      identifier: "FS-08 / YARD",
+      brand: { mark: "plate", logo: "" },
+    },
+  },
+  {
+    name: "Cordon Enforcement",
+    identity: {
+      title: "CORDON",
+      subtitle: "MUNICIPAL CONTAINMENT / TACTICAL NET",
+      identifier: "CD-03 / GATE",
+      brand: { mark: "ridge", logo: "" },
+    },
+  },
+  {
+    name: "Ghost Relay",
+    identity: {
+      title: "GHOST",
+      subtitle: "ISOLATED RELAY / MAINTENANCE CONSOLE",
+      identifier: "GH-07 / TTY",
+      brand: { mark: "default", logo: "" },
+    },
+  },
+];
+export const systemTemplates = companies;
 export function SystemProfiles({
   config,
   onChange,
@@ -183,7 +183,14 @@ export function SystemProfiles({
           aria-label="Systemvorlage"
           defaultValue=""
           onChange={(e) => {
-            const p = [...systemTemplates, ...profiles][Number(e.target.value)];
+            const i = Number(e.target.value);
+            if (i < companies.length) {
+              onChange(applyIdentity(config, companies[i].identity));
+              setName(companies[i].name);
+              setStatus("Firma gesetzt. Farben bleiben beim Theme.");
+              return;
+            }
+            const p = profiles[i - companies.length];
             if (p) {
               onLoad(p.config);
               setName(p.name);
@@ -192,10 +199,10 @@ export function SystemProfiles({
           }}
         >
           <option value="" disabled>
-            System wählen…
+            Firma wählen…
           </option>
-          <optgroup label="Vorlagen">
-            {systemTemplates.map((p, i) => (
+          <optgroup label="Firmen">
+            {companies.map((p, i) => (
               <option key={p.name} value={i}>
                 {p.name}
               </option>
@@ -203,7 +210,7 @@ export function SystemProfiles({
           </optgroup>
           <optgroup label="Eigene Systeme">
             {profiles.map((p, i) => (
-              <option key={p.name} value={i + systemTemplates.length}>
+              <option key={p.name} value={i + companies.length}>
                 {p.name}
               </option>
             ))}
@@ -254,7 +261,10 @@ export function SystemProfiles({
               bitmap.close();
               const logo = canvas.toDataURL("image/webp", 0.9);
               if (logo.length > 180000) throw Error();
-              onChange({ ...config, brand: { mark: "default", logo } });
+              onChange({
+                ...config,
+                brand: { mark: config.brand?.mark ?? "default", logo },
+              });
               setStatus("Logo geladen. Zum Wiederverwenden System speichern.");
             } catch {
               setStatus("Logo konnte nicht gelesen werden.");
@@ -265,7 +275,10 @@ export function SystemProfiles({
       {config.brand?.logo && (
         <button
           onClick={() =>
-            onChange({ ...config, brand: { mark: "default", logo: "" } })
+            onChange({
+              ...config,
+              brand: { mark: config.brand?.mark ?? "default", logo: "" },
+            })
           }
         >
           Logo entfernen
@@ -303,7 +316,7 @@ export function SystemProfiles({
       </div>
       <p role="status">
         {status ||
-          "Logo, Szene, Inhalte, Farben und Effekte als eigenes System sichern."}
+          "Firma setzt nur Name und Zeichen. Farben über Themes."}
       </p>
     </details>
   );
