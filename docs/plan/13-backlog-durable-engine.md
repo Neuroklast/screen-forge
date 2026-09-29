@@ -6,9 +6,9 @@
 
 ## Progress
 
-- Done: E1 protocol v2; E2 domain events + journal + replay; E3 resume delta; E4 clock; E5 outbox; E6 telemetry store; E7 MEL v2; E8 graph linter.
+- Done: E1–E8; E9 timeline/replay; E10 task-block registry; E11/E12 mission templates; E13 profiles; E14 doctrine packs; E15 symbology; E16 map adapter (spike pending hardware).
 - Doing: —
-- Open: E9–E17.
+- Open: E17 (optional desktop dependency graph — deferred).
 
 ## Wave 1 — Critical
 
