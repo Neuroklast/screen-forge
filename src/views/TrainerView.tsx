@@ -5,6 +5,7 @@ import { scenarioSchema, dueAt, type Scenario } from "../core/training";
 import { stationUrl } from "../core/session";
 import { ScenarioWizard } from "../training/ScenarioWizard";
 import { ScenarioEditor } from "../training/ScenarioEditor";
+import { MissionBuilder } from "../builder/MissionBuilder";
 import { DossierEditor } from "../training/Dossiers";
 import { TacticalMap } from "../training/TacticalMap";
 import { PatientControl } from "../training/PatientControl";
@@ -18,7 +19,8 @@ export function TrainerView({ room }: { room: string }) {
     [dirty, setDirty] = useState(false),
     [revision, setRevision] = useState(ex.state.revision),
     [message, setMessage] = useState(""),
-    [publicOrigin, setPublicOrigin] = useState(location.origin);
+    [publicOrigin, setPublicOrigin] = useState(location.origin),
+    [editorMode, setEditorMode] = useState<"builder" | "classic">("builder");
   useEffect(() => {
     if (!dirty) {
       setDraft(structuredClone(ex.state.scenario));
@@ -500,7 +502,29 @@ export function TrainerView({ room }: { room: string }) {
                   Vorlage exportieren
                 </button>
               </section>
-              <ScenarioEditor draft={draft} change={change} />
+              <div className="editor-mode">
+                <button
+                  className={editorMode === "builder" ? "active" : ""}
+                  onClick={() => setEditorMode("builder")}
+                >
+                  Baukasten
+                </button>
+                <button
+                  className={editorMode === "classic" ? "active" : ""}
+                  onClick={() => setEditorMode("classic")}
+                >
+                  Klassisch
+                </button>
+              </div>
+              {editorMode === "builder" ? (
+                <MissionBuilder
+                  draft={draft}
+                  change={change}
+                  readOnly={!ex.state.frozen}
+                />
+              ) : (
+                <ScenarioEditor draft={draft} change={change} />
+              )}
             </>
           )}
           {tab === "dossiers" && (

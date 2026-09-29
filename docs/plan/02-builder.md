@@ -32,6 +32,7 @@ Replace the form-first scenario editor with a drag & drop mission builder: 0..n 
 - **B8:** dropping a module NEVER auto-creates a patient/prop; the linter offers `"Entität anlegen"`.
 - **B11:** edits only while `frozen`; save bumps revision; stale revision → `Neu laden` / `Als Kopie speichern`.
 - Keep `ScenarioEditor.tsx` temporarily behind advanced-only until B12 is complete, then delete.
+- **Deviation (B6/B12):** HTML5 drag & drop has no touch support, so the builder ships a tap/keyboard path (palette click adds, inspector binds). The classic editor is retained as a secondary tab for map tiles, routes and the action editor until Phase 3 lands; delete it then.
 
 ## Acceptance criteria
 

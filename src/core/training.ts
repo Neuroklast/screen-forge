@@ -129,12 +129,12 @@ export const actorSchema = z.object({
   briefing: text.default(""),
   dossierId: z.string().max(40).default(""),
 });
-const zoneSchema = pointSchema.extend({
+export const zoneSchema = pointSchema.extend({
   id,
   name: label,
   radius: finite.min(5).max(10000),
 });
-const objectiveSchema = z.object({ id, name: label });
+export const objectiveSchema = z.object({ id, name: label });
 export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("patient"), target: id, kind: z.enum(kinds) }),
   z.object({ type: z.literal("release"), target: id }),
@@ -174,7 +174,7 @@ const scenarioV2Schema = z
         .transform((v) => (v.includes("tile.openstreetmap.org") ? "" : v)),
       attribution: z.string().max(200),
     }),
-    stations: z.array(stationSchema).min(1).max(40),
+    stations: z.array(stationSchema).min(0).max(40),
     patients: z.array(patientSchema).max(40).default([]),
     props: z.array(propSchema).max(40).default([]),
     dossiers: z.array(dossierSchema).max(40).default([]),

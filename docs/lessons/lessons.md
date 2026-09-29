@@ -20,3 +20,4 @@
 | 2026-09 | Tests | Triage failing tests before blaming your change: check whether the expectation still matches app text. Three e2e failures predated Phase 1 (OS modal label, trainer save notice, invite-expiry alert) and were unrelated to the start page. | med |
 | 2026-09 | Tooling | NEVER name PowerShell helpers `rd`/`wr`/`mv`/`cp` — they collide with built-in aliases (`rd` = Remove-Item) and can delete files. Use verb-noun names or inline `[IO.File]` calls, and verify with `git diff --stat` after any scripted edit. | high |
 | 2026-09 | Tooling | For bulk renames prefer the editor tools, or `[IO.File]::ReadAllText`/`WriteAllText` with an explicit UTF-8 no-BOM encoding. Tracked files are recoverable with `git checkout --`, but uncommitted working-tree edits are not. | med |
+| 2026-09 | UI | HTML5 drag & drop does not work on touch — always ship a tap/keyboard path (palette click to add, inspector to bind) alongside DnD. | med |

@@ -10,6 +10,12 @@
 - Done: F5 mission v2 schema, F6 v1→v2 migration ([../../src/core/training.ts](../../src/core/training.ts)), F7 server persistence via the shared schema, F8 tests ([../../src/core/migration.test.ts](../../src/core/migration.test.ts), [../../src/core/session.test.ts](../../src/core/session.test.ts)).
 - Phase 1 complete. New-role projection (safety/assessor/technician) is deferred to Phase 4 (see the deviation in [01-foundation.md](01-foundation.md)).
 
+### Phase 2 — Builder
+
+- Done: B1 shell, B2 palette, B3 board, B4 inspector, B5 mouse drag & drop, B7 linter ([../../src/builder/MissionBuilder.tsx](../../src/builder/MissionBuilder.tsx), [../../src/core/missionLint.ts](../../src/core/missionLint.ts)), B8 defaults, B9 entities/bindings, B10 undo/redo, B11 save via the existing revision flow, B12 integration, B13 e2e ([../../tests/builder.spec.ts](../../tests/builder.spec.ts)).
+- Partial: B6 — keyboard/click alternative works; touch long-press drag is not implemented (tap + inspector covers touch).
+- Deviation: the classic editor stays as a secondary tab for map tiles, routes and the action editor until Phase 3 completes.
+
 ## Phase 1 — Foundation
 
 | ID | Task | File(s) | Depends | Done when |
