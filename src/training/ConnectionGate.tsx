@@ -4,21 +4,20 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
   const ex = useTraining(),
     [key, setKey] = useState(""),
     [url, setUrl] = useState("");
+  const keyRole = ["trainer", "safety", "assessor"].includes(ex.role);
   if (!ex.authenticated)
     return (
       <main className="training-app">
         <section className="training-login">
           <span className="eyebrow">SCREENFORGE / EXERCISE CONTROL</span>
-          <h1>
-            {ex.role === "trainer" ? "Trainer anmelden" : "Gerät zuweisen"}
-          </h1>
+          <h1>{keyRole ? "Anmelden" : "Gerät zuweisen"}</h1>
           <p>
-            {ex.role === "trainer"
+            {keyRole
               ? "Den Trainer-Schlüssel zeigt das Serverfenster beim Start. Der Zugang gilt für diesen Browser-Tab."
               : "QR-Code auf dem Trainerbildschirm mit der Systemkamera scannen und den Link öffnen. Alternativ den Zuweisungslink einfügen."}
           </p>
           {ex.error && <p role="alert">{ex.error}</p>}
-          {ex.role === "trainer" ? (
+          {keyRole ? (
             <form
               onSubmit={(e) => {
                 e.preventDefault();

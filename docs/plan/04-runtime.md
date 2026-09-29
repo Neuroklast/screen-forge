@@ -36,6 +36,7 @@ Full exercise control: explicit phases, inject orchestration (manual, hold/skip,
 - **R8:** text-first, offline queue, ack tracking; silence windows block outgoing but never incoming.
 - **R10/R11:** replay is read-only and deterministic (seed); exports offline, deterministic file names.
 - **R12/R13:** device ACK protocol (module ready, permissions, battery, version, clock offset); remote actions acknowledged.
+- **Deviation (R3/R5/R8/R9/R10/R12–R14):** the prop action covers prop-state injects; `lock`/`beacon`/`ordnance`/`sound`/`state`/`inject` actions and macros are still open. Comms/notifications, readiness automation, remote device actions, the multi-room dashboard and timeline replay/CSV export are deferred to the next increment.
 
 ## Acceptance criteria
 

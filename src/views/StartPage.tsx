@@ -187,6 +187,18 @@ export function StartPage() {
         >
           HQ
         </button>
+        <button
+          className="text-link"
+          onClick={() => open("/?role=safety", "training")}
+        >
+          Sicherheit
+        </button>
+        <button
+          className="text-link"
+          onClick={() => open("/?role=assessor", "training")}
+        >
+          Beobachter
+        </button>
       </section>
 
       <section className="startpage-row" aria-label="Tiefe">

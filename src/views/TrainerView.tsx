@@ -10,6 +10,7 @@ import { DossierEditor } from "../training/Dossiers";
 import { TacticalMap } from "../training/TacticalMap";
 import { PatientControl } from "../training/PatientControl";
 import { TemplateGallery } from "../training/TemplateGallery";
+import "../training/roles.css";
 export function TrainerView({ room }: { room: string }) {
   const ex = useTraining(),
     [tab, setTab] = useState("home"),
@@ -81,6 +82,11 @@ export function TrainerView({ room }: { room: string }) {
   }
   return (
     <main className="training-app">
+      {ex.state.phase === "aborted" && (
+        <div className="abort-banner" role="alert">
+          ÜBUNG ABGEBROCHEN
+        </div>
+      )}
       <header className="training-header">
         <a href="/">SCREENFORGE</a>
         <div>
@@ -124,6 +130,13 @@ export function TrainerView({ room }: { room: string }) {
           }}
         >
           Reset
+        </button>
+        <button
+          className="danger"
+          disabled={!ex.online || ex.state.phase === "aborted"}
+          onClick={() => ex.send({ type: "abort" })}
+        >
+          Abbruch
         </button>
       </header>
       <nav className="training-nav">
@@ -439,8 +452,36 @@ export function TrainerView({ room }: { room: string }) {
                             ? "Verarbeitet"
                             : r.trigger === "timer"
                               ? `Bei ${dueAt(r, ex.state.scenario.seed).toFixed(0)} s`
-                              : r.trigger}
+                              : r.trigger === "manual"
+                                ? "Manuell"
+                                : r.trigger}
                       </b>
+                      <button
+                        disabled={
+                          !ex.online ||
+                          ex.state.frozen ||
+                          !r.enabled ||
+                          ex.state.fired.includes(r.id)
+                        }
+                        onClick={() => ex.send({ type: "fire", inject: r.id })}
+                      >
+                        Jetzt auslösen
+                      </button>
+                      <button
+                        disabled={!ex.online || ex.state.frozen}
+                        onClick={() =>
+                          change({
+                            ...draft,
+                            injects: draft.injects.map((row) =>
+                              row.id === r.id
+                                ? { ...row, enabled: !row.enabled }
+                                : row,
+                            ),
+                          })
+                        }
+                      >
+                        {r.enabled ? "Deaktivieren" : "Aktivieren"}
+                      </button>
                     </li>
                   ))}
                 </ul>

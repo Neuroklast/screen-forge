@@ -1,0 +1,49 @@
+.abort-banner {
+  margin: 12px 0;
+  padding: 18px;
+  border: 2px solid #f36c75;
+  border-radius: 10px;
+  background: #1a0e12;
+  color: #f36c75;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 18px;
+  letter-spacing: 0.14em;
+  text-align: center;
+}
+
+.timeline,
+.note-list,
+.presence-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 13px;
+}
+
+.timeline span,
+.note-list span {
+  font-family: "IBM Plex Mono", monospace;
+  color: #4f6570;
+  margin-right: 6px;
+}
+
+.training-app textarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 8px;
+  border: 1px solid #1e2a33;
+  border-radius: 8px;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
+.button-row button.danger {
+  border-color: #5a2530;
+  background: #1a0e12;
+  color: #f36c75;
+}

@@ -34,7 +34,7 @@ const position = z.object({
 const hello = z.object({
   type: z.literal("hello"),
   room: ident,
-  role: z.enum(["trainer", "hq", "element"]),
+  role: z.enum(["trainer", "hq", "element", "safety", "assessor"]),
   station: z.string().max(40),
   token: z.string().min(1).max(300),
   invite: z.boolean().optional(),
@@ -249,22 +249,23 @@ export async function startExercise({
         if (msg.type === "hello") {
           if (meta) throw new Error("Already authenticated");
           const auth = hello.parse(msg);
-          if (auth.role === "trainer") {
+          if (["trainer", "safety", "assessor"].includes(auth.role)) {
             if (!equal(auth.token, secret)) {
               send(ws, { type: "error", message: "Trainer key rejected" });
               ws.close(4003);
               return;
             }
-            if (!rooms.has(auth.room)) {
+            if (auth.role === "trainer" && !rooms.has(auth.room)) {
               if (rooms.size >= 100) throw new Error("Room limit reached");
               const state = newState(auth.room);
               rooms.set(auth.room, state);
               baseline.set(auth.room, structuredClone(state.scenario));
               dirty = true;
             }
+            if (!rooms.has(auth.room)) throw new Error("Unknown room");
             meta = {
               room: auth.room,
-              role: "trainer",
+              role: auth.role,
               station: "",
               expires: Date.now() + 43200000,
             };
@@ -440,6 +441,27 @@ export async function startExercise({
           if (!setProp(state, st.bindings.prop, String(msg.state)))
             throw new Error("Invalid prop state");
           evaluate(state, { type: "prop", station: st.id });
+        } else if (msg.type === "abort" && ["trainer", "safety"].includes(meta.role)) {
+          state.frozen = true;
+          state.phase = "aborted";
+          logEvent(state, `Exercise aborted (${meta.role})`);
+        } else if (
+          msg.type === "note" &&
+          ["trainer", "safety", "assessor"].includes(meta.role)
+        ) {
+          const text = String(msg.text || "").trim().slice(0, 500);
+          if (!text) throw new Error("Empty note");
+          state.notes = [
+            ...state.notes,
+            { at: state.clock, role: meta.role, text },
+          ].slice(-200);
+        } else if (
+          msg.type === "transport" &&
+          meta.role === "safety" &&
+          msg.command === "pause"
+        ) {
+          state.frozen = true;
+          state.phase = "paused";
         } else {
           if (meta.role !== "trainer")
             throw new Error("Trainer permission required");
@@ -494,10 +516,22 @@ export async function startExercise({
               if (m.room === meta.room) m.inspected = false;
             send(ws, { type: "saved", revision: state.revision });
             logEvent(state, "Scenario saved");
+          } else if (msg.type === "fire") {
+            const inject = state.scenario.injects.find((r) => r.id === msg.inject);
+            if (!inject) throw new Error("Unknown inject");
+            if (state.frozen) throw new Error("Resume the exercise before firing");
+            if (state.fired.includes(inject.id)) throw new Error("Already fired");
+            state.fired.push(inject.id);
+            logEvent(state, `Event: ${inject.name}`);
+            inject.actions.forEach((a) => act(state, a));
           } else if (msg.type === "transport") {
-            if (msg.command === "play") state.frozen = false;
-            else if (msg.command === "pause") state.frozen = true;
-            else if (msg.command === "reset") {
+            if (msg.command === "play") {
+              state.frozen = false;
+              state.phase = "running";
+            } else if (msg.command === "pause") {
+              state.frozen = true;
+              state.phase = "paused";
+            } else if (msg.command === "reset") {
               for (const m of sockets.values())
                 if (m.room === meta.room) m.inspected = false;
               const next = newState(

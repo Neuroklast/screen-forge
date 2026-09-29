@@ -18,6 +18,8 @@ import { TrainerView } from "./views/TrainerView";
 import { HqView } from "./views/HqView";
 import { ElementView } from "./views/ElementView";
 import { StartPage } from "./views/StartPage";
+import { SafetyView } from "./views/SafetyView";
+import { AssessorView } from "./views/AssessorView";
 import "./tokens.css";
 import "./styles.css";
 import "./scenes/corporate.css";
@@ -26,6 +28,18 @@ const session = sessionFromSearch(location.search);
 function Root() {
   if (!session.explicit || session.demo) return <StartPage />;
   if (session.role === "film") return <App />;
+  if (session.role === "safety" || session.role === "assessor")
+    return (
+      <ExerciseProvider role={session.role} room={session.room} station="">
+        <ConnectionGate>
+          {session.role === "safety" ? (
+            <SafetyView room={session.room} />
+          ) : (
+            <AssessorView room={session.room} />
+          )}
+        </ConnectionGate>
+      </ExerciseProvider>
+    );
   return (
     <ExerciseProvider
       role={session.role}

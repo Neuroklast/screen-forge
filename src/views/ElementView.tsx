@@ -9,6 +9,7 @@ import { DossierCards } from "../training/Dossiers";
 import { TrainingTerminal } from "../training/TrainingTerminal";
 import { OrdnanceConsole } from "../training/OrdnanceConsole";
 import { BeaconControl } from "../training/BeaconControl";
+import "../training/roles.css";
 export function ElementView({ station }: { station: string }) {
   const ex = useTraining(),
     row = ex.state.scenario.stations.find((s) => s.id === station);
@@ -42,6 +43,11 @@ export function ElementView({ station }: { station: string }) {
           EXERCISE
         </span>
       </header>
+      {ex.state.phase === "aborted" && (
+        <div className="abort-banner" role="alert">
+          ÜBUNG ABGEBROCHEN
+        </div>
+      )}
       {row.module === "tracking" ? (
         <>
           <TacticalMap />

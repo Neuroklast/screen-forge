@@ -1,9 +1,9 @@
-export const roles = ["film", "trainer", "hq", "element"] as const;
+export const roles = ["film", "trainer", "hq", "element", "safety", "assessor"] as const;
 export type Role = (typeof roles)[number];
 
 // Canonical role vocabulary (concept glossary). The exercise wire protocol still
 // uses the legacy ids (`trainer`/`element`) until protocol v2 (plan task R1/R7).
-export const publicRoles = ["director", "excon", "hq", "player"] as const;
+export const publicRoles = ["director", "excon", "hq", "player", "safety", "assessor"] as const;
 export type PublicRole = (typeof publicRoles)[number];
 
 export const modes = ["film", "training", "demo"] as const;
@@ -20,12 +20,16 @@ const roleAliases: Record<string, PublicRole> = {
   hq: "hq",
   player: "player",
   element: "player",
+  safety: "safety",
+  assessor: "assessor",
 };
 
 export function wireRole(role: PublicRole): Role {
   if (role === "director") return "film";
   if (role === "excon") return "trainer";
   if (role === "player") return "element";
+  if (role === "safety") return "safety";
+  if (role === "assessor") return "assessor";
   return "hq";
 }
 

@@ -36,6 +36,15 @@ export const propKinds = [
   "keycard",
   "custom",
 ] as const;
+export const phases = [
+  "draft",
+  "ready",
+  "running",
+  "paused",
+  "aborted",
+  "ended",
+] as const;
+export type Phase = (typeof phases)[number];
 export const moduleEvents: Record<string, string[]> = {
   comms: ["comms.channel", "comms.ptt"],
   slide: ["slide.open"],
@@ -145,11 +154,12 @@ export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("camera"), target: id, offline: z.boolean() }),
   z.object({ type: z.literal("objective"), target: id }),
   z.object({ type: z.literal("message"), text: label }),
+  z.object({ type: z.literal("prop"), target: id, state: z.string().max(40) }),
 ]);
 export const injectSchema = z.object({
   id,
   name: label,
-  trigger: z.enum(["timer", "zone", "intervention", "prop", "signal"]),
+  trigger: z.enum(["timer", "zone", "intervention", "prop", "signal", "manual"]),
   at: finite.min(0).max(86400).default(60),
   jitter: finite.min(0).max(3600).default(0),
   station: z.string().max(40).default(""),
@@ -265,7 +275,7 @@ const scenarioV2Schema = z
           `Treatment exception requires a medical station for ${rule.name}`,
         );
       if (
-        rule.trigger !== "timer" &&
+        !["timer", "manual"].includes(rule.trigger) &&
         !s.stations.some((st) => st.id === rule.station)
       )
         issue(`Station missing for ${rule.name}`);
@@ -281,7 +291,9 @@ const scenarioV2Schema = z
                 ? s.objectives
                 : a.type === "camera"
                   ? s.stations.filter((st) => st.module === "camera")
-                  : null;
+                  : a.type === "prop"
+                    ? s.props
+                    : null;
         if (
           rows &&
           a.type !== "message" &&
@@ -341,6 +353,7 @@ export type TrainingState = {
   scenario: Scenario;
   clock: number;
   frozen: boolean;
+  phase: Phase;
   revision: number;
   fired: string[];
   interventions: Record<string, string[]>;
@@ -350,6 +363,7 @@ export type TrainingState = {
   props: Record<string, boolean>;
   propStates: Record<string, string>;
   log: { at: number; message: string }[];
+  notes: { at: number; role: string; text: string }[];
   presence: Record<string, { online: boolean; lastSeen: number }>;
 };
 export function newState(
@@ -361,6 +375,7 @@ export function newState(
     scenario,
     clock: 0,
     frozen: true,
+    phase: "ready",
     revision: 0,
     fired: [],
     interventions: {},
@@ -370,6 +385,7 @@ export function newState(
     props: {},
     propStates: Object.fromEntries(scenario.props.map((p) => [p.id, p.initial])),
     log: [],
+    notes: [],
     presence: {},
   };
 }
@@ -482,6 +498,7 @@ export function act(s: TrainingState, a: Action) {
     if (d) d.released = true;
   }
   if (a.type === "camera") s.cameraOffline[a.target] = a.offline;
+  if (a.type === "prop") setProp(s, a.target, a.state);
   if (a.type === "objective" && !s.completed.includes(a.target))
     s.completed.push(a.target);
   logEvent(s, a.type === "message" ? a.text : `${a.type}: ${a.target}`);
@@ -565,11 +582,17 @@ export function advance(s: TrainingState, delta: number, now = Date.now()) {
 // Do not send trainer secrets, hidden injects, locked dossiers or other teams' locations to field devices.
 export function projectState(
   s: TrainingState,
-  role: "trainer" | "hq" | "element",
+  role: "trainer" | "hq" | "element" | "safety" | "assessor",
   station = "",
 ): TrainingState {
   const out = structuredClone(s);
-  if (role === "trainer") return out;
+  if (role === "trainer" || role === "safety") return out;
+  if (role === "assessor") {
+    out.scenario.stations.forEach((st) => {
+      st.code = "";
+    });
+    return out;
+  }
   out.scenario.injects = [];
   out.scenario.stations.forEach((st) => {
     st.code = "";
