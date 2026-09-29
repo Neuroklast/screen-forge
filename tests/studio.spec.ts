@@ -35,15 +35,17 @@ test("prepared input, preset export, stage escape and persistence", async ({
     .getByRole("button", { name: /Netzwerkterminal/ })
     .first()
     .click();
+  await page.locator(".os-sidebar").getByRole("button",{name:/Terminal/}).click();
   await page.getByLabel("Terminaleingabe").fill("abcdef");
   await expect(page.getByLabel("Terminaleingabe")).toHaveValue("inspec");
+  await page.getByLabel("Terminaleingabe").fill("x".repeat(100));
   await page.getByLabel("Terminaleingabe").press("Enter");
   await expect(page.locator(".console-lines")).toContainText(
     "analysis complete",
   );
   await page.getByLabel("Titel", { exact: true }).fill("TEST SYSTEM");
   await page.reload();
-  await expect(page.locator(".scene-brand strong")).toHaveText("TEST SYSTEM");
+  await expect(page.locator(".os-wordmark strong")).toHaveText("TEST SYSTEM");
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Exportieren" }).click();
   expect((await download).suggestedFilename()).toBe(

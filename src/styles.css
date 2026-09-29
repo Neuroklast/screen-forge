@@ -1476,3 +1476,7 @@ h1 {
 .scene-footer {
   flex-shrink: 0;
 }
+
+/* Keep the studio return target away from scene controls in the top-right corner. */
+.exit-stage {top:auto;right:auto;left:8px;bottom:8px;}
+.overlay-settings summary {font-size:11px;color:#c5d3bb;cursor:pointer;margin:18px 0 10px;}

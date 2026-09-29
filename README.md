@@ -17,7 +17,7 @@ Für ein Tablet oder einen Touchscreen im selben Netzwerk: `start-lan.bat` start
 ## Enthaltene Szenen
 
 - **VESPER:** Helles Konzernsystem mit schwarzen Technikrahmen und roten Akzenten nach der Umbrella-Designreferenz. Navigation, Verzeichnissuche, Zugriffszustände und Diagnose.
-- **BLACKLINE:** lokales Netzwerkterminal mit vorbereiteter oder freier Eingabe, Topologie und synthetischen Messwerten. Befehle erzeugen ausschließlich vorbereitete Texte.
+- **BLACKLINE OS:** Cyberpunk-Betriebssystem mit sieben Anwendungen, lokalem Terminal, Dateisystem, Personalakten, Datenclustern, 4D-Projektion und Sequenzbibliothek.
 - **Sequence Control:** Countdown mit Pause, Zeitsprung, automatischem Stopp bei null und fiktiven Gerätediagnosen.
 - **Orbital Survey:** originale schematische Karte mit Touchgesten und Zielerfassung. Keine realen Satellitenbilder.
 - **AEON:** interaktive SVG-Darstellung einer räumlichen Baugruppe, Analyseansichten und Touchtransformationen. Kein echtes 3D-Modell und kein Handtracking.
@@ -40,7 +40,7 @@ Szenen links auswählen. Inhalte, Stimmung, Akzentfarbe, Effekte, Dichte und Hel
 - **Nur Ausgabe:** Ausgabe ohne Browser-Vollbild.
 - **Escape:** Studio wieder einblenden. Browser-Vollbild bei Bedarf nochmals per Escape verlassen.
 - **H:** Ausgabe umschalten, **Leertaste:** Play/Pause, **R:** Reset. Shortcuts greifen nicht in Eingaben oder auf fokussierten Buttons.
-- Im Ausgabemodus erscheint der Rückkehrknopf oben rechts beim Überfahren oder Tastaturfokus. Auf Touchgeräten bleibt er schwach sichtbar.
+- Im Ausgabemodus erscheint der Rückkehrknopf unten links beim Überfahren oder Tastaturfokus. Auf Touchgeräten bleibt er schwach sichtbar.
 
 Karte und Hologramm: ein Finger oder linke Maustaste verschiebt, zwei Finger zoomen und drehen. Mausrad zoomt. Im Studio gibt es zusätzlich Zoom-, Dreh- und Resetknöpfe. Bewegungen sind begrenzt. Die Darstellung ist eine fest proportionierte 1280×760-Bühne, die in den verfügbaren Bildschirm eingepasst wird.
 
@@ -96,3 +96,20 @@ Für Kameraaufnahmen immer Bildrate, Belichtung, Moiré, Bildschirmhelligkeit un
 ## Designupdate Konzernsystem
 
 Bei bereits gespeicherten lokalen Einstellungen kann die bisherige Akzentfarbe erhalten bleiben. Mit „Originaldesign wiederherstellen“ oder Import von `presets/corporate.json` wird die neue rot-weiße Voreinstellung geladen.
+
+## BLACKLINE OS
+
+Über „Netzwerkterminal“ öffnen. Die Seitenleiste schaltet zwischen Workspace, Terminal, Filesystem, Personnel, Data clusters, 4D projection und Sequences um.
+
+- Terminal: lokale Befehle wie `help`, `ls`, `cd`, `cat`, `open`, `scan`, `decrypt`, `correlate`, `reconstruct` und `lock`; Verlauf und Tab-Vervollständigung. Für freie Befehle „Vorbereitetes Tippen“ ausschalten.
+- Sitzung sperren: drei Slider-Stufen ausrichten, danach den Kontaktsensor 3,5 Sekunden halten. Loslassen bricht den Scan ab. Entsperren startet den Bootablauf. Tastatur: Slider mit Ende bestätigen, Sensor mit Leertaste halten.
+- Sechs Sequenzen: Boot 108 s, Intrusion 130 s, Decryption 106 s, Cluster analysis 112 s, Biometric analysis 76 s, Reconstruction 116 s. Insgesamt 31 Phasen mit Ring-, Matrix-, Spektrum-, Gitter-, Trace- und Fingerprint-Ansichten.
+- „Run full operation“ verbindet Boot, Intrusion und Warnzustand zu 4:16 Minuten. Dauerfaktor 0,25–4. Start erweitert die Zeitleiste automatisch; Pause und Zeitsprünge steuern die prozeduralen Anzeigen.
+- 4D-Projektion: Tesserakt mit 16 Ecken und 32 Kanten, XW-/YZ-Rotation sowie Touchgesten.
+- „Display-Overlays“: Scanlines, Glow, Grid, Grain, Vignette, Glitch und chromatische Konturen separat einstellen. Der globale Effektregler skaliert ihre Stärke.
+
+Die Daten bleiben lokal und fiktiv. Der Fingerprint-Sensor ist eine Halteinteraktion; er liest keine biometrischen Daten. Implementierung in `src/scenes/os/`.
+
+Vorschau: [Workspace](docs/previews/os-desktop.png), [Dateisystem](docs/previews/os-files.png), [Personalakte](docs/previews/os-personnel.png), [4D-Projektion](docs/previews/os-dimension.png), [Analyse](docs/previews/os-sequence.png), [Sperrbildschirm](docs/previews/os-lock.png), [Warnzustand](docs/previews/os-warning.png).
+
+Validierung: TypeScript, Produktionsbuild, 9 Unit-Tests und 9 Browser-Tests. Geprüft werden unter anderem Phasengrenzen, Vor-/Zurückspulen, Pause, Reset, lokale Befehle und der abgebrochene bzw. erfolgreiche Entsperrvorgang.

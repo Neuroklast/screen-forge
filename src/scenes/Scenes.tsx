@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CyberOS } from "./os/CyberOS";
 import { motion } from "motion/react";
 import {
   Activity,
@@ -15,6 +16,8 @@ export type SceneProps = {
   time: number;
   cue: Cue;
   onCue: (cue: Cue) => void;
+  onPlay?: () => void;
+  onTimelineExtend?: (end: number) => void;
 };
 function Label({ children }: { children: React.ReactNode }) {
   return <div className="micro">{children}</div>;
@@ -721,7 +724,7 @@ export function Hologram({ config, time, cue, onCue }: SceneProps) {
 }
 export const sceneComponents = {
   corporate: Corporate,
-  terminal: Terminal,
+  terminal: CyberOS,
   countdown: Countdown,
   tracking: Tracking,
   hologram: Hologram,

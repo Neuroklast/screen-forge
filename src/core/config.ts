@@ -7,6 +7,15 @@ export const sceneIds = [
   "hologram",
 ] as const;
 export type SceneId = (typeof sceneIds)[number];
+const overlaySchema = z.object({
+  scanlines: z.number().min(0).max(1).default(0.35),
+  glow: z.number().min(0).max(1).default(0.25),
+  grid: z.number().min(0).max(1).default(0.15),
+  grain: z.number().min(0).max(1).default(0.12),
+  vignette: z.number().min(0).max(1).default(0.3),
+  glitch: z.number().min(0).max(1).default(0.2),
+  chromatic: z.number().min(0).max(1).default(0.15),
+});
 export const schema = z.object({
   version: z.literal(1),
   scene: z.enum(sceneIds),
@@ -22,6 +31,8 @@ export const schema = z.object({
   actorMode: z.boolean(),
   script: z.string().max(300),
   seed: z.number().int().min(1).max(99999),
+  sequenceScale: z.number().min(0.25).max(4).default(1),
+  overlays: overlaySchema.default(() => overlaySchema.parse({})),
 });
 export type Config = z.infer<typeof schema>;
 export const scenes: {
@@ -46,8 +57,8 @@ export const scenes: {
     id: "terminal",
     name: "Netzwerkterminal",
     code: "02 / NETWORK",
-    description: "Signalwege. Zugriffe. Verborgene Systeme.",
-    accent: "#e7c85a",
+    description: "BLACKLINE OS. Archive, Identitäten, Sequenzen.",
+    accent: "#f36c75",
     title: "BLACKLINE",
     subtitle: "NETWORK OPERATIONS / LOCAL SESSION",
   },
@@ -96,6 +107,8 @@ export function defaults(scene: SceneId = "corporate"): Config {
     actorMode: true,
     script: "inspect relay --sector 07 --verify",
     seed: 2048,
+    sequenceScale: 1,
+    overlays: overlaySchema.parse({}),
   };
 }
 export function loadConfig(): Config {

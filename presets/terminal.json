@@ -4,7 +4,7 @@
   "title": "BLACKLINE",
   "subtitle": "NETWORK OPERATIONS / LOCAL SESSION",
   "identifier": "VS-204 / UNIT 07",
-  "accent": "#e7c85a",
+  "accent": "#f36c75",
   "mood": "clinical",
   "effects": 0.25,
   "density": "detailed",
@@ -12,5 +12,15 @@
   "brightness": 1,
   "actorMode": true,
   "script": "inspect relay --sector 07 --verify",
-  "seed": 2048
+  "seed": 2048,
+  "sequenceScale": 1,
+  "overlays": {
+    "scanlines": 0.35,
+    "glow": 0.25,
+    "grid": 0.15,
+    "grain": 0.12,
+    "vignette": 0.3,
+    "glitch": 0.2,
+    "chromatic": 0.15
+  }
 }

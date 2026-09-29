@@ -34,7 +34,8 @@ export default function App() {
     [take, setTake] = useState(1),
     [settings, setSettings] = useState(true),
     [clean, setClean] = useState(false),
-    [notice, setNotice] = useState("");
+    [notice, setNotice] = useState(""),
+    [timelineEnd,setTimelineEnd]=useState(0);
   const clock = useSceneClock();
   const stage = useRef<HTMLDivElement>(null),
     upload = useRef<HTMLInputElement>(null);
@@ -45,6 +46,7 @@ export default function App() {
     setConfig((c) => ({ ...c, [key]: value }));
   const reset = () => {
     clock.reset();
+    setTimelineEnd(0);
     setCue("idle");
     setTake((n) => n + 1);
   };
@@ -126,6 +128,7 @@ export default function App() {
     }
     if (upload.current) upload.current.value = "";
   };
+  const timelineMax=Math.max(config.duration,timelineEnd);
   const scale = Math.min(size.width / 1280, size.height / 760);
   return (
     <MotionConfig
@@ -249,20 +252,25 @@ export default function App() {
                   time={clock.elapsed}
                   cue={cue}
                   onCue={setCue}
+                  onPlay={() => clock.setPlaying(true)}
+                  onTimelineExtend={(end)=>setTimelineEnd(t=>Math.max(t,end))}
                 />
                 <div
+                  hidden={config.scene === "terminal"}
                   className="display-texture"
                   style={{ opacity: config.effects * 0.22 }}
                 />
-                {config.mood === "damaged" && config.effects > 0 && (
-                  <div
-                    className="damage-band"
-                    style={{
-                      opacity: config.effects * 0.1,
-                      top: `${20 + (Math.floor(clock.elapsed / 3) % 5) * 13}%`,
-                    }}
-                  />
-                )}
+                {config.scene !== "terminal" &&
+                  config.mood === "damaged" &&
+                  config.effects > 0 && (
+                    <div
+                      className="damage-band"
+                      style={{
+                        opacity: config.effects * 0.1,
+                        top: `${20 + (Math.floor(clock.elapsed / 3) % 5) * 13}%`,
+                      }}
+                    />
+                  )}
               </div>
             </div>
             <div className="stage-bottomline">
@@ -320,12 +328,12 @@ export default function App() {
               aria-label="Szenenzeit"
               type="range"
               min="0"
-              max={config.duration}
+              max={timelineMax}
               step=".1"
-              value={Math.min(clock.elapsed, config.duration)}
+              value={Math.min(clock.elapsed, timelineMax)}
               onChange={(e) => clock.seek(+e.target.value)}
             />
-            <span>{formatTime(config.duration)}</span>
+            <span>{formatTime(timelineMax)}</span>
           </div>
           <div className="workspace-note">
             <span>
@@ -459,6 +467,53 @@ export default function App() {
             </label>
             {config.scene === "terminal" && (
               <>
+                <label>
+                  Sequenzdauer <output>×{config.sequenceScale}</output>
+                  <input
+                    aria-label="Sequenzdauer"
+                    type="range"
+                    min=".25"
+                    max="4"
+                    step=".25"
+                    value={config.sequenceScale}
+                    onChange={(e) => update("sequenceScale", +e.target.value)}
+                  />
+                </label>
+                <details className="overlay-settings">
+                  <summary>Display-Overlays</summary>
+                  {Object.entries(config.overlays).map(([key, value]) => (
+                    <label key={key}>
+                      {
+                        (
+                          {
+                            scanlines: "Scanlines",
+                            glow: "CRT Glow",
+                            grid: "Technikraster",
+                            grain: "Körnung",
+                            vignette: "Vignette",
+                            glitch: "Signalstörungen",
+                            chromatic: "Chromatische Kanten",
+                          } as Record<string, string>
+                        )[key]
+                      }
+                      <output>{Math.round(value * 100)}%</output>
+                      <input
+                        aria-label={key}
+                        type="range"
+                        min="0"
+                        max="1"
+                        step=".01"
+                        value={value}
+                        onChange={(e) =>
+                          update("overlays", {
+                            ...config.overlays,
+                            [key]: +e.target.value,
+                          })
+                        }
+                      />
+                    </label>
+                  ))}
+                </details>
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
