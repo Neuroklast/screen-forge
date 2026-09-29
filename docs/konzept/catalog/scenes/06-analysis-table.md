@@ -49,6 +49,13 @@ The analysis table is the spatial reconstruction lab: a depth-sorted holographic
 - SHOULD map analysis runs to training objectives (`analysis.complete` value = analysis id) and to mission injects.
 - MAY add measurement annotations (points, distances) as a director-only overlay.
 
+## Rework V2 (Soll)
+
+- MUST produce a real outcome: each run ends in a visible result, not just a pattern.
+- SHOULD support modes: `decrypt` (ciphertext resolves into plaintext step by step), `data` (correlation with findings/anomaly list), `reconstruct` (assembly result).
+- MUST be configurable via `sceneOptions.analysis` (mode, input text/cipher, result text, key/code).
+- SHOULD emit `analysis.complete` with mode and result id for training.
+
 ## Edge cases
 
 - Model fails to load (corrupt GLB): placeholder + notice, scene remains interactive.

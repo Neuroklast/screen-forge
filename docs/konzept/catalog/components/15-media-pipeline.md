@@ -45,6 +45,12 @@
 - `public/media/index.json` exists but is read by no code.
 - One incident image exists twice byte-identical.
 
+## Photo display rules (V2)
+
+- Portraits MUST render **uncropped** (`object-fit: contain`) with a themed letterbox backdrop — today `.os-profile-portrait img` uses `cover` and crops (see [../23-asset-and-catalog-gaps.md](../23-asset-and-catalog-gaps.md)).
+- A theme tint overlay (accent/secondary, `mix-blend-mode: color`, opacity from `sceneOptions.os.photoOverlay`) MAY sit over the photo.
+- Caption bar with name + role; monogram fallback when no photo exists.
+
 ## Target state (Soll)
 
 - MUST resolve media deterministically: package assets → IndexedDB store → bundled examples → placeholder with a warning.

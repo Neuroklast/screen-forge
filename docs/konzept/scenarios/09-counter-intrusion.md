@@ -1,7 +1,7 @@
 # Scenario — Counter-Intrusion (Einbruch & Datenzugriff)
 
 > ScreenForge concept set · Scenario library · Exercise-design realism (fiction only) · Language: EN, UI labels DE
-> Related: [01-exercise-anatomy-and-mel.md](01-exercise-anatomy-and-mel.md) · [../catalog/scenes/02-network-terminal-shell.md](../catalog/scenes/02-network-terminal-shell.md)
+> Related: [01-exercise-anatomy-and-mel.md](01-exercise-anatomy-and-mel.md) · [../catalog/scenes/02-operating-system.md](../catalog/scenes/02-operating-system.md)
 
 ## Purpose
 

@@ -39,6 +39,12 @@ The Slide block is a physical latch/rail: the operator drags or keys a handle to
 - SHOULD map to training objectives: `slide.open` completes a mechanism objective.
 - MUST keep release-to-reset semantics so a partial slide never seals accidentally.
 
+## Rework V2 (Soll)
+
+- MUST support releases: staged unlocking (e.g. two-step release), lever/slider travel with detents, and a visible release state.
+- SHOULD animate the mechanism (bolt travel, seal break) and play a seal sound.
+- MUST be configurable via `sceneOptions.slide` (stages, labels, snap threshold, sounds).
+
 ## Edge cases
 
 - Keyboard hold interrupted by focus loss: drive stops, physics continue (coast/spring-back).

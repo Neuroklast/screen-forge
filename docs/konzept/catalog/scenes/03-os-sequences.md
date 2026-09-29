@@ -1,12 +1,12 @@
-# Catalog — Network Terminal — Sequences
+# Catalog — Operating System — Sequences
 
 > ScreenForge concept set · Catalog · Target state (Soll) · Language: EN, UI labels DE
-> Scene id `terminal` (sequences belong to the network terminal scene) · Code: `src/scenes/os/sequences.ts` (852 lines), `os/SequencePanel.tsx` (202), `os/Visuals.tsx` (403), `os/ActorPlayback.tsx` (338)
-> Related: [02-network-terminal-shell.md](02-network-terminal-shell.md)
+> Scene id `os` (sequences belong to the operating system) · Code: `src/scenes/os/sequences.ts` (852 lines), `os/SequencePanel.tsx` (202), `os/Visuals.tsx` (403), `os/ActorPlayback.tsx` (338)
+> Related: [02-operating-system.md](02-operating-system.md)
 
 ## Purpose
 
-Sequences are time-coded choreographies that make the network terminal feel like a working system: each has phases, telemetry, logs, and a visual mode. They are pure functions of scene time — seek-safe, deterministic, no timers.
+Sequences are time-coded choreographies that make the operating system feel like a working machine: each has phases, telemetry, logs, and a visual mode. They are pure functions of scene time — seek-safe, deterministic, no timers.
 
 ## Sequence library (14)
 
@@ -33,8 +33,8 @@ Sequences are time-coded choreographies that make the network terminal feel like
 
 ## SequencePanel
 
-- Header: objective, abort/return, phase list with checkmarks and auto-scroll, active `SequenceVisual`, phase name/detail, progress bar with 48 ticks, telemetry meters (REFERENCE LOCK / COHERENCE / BUFFER WINDOW, noise-driven), frame signature hex, journal (last 7 lines).
-- Runs from: Sequences app cards, terminal commands, `operation` prop of a director step.
+- Header: objective, abort/return, phase list with checkmarks and auto-scroll, active `SequenceVisual`, phase name/detail, progress bar with 48 ticks, telemetry meters, frame signature hex, journal (last 7 lines).
+- Runs from: Sequences app cards, the terminal scene (via its goal chain), and the `operation` prop of a director step.
 
 ## Visual modes (SequenceVisual)
 
@@ -43,21 +43,20 @@ Sequences are time-coded choreographies that make the network terminal feel like
 ## Actor playback
 
 - 9-step command chain with fixed outputs (`ActorPlayback.tsx:8-113`); each submit runs 4 s with a new line every 0.8 s (`newline` sound).
-- After `commandsUntilSuccess` (default 4) submits, input blocks and `shell.success` is emitted (`:114-188`).
-- `TerminalVisual` shows a media slideshow (auto every 5 s, local upload max 8 × 4 MB) or the live sequence visual (`:189-338`).
+- After `commandsUntilSuccess` submits, input blocks and `shell.success` is emitted.
+- This behaviour moves to the terminal scene ([08-terminal.md](08-terminal.md)); the OS keeps sequence playback for visuals.
 
 ## Target state (Soll)
 
-- MUST expose all sequences to the director as operations with stable ids (already possible via `operation`; add to [16-show-editor.md](../components/16-show-editor.md) UI).
-- SHOULD map sequences to training injects: `door` → `access`, `medical` → `medical`, `beacon` → beacon module, `theft`/`payload` → data objectives.
-- SHOULD keep sequence runs deterministic across seek, pause, and export (already true; add a test).
-- MAY add per-sequence sound override (currently `hack1`/`hack2` only).
+- MUST expose all sequences to the director as operations with stable ids.
+- SHOULD keep sequence runs deterministic across seek, pause, and export.
+- SHOULD move command-chain playback to the terminal scene and keep the OS panel for sequence visuals.
+- MAY add per-sequence sound override.
 
 ## Edge cases
 
-- Seek backwards mid-sequence: phase and visuals recompute from time (no stale state).
+- Seek backwards mid-sequence: phase and visuals recompute from time.
 - Sequence started while another runs: new run replaces the panel, timeline extends to the longer end.
-- `sequenceScale` changed mid-run: durations change; progress recalculates proportionally.
 - `operation` prop referencing an unknown id: ignored with a log entry.
 
 ## Acceptance criteria
@@ -65,4 +64,3 @@ Sequences are time-coded choreographies that make the network terminal feel like
 - [ ] Given `operation` on a director step, the matching sequence starts and `sequence.complete` fires at the end.
 - [ ] Given a seek to any time, the active phase matches `sequenceState` at that time.
 - [ ] Given `sequenceScale = 4`, `boot` lasts 432 s and all phase boundaries scale.
-- [ ] Given actor mode completion, further terminal submits are rejected and `shell.success` is emitted once.

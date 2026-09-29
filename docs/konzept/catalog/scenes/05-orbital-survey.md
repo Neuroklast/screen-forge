@@ -46,6 +46,12 @@ The orbital tracking scene is the fictional sensor station (default title `ORBIT
 - SHOULD emit `track.lock` with the contact id as value for director/training triggers.
 - MAY offer a "sensor degraded" state driven by `cue === "warning"` (confidence floor, glitch overlay).
 
+## Rework V2 (Soll)
+
+- MUST be pure tracking: contacts, lock, history trail, telemetry — no decorative extras.
+- SHOULD add a tactical drone mode: drone POV frame (horizon, crosshair), altitude/speed/heading readouts, waypoint list and target lock.
+- MUST be configurable via `sceneOptions.tracking` (mode `sensor` / `drone`, callsigns, units).
+
 ## Edge cases
 
 - Contact switch mid-lock: epoch restarts, trail clears, no stale confidence.

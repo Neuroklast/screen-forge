@@ -43,6 +43,12 @@ The Lock block is a standalone access keypad: a small framed surface that gates 
 - SHOULD support per-step codes in shows (a step may set `config.pin` and the pad uses it — already partially wired via `applyStep`).
 - MAY add an optional "access granted" full-screen flash for stage use.
 
+## Rework V2 (Soll)
+
+- MUST animate key presses, the scan/verify step, the unlock sequence and the error shake; sounds per event.
+- SHOULD show an unlock sequence (bolt release, door state) instead of only a cue change.
+- MUST be configurable via `sceneOptions.lock` (code length, attempts, animations, sounds).
+
 ## Edge cases
 
 - Pad unmounted mid-entry: no signal emitted; state discarded.

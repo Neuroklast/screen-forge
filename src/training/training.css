@@ -41,7 +41,7 @@
 .training-app textarea {
   font: inherit;
   border: 1px solid var(--train-edge);
-  border-radius: 5px;
+  border-radius: 0;
   color: var(--train-text);
   background: #111a24;
   padding: 10px 13px;
@@ -102,7 +102,7 @@
 }
 .training-app fieldset {
   border: 1px solid var(--train-edge);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 16px;
   margin: 12px 0;
 }
@@ -113,7 +113,7 @@
 .training-app .panel {
   background: var(--train-panel);
   border: 1px solid var(--train-edge);
-  border-radius: 9px;
+  border-radius: 0;
   padding: 24px;
   margin: 0 0 20px;
   min-width: 0;
@@ -197,7 +197,7 @@
 }
 .training-app .import-card {
   border: 1px dashed var(--train-edge);
-  border-radius: 6px;
+  border-radius: 0;
 }
 .welcome {
   padding: 32px !important;
@@ -214,7 +214,7 @@
   padding: 20px;
   background: var(--train-panel);
   border: 1px solid var(--train-edge);
-  border-radius: 8px;
+  border-radius: 0;
 }
 .summary-grid b {
   font-size: 23px;
@@ -254,7 +254,7 @@
 .device-card {
   border: 1px solid var(--train-edge);
   padding: 20px;
-  border-radius: 6px;
+  border-radius: 0;
 }
 .device-card small {
   display: block;
@@ -284,7 +284,7 @@
   border: 1px solid #ac884d;
   background: #302a20;
   max-width: none !important;
-  border-radius: 5px;
+  border-radius: 0;
 }
 .notice button {
   margin-left: 12px;
@@ -305,7 +305,7 @@
   margin: 9vh auto;
   padding: 30px;
   border: 1px solid var(--train-edge);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--train-panel);
 }
 .training-login form {
@@ -376,7 +376,7 @@
   min-height: 440px;
   position: relative;
   border: 1px solid var(--train-edge);
-  border-radius: 8px;
+  border-radius: 0;
   overflow: hidden;
 }
 .tactical-map {
@@ -472,7 +472,7 @@
 }
 .device-tools {
   border: 1px solid var(--train-edge);
-  border-radius: 6px;
+  border-radius: 0;
   margin: 20px 0;
   padding: 12px;
   background: var(--train-panel);

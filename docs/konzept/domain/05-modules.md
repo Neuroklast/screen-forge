@@ -58,7 +58,8 @@ Every module declares:
 | `corporate` | `"Konzernsystem"` | film, training | corporate records, search, access states (default brand VESPER) | — |
 | `hologram` | `"Projektion"` | film, training | spatial assembly, analysis (default brand AEON) | — |
 | `slide` | `"Briefing"` | film, training | Briefing/debrief slides | — |
-| `os` | `"Netzwerkterminal"` | film, training | desktop applications (files, personnel, clusters; default brand BLACKLINE) | — |
+| `os` | `"Betriebssystem"` | film, training | desktop applications (files, personnel, clusters, messages; default brand BLACKLINE) | — |
+| `terminal` (scene) | `"Terminal"` | film, training | goal-driven command line with a completion signal (`terminal.bypass`) | — |
 
 - System modules in training are read-mostly in-world stations (briefing, records, analysis); they MUST NOT bypass exercise permissions.
 - `os` is one module hosting the OS scene family; app switching stays inside the module.

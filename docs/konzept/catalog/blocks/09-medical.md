@@ -46,6 +46,13 @@ The Medical block is a simulated patient monitor: seven vitals, an ECG trace, al
 - SHOULD drive alarm states from mission injects (e.g. `arrest` after an inject) and log each intervention with station + time.
 - MUST keep vitals fictional and simulation-only; no real medical device behavior.
 
+## Rework V2 (Soll)
+
+- MUST show more values: vitals plus trend arrows, lab row, timeline strip, alarm history.
+- MUST animate ECG, respiration and alarm states; alarm levels change color and pulse.
+- MUST use a clean, dense layout (aligned grids, no cramped stacks, squared chrome).
+- MUST be configurable via `sceneOptions.medical` (values shown, alarm limits, trend window, sounds).
+
 ## Edge cases
 
 - Patient deleted mid-run: block falls back to `"UNKNOWN / FIELD"` and shows a binding warning.

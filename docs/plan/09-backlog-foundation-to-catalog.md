@@ -21,6 +21,11 @@
 - Done: C1 prop runtime + `ordnance`/`beacon` modules ([../../src/core/training.ts](../../src/core/training.ts)), C4 signal whitelist + server `prop` command, C2/C3 training consoles ([../../src/training/OrdnanceConsole.tsx](../../src/training/OrdnanceConsole.tsx), [../../src/training/BeaconControl.tsx](../../src/training/BeaconControl.tsx)), C5 template library ([../../src/core/templates.ts](../../src/core/templates.ts)), C6 gallery ([../../src/training/TemplateGallery.tsx](../../src/training/TemplateGallery.tsx)), C7 gallery loads into the builder, C9 tests ([../../src/core/templates.test.ts](../../src/core/templates.test.ts), [../../src/core/prop.test.ts](../../src/core/prop.test.ts)).
 - Deviations: templates ship as a typed module (not `presets/missions/*.json`); film scenes for `ordnance`/`beacon` are deferred; C8 sound manifest is blocked on per-file license information.
 
+### Scene rework V2 (concept first)
+
+- Done: catalog split — [../konzept/catalog/scenes/02-operating-system.md](../konzept/catalog/scenes/02-operating-system.md), [../konzept/catalog/scenes/03-os-sequences.md](../konzept/catalog/scenes/03-os-sequences.md), [../konzept/catalog/scenes/08-terminal.md](../konzept/catalog/scenes/08-terminal.md); rework specs in 01/04/05/06 and blocks 07/09/12; new blocks [../konzept/catalog/blocks/13-clock.md](../konzept/catalog/blocks/13-clock.md), [../konzept/catalog/blocks/14-rotary.md](../konzept/catalog/blocks/14-rotary.md), [../konzept/catalog/blocks/15-code-table.md](../konzept/catalog/blocks/15-code-table.md); `sceneOptions` in formats; photo rules + synthetic OS sounds documented.
+- Open: implementation phases V2-1 (foundations: `sceneOptions`, OS/Terminal split, photo component, OS chrome, squared UI) through V2-6 (training integration).
+
 ## Phase 1 — Foundation
 
 | ID | Task | File(s) | Depends | Done when |

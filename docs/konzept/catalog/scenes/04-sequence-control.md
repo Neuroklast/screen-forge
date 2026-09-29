@@ -50,6 +50,13 @@ The countdown scene renders the fictional device console (default title `SEQUENC
 - SHOULD map to the training `ordnance` module: same stages, plus `tampered` on wrong order (see [../../domain/05-modules.md](../../domain/05-modules.md)).
 - MUST treat `device.expired` as a mission-decided consequence in training (objective failed, warning state), never a hardcoded effect.
 
+## Rework V2 (Soll)
+
+- MUST show phase-specific displays: `idle`, `armed`, `diagnose`, `bypass`, `safe`, `expired` each render a distinct layout and telemetry set; warning levels change colors and animations.
+- MUST let the operator configure the device type: `transfer` (transport), `bomb` (fictional), `reactor`, `custom` — with type-specific labels, telemetry names and palette.
+- SHOULD add continuous on-screen activity (rolling logs, telemetry, stage rail) so the element is never static.
+- MUST be configurable via `sceneOptions.countdown` (type, labels, durations, phases).
+
 ## Edge cases
 
 - Hold started before bypass: button disabled, no partial state.

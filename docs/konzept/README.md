@@ -47,17 +47,21 @@
 | # | File | Read when |
 | --- | --- | --- |
 | C1 | [catalog/scenes/01-corporate-system.md](catalog/scenes/01-corporate-system.md) | Corporate system scene |
-| C2 | [catalog/scenes/02-network-terminal-shell.md](catalog/scenes/02-network-terminal-shell.md) | Network terminal shell, apps, lock screen |
-| C3 | [catalog/scenes/03-network-terminal-sequences.md](catalog/scenes/03-network-terminal-sequences.md) | 14 OS sequences, actor playback |
+| C2 | [catalog/scenes/02-operating-system.md](catalog/scenes/02-operating-system.md) | Operating system: desktop, windows, apps, photos |
+| C3 | [catalog/scenes/03-os-sequences.md](catalog/scenes/03-os-sequences.md) | 14 OS sequences, sequence panel |
 | C4 | [catalog/scenes/04-sequence-control.md](catalog/scenes/04-sequence-control.md) | Countdown/device console scene |
 | C5 | [catalog/scenes/05-orbital-survey.md](catalog/scenes/05-orbital-survey.md) | Orbital tracking scene |
 | C6 | [catalog/scenes/06-analysis-table.md](catalog/scenes/06-analysis-table.md) | Analysis table scene |
+| C6b | [catalog/scenes/08-terminal.md](catalog/scenes/08-terminal.md) | Terminal: goal-driven command line |
 | C7 | [catalog/blocks/07-lock.md](catalog/blocks/07-lock.md) | Lock block (keypad) |
 | C8 | [catalog/blocks/08-access.md](catalog/blocks/08-access.md) | Access block (interlock) |
 | C9 | [catalog/blocks/09-medical.md](catalog/blocks/09-medical.md) | Medical block (bio monitor) |
 | C10 | [catalog/blocks/10-camera.md](catalog/blocks/10-camera.md) | Camera block (optics) |
 | C11 | [catalog/blocks/11-comms.md](catalog/blocks/11-comms.md) | Comms block (radio) |
-| C12 | [catalog/blocks/12-slide.md](catalog/blocks/12-slide.md) | Slide block (latch) |
+| C12 | [catalog/blocks/12-slide.md](catalog/blocks/12-slide.md) | Slide block (latch, releases) |
+| C12b | [catalog/blocks/13-clock.md](catalog/blocks/13-clock.md) | Clock block (new) |
+| C12c | [catalog/blocks/14-rotary.md](catalog/blocks/14-rotary.md) | Rotary block (new) |
+| C12d | [catalog/blocks/15-code-table.md](catalog/blocks/15-code-table.md) | Code table block (new) |
 | C13 | [catalog/components/13-input.md](catalog/components/13-input.md) | CodePad, StageKeys, GestureSurface |
 | C14 | [catalog/components/14-branding-frames.md](catalog/components/14-branding-frames.md) | BrandMark, HudFrame, SceneHeader |
 | C15 | [catalog/components/15-media-pipeline.md](catalog/components/15-media-pipeline.md) | Media store, example media, limits |

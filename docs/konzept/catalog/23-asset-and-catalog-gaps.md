@@ -23,6 +23,9 @@
 | 14 | README test counts stale (9 unit / 9 e2e); actual 24 unit + 1 server + 19 e2e | `README.md:122` vs `package.json` scripts | Update README numbers |
 | 15 | Scene display titles conflate companies with scenes (VESPER, BLACKLINE, AEON as scene names) | `config.ts:152-272`; SystemProfiles | UI scene picker uses functional names; titles are branding (see [20-companies-and-brands.md](20-companies-and-brands.md)) |
 | 16 | `presets/*.json` are not loaded by any code path | no references | Document as import samples or wire a preset browser |
+| 17 | OS portraits are cropped (`object-fit: cover`) | `os.css:859-864` | Switch to `contain` + themed backdrop + optional tint (V2 rework) |
+| 18 | No OS sounds (startup, open/close, error, notify, tick) | sound map has 16 UI sounds | Generate synthetic WAVs + manifest (V2) |
+| 19 | Operational UI uses rounded corners / modern look (start page, builder, gallery, roles) | CSS radii added in Phases 1–4 | Square the operational UI to match the art direction (V2) |
 
 ## Notes
 

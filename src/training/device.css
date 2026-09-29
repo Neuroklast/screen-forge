@@ -4,7 +4,7 @@
   gap: 10px;
   padding: 16px;
   border: 1px solid #1e2a33;
-  border-radius: 12px;
+  border-radius: 0;
   background: #0a1016;
   color: #d6e2e5;
 }
@@ -24,7 +24,7 @@
 .device-state {
   padding: 3px 10px;
   border: 1px solid #2a3a44;
-  border-radius: 999px;
+  border-radius: 0;
   font-family: "IBM Plex Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.1em;
@@ -66,7 +66,7 @@
   width: 100%;
   padding: 12px 14px;
   border: 1px solid #1e2a33;
-  border-radius: 8px;
+  border-radius: 0;
   background: #0e171f;
   color: #d6e2e5;
   font-size: 15px;
@@ -91,7 +91,7 @@
 .device-hold {
   padding: 22px;
   border: 1px solid #5a4a25;
-  border-radius: 10px;
+  border-radius: 0;
   background: #1a1509;
   color: #e8b563;
   font-family: "IBM Plex Mono", monospace;
@@ -109,7 +109,7 @@
 .device-secondary {
   padding: 10px;
   border: 1px solid #1e2a33;
-  border-radius: 8px;
+  border-radius: 0;
   background: #0e171f;
   color: #d6e2e5;
   cursor: pointer;

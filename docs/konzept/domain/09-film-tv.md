@@ -11,8 +11,8 @@ Film & TV mode produces believable screen surfaces on set: scenes, blocks, shows
 
 | Concept | German | Definition |
 | --- | --- | --- |
-| Scene | `"Szene"` | Full-screen fictional system (corporate system, network terminal, countdown, orbital tracking, analysis table); in-world titles come from the applied company identity |
-| Block | `"Baustein"` | Partial surface (terminal, medical, camera, comms, access, lock, slide) |
+| Scene | `"Szene"` | Full-screen fictional system (corporate system, operating system, terminal, countdown, orbital tracking, analysis table); in-world titles come from the applied company identity |
+| Block | `"Baustein"` | Partial surface (medical, camera, comms, access, lock, slide, clock, rotary, code table) |
 | Show | `"Ablauf"` | Ordered take graph for a production sequence |
 | Take | `"Take"` | One step in a show: config + cue + trigger + next/onFail |
 | Cue | `"Regiezustand"` | Scene mood: Ruhe / Aktion / Warnung / Abschluss |

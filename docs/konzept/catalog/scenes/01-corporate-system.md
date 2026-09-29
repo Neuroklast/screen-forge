@@ -53,6 +53,13 @@ The corporate system is the light "company intranet" surface: a believable insti
 - SHOULD decouple scene title from company: the default title `VESPER` comes from the company identity; a mission/show MAY apply any of the 14 companies to this scene.
 - Personnel/archive content SHOULD come from mission dossiers in training (released only), replacing the hardcoded arrays.
 
+## Rework V2 (Soll)
+
+- MUST present a windowed, OS-like surface: Personnel, Archive and Diagnostics open as windows with squared chrome, subtle open/close animations and synthetic sounds.
+- MUST stay dense and squared — no rounded corners, no modern UI look.
+- SHOULD reuse the shared OS chrome and photo rules from [02-operating-system.md](02-operating-system.md) (uncropped photos with theme overlay).
+- SHOULD be configurable via `sceneOptions.corporate` (start app, density, sounds).
+
 ## Edge cases
 
 - Record opened while a process runs: current process is replaced; timeline extension recalculated.

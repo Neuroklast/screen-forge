@@ -38,6 +38,7 @@
 | 5 | Film | [05-film.md](05-film.md) | 1 | M | Stage targets/sync, rehearsal, operations UI |
 | 6 | Demo | [06-demo.md](06-demo.md) | 1 | M | Offline tour, seeded content, sandbox, kiosk |
 | 7 | Cleanup | [07-cleanup.md](07-cleanup.md) | any | M | Assets, dead code, README, fonts/sounds |
+| V2 | Scene rework | [11-scene-rework-v2.md](11-scene-rework-v2.md) | 1–3 | XL | OS/Terminal split, all scenes/blocks to V2 specs, new blocks |
 
 - Parallelizable: 2 and 3 after 1; 5 and 6 after 1; 7 throughout.
 - Every phase ships independently: no phase may leave the app in a non-building state.
