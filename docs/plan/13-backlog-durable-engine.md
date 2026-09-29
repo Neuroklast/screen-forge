@@ -6,9 +6,9 @@
 
 ## Progress
 
-- Done: E1 protocol v2 (envelope, dedup, ACK/rejected, handshake).
+- Done: E1 protocol v2 (envelope, dedup, ACK/rejected, handshake); E2 domain events + JSONL journal + snapshot + restart replay.
 - Doing: —
-- Open: E2–E17.
+- Open: E3–E17.
 
 ## Wave 1 — Critical
 

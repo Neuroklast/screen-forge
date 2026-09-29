@@ -1,5 +1,6 @@
 import http from "node:http";
 import { readFile, mkdir, writeFile, rename } from "node:fs/promises";
+import { appendFileSync, writeFileSync } from "node:fs";
 import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { resolve, extname, sep } from "node:path";
@@ -19,6 +20,7 @@ import {
   setProp,
 } from "../src/core/training.ts";
 import { PROTOCOL } from "../src/core/protocol.ts";
+import { applyEvent, domainEventSchema } from "../src/core/events.ts";
 
 const hash = (value) =>
   createHash("sha256").update(String(value)).digest("hex");
@@ -74,20 +76,129 @@ export async function startExercise({
     map.set(eventId, { serverSeq });
     while (map.size > 500) map.delete(map.keys().next().value);
   };
-  await mkdir(dataDir, { recursive: true, mode: 0o700 });
-  try {
-    const saved = JSON.parse(
-      await readFile(resolve(dataDir, "rooms.json"), "utf8"),
+  const snapshotDir = resolve(dataDir, "snapshots"),
+    journalDir = resolve(dataDir, "journal");
+  const snapshotPath = (room) => resolve(snapshotDir, `${room}.json`);
+  const journalPath = (room) => resolve(journalDir, `${room}.jsonl`);
+  const writeSnapshotFor = async (room) => {
+    const state = rooms.get(room);
+    if (!state) return;
+    const payload = JSON.stringify({
+      serverSeq: roomSeq.get(room) || 0,
+      baseline: baseline.get(room),
+      state,
+    });
+    const path = snapshotPath(room);
+    await writeFile(`${path}.tmp`, payload, { mode: 0o600 });
+    await rename(`${path}.tmp`, path);
+  };
+  const appendEvent = (room, actor, event) => {
+    const serverSeq = nextSeq(room);
+    appendFileSync(
+      journalPath(room),
+      JSON.stringify({ serverSeq, wallAt: Date.now(), actor, event }) + "\n",
     );
-    for (const [key, value] of saved.rooms ?? []) {
-      value.scenario = scenarioSchema.parse(value.scenario);
-      value.frozen = true;
-      value.presence = {};
-      rooms.set(key, value);
+    applyEvent(rooms.get(room), event);
+    return serverSeq;
+  };
+  const journalNewFired = (room, before) => {
+    const state = rooms.get(room);
+    if (!state) return;
+    for (const id of state.fired)
+      if (!before.has(id)) {
+        const serverSeq = nextSeq(room);
+        appendFileSync(
+          journalPath(room),
+          JSON.stringify({
+            serverSeq,
+            wallAt: Date.now(),
+            actor: "engine",
+            event: { type: "inject.fired", inject: id },
+          }) + "\n",
+        );
+      }
+  };
+  const readJson = async (path) => {
+    try {
+      return JSON.parse(await readFile(path, "utf8"));
+    } catch (error) {
+      if (error.code === "ENOENT") return null;
+      throw error;
     }
-    for (const [key, value] of saved.baseline ?? [])
-      baseline.set(key, scenarioSchema.parse(value));
-    for (const [key, value] of saved.credentials ?? [])
+  };
+  const readJournal = async (room) => {
+    let text = "";
+    try {
+      text = await readFile(journalPath(room), "utf8");
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    const records = [];
+    for (const line of text.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      try {
+        records.push(JSON.parse(trimmed));
+      } catch {
+        console.error(`Skipping corrupt journal line for ${room}`);
+      }
+    }
+    return records;
+  };
+  const replayRoom = (room, snapshot, records) => {
+    let state = snapshot ? snapshot.state : newState(room);
+    let base = snapshot ? snapshot.baseline : structuredClone(state.scenario);
+    let seq = snapshot ? snapshot.serverSeq || 0 : 0;
+    for (const rec of records) {
+      if (snapshot && rec.serverSeq <= seq) {
+        seq = Math.max(seq, rec.serverSeq);
+        continue;
+      }
+      const event = (() => {
+        try {
+          return domainEventSchema.parse(rec.event);
+        } catch {
+          console.error(`Skipping invalid event for ${room}`);
+          return null;
+        }
+      })();
+      if (!event) continue;
+      if (event.type === "scenario.saved") {
+        base = event.scenario;
+        applyEvent(state, event);
+      } else if (event.type === "exercise.reset") {
+        const next = newState(room, structuredClone(base));
+        next.revision = state.revision + 1;
+        next.presence = state.presence;
+        state = next;
+      } else {
+        applyEvent(state, event);
+      }
+      seq = Math.max(seq, rec.serverSeq);
+    }
+    state.scenario = scenarioSchema.parse(state.scenario);
+    state.frozen = true;
+    state.presence = {};
+    rooms.set(room, state);
+    baseline.set(room, scenarioSchema.parse(base));
+    roomSeq.set(room, seq);
+  };
+  await mkdir(dataDir, { recursive: true, mode: 0o700 });
+  await mkdir(snapshotDir, { recursive: true, mode: 0o700 });
+  await mkdir(journalDir, { recursive: true, mode: 0o700 });
+  try {
+    const saved = await readJson(resolve(dataDir, "rooms.json"));
+    const roomNames = new Set();
+    for (const [key] of saved?.rooms ?? []) roomNames.add(key);
+    for (const [key] of saved?.baseline ?? []) roomNames.add(key);
+    for (const name of roomNames) {
+      const snapshot = await readJson(snapshotPath(name));
+      const records = await readJournal(name);
+      replayRoom(name, snapshot, records);
+      await writeSnapshotFor(name);
+      writeFileSync(journalPath(name), "");
+    }
+    for (const [key, value] of saved?.credentials ?? [])
       if (value.expires > Date.now()) credentials.set(key, value);
   } catch (error) {
     if (error.code !== "ENOENT")
@@ -427,7 +538,9 @@ export async function startExercise({
               continue;
             state.positions[meta.station] = { ...p, received: Date.now() };
           }
+          const before = new Set(state.fired);
           evaluate(state, { type: "zone", station: meta.station });
+          journalNewFired(meta.room, before);
           send(ws, { type: "gps-ack", timestamp: samples.at(-1).timestamp });
         } else if (msg.type === "module-event" && meta.role === "element") {
           const st = state.scenario.stations.find((s) => s.id === meta.station);
@@ -436,12 +549,18 @@ export async function startExercise({
             !(moduleEvents[st?.module] || []).includes(msg.value)
           )
             throw new Error("Module event not available");
-          logEvent(state, `${st.name}: ${msg.value}`);
+          const before = new Set(state.fired);
+          appendEvent(meta.room, meta.role, {
+            type: "module.event",
+            station: meta.station,
+            value: msg.value,
+          });
           evaluate(state, {
             type: "signal",
             station: meta.station,
             value: msg.value,
           });
+          journalNewFired(meta.room, before);
         } else if (msg.type === "intervention" && meta.role === "element") {
           const st = state.scenario.stations.find((s) => s.id === meta.station);
           if (
@@ -452,15 +571,20 @@ export async function startExercise({
             )
           )
             throw new Error("Intervention unavailable");
-          const values = (state.interventions[meta.station] ||= []);
+          const values = state.interventions[meta.station] || [];
           if (!values.includes(msg.value)) {
-            values.push(msg.value);
-            logEvent(state, `${st.name}: ${msg.value}`);
+            const before = new Set(state.fired);
+            appendEvent(meta.room, meta.role, {
+              type: "intervention.reported",
+              station: meta.station,
+              value: msg.value,
+            });
             evaluate(state, {
               type: "intervention",
               station: meta.station,
               value: msg.value,
             });
+            journalNewFired(meta.room, before);
           }
         } else if (msg.type === "unlock" && meta.role === "element") {
           const st = state.scenario.stations.find((s) => s.id === meta.station);
@@ -480,38 +604,56 @@ export async function startExercise({
             throw new Error("Code rejected. Read the ACTIVE shunt entry.");
           }
           if (!state.props[st.id]) {
-            state.props[st.id] = true;
-            logEvent(state, `${st.name}: completed`);
+            const before = new Set(state.fired);
+            appendEvent(meta.room, meta.role, {
+              type: "access.granted",
+              station: st.id,
+            });
             evaluate(state, { type: "prop", station: st.id });
+            journalNewFired(meta.room, before);
           }
         } else if (msg.type === "prop" && meta.role === "element") {
           const st = state.scenario.stations.find((s) => s.id === meta.station);
           if (state.frozen || !st || !st.bindings.prop)
             throw new Error("No prop bound to this station");
-          if (!setProp(state, st.bindings.prop, String(msg.state)))
+          const prop = state.scenario.props.find(
+            (p) => p.id === st.bindings.prop,
+          );
+          if (!prop || !prop.states.includes(String(msg.state)))
             throw new Error("Invalid prop state");
+          const before = new Set(state.fired);
+          appendEvent(meta.room, meta.role, {
+            type: "prop.changed",
+            prop: st.bindings.prop,
+            state: String(msg.state),
+          });
           evaluate(state, { type: "prop", station: st.id });
+          journalNewFired(meta.room, before);
         } else if (msg.type === "abort" && ["trainer", "safety"].includes(meta.role)) {
-          state.frozen = true;
-          state.phase = "aborted";
-          logEvent(state, `Exercise aborted (${meta.role})`);
+          appendEvent(meta.room, meta.role, {
+            type: "exercise.aborted",
+            by: meta.role,
+          });
         } else if (
           msg.type === "note" &&
           ["trainer", "safety", "assessor"].includes(meta.role)
         ) {
           const text = String(msg.text || "").trim().slice(0, 500);
           if (!text) throw new Error("Empty note");
-          state.notes = [
-            ...state.notes,
-            { at: state.clock, role: meta.role, text },
-          ].slice(-200);
+          appendEvent(meta.room, meta.role, {
+            type: "note.added",
+            role: meta.role,
+            text,
+          });
         } else if (
           msg.type === "transport" &&
           meta.role === "safety" &&
           msg.command === "pause"
         ) {
-          state.frozen = true;
-          state.phase = "paused";
+          appendEvent(meta.room, meta.role, {
+            type: "exercise.transport",
+            command: "pause",
+          });
         } else {
           if (meta.role !== "trainer")
             throw new Error("Trainer permission required");
@@ -557,23 +699,22 @@ export async function startExercise({
               )
                 revoke(meta.room, st.id);
             baseline.set(meta.room, structuredClone(parsed));
-            state.scenario = parsed;
-            state.propStates = Object.fromEntries(
-              parsed.props.map((p) => [p.id, p.initial]),
-            );
-            state.revision++;
+            appendEvent(meta.room, meta.role, {
+              type: "scenario.saved",
+              scenario: parsed,
+            });
             for (const m of sockets.values())
               if (m.room === meta.room) m.inspected = false;
             send(ws, { type: "saved", revision: state.revision });
-            logEvent(state, "Scenario saved");
           } else if (msg.type === "fire") {
             const inject = state.scenario.injects.find((r) => r.id === msg.inject);
             if (!inject) throw new Error("Unknown inject");
             if (state.frozen) throw new Error("Resume the exercise before firing");
             if (state.fired.includes(inject.id)) throw new Error("Already fired");
-            state.fired.push(inject.id);
-            logEvent(state, `Event: ${inject.name}`);
-            inject.actions.forEach((a) => act(state, a));
+            appendEvent(meta.room, meta.role, {
+              type: "inject.fired",
+              inject: inject.id,
+            });
           } else if (msg.type === "message") {
             const to = String(msg.to || "all").slice(0, 40);
             const text = String(msg.text || "").trim().slice(0, 280);
@@ -584,21 +725,30 @@ export async function startExercise({
               !state.scenario.stations.some((s) => s.id === to)
             )
               throw new Error("Unknown recipient");
-            state.messages = [
-              ...state.messages,
-              { at: state.clock, from: "excon", to, text },
-            ].slice(-200);
-            logEvent(state, `Message → ${to}: ${text}`);
+            appendEvent(meta.room, meta.role, {
+              type: "message.posted",
+              from: "excon",
+              to,
+              text,
+            });
           } else if (msg.type === "transport") {
-            if (msg.command === "play") {
-              state.frozen = false;
-              state.phase = "running";
-            } else if (msg.command === "pause") {
-              state.frozen = true;
-              state.phase = "paused";
+            if (msg.command === "play" || msg.command === "pause") {
+              appendEvent(meta.room, meta.role, {
+                type: "exercise.transport",
+                command: msg.command,
+              });
             } else if (msg.command === "reset") {
               for (const m of sockets.values())
                 if (m.room === meta.room) m.inspected = false;
+              appendFileSync(
+                journalPath(meta.room),
+                JSON.stringify({
+                  serverSeq: nextSeq(meta.room),
+                  wallAt: Date.now(),
+                  actor: meta.role,
+                  event: { type: "exercise.reset" },
+                }) + "\n",
+              );
               const next = newState(
                 meta.room,
                 structuredClone(baseline.get(meta.room)),
@@ -621,7 +771,10 @@ export async function startExercise({
               if (!rows.some((r) => r.id === action.target))
                 throw new Error("Unknown action target");
             }
-            act(state, action);
+            appendEvent(meta.room, meta.role, {
+              type: "action.applied",
+              action,
+            });
           } else if (msg.type === "patient") {
             const patient = patientSchema.parse(msg.patient),
               i = state.scenario.patients.findIndex((p) => p.id === patient.id);
@@ -632,8 +785,10 @@ export async function startExercise({
                 index === i ? patient : p,
               ),
             });
-            state.scenario.patients[i] = { ...patient, since: state.clock };
-            logEvent(state, `Patient adjusted: ${patient.name}`);
+            appendEvent(meta.room, meta.role, {
+              type: "patient.changed",
+              patient,
+            });
           } else throw new Error("Unknown command");
         }
         dirty = true;
@@ -697,8 +852,10 @@ export async function startExercise({
     for (const [room, state] of rooms) {
       if (!state.frozen) {
         const fired = state.fired.length;
+        const before = new Set(state.fired);
         advance(state, delta);
         dirty = true;
+        if (state.fired.length !== fired) journalNewFired(room, before);
         broadcast(room, state.fired.length === fired);
       }
     }
@@ -709,6 +866,9 @@ export async function startExercise({
         if (value.expires < Date.now()) map.delete(key);
     void persist();
   }, 5000);
+  const snapshotTimer = setInterval(() => {
+    for (const room of rooms.keys()) void writeSnapshotFor(room);
+  }, 30000);
   await new Promise((resolve) => server.listen(port, host, resolve));
   return {
     server,
@@ -717,9 +877,11 @@ export async function startExercise({
     close: async () => {
       clearInterval(tick);
       clearInterval(saveTimer);
+      clearInterval(snapshotTimer);
       for (const ws of wss.clients) ws.terminate();
       await new Promise((resolve) => wss.close(resolve));
       await new Promise((resolve) => server.close(resolve));
+      await Promise.all([...rooms.keys()].map((room) => writeSnapshotFor(room)));
       await persist();
     },
   };
