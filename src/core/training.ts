@@ -214,6 +214,10 @@ export const injectSchema = z.object({
   scheduledAt: finite.min(0).max(86400).nullable().default(null),
   timeBasis: z.enum(["exercise", "wall"]).default("exercise"),
   revision: z.number().int().min(0).default(0),
+  fallback: z.string().max(300).default(""),
+  repeatable: z.boolean().default(false),
+  maxIterations: z.number().int().min(1).max(50).default(1),
+  exitCondition: z.string().max(120).default(""),
 });
 const scenarioV2Schema = z
   .object({

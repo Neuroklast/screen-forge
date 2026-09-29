@@ -1,4 +1,5 @@
 import type { Scenario } from "./training";
+import { lintGraph } from "./graph";
 
 export type Severity = "error" | "warning" | "info";
 export type Collection =
@@ -100,6 +101,7 @@ export function lintMission(s: Scenario): Finding[] {
     if (!r.enabled)
       info(`inject-off-${r.id}`, `Ereignis deaktiviert: ${r.name}.`, "injects", r.id);
 
+  out.push(...lintGraph(s));
   return out;
 }
 

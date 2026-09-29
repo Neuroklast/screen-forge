@@ -6,9 +6,9 @@
 
 ## Progress
 
-- Done: E1 protocol v2 (envelope, dedup, ACK/rejected, handshake); E2 domain events + JSONL journal + snapshot + restart replay; E3 resume/delta with role-projected events.
+- Done: E1 protocol v2; E2 domain events + journal + replay; E3 resume delta; E4 clock; E5 outbox; E6 telemetry store; E7 MEL v2; E8 graph linter.
 - Doing: —
-- Open: E4–E17.
+- Open: E9–E17.
 
 ## Wave 1 — Critical
 
