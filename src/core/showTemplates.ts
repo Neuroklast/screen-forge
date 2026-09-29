@@ -36,6 +36,23 @@ function scene(
 ): Config {
   return { ...withScene(base, id), ...extra, scene: id };
 }
+function options(
+  base: Config,
+  patch: {
+    os?: Partial<Config["sceneOptions"]["os"]>;
+    terminal?: Partial<Config["sceneOptions"]["terminal"]>;
+    countdown?: Partial<Config["sceneOptions"]["countdown"]>;
+  },
+): Pick<Config, "sceneOptions"> {
+  return {
+    sceneOptions: {
+      ...base.sceneOptions,
+      os: { ...base.sceneOptions.os, ...patch.os },
+      terminal: { ...base.sceneOptions.terminal, ...patch.terminal },
+      countdown: { ...base.sceneOptions.countdown, ...patch.countdown },
+    },
+  };
+}
 export function showTemplates(base: Config): { name: string; show: Show }[] {
   const id = identityOf(base);
   const pin = base.pin || "2048";
@@ -43,7 +60,7 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
   const track = scene(base, "tracking", id);
   const count = scene(base, "countdown", {
     ...id,
-    device: "antimatter",
+    ...options(base, { countdown: { variant: "antimatter" } }),
     duration: 180,
     pinEnabled: true,
     pin,
@@ -59,34 +76,54 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
           value: "A7F3",
           config: {
             ...term,
+            ...options(term, { terminal: { actorMode: false } }),
             pinEnabled: true,
             pinMode: "alphanumeric",
             pin: "A7F3",
-            actorMode: false,
           },
         }),
-        node("Find locator file", scene(base, "terminal", { ...id, osApp: "files" }), {
-          trigger: "signal",
-          value: gate("file.found", "/archives/locator.beacon"),
-          config: {
-            ...term,
-            osApp: "files",
-            pinEnabled: false,
-            actorMode: false,
+        node(
+          "Find locator file",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "files" } }),
+          }),
+          {
+            trigger: "signal",
+            value: gate("file.found", "/archives/locator.beacon"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "files" },
+                terminal: { actorMode: false },
+              }),
+              pinEnabled: false,
+            },
           },
-        }),
-        node("Locator handshake", scene(base, "terminal", { ...id, osApp: "terminal" }), {
-          trigger: "signal",
-          value: gate("shell.success"),
-          config: {
-            ...term,
-            osApp: "terminal",
-            pinEnabled: false,
-            actorMode: true,
-            commandsUntilSuccess: 1,
-            script: "locator handshake --id 12 --verify",
+        ),
+        node(
+          "Locator handshake",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "terminal" } }),
+          }),
+          {
+            trigger: "signal",
+            value: gate("shell.success"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "terminal" },
+                terminal: {
+                  actorMode: true,
+                  commandsUntilSuccess: 1,
+                  script: "locator handshake --id 12 --verify",
+                },
+              }),
+              pinEnabled: false,
+            },
           },
-        }),
+        ),
         node("HOLD SENSOR", track, {
           trigger: "signal",
           value: "track.lock",
@@ -127,16 +164,44 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             pin,
           },
         }),
-        node("Find sealed volume", scene(base, "terminal", { ...id, osApp: "files" }), {
-          trigger: "signal",
-          value: gate("file.found", "/archives/sector-07.fragment"),
-          config: { ...term, osApp: "files", pinEnabled: false, actorMode: false },
-        }),
-        node("Decrypt volume", scene(base, "terminal", { ...id, osApp: "files" }), {
-          trigger: "signal",
-          value: gate("file.decrypt", "/archives/sector-07.fragment"),
-          config: { ...term, osApp: "files", pinEnabled: false, actorMode: false },
-        }),
+        node(
+          "Find sealed volume",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "files" } }),
+          }),
+          {
+            trigger: "signal",
+            value: gate("file.found", "/archives/sector-07.fragment"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "files" },
+                terminal: { actorMode: false },
+              }),
+              pinEnabled: false,
+            },
+          },
+        ),
+        node(
+          "Decrypt volume",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "files" } }),
+          }),
+          {
+            trigger: "signal",
+            value: gate("file.decrypt", "/archives/sector-07.fragment"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "files" },
+                terminal: { actorMode: false },
+              }),
+              pinEnabled: false,
+            },
+          },
+        ),
       ]),
     },
     {
@@ -153,47 +218,80 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             pin: "PKG08",
           },
         }),
-        node("COMMIT QUEUE", scene(base, "terminal", { ...id, osApp: "terminal" }), {
-          trigger: "signal",
-          value: gate("shell.success"),
-          config: {
-            ...term,
-            osApp: "terminal",
-            pinEnabled: false,
-            actorMode: true,
-            commandsUntilSuccess: 2,
-            script: "commit queue --image PKG08",
+        node(
+          "COMMIT QUEUE",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "terminal" } }),
+          }),
+          {
+            trigger: "signal",
+            value: gate("shell.success"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "terminal" },
+                terminal: {
+                  actorMode: true,
+                  commandsUntilSuccess: 2,
+                  script: "commit queue --image PKG08",
+                },
+              }),
+              pinEnabled: false,
+            },
           },
-        }),
+        ),
       ]),
     },
     {
       name: "Gegenmaßnahme",
       show: chain("Gegenmaßnahme", [
-        node("ISOLATE SESSION", scene(base, "terminal", { ...id, osApp: "terminal" }), {
-          cue: "warning",
-          trigger: "signal",
-          value: gate("shell.success"),
-          config: {
-            ...term,
-            osApp: "terminal",
-            actorMode: true,
-            commandsUntilSuccess: 2,
-            script: "isolate session --force",
+        node(
+          "ISOLATE SESSION",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "terminal" } }),
+          }),
+          {
+            cue: "warning",
+            trigger: "signal",
+            value: gate("shell.success"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "terminal" },
+                terminal: {
+                  actorMode: true,
+                  commandsUntilSuccess: 2,
+                  script: "isolate session --force",
+                },
+              }),
+            },
           },
-        }),
-        node("RESTORE SHELL", scene(base, "terminal", { ...id, osApp: "terminal" }), {
-          cue: "complete",
-          trigger: "signal",
-          value: gate("shell.success"),
-          config: {
-            ...term,
-            osApp: "terminal",
-            actorMode: true,
-            commandsUntilSuccess: 1,
-            script: "restore shell",
+        ),
+        node(
+          "RESTORE SHELL",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "terminal" } }),
+          }),
+          {
+            cue: "complete",
+            trigger: "signal",
+            value: gate("shell.success"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "terminal" },
+                terminal: {
+                  actorMode: true,
+                  commandsUntilSuccess: 1,
+                  script: "restore shell",
+                },
+              }),
+            },
           },
-        }),
+        ),
       ]),
     },
     {
@@ -224,11 +322,22 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
           trigger: "key",
           value: "e",
         }),
-        node("OPEN DOSSIER", scene(base, "terminal", { ...id, osApp: "personnel" }), {
-          trigger: "signal",
-          value: "dossier.open",
-          config: { ...term, osApp: "personnel", pinEnabled: false },
-        }),
+        node(
+          "OPEN DOSSIER",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "personnel" } }),
+          }),
+          {
+            trigger: "signal",
+            value: "dossier.open",
+            config: {
+              ...term,
+              ...options(term, { os: { startupApp: "personnel" } }),
+              pinEnabled: false,
+            },
+          },
+        ),
         node("PAGE DUTY", scene(base, "medical", id), {
           trigger: "signal",
           value: "medical.enable",
@@ -238,24 +347,48 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
     {
       name: "Einrichtungsterminal",
       show: chain("Einrichtungsterminal", [
-        node("Find notes", scene(base, "terminal", { ...id, osApp: "files" }), {
-          cue: "idle",
-          trigger: "signal",
-          value: gate("file.found", "/workspace/operator.notes"),
-          config: { ...term, osApp: "files", actorMode: false },
-        }),
-        node("END SESSION", scene(base, "terminal", { ...id, osApp: "terminal" }), {
-          cue: "idle",
-          trigger: "signal",
-          value: gate("shell.success"),
-          config: {
-            ...term,
-            osApp: "terminal",
-            actorMode: true,
-            commandsUntilSuccess: 1,
-            script: "status",
+        node(
+          "Find notes",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "files" } }),
+          }),
+          {
+            cue: "idle",
+            trigger: "signal",
+            value: gate("file.found", "/workspace/operator.notes"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "files" },
+                terminal: { actorMode: false },
+              }),
+            },
           },
-        }),
+        ),
+        node(
+          "END SESSION",
+          scene(base, "terminal", {
+            ...id,
+            ...options(base, { os: { startupApp: "terminal" } }),
+          }),
+          {
+            cue: "idle",
+            trigger: "signal",
+            value: gate("shell.success"),
+            config: {
+              ...term,
+              ...options(term, {
+                os: { startupApp: "terminal" },
+                terminal: {
+                  actorMode: true,
+                  commandsUntilSuccess: 1,
+                  script: "status",
+                },
+              }),
+            },
+          },
+        ),
       ]),
     },
   ];

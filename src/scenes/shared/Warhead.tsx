@@ -195,7 +195,7 @@ export function Warhead(props: SceneProps) {
   };
   const clock = clockParts(state.left);
   const family =
-    config.device === "nuclear"
+    config.sceneOptions.countdown.variant === "nuclear"
       ? "FISSILE ASSEMBLY"
       : "CONTAINMENT ASSEMBLY";
   return (
@@ -215,7 +215,7 @@ export function Warhead(props: SceneProps) {
       <div className="warhead-layout">
         <aside className="warhead-core">
           <div className="micro">
-            {config.device === "nuclear"
+            {config.sceneOptions.countdown.variant === "nuclear"
               ? "PAYLOAD INTEGRITY"
               : "CONTAINMENT FIELD"}
           </div>

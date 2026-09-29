@@ -8,6 +8,11 @@
 
 Rework every scene and block to the V2 specs: a real operating-system feel (squared, dense, windowed), a goal-driven terminal, phase/type-aware countdown, pure tracking with a drone mode, an analysis with outcomes, richer lock/medical/slide blocks, and three new blocks (clock, rotary, code table).
 
+## Progress
+
+- Done: V2-1 `sceneOptions` config record + defaults + migration ([../../src/core/config.ts](../../src/core/config.ts), [../../src/core/configMigration.test.ts](../../src/core/configMigration.test.ts)); V2-2 photo fix (uncropped + theme tint in `os.css`); V2-3 squared operational UI.
+- Open: V2-4 (OS/Terminal split) onwards.
+
 ## Tasks
 
 | ID | Task | File(s) | Depends | Done when |

@@ -276,12 +276,19 @@ export function SequenceEditor({
                   OS-App
                   <select
                     aria-label="OS-App"
-                    value={item.config.osApp}
+                    value={item.config.sceneOptions.os.startupApp}
                     onChange={(e) =>
                       set({
                         config: {
                           ...item.config,
-                          osApp: e.target.value as Config["osApp"],
+                          sceneOptions: {
+                            ...item.config.sceneOptions,
+                            os: {
+                              ...item.config.sceneOptions.os,
+                              startupApp:
+                                e.target.value as Config["sceneOptions"]["os"]["startupApp"],
+                            },
+                          },
                         },
                       })
                     }

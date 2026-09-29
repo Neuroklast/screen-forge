@@ -44,7 +44,135 @@ export function scenePalette(scene: SceneId) {
         secondary: "#80dce5",
       };
 }
-export const schema = z.object({
+const osApps = [
+  "overview",
+  "terminal",
+  "files",
+  "personnel",
+  "clusters",
+  "dimension",
+  "messages",
+  "sequences",
+] as const;
+export function sceneOptionsDefaults() {
+  return {
+    os: {
+      startupApp: "overview" as const,
+      sequenceScale: 1,
+      photoOverlay: 0.3,
+      density: "compact" as const,
+      sounds: true,
+    },
+    terminal: {
+      goal: "Login überbrücken",
+      prompt: "relay-07",
+      actorMode: true,
+      script: "inspect relay --sector 07 --verify",
+      commandsUntilSuccess: 4,
+      successText: "Zugang überbrückt.",
+    },
+    corporate: { startApp: "overview" as const, sounds: true },
+    countdown: {
+      type: "bomb" as const,
+      variant: "antimatter" as const,
+      label: "",
+    },
+    tracking: { mode: "sensor" as const, callsign: "SENSOR 07" },
+    analysis: {
+      mode: "reconstruct" as const,
+      input: "",
+      result: "",
+      key: "",
+    },
+    lock: { attempts: 3, animations: true },
+    medical: { trends: true, alarms: true },
+    slide: { stages: 1 },
+    clock: { mode: "mission" as const, analog: false, label: "" },
+    rotary: { dials: 3 },
+    codeTable: { groupSize: 4 },
+  };
+}
+export const sceneOptionsSchema = z.object({
+  os: z
+    .object({
+      startupApp: z.enum(osApps).default("overview"),
+      sequenceScale: z.number().min(0.25).max(4).default(1),
+      photoOverlay: z.number().min(0).max(1).default(0.3),
+      density: z.enum(["compact", "roomy"]).default("compact"),
+      sounds: z.boolean().default(true),
+    })
+    .default(() => sceneOptionsDefaults().os),
+  terminal: z
+    .object({
+      goal: z.string().max(60).default("Login überbrücken"),
+      prompt: z.string().max(40).default("relay-07"),
+      actorMode: z.boolean().default(true),
+      script: z.string().max(300).default(""),
+      commandsUntilSuccess: z.number().int().min(1).max(40).default(4),
+      successText: z.string().max(200).default("Zugang überbrückt."),
+    })
+    .default(() => sceneOptionsDefaults().terminal),
+  corporate: z
+    .object({
+      startApp: z
+        .enum(["overview", "personnel", "archive", "diagnostics"])
+        .default("overview"),
+      sounds: z.boolean().default(true),
+    })
+    .default(() => sceneOptionsDefaults().corporate),
+  countdown: z
+    .object({
+      type: z.enum(["transfer", "bomb", "reactor", "custom"]).default("bomb"),
+      variant: z.enum(["antimatter", "nuclear"]).default("antimatter"),
+      label: z.string().max(40).default(""),
+    })
+    .default(() => sceneOptionsDefaults().countdown),
+  tracking: z
+    .object({
+      mode: z.enum(["sensor", "drone"]).default("sensor"),
+      callsign: z.string().max(24).default("SENSOR 07"),
+    })
+    .default(() => sceneOptionsDefaults().tracking),
+  analysis: z
+    .object({
+      mode: z.enum(["reconstruct", "decrypt", "data"]).default("reconstruct"),
+      input: z.string().max(400).default(""),
+      result: z.string().max(400).default(""),
+      key: z.string().max(40).default(""),
+    })
+    .default(() => sceneOptionsDefaults().analysis),
+  lock: z
+    .object({
+      attempts: z.number().int().min(1).max(9).default(3),
+      animations: z.boolean().default(true),
+    })
+    .default(() => sceneOptionsDefaults().lock),
+  medical: z
+    .object({
+      trends: z.boolean().default(true),
+      alarms: z.boolean().default(true),
+    })
+    .default(() => sceneOptionsDefaults().medical),
+  slide: z
+    .object({ stages: z.number().int().min(1).max(4).default(1) })
+    .default(() => sceneOptionsDefaults().slide),
+  clock: z
+    .object({
+      mode: z
+        .enum(["mission", "wall", "zones", "countdown", "schedule"])
+        .default("mission"),
+      analog: z.boolean().default(false),
+      label: z.string().max(40).default(""),
+    })
+    .default(() => sceneOptionsDefaults().clock),
+  rotary: z
+    .object({ dials: z.number().int().min(1).max(4).default(3) })
+    .default(() => sceneOptionsDefaults().rotary),
+  codeTable: z
+    .object({ groupSize: z.number().int().min(1).max(8).default(4) })
+    .default(() => sceneOptionsDefaults().codeTable),
+});
+const configSchema = z.object({
   version: z.literal(1),
   palette: paletteSchema.optional(),
   mediaIds: z.array(z.string().max(80)).max(100).default([]),
@@ -77,7 +205,7 @@ export const schema = z.object({
         .regex(/^[#a-zA-Z0-9.,% ()+\/-]+$/),
     )
     .default({}),
-  device: z.enum(["antimatter", "nuclear"]).default("antimatter"),
+  sceneOptions: sceneOptionsSchema.default(() => sceneOptionsDefaults()),
   skin: z.enum(["standard", "cyberdeck"]).default("standard"),
   brand: z
     .object({
@@ -121,18 +249,6 @@ export const schema = z.object({
     .regex(/^[A-Za-z0-9]{4,8}$/)
     .default("2048"),
   exerciseMark: z.boolean().default(false),
-  osApp: z
-    .enum([
-      "overview",
-      "terminal",
-      "files",
-      "personnel",
-      "clusters",
-      "dimension",
-      "messages",
-    ])
-    .default("overview"),
-  commandsUntilSuccess: z.number().int().min(1).max(40).default(4),
   frame: z
     .object({
       style: z.enum(["none", "hud", "plate"]).default("hud"),
@@ -142,12 +258,54 @@ export const schema = z.object({
     .default({ style: "hud", corners: true, labels: true }),
   duration: z.number().int().min(1).max(35999),
   brightness: z.number().min(0.5).max(1.25),
-  actorMode: z.boolean(),
-  script: z.string().max(300),
   seed: z.number().int().min(1).max(99999),
-  sequenceScale: z.number().min(0.25).max(4).default(1),
   overlays: overlaySchema.default(() => overlaySchema.parse({})),
 });
+// Migration: legacy flat fields (osApp, device, actorMode, script, commandsUntilSuccess, sequenceScale)
+// move into sceneOptions so old presets and localStorage configs keep working.
+function normalizeConfig(input: unknown): unknown {
+  if (!input || typeof input !== "object") return input;
+  const raw = { ...(input as Record<string, unknown>) };
+  const options = {
+    ...(raw.sceneOptions && typeof raw.sceneOptions === "object"
+      ? (raw.sceneOptions as Record<string, unknown>)
+      : {}),
+  };
+  const os = {
+    ...(options.os && typeof options.os === "object"
+      ? (options.os as Record<string, unknown>)
+      : {}),
+  };
+  if (raw.osApp !== undefined) os.startupApp = raw.osApp;
+  if (raw.sequenceScale !== undefined) os.sequenceScale = raw.sequenceScale;
+  options.os = os;
+  const terminal = {
+    ...(options.terminal && typeof options.terminal === "object"
+      ? (options.terminal as Record<string, unknown>)
+      : {}),
+  };
+  if (raw.actorMode !== undefined) terminal.actorMode = raw.actorMode;
+  if (raw.script !== undefined) terminal.script = raw.script;
+  if (raw.commandsUntilSuccess !== undefined)
+    terminal.commandsUntilSuccess = raw.commandsUntilSuccess;
+  options.terminal = terminal;
+  const countdown = {
+    ...(options.countdown && typeof options.countdown === "object"
+      ? (options.countdown as Record<string, unknown>)
+      : {}),
+  };
+  if (raw.device !== undefined) countdown.variant = raw.device;
+  options.countdown = countdown;
+  delete raw.osApp;
+  delete raw.sequenceScale;
+  delete raw.actorMode;
+  delete raw.script;
+  delete raw.commandsUntilSuccess;
+  delete raw.device;
+  raw.sceneOptions = options;
+  return raw;
+}
+export const schema = z.preprocess(normalizeConfig, configSchema);
 export type Config = z.infer<typeof schema>;
 export const scenes: {
   id: SceneId;
@@ -295,7 +453,7 @@ export function identityOf(config: Config): Pick<
   | "sound"
   | "format"
   | "frame"
-  | "commandsUntilSuccess"
+  | "sceneOptions"
   | "density"
   | "workspace"
   | "instructorPin"
@@ -325,7 +483,7 @@ export function identityOf(config: Config): Pick<
     sound: config.sound,
     format: config.format,
     frame: config.frame,
-    commandsUntilSuccess: config.commandsUntilSuccess,
+    sceneOptions: config.sceneOptions,
     density: config.density,
     workspace: config.workspace,
     instructorPin: config.instructorPin,
@@ -387,7 +545,7 @@ export function defaults(scene: SceneId = "corporate"): Config {
     font: "space",
     tokens: {},
     skin: "standard",
-    device: "antimatter",
+    sceneOptions: sceneOptionsDefaults(),
     scene,
     company: "",
     theme: "",
@@ -402,15 +560,10 @@ export function defaults(scene: SceneId = "corporate"): Config {
     workspace: "film",
     instructorPin: "2048",
     exerciseMark: false,
-    osApp: "overview",
-    commandsUntilSuccess: 4,
     frame: { style: "hud", corners: true, labels: true },
     duration: 180,
     brightness: 1,
-    actorMode: true,
-    script: "inspect relay --sector 07 --verify",
     seed: 2048,
-    sequenceScale: 1,
     overlays: overlaySchema.parse({}),
   };
 }

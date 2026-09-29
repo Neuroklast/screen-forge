@@ -79,7 +79,7 @@ export function CyberOS({
 }: SceneProps) {
   const [state, dispatch] = useReducer(osReducer, {
     ...initialOsState,
-    app: config.osApp,
+    app: config.sceneOptions.os.startupApp,
   });
   const [cracked, setCracked] = useState<string[]>([]);
   const files: VirtualFile[] = [
@@ -119,21 +119,21 @@ export function CyberOS({
   const actor = useActorPlayback(
     time,
     onPlay,
-    config.script,
+    config.sceneOptions.terminal.script,
     config.title,
-    config.commandsUntilSuccess,
+    config.sceneOptions.terminal.commandsUntilSuccess,
   );
   const portraits = exampleMedia.filter((a) =>
     a.folder.includes("portraits"),
   );
   const consoleRef = useRef<HTMLDivElement>(null);
-  const displayedLines = config.actorMode ? actor.lines : terminalLines;
+  const displayedLines = config.sceneOptions.terminal.actorMode ? actor.lines : terminalLines;
   const typeKey = (key: string) => {
     if (key === "Enter") {
       submit();
       return;
     }
-    if (config.actorMode) {
+    if (config.sceneOptions.terminal.actorMode) {
       if (actor.busy) return;
       if (key.length === 1) playSound("type");
       const next = scriptedInput(actor.target, command, key);
@@ -165,12 +165,12 @@ export function CyberOS({
   const play = () => onPlay?.();
   const run = (id: SequenceId) => {
     playSound(id === "operation" ? "hack2" : "hack1");
-    dispatch({ type: "run", id, time, multiplier: config.sequenceScale });
+    dispatch({ type: "run", id, time, multiplier: config.sceneOptions.os.sequenceScale });
     onTimelineExtend?.(
       time +
         sequenceDuration(
           sequences.find((s) => s.id === id)!,
-          config.sequenceScale,
+          config.sceneOptions.os.sequenceScale,
         ),
     );
     onCue("active");
@@ -209,7 +209,7 @@ export function CyberOS({
       );
   };
   const submit = () => {
-    if (config.actorMode) {
+    if (config.sceneOptions.terminal.actorMode) {
       actor.submit(command);
       setCommand("");
       return;
@@ -636,7 +636,7 @@ export function CyberOS({
                           spellCheck={false}
                           value={command}
                           placeholder={
-                            config.actorMode
+                            config.sceneOptions.terminal.actorMode
                                 ? actor.busy
                                   ? "Receiving channel response…"
                                   : "ENTER NEXT SHELL COMMAND"
@@ -644,14 +644,14 @@ export function CyberOS({
                           }
                           onChange={(e) =>
                             setCommand(
-                              config.actorMode
+                              config.sceneOptions.terminal.actorMode
                                 ? actor.target.slice(0, e.target.value.length)
                                 : e.target.value,
                             )
                           }
                           onKeyDown={(e) => {
                             if (
-                              config.actorMode &&
+                              config.sceneOptions.terminal.actorMode &&
                               (e.key.length === 1 || e.key === "Backspace")
                             ) {
                               e.preventDefault();
@@ -723,7 +723,7 @@ export function CyberOS({
                       <StageKeys onKey={typeKey} disabled={actor.busy} />
                       <div className="os-between">
                         <span>
-                          {config.actorMode
+                          {config.sceneOptions.terminal.actorMode
                             ? `ACTOR SEQUENCE / STEP ${actor.index + 1} ${actor.busy ? "PROCESSING" : "READY"}`
                             : "LOCAL COMMAND PARSER"}
                         </span>
@@ -1234,7 +1234,7 @@ export function CyberOS({
                               {s.code}
                               <small>
                                 {formatTime(
-                                  sequenceDuration(s, config.sequenceScale),
+                                  sequenceDuration(s, config.sceneOptions.os.sequenceScale),
                                 )}
                               </small>
                             </span>

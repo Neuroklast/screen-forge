@@ -113,7 +113,7 @@ describe("live process and spatial contracts", () => {
     expect(keepLook({ ...named, format: "9-16" }, defaults("lock")).format).toBe(
       "9-16",
     );
-    expect(defaults().commandsUntilSuccess).toBe(4);
+    expect(defaults().sceneOptions.terminal.commandsUntilSuccess).toBe(4);
     expect(defaults().workspace).toBe("film");
     expect(
       keepLook({ ...named, workspace: "training" }, defaults("lock")).workspace,
@@ -121,9 +121,18 @@ describe("live process and spatial contracts", () => {
     expect(defaults().frame.style).toBe("hud");
     expect(
       keepLook(
-        { ...named, commandsUntilSuccess: 6 },
+        {
+          ...named,
+          sceneOptions: {
+            ...named.sceneOptions,
+            terminal: {
+              ...named.sceneOptions.terminal,
+              commandsUntilSuccess: 6,
+            },
+          },
+        },
         defaults("terminal"),
-      ).commandsUntilSuccess,
+      ).sceneOptions.terminal.commandsUntilSuccess,
     ).toBe(6);
     expect(stageFormatIds.length).toBeGreaterThanOrEqual(10);
     expect(

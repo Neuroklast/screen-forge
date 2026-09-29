@@ -182,6 +182,17 @@ export default function App() {
   const Scene = sceneComponents[config.scene];
   const update = <K extends keyof Config>(key: K, value: Config[K]) =>
     setConfig((c) => ({ ...c, [key]: value }));
+  const updateSceneOptions = <K extends keyof Config["sceneOptions"]>(
+    section: K,
+    value: Partial<Config["sceneOptions"][K]>,
+  ) =>
+    setConfig((c) => ({
+      ...c,
+      sceneOptions: {
+        ...c.sceneOptions,
+        [section]: { ...c.sceneOptions[section], ...value },
+      },
+    }));
   const reset = () => {
     setRunning(null);
     clock.reset();
@@ -917,12 +928,12 @@ export default function App() {
                   Gerätetyp
                   <select
                     aria-label="Gerätetyp"
-                    value={config.device}
+                    value={config.sceneOptions.countdown.variant}
                     onChange={(e) => {
                       reset();
-                      setConfig({
-                        ...config,
-                        device: e.target.value as Config["device"],
+                      updateSceneOptions("countdown", {
+                        variant:
+                          e.target.value as Config["sceneOptions"]["countdown"]["variant"],
                       });
                     }}
                   >
@@ -948,23 +959,30 @@ export default function App() {
               {config.scene === "terminal" && (
                 <>
                   <label>
-                    Sequenzdauer <output>×{config.sequenceScale}</output>
+                    Sequenzdauer{" "}
+                    <output>×{config.sceneOptions.os.sequenceScale}</output>
                     <input
                       aria-label="Sequenzdauer"
                       type="range"
                       min=".25"
                       max="4"
                       step=".25"
-                      value={config.sequenceScale}
-                      onChange={(e) => update("sequenceScale", +e.target.value)}
+                      value={config.sceneOptions.os.sequenceScale}
+                      onChange={(e) =>
+                        updateSceneOptions("os", { sequenceScale: +e.target.value })
+                      }
                     />
                   </label>
 
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
-                      checked={config.actorMode}
-                      onChange={(e) => update("actorMode", e.target.checked)}
+                      checked={config.sceneOptions.terminal.actorMode}
+                      onChange={(e) =>
+                        updateSceneOptions("terminal", {
+                          actorMode: e.target.checked,
+                        })
+                      }
                     />{" "}
                     Vorbereitetes Tippen
                   </label>
@@ -975,20 +993,24 @@ export default function App() {
                       type="number"
                       min={1}
                       max={40}
-                      value={config.commandsUntilSuccess}
+                      value={config.sceneOptions.terminal.commandsUntilSuccess}
                       onChange={(e) => {
                         const n = Number(e.target.value);
                         if (Number.isInteger(n) && n >= 1 && n <= 40)
-                          update("commandsUntilSuccess", n);
+                          updateSceneOptions("terminal", {
+                            commandsUntilSuccess: n,
+                          });
                       }}
                     />
                   </label>
                   <label>
                     Vorbereiteter Befehl
                     <textarea
-                      value={config.script}
+                      value={config.sceneOptions.terminal.script}
                       maxLength={300}
-                      onChange={(e) => update("script", e.target.value)}
+                      onChange={(e) =>
+                        updateSceneOptions("terminal", { script: e.target.value })
+                      }
                     />
                   </label>
                 </>
