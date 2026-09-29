@@ -10,6 +10,7 @@ import {
 import { newState, type TrainingState } from "./training";
 import { applyEvent, domainEventSchema, type DomainEvent } from "./events";
 import { isCommandType, newEventId, PROTOCOL } from "./protocol";
+import { ServerClock } from "./clock";
 import type { Role } from "./session";
 export type Signal = {
   type: "signal";
@@ -44,7 +45,9 @@ export function useExercise(role: Role, room: string, station: string) {
   });
   const [state, setState] = useState<TrainingState>(() => newState(room));
   const [serverSeq, setServerSeq] = useState(0);
+  const [clockRevision, setClockRevision] = useState(0);
   const lastSeq = useRef(0);
+  const clockRef = useRef(new ServerClock());
   const [online, setOnline] = useState(false),
     [authenticated, setAuthenticated] = useState(false);
   const [diagnostic, setDiagnostic] = useState<{
@@ -116,6 +119,8 @@ export function useExercise(role: Role, room: string, station: string) {
             attempt = 0;
             lastSeq.current = Number(msg.serverSeq) || 0;
             setServerSeq(lastSeq.current);
+            clockRef.current.observe(Number(msg.serverNow));
+            setClockRevision(Number(msg.clockRevision) || 0);
           }
           if (msg.type === "ack") {
             const seq = Number(msg.serverSeq) || 0;
@@ -160,6 +165,10 @@ export function useExercise(role: Role, room: string, station: string) {
               frozen: msg.frozen,
               positions: msg.positions,
             }));
+          if (msg.type === "tick" || msg.type === "ack")
+            clockRef.current.observe(Number(msg.serverNow));
+          if (msg.type === "tick" && typeof msg.clockRevision === "number")
+            setClockRevision(msg.clockRevision);
           if (msg.type === "gps-ack") setGpsAck(msg.timestamp);
           if (msg.type === "saved") setSavedRevision(msg.revision);
           if (msg.type === "error") setError(msg.message);
@@ -242,6 +251,8 @@ export function useExercise(role: Role, room: string, station: string) {
     gpsAck,
     savedRevision,
     serverSeq,
+    clockRevision,
+    serverNow: () => clockRef.current.now(),
     subscribe,
     role,
     station,

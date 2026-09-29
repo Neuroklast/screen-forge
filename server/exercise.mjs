@@ -59,9 +59,13 @@ export async function startExercise({
     sockets = new Map(),
     roomSeq = new Map(),
     roomDedup = new Map(),
-    roomLog = new Map();
+    roomLog = new Map(),
+    clockRevision = new Map();
   let dirty = false,
     writing = Promise.resolve();
+  const bumpClock = (room) => {
+    clockRevision.set(room, (clockRevision.get(room) || 0) + 1);
+  };
   const nextSeq = (room) => {
     const value = (roomSeq.get(room) || 0) + 1;
     roomSeq.set(room, value);
@@ -107,6 +111,7 @@ export async function startExercise({
     );
     applyEvent(rooms.get(room), event);
     rememberEvent(room, serverSeq, event);
+    if (event.type === "exercise.transport") bumpClock(room);
     return serverSeq;
   };
   const journalNewFired = (room, before) => {
@@ -276,6 +281,8 @@ export async function startExercise({
           clock: state.clock,
           frozen: state.frozen,
           positions,
+          serverNow: Date.now(),
+          clockRevision: clockRevision.get(room) || 0,
         });
       }
   };
@@ -467,6 +474,7 @@ export async function startExercise({
             protocol: PROTOCOL,
             serverSeq: roomSeq.get(meta.room) || 0,
             serverNow: Date.now(),
+            clockRevision: clockRevision.get(meta.room) || 0,
           });
           const currentSeq = roomSeq.get(meta.room) || 0;
           if (
@@ -791,6 +799,7 @@ export async function startExercise({
               next.revision = state.revision + 1;
               next.presence = state.presence;
               rooms.set(meta.room, next);
+              bumpClock(meta.room);
             } else throw new Error("Unknown transport command");
           } else if (msg.type === "action") {
             const action = actionSchema.parse(msg.action);
