@@ -147,38 +147,12 @@ a {
   left: 50%;
   transform-origin: center;
 }
-.trainer-shell,
 .hq-shell,
 .element-shell {
   min-height: 100vh;
   background: #0c0e10;
   color: #d6e2e5;
   font: 13px "IBM Plex Mono", monospace;
-}
-.trainer-shell {
-  padding: 20px 24px;
-  display: grid;
-  gap: 20px;
-  max-width: 960px;
-}
-.trainer-shell header {
-  display: flex;
-  gap: 16px;
-  align-items: baseline;
-  border-bottom: 1px solid #333;
-  padding-bottom: 12px;
-}
-.trainer-injects {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.trainer-injects button,
-.trainer-shell section button {
-  min-height: 36px;
-}
-.hq-shell,
-.element-shell {
   display: flex;
   align-items: center;
   justify-content: center;

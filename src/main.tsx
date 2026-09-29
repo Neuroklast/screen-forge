@@ -31,7 +31,7 @@ function Root() {
       {session.role === "trainer" ? (
         <TrainerView room={session.room} />
       ) : session.role === "hq" ? (
-        <HqView />
+        <HqView room={session.room} />
       ) : (
         <ElementView station={session.station} />
       )}
