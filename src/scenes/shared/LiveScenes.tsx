@@ -97,7 +97,7 @@ export function Corporate(props: SceneProps) {
                 <Changed
                   value={
                     {
-                      Overview: "Everything under control.",
+                      Overview: "Facility overview.",
                       Personnel: "Personnel directory.",
                       Archive: "Research archive.",
                       Diagnostics: "System diagnostics.",
@@ -621,7 +621,7 @@ export function Tracking(props: SceneProps) {
         </div>
       </div>
       <footer className="scene-footer">
-        <span>OBSERVATION ONLY / SYNTHETIC SENSOR 04</span>
+        <span>OPTICAL TELEMETRY / SENSOR 04</span>
         <span>MISSION TIME {formatTime(time)}</span>
       </footer>
     </div>

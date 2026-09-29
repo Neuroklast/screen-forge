@@ -1,0 +1,8 @@
+@font-face{font-family:MatrixType;src:url('/fonts/matrixtype/MatrixType-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:MatrixTypeDisplay;src:url('/fonts/matrixtype/MatrixTypeDisplay-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:DigitTech7;src:url('/fonts/digit-tech/DigitTech7-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:DigitTech14;src:url('/fonts/digit-tech/DigitTech14-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:DigitTech16;src:url('/fonts/digit-tech/DigitTech16-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:Gridtile;src:url('/fonts/gridtile/Gridtile.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:codiceBinario;src:url('/fonts/codicebinario/codiceBinario.otf') format('opentype');font-display:swap;}
+.scene-canvas .scene-brand strong,.scene-canvas .os-wordmark strong,.scene-canvas .countdown-digits,.scene-canvas h2,.scene-canvas h3 {font-family:var(--scene-font),'Space Grotesk',sans-serif;}

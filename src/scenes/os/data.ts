@@ -12,7 +12,7 @@ export const files: VirtualFile[] = [
     size: "12.4 KB",
     classification: "SYSTEM",
     content:
-      "BLACKLINE / LOCAL ENVIRONMENT\nKernel: BL-09.4\nWorkspace: isolated\nDisplay compositor: attached\nExternal execution: unavailable\n\nAll system activity is a fictional screen performance.",
+      "BLACKLINE / LOCAL ENVIRONMENT\nKernel: BL-09.4\nWorkspace: isolated\nDisplay compositor: attached\nExternal execution: unavailable\n\nSession authority: operator 07. Audit record retained.",
   },
   {
     path: "/system/relay-map.log",
@@ -20,7 +20,7 @@ export const files: VirtualFile[] = [
     size: "84.2 KB",
     classification: "INTERNAL",
     content:
-      "00:00:01 R01 local bridge attached\n00:00:03 R04 reference carrier acquired\n00:00:07 R07 synthetic route restored\n00:00:11 R12 archive corridor available\n\nPending: investigate discontinuity in sector 07.",
+      "00:00:01 R01 local bridge attached\n00:00:03 R04 reference carrier acquired\n00:00:07 R07 reference route restored\n00:00:11 R12 archive corridor available\n\nPending: investigate discontinuity in sector 07.",
   },
   {
     path: "/personnel/vale.record",
@@ -52,7 +52,7 @@ export const files: VirtualFile[] = [
     size: "418 MB",
     classification: "DAMAGED",
     content:
-      "ARCHIVE 07 / FRAGMENT SET\nRecoverable blocks: 81.4%\nManifest references: 2,048\nMissing segment: 0041\n\nRun Archive recovery to reconstruct the fictional index.",
+      "ARCHIVE 07 / FRAGMENT SET\nRecoverable blocks: 81.4%\nManifest references: 2,048\nMissing segment: 0041\n\nRun Archive recovery to reconstruct the archive index.",
   },
   {
     path: "/archives/incident-41.packet",
@@ -84,7 +84,7 @@ export const files: VirtualFile[] = [
     size: "4.1 KB",
     classification: "LOCAL",
     content:
-      "OPERATOR NOTES\n\n1. Inspect the relay topology.\n2. Recover the sector archive.\n3. Compare personnel timestamps.\n4. Reconstruct the dimensional specimen.\n\nAll records in this workspace are fictional.",
+      "OPERATOR NOTES\n\n1. Inspect the relay topology.\n2. Recover the sector archive.\n3. Compare personnel timestamps.\n4. Reconstruct the dimensional specimen.\n\nRetain verified reports in /workspace.",
   },
 ];
 export const folders = [

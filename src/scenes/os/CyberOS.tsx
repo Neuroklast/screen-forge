@@ -71,6 +71,7 @@ export function CyberOS({
   onCue,
   onPlay,
   onTimelineExtend,
+  operation,
 }: SceneProps) {
   const [state, dispatch] = useReducer(osReducer, initialOsState);
   const files: VirtualFile[] = [
@@ -96,7 +97,7 @@ export function CyberOS({
     [command, setCommand] = useState(""),
     [terminalLines, setTerminalLines] = useState<string[]>([
       `${config.title} environment attached.`,
-      "Type help for local commands. Every operation is a simulation.",
+      "Type help for local commands. Session 07 authenticated.",
     ]),
     [commands, setCommands] = useState<string[]>([]),
     [historyIndex, setHistoryIndex] = useState(-1),
@@ -105,7 +106,7 @@ export function CyberOS({
     [rotate, setRotate] = useState(true),
     [frozenTime, setFrozenTime] = useState(0),
     [rotationOffset, setRotationOffset] = useState(0);
-  const actor = useActorPlayback(time, onPlay, config.script,config.title);
+  const actor = useActorPlayback(time, onPlay, config.script, config.title);
   const consoleRef = useRef<HTMLDivElement>(null);
   const displayedLines = config.actorMode ? actor.lines : terminalLines;
   useEffect(() => {
@@ -131,6 +132,10 @@ export function CyberOS({
     onCue("active");
     play();
   };
+  useEffect(() => {
+    if (operation && sequences.some((s) => s.id === operation))
+      run(operation as SequenceId);
+  }, [operation]);
   const active = state.sequence
     ? sequences.find((x) => x.id === state.sequence!.id)!
     : null;
@@ -152,6 +157,12 @@ export function CyberOS({
   const closeSequence = () => {
     dispatch({ type: "closeSequence", completed: !!done });
     onCue(done ? "complete" : "idle");
+    if (done)
+      window.dispatchEvent(
+        new CustomEvent("screenforge:input", {
+          detail: { type: "signal", value: "sequence.complete" },
+        }),
+      );
   };
   const submit = () => {
     if (config.actorMode) {
@@ -173,7 +184,7 @@ export function CyberOS({
           "ls [path] · cd <path> · cat <file> · open <app>",
           "scan · decrypt · correlate · reconstruct · reboot · lock",
           "status · clear · inspect relay",
-          "All commands operate on fictional local data.",
+          "Session scope: attached archive and relay cache.",
         ];
         break;
       case "clear":
@@ -382,11 +393,8 @@ export function CyberOS({
                         <span className="os-kicker">
                           OPERATOR ENVIRONMENT / BUILD 09.4
                         </span>
-                        <h2>Beyond the perimeter.</h2>
-                        <p>
-                          Local intelligence workspace. Session continuity
-                          established.
-                        </p>
+                        <h2>Network control.</h2>
+                        <p>Sector 07 / authenticated session.</p>
                       </div>
                       <span className="os-status-tag">
                         {cue === "warning"
@@ -423,7 +431,7 @@ export function CyberOS({
                           <span className="os-kicker">
                             ACTIVE CASE / SECTOR 07
                           </span>
-                          <h3>The missing interval.</h3>
+                          <h3>Incident 041.</h3>
                           <p>
                             Three personnel records. One unaccounted relay
                             event. Review the local archive to identify the
@@ -494,7 +502,7 @@ export function CyberOS({
                           <span className="os-kicker">
                             TTY.07 / OPERATOR SHELL
                           </span>
-                          <h2>Command surface.</h2>
+                          <h2>Relay console.</h2>
                         </div>
                         <TerminalSquare size={24} />
                       </div>
@@ -622,6 +630,7 @@ export function CyberOS({
                     </section>
                     <aside className="os-terminal-side">
                       <TerminalVisual
+                        mediaIds={config.mediaIds}
                         time={visualTime}
                         index={actor.index}
                         progress={actor.progress}
@@ -647,7 +656,7 @@ export function CyberOS({
                         </button>
                       </div>
                       <p className="os-discreet-note">
-                        LOCAL SIMULATION / NO EXTERNAL EXECUTION
+                        SESSION 07 / ISOLATED CHANNEL
                       </p>
                     </aside>
                   </div>
@@ -924,7 +933,7 @@ export function CyberOS({
                         <span className="os-kicker">
                           FOUR-DIMENSIONAL DATA / XW + YZ PLANES
                         </span>
-                        <h2>Beyond three axes.</h2>
+                        <h2>Dimensional reconstruction.</h2>
                       </div>
                       <button
                         className="os-button"

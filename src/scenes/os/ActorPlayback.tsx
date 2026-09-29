@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { SequenceVisual } from "./Visuals";
+import { useMedia } from "../../core/media";
 import { Changed } from "../shared/Process";
 import type { Phase } from "./sequences";
 const chain: {
@@ -172,6 +173,7 @@ export function TerminalVisual({
   mode,
   title,
   seed,
+  mediaIds = [],
 }: {
   time: number;
   index: number;
@@ -179,8 +181,10 @@ export function TerminalVisual({
   mode: Phase["mode"];
   title: string;
   seed: number;
+  mediaIds?: string[];
 }) {
-  const [images, setImages] = useState<{ name: string; url: string }[]>([]),
+  const { assets } = useMedia();
+  const [uploads, setImages] = useState<{ name: string; url: string }[]>([]),
     [message, setMessage] = useState(""),
     [auto, setAuto] = useState(true),
     [selected, setSelected] = useState(0);
@@ -191,6 +195,11 @@ export function TerminalVisual({
     },
     [],
   );
+  const images = mediaIds.length
+    ? mediaIds
+        .map((id) => assets.find((a) => a.id === id))
+        .filter((a): a is NonNullable<typeof a> => !!a)
+    : uploads;
   const slot = images.length
     ? auto
       ? Math.floor(time / 5) % images.length

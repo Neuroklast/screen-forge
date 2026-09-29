@@ -8,10 +8,7 @@ import {
   SlidersHorizontal,
   Download,
   Upload,
-  ChevronRight,
   Monitor,
-  Crosshair,
-  Layers,
   ArrowUpRight,
   X,
   Check,
@@ -28,6 +25,11 @@ import {
   type SceneId,
 } from "./core/config";
 import { formatTime, useSceneClock, type Cue } from "./core/runtime";
+import { TokenEditor } from "./components/TokenEditor";
+import { CodePad } from "./components/CodePad";
+import { MediaManager } from "./components/MediaManager";
+import { SequenceEditor } from "./components/SequenceEditor";
+import { loadShow, nextStep, triggerMatches, type Step } from "./core/director";
 import { SystemProfiles } from "./components/SystemProfiles";
 import { ThemeEditor } from "./components/ThemeEditor";
 import { DisplayOverlays } from "./scenes/os/Overlays";
@@ -36,11 +38,82 @@ export default function App() {
   const [config, setConfig] = useState<Config>(loadConfig),
     [cue, setCue] = useState<Cue>("idle"),
     [take, setTake] = useState(1),
-    [settings, setSettings] = useState(true),
+    [settings, setSettings] = useState(false),
     [clean, setClean] = useState(false),
     [notice, setNotice] = useState(""),
     [timelineEnd, setTimelineEnd] = useState(0);
+  const [configTab, setConfigTab] = useState("content"),
+    [directorTab, setDirectorTab] = useState("monitor"),
+    [unlocked, setUnlocked] = useState(false);
+  const [show, setShow] = useState(loadShow),
+    [running, setRunning] = useState<string | null>(null);
   const clock = useSceneClock();
+  const applyStep = (step: Step) => {
+    setConfig({
+      ...step.config,
+      pinEnabled: step.trigger === "pin" || step.config.pinEnabled,
+      pin:
+        step.trigger === "pin" && /^\d{4,8}$/.test(step.value)
+          ? step.value
+          : step.config.pin,
+    });
+    setCue(step.cue);
+    setTake((n) => n + 1);
+    clock.seek(0);
+    setTimelineEnd(0);
+    setRunning(step.id);
+    clock.setPlaying(true);
+  };
+  const advanceShow = () => {
+    if (!running) return;
+    const next = nextStep(show, running);
+    if (next) applyStep(next);
+    else {
+      setRunning(null);
+      clock.setPlaying(false);
+    }
+  };
+  useEffect(() => {
+    try {
+      localStorage.setItem("screenforge.show.v1", JSON.stringify(show));
+    } catch {
+      setNotice("Ablauf konnte nicht gespeichert werden. Bitte exportieren.");
+    }
+  }, [show]);
+  useEffect(() => {
+    setUnlocked(false);
+  }, [config.pinEnabled, config.pin, take]);
+  useEffect(() => {
+    if (!running || !clock.playing) return;
+    const step = show.steps.find((s) => s.id === running);
+    if (step && triggerMatches(step, clock.elapsed)) advanceShow();
+  }, [clock.elapsed, clock.playing, running, show]);
+  useEffect(() => {
+    const input = (e: Event) => {
+      const detail = (e as CustomEvent<{ type: string; value: string }>).detail;
+      const step = show.steps.find((s) => s.id === running);
+      if (step && clock.playing && triggerMatches(step, clock.elapsed, detail))
+        advanceShow();
+    };
+    const key = (e: KeyboardEvent) => {
+      if (
+        (e.target as HTMLElement).closest("input,textarea,select") ||
+        settings
+      )
+        return;
+      input(
+        new CustomEvent("screenforge:input", {
+          detail: { type: "key", value: e.key },
+        }),
+      );
+    };
+    window.addEventListener("screenforge:input", input);
+    window.addEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("screenforge:input", input);
+      window.removeEventListener("keydown", key);
+    };
+  }, [running, show, clock.playing, settings, clock.elapsed]);
   const stage = useRef<HTMLDivElement>(null),
     upload = useRef<HTMLInputElement>(null);
   const [size, setSize] = useState({ width: 1280, height: 760 });
@@ -49,6 +122,7 @@ export default function App() {
   const update = <K extends keyof Config>(key: K, value: Config[K]) =>
     setConfig((c) => ({ ...c, [key]: value }));
   const reset = () => {
+    setRunning(null);
     clock.reset();
     setTimelineEnd(0);
     setCue("idle");
@@ -79,10 +153,16 @@ export default function App() {
     const handle = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setClean(false);
+        setSettings(false);
         return;
       }
       const target = e.target as HTMLElement;
-      if (target.closest("input,textarea,select,button")) return;
+      if (
+        target.closest("input,textarea,select,button") ||
+        settings ||
+        (config.pinEnabled && !unlocked)
+      )
+        return;
       if (e.code === "Space") {
         e.preventDefault();
         clock.setPlaying((p) => !p);
@@ -142,7 +222,7 @@ export default function App() {
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
     >
       <div
-        className={`studio ${clean ? "is-clean" : ""} ${!settings ? "settings-hidden" : ""}`}
+        className={`studio director-${directorTab} ${clean ? "is-clean" : ""} ${!settings ? "settings-hidden" : ""}`}
       >
         <header className="studio-header">
           <a className="wordmark" href="#" onClick={(e) => e.preventDefault()}>
@@ -153,6 +233,26 @@ export default function App() {
               ScreenForge<span>SCREEN GRAPHICS STUDIO</span>
             </strong>
           </a>
+          <nav className="director-nav">
+            <button
+              className={directorTab === "monitor" ? "active" : ""}
+              onClick={() => setDirectorTab("monitor")}
+            >
+              Regie
+            </button>
+            <button
+              className={directorTab === "sequence" ? "active" : ""}
+              onClick={() => setDirectorTab("sequence")}
+            >
+              Ablaufeditor
+            </button>
+            <button
+              aria-label="Konfiguration öffnen"
+              onClick={() => setSettings((v) => !v)}
+            >
+              Konfiguration
+            </button>
+          </nav>
           <div className="project-label">
             <span className="tiny-dot" />
             LOCAL WORKSPACE <span className="version">V.01</span>
@@ -161,58 +261,24 @@ export default function App() {
             <Monitor size={15} /> Bühne starten <ArrowUpRight size={15} />
           </button>
         </header>
-        <aside className="scene-library">
-          <div className="sidebar-heading">
-            <span>SZENENBIBLIOTHEK</span>
-            <span>05</span>
-          </div>
-          <div className="library-intro">
-            Oberflächen
-            <br />
-            <span>für den Dreh.</span>
-          </div>
-          <nav>
-            {scenes.map((s, i) => (
-              <button
-                key={s.id}
-                className={`scene-card ${config.scene === s.id ? "active" : ""}`}
-                onClick={() => select(s.id)}
-                style={{ "--card-accent": s.accent } as CSSProperties}
-              >
-                <div className={`scene-thumbnail thumb-${s.id}`}>
-                  <span className="thumb-line" />
-                  <span className="thumb-visual">
-                    {i === 0 ? (
-                      "V /"
-                    ) : i === 1 ? (
-                      ">_"
-                    ) : i === 2 ? (
-                      "02:59"
-                    ) : i === 3 ? (
-                      <Crosshair size={38} strokeWidth={1} />
-                    ) : (
-                      "◇"
-                    )}
-                  </span>
-                  <small>{s.code.split(" / ")[1]}</small>
-                </div>
-                <div className="scene-card-title">
-                  <span>{s.name}</span>
-                  <ChevronRight size={14} />
-                </div>
-                <p>{s.description}</p>
-              </button>
-            ))}
-          </nav>
-          <div className="library-footer">
-            <Layers size={15} />
-            <span>
-              5 Szenen · lokal verfügbar
-              <br />
-              <small>Keine Verbindung erforderlich</small>
-            </span>
-          </div>
-        </aside>
+        <nav className="director-scenes" aria-label="Szenen">
+          {scenes.map((scene) => (
+            <button
+              key={scene.id}
+              className={scene.id === config.scene ? "active" : ""}
+              onClick={() => select(scene.id)}
+            >
+              {scene.name}
+            </button>
+          ))}
+          <span>{running ? "ABLAUF AKTIV" : "MANUELLE REGIE"}</span>
+          <button
+            onClick={() => setUnlocked(false)}
+            disabled={!config.pinEnabled}
+          >
+            Zugang sperren
+          </button>
+        </nav>
         <main className="workspace">
           <div className="workspace-heading">
             <div>
@@ -243,6 +309,17 @@ export default function App() {
                 className={`scene-canvas family-${config.scene} skin-${config.skin} mood-${config.mood} density-${config.density}`}
                 style={
                   {
+                    ...config.tokens,
+                    "--scene-font": {
+                      space: "Space Grotesk",
+                      matrix: "MatrixType",
+                      matrixDisplay: "MatrixTypeDisplay",
+                      digit7: "DigitTech7",
+                      digit14: "DigitTech14",
+                      digit16: "DigitTech16",
+                      gridtile: "Gridtile",
+                      binary: "codiceBinario",
+                    }[config.font],
                     width: 1280,
                     height: 760,
                     transform: `translate(-50%, -50%) scale(${scale})`,
@@ -265,6 +342,11 @@ export default function App() {
                 <Scene
                   key={`${config.scene}-${take}`}
                   config={config}
+                  operation={
+                    running
+                      ? show.steps.find((s) => s.id === running)?.operation
+                      : undefined
+                  }
                   time={clock.elapsed}
                   cue={cue}
                   onCue={setCue}
@@ -273,6 +355,14 @@ export default function App() {
                     setTimelineEnd((t) => Math.max(t, end))
                   }
                 />
+                {config.pinEnabled && !unlocked && (
+                  <CodePad
+                    key={take}
+                    title={config.title}
+                    code={config.pin}
+                    onUnlock={() => setUnlocked(true)}
+                  />
+                )}
                 <DisplayOverlays config={config} time={clock.elapsed} />
               </div>
             </div>
@@ -284,6 +374,22 @@ export default function App() {
               </span>
             </div>
           </div>
+          {directorTab === "sequence" && (
+            <SequenceEditor
+              show={show}
+              onChange={setShow}
+              config={config}
+              running={running}
+              onStart={() => {
+                if (show.steps[0]) {
+                  applyStep(show.steps[0]);
+                  setDirectorTab("monitor");
+                }
+              }}
+              onStop={() => setRunning(null)}
+              onAdvance={advanceShow}
+            />
+          )}
           <div className="transport">
             <div className="playback">
               <button
@@ -348,228 +454,319 @@ export default function App() {
             <span>SPACE Play / Pause · R Reset · H Ausgabe</span>
           </div>
         </main>
-        <aside className="inspector">
-          <div className="sidebar-heading">
-            <span>ART DIRECTION</span>
-            <SlidersHorizontal size={14} />
-          </div>
-          <SystemProfiles
-            config={config}
-            onChange={setConfig}
-            onLoad={(next) => {
-              reset();
-              setConfig(next);
-              clock.setPlaying(next.scene !== "countdown");
-            }}
-          />
-          <section>
-            <div className="inspector-section-title">
-              <span>01</span> Inhalt
-            </div>
-            <label>
-              Titel
-              <input
-                value={config.title}
-                onBlur={() => {
-                  if (!config.title.trim()) update("title", selected.title);
+        <aside
+          className={`inspector config-menu config-${configTab}`}
+          hidden={!settings || clean}
+          aria-label="Konfiguration"
+        >
+          <header className="config-header">
+            <strong>Konfiguration</strong>
+            <button
+              aria-label="Konfiguration schließen"
+              onClick={() => setSettings(false)}
+            >
+              ×
+            </button>
+          </header>
+          <nav className="config-tabs" role="tablist">
+            {[
+              ["content", "Inhalt"],
+              ["systems", "Firmen"],
+              ["design", "Gestaltung"],
+              ["themes", "Themes"],
+              ["effects", "Effekte"],
+              ["playback", "Eingaben"],
+              ["media", "Medien"],
+              ["tokens", "Tokens"],
+            ].map(([id, label]) => (
+              <button
+                role="tab"
+                aria-selected={configTab === id}
+                key={id}
+                onClick={() => setConfigTab(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+          <div className="config-body">
+            <div data-panel="systems">
+              <SystemProfiles
+                config={config}
+                onChange={setConfig}
+                onLoad={(next) => {
+                  reset();
+                  setConfig(next);
+                  clock.setPlaying(next.scene !== "countdown");
                 }}
-                maxLength={40}
-                onChange={(e) => update("title", e.target.value)}
               />
-            </label>
-            <label>
-              Unterzeile
-              <input
-                value={config.subtitle}
-                maxLength={70}
-                onChange={(e) => update("subtitle", e.target.value)}
-              />
-            </label>
-            <label>
-              Gerätekennung
-              <input
-                value={config.identifier}
-                maxLength={24}
-                onChange={(e) => update("identifier", e.target.value)}
-              />
-            </label>
-          </section>
-          <section>
-            <div className="inspector-section-title">
-              <span>02</span> Bildsprache
             </div>
-            <label>
-              Stimmung
-              <select
-                value={config.mood}
-                onChange={(e) =>
-                  update("mood", e.target.value as Config["mood"])
-                }
-              >
-                <option value="clinical">Klinisch / Präzise</option>
-                <option value="tense">Bedrohlich / Kontrastreich</option>
-                <option value="damaged">Beschädigt / Signalstörung</option>
-              </select>
-            </label>
-            <label className="color-label">
-              Akzentfarbe{" "}
-              <div>
-                <span>{config.accent.toUpperCase()}</span>
-                <input
-                  aria-label="Akzentfarbe"
-                  type="color"
-                  value={config.accent}
-                  onChange={(e) => update("accent", e.target.value)}
-                />
+            <section data-panel="content">
+              <div className="inspector-section-title">
+                <span>01</span> Inhalt
               </div>
-            </label>
-            <label>
-              Informationsdichte
-              <select
-                value={config.density}
-                onChange={(e) =>
-                  update("density", e.target.value as Config["density"])
-                }
-              >
-                <option value="detailed">Detailliert</option>
-                <option value="focused">Fokussiert</option>
-              </select>
-            </label>
-            <label>
-              Effektstärke <output>{Math.round(config.effects * 100)}%</output>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step=".01"
-                value={config.effects}
-                onChange={(e) => update("effects", +e.target.value)}
-              />
-            </label>
-            <label>
-              Displayhelligkeit{" "}
-              <output>{Math.round(config.brightness * 100)}%</output>
-              <input
-                type="range"
-                min=".5"
-                max="1.25"
-                step=".01"
-                value={config.brightness}
-                onChange={(e) => update("brightness", +e.target.value)}
-              />
-            </label>
-          </section>
-          <ThemeEditor config={config} onChange={setConfig} />
-          <details className="overlay-settings" open>
-            <summary>Display-Overlays</summary>
-            {Object.entries(config.overlays).map(([key, value]) => (
-              <label key={key}>
-                {
-                  (
-                    {
-                      scanlines: "Scanlines",
-                      glow: "CRT Glow",
-                      grid: "Technikraster",
-                      grain: "Tech Noise / Körnung",
-                      vignette: "Vignette",
-                      glitch: "Signalstörungen",
-                      chromatic: "Chromatische Kanten",
-                    } as Record<string, string>
-                  )[key]
-                }
-                <output>{Math.round(value * 100)}%</output>
+              <label>
+                Titel
                 <input
-                  aria-label={key}
+                  value={config.title}
+                  onBlur={() => {
+                    if (!config.title.trim()) update("title", selected.title);
+                  }}
+                  maxLength={40}
+                  onChange={(e) => update("title", e.target.value)}
+                />
+              </label>
+              <label>
+                Unterzeile
+                <input
+                  value={config.subtitle}
+                  maxLength={70}
+                  onChange={(e) => update("subtitle", e.target.value)}
+                />
+              </label>
+              <label>
+                Gerätekennung
+                <input
+                  value={config.identifier}
+                  maxLength={24}
+                  onChange={(e) => update("identifier", e.target.value)}
+                />
+              </label>
+            </section>
+            <section data-panel="design">
+              <label>
+                Schrift
+                <select
+                  aria-label="Schrift"
+                  value={config.font}
+                  onChange={(e) =>
+                    update("font", e.target.value as Config["font"])
+                  }
+                >
+                  {[
+                    ["space", "Space Grotesk"],
+                    ["matrix", "MatrixType"],
+                    ["matrixDisplay", "MatrixType Display"],
+                    ["digit7", "Digit Tech 7"],
+                    ["digit14", "Digit Tech 14"],
+                    ["digit16", "Digit Tech 16"],
+                    ["gridtile", "Gridtile"],
+                    ["binary", "codiceBinario"],
+                  ].map(([id, label]) => (
+                    <option key={id} value={id}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="inspector-section-title">
+                <span>02</span> Bildsprache
+              </div>
+              <label>
+                Stimmung
+                <select
+                  value={config.mood}
+                  onChange={(e) =>
+                    update("mood", e.target.value as Config["mood"])
+                  }
+                >
+                  <option value="clinical">Klinisch / Präzise</option>
+                  <option value="tense">Bedrohlich / Kontrastreich</option>
+                  <option value="damaged">Beschädigt / Signalstörung</option>
+                </select>
+              </label>
+              <label className="color-label">
+                Akzentfarbe{" "}
+                <div>
+                  <span>{config.accent.toUpperCase()}</span>
+                  <input
+                    aria-label="Akzentfarbe"
+                    type="color"
+                    value={config.accent}
+                    onChange={(e) => update("accent", e.target.value)}
+                  />
+                </div>
+              </label>
+              <label>
+                Informationsdichte
+                <select
+                  value={config.density}
+                  onChange={(e) =>
+                    update("density", e.target.value as Config["density"])
+                  }
+                >
+                  <option value="detailed">Detailliert</option>
+                  <option value="focused">Fokussiert</option>
+                </select>
+              </label>
+              <label>
+                Effektstärke{" "}
+                <output>{Math.round(config.effects * 100)}%</output>
+                <input
                   type="range"
                   min="0"
                   max="1"
                   step=".01"
-                  value={value}
-                  onChange={(e) =>
-                    update("overlays", {
-                      ...config.overlays,
-                      [key]: +e.target.value,
-                    })
-                  }
+                  value={config.effects}
+                  onChange={(e) => update("effects", +e.target.value)}
                 />
               </label>
-            ))}
-          </details>{" "}
-          <section>
-            <div className="inspector-section-title">
-              <span>03</span> Ablauf
-            </div>
-            {config.scene === "countdown" && (
               <label>
-                Gerätetyp
-                <select
-                  aria-label="Gerätetyp"
-                  value={config.device}
-                  onChange={(e) => {
-                    reset();
-                    setConfig({
-                      ...config,
-                      device: e.target.value as Config["device"],
-                    });
-                  }}
-                >
-                  <option value="antimatter">Antimaterie-Sprengkopf</option>
-                  <option value="nuclear">Nuklearer Sprengkopf</option>
-                </select>
+                Displayhelligkeit{" "}
+                <output>{Math.round(config.brightness * 100)}%</output>
+                <input
+                  type="range"
+                  min=".5"
+                  max="1.25"
+                  step=".01"
+                  value={config.brightness}
+                  onChange={(e) => update("brightness", +e.target.value)}
+                />
               </label>
-            )}
-            <label>
-              Dauer in Sekunden
-              <input
-                type="number"
-                min={1}
-                max={35999}
-                value={config.duration}
-                onChange={(e) => {
-                  const n = Number(e.target.value);
-                  if (Number.isInteger(n) && n >= 1 && n <= 35999)
-                    update("duration", n);
-                }}
-              />
-            </label>
-            {config.scene === "terminal" && (
-              <>
-                <label>
-                  Sequenzdauer <output>×{config.sequenceScale}</output>
+            </section>
+            <div data-panel="themes">
+              <ThemeEditor config={config} onChange={setConfig} />
+            </div>
+            <details data-panel="effects" className="overlay-settings" open>
+              <summary>Display-Overlays</summary>
+              {Object.entries(config.overlays).map(([key, value]) => (
+                <label key={key}>
+                  {
+                    (
+                      {
+                        scanlines: "Scanlines",
+                        glow: "CRT Glow",
+                        grid: "Technikraster",
+                        grain: "Tech Noise / Körnung",
+                        vignette: "Vignette",
+                        glitch: "Signalstörungen",
+                        chromatic: "Chromatische Kanten",
+                      } as Record<string, string>
+                    )[key]
+                  }
+                  <output>{Math.round(value * 100)}%</output>
                   <input
-                    aria-label="Sequenzdauer"
+                    aria-label={key}
                     type="range"
-                    min=".25"
-                    max="4"
-                    step=".25"
-                    value={config.sequenceScale}
-                    onChange={(e) => update("sequenceScale", +e.target.value)}
+                    min="0"
+                    max="1"
+                    step=".01"
+                    value={value}
+                    onChange={(e) =>
+                      update("overlays", {
+                        ...config.overlays,
+                        [key]: +e.target.value,
+                      })
+                    }
                   />
                 </label>
-
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={config.actorMode}
-                    onChange={(e) => update("actorMode", e.target.checked)}
-                  />{" "}
-                  Vorbereitetes Tippen
-                </label>
+              ))}
+            </details>{" "}
+            <section data-panel="playback">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={config.pinEnabled}
+                  onChange={(e) => update("pinEnabled", e.target.checked)}
+                />{" "}
+                Code-Tastenfeld aktivieren
+              </label>
+              <label>
+                Zugangscode
+                <input
+                  aria-label="Zugangscode konfigurieren"
+                  inputMode="numeric"
+                  maxLength={8}
+                  defaultValue={config.pin}
+                  key={config.pin}
+                  onBlur={(e) => {
+                    if (/^\d{4,8}$/.test(e.target.value))
+                      update("pin", e.target.value);
+                    else e.target.value = config.pin;
+                  }}
+                />
+              </label>
+              <div className="inspector-section-title">
+                <span>03</span> Ablauf
+              </div>
+              {config.scene === "countdown" && (
                 <label>
-                  Vorbereiteter Befehl
-                  <textarea
-                    value={config.script}
-                    maxLength={300}
-                    onChange={(e) => update("script", e.target.value)}
-                  />
+                  Gerätetyp
+                  <select
+                    aria-label="Gerätetyp"
+                    value={config.device}
+                    onChange={(e) => {
+                      reset();
+                      setConfig({
+                        ...config,
+                        device: e.target.value as Config["device"],
+                      });
+                    }}
+                  >
+                    <option value="antimatter">Antimaterie-Sprengkopf</option>
+                    <option value="nuclear">Nuklearer Sprengkopf</option>
+                  </select>
                 </label>
-              </>
-            )}
-            <p className="inspector-hint">
-              Zeit und Anzeigen bleiben beim Pausieren stehen. Reset setzt den
-              gesamten Take zurück.
-            </p>
-          </section>
+              )}
+              <label>
+                Dauer in Sekunden
+                <input
+                  type="number"
+                  min={1}
+                  max={35999}
+                  value={config.duration}
+                  onChange={(e) => {
+                    const n = Number(e.target.value);
+                    if (Number.isInteger(n) && n >= 1 && n <= 35999)
+                      update("duration", n);
+                  }}
+                />
+              </label>
+              {config.scene === "terminal" && (
+                <>
+                  <label>
+                    Sequenzdauer <output>×{config.sequenceScale}</output>
+                    <input
+                      aria-label="Sequenzdauer"
+                      type="range"
+                      min=".25"
+                      max="4"
+                      step=".25"
+                      value={config.sequenceScale}
+                      onChange={(e) => update("sequenceScale", +e.target.value)}
+                    />
+                  </label>
+
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={config.actorMode}
+                      onChange={(e) => update("actorMode", e.target.checked)}
+                    />{" "}
+                    Vorbereitetes Tippen
+                  </label>
+                  <label>
+                    Vorbereiteter Befehl
+                    <textarea
+                      value={config.script}
+                      maxLength={300}
+                      onChange={(e) => update("script", e.target.value)}
+                    />
+                  </label>
+                </>
+              )}
+              <p className="inspector-hint">
+                Zeit und Anzeigen bleiben beim Pausieren stehen. Reset setzt den
+                gesamten Take zurück.
+              </p>
+            </section>
+            <div data-panel="tokens">
+              <TokenEditor config={config} onChange={setConfig} />
+            </div>
+            <div data-panel="media">
+              <MediaManager config={config} onChange={setConfig} />
+            </div>
+          </div>
           <div className="preset-actions">
             <button onClick={() => downloadPreset(config)}>
               <Download size={14} />

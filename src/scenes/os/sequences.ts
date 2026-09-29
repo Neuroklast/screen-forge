@@ -106,12 +106,12 @@ export const sequences: Sequence[] = [
   {
     id: "intrusion",
     name: "Relay intrusion",
-    subtitle: "Synthetic route discovery and access choreography",
+    subtitle: "Relay route discovery and session verification",
     code: "NET / 07",
     phases: [
       {
         name: "Passive signal collection",
-        detail: "Separating a weak carrier from synthetic background traffic",
+        detail: "Separating a weak carrier from background traffic",
         duration: 18,
         channel: "RF.03",
         mode: "spectrum",
@@ -139,7 +139,7 @@ export const sequences: Sequence[] = [
       {
         name: "Handshake reconstruction",
         detail:
-          "Aligning fictional session fragments inside the isolated model",
+          "Aligning session fragments inside the isolated model",
         duration: 23,
         channel: "SIG.11",
         mode: "rings",
@@ -147,13 +147,13 @@ export const sequences: Sequence[] = [
           "Fragment boundaries detected",
           "Handshake geometry aligned",
           "Session envelope fitted",
-          "Synthetic peer accepted",
+          "Remote peer accepted",
         ],
       },
       {
         name: "Access window alignment",
         detail:
-          "Matching a simulated timing window to the local reference clock",
+          "Matching a timing window to the local reference clock",
         duration: 27,
         channel: "WIN.04",
         mode: "matrix",
@@ -166,7 +166,7 @@ export const sequences: Sequence[] = [
       },
       {
         name: "Archive corridor mapping",
-        detail: "Revealing accessible fictional data partitions",
+        detail: "Revealing accessible data partitions",
         duration: 24,
         channel: "ARC.02",
         mode: "lattice",
@@ -179,7 +179,7 @@ export const sequences: Sequence[] = [
       },
       {
         name: "Session stabilization",
-        detail: "Holding the simulated connection for operator review",
+        detail: "Holding the connection for operator review",
         duration: 13,
         channel: "LNK.07",
         mode: "spectrum",
@@ -187,7 +187,7 @@ export const sequences: Sequence[] = [
           "Transient paths retired",
           "Signal confidence stabilized",
           "Local record written",
-          "Simulation complete",
+          "Session verified",
         ],
       },
     ],
@@ -195,7 +195,7 @@ export const sequences: Sequence[] = [
   {
     id: "decrypt",
     name: "Archive recovery",
-    subtitle: "Fragment alignment and fictional data reconstruction",
+    subtitle: "Fragment alignment and data reconstruction",
     code: "ARC / 41",
     phases: [
       {
@@ -227,7 +227,7 @@ export const sequences: Sequence[] = [
       {
         name: "Entropy field mapping",
         detail:
-          "Projecting the simulated archive into a spectral density field",
+          "Projecting the archive into a spectral density field",
         duration: 21,
         channel: "ENT.04",
         mode: "spectrum",
@@ -241,7 +241,7 @@ export const sequences: Sequence[] = [
       {
         name: "Index reconstruction",
         detail:
-          "Rebuilding fictional directory references and record associations",
+          "Rebuilding directory references and record associations",
         duration: 24,
         channel: "IDX.12",
         mode: "trace",
@@ -276,7 +276,7 @@ export const sequences: Sequence[] = [
       {
         name: "Dataset registration",
         detail:
-          "Binding three fictional collections to a shared coordinate space",
+          "Binding three collections to a shared coordinate space",
         duration: 17,
         channel: "REG.01",
         mode: "matrix",
@@ -330,7 +330,7 @@ export const sequences: Sequence[] = [
       },
       {
         name: "Evidence assembly",
-        detail: "Writing a fictional case packet for the operator",
+        detail: "Writing a case packet for the operator",
         duration: 18,
         channel: "CASE.07",
         mode: "matrix",
@@ -346,13 +346,13 @@ export const sequences: Sequence[] = [
   {
     id: "biometric",
     name: "Identity analysis",
-    subtitle: "Fictional fingerprint topology and identity matching",
+    subtitle: "Fingerprint topology and identity matching",
     code: "BIO / 04",
     phases: [
       {
         name: "Sensor normalization",
         detail:
-          "Removing simulated pressure variation from the captured contact field",
+          "Removing pressure variation from the captured contact field",
         duration: 12,
         channel: "SNS.01",
         mode: "fingerprint",
@@ -366,7 +366,7 @@ export const sequences: Sequence[] = [
       {
         name: "Ridge extraction",
         detail:
-          "Following ridge direction through the synthetic fingerprint image",
+          "Following ridge direction through the captured fingerprint image",
         duration: 23,
         channel: "RDG.07",
         mode: "fingerprint",
@@ -379,7 +379,7 @@ export const sequences: Sequence[] = [
       },
       {
         name: "Landmark registration",
-        detail: "Matching fictional bifurcations to a local operator profile",
+        detail: "Matching bifurcations to a local operator profile",
         duration: 25,
         channel: "ID.04",
         mode: "trace",
@@ -392,7 +392,7 @@ export const sequences: Sequence[] = [
       },
       {
         name: "Identity consensus",
-        detail: "Reconciling the simulated profile with the operator manifest",
+        detail: "Reconciling the profile with the operator manifest",
         duration: 16,
         channel: "VER.02",
         mode: "rings",
@@ -487,7 +487,7 @@ export const sequences: Sequence[] = [
 sequences.push({id:'operation',name:'Perimeter breach',subtitle:'Cold start → relay intrusion → containment exception',code:'OP / 07',phases:[
  ...sequences.find(s=>s.id==='boot')!.phases,
  ...sequences.find(s=>s.id==='intrusion')!.phases,
- {name:'Containment exception',detail:'A synthetic session mismatch triggers the operator warning state',duration:18,channel:'ALERT.07',mode:'spectrum',logs:['Session discontinuity detected','Archive corridor isolated','Operator acknowledgement required','Containment exception latched']},
+ {name:'Containment exception',detail:'Session signature mismatch. Archive corridor isolated pending review.',duration:18,channel:'ALERT.07',mode:'spectrum',logs:['Session discontinuity detected','Archive corridor isolated','Operator acknowledgement required','Containment exception latched']},
 ]});
 
 export function sequenceDuration(s: Sequence, multiplier = 1) {

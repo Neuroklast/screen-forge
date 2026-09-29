@@ -1,3 +1,4 @@
+import { configuration, closeConfiguration } from "./helpers";
 import { test, expect, type Page } from "@playwright/test";
 async function select(page: Page, name: string) {
   await page
@@ -110,10 +111,12 @@ test("themes, logo and system profile survive reload and export", async ({
   page,
 }) => {
   await page.goto("/");
+  await configuration(page, "Firmen");
   await page
     .getByLabel("Systemvorlage", { exact: true })
     .selectOption({ label: "Cyberpunk 2077 HUD" });
   await expect(page.locator(".scene-canvas")).toHaveClass(/skin-cyberdeck/);
+  await configuration(page, "Themes");
   await page
     .getByLabel("Farbtheme", { exact: true })
     .selectOption({ label: "Amber phosphor" });
@@ -121,13 +124,23 @@ test("themes, logo and system profile survive reload and export", async ({
   await page
     .getByRole("button", { name: "Theme speichern", exact: true })
     .click();
-  await page
-    .getByLabel("Firmenlogo hochladen")
-    .setInputFiles({
-      name: "logo.png",
-      mimeType: "image/png",
-      buffer: Buffer.from(await page.evaluate(()=>{const canvas=document.createElement('canvas');canvas.width=32;canvas.height=32;const ctx=canvas.getContext('2d')!;ctx.fillStyle='#ff3355';ctx.fillRect(0,0,32,32);return canvas.toDataURL('image/png').split(',')[1];}),'base64'),
-    });
+  await configuration(page, "Firmen");
+  await page.getByLabel("Firmenlogo hochladen").setInputFiles({
+    name: "logo.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      await page.evaluate(() => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 32;
+        canvas.height = 32;
+        const ctx = canvas.getContext("2d")!;
+        ctx.fillStyle = "#ff3355";
+        ctx.fillRect(0, 0, 32, 32);
+        return canvas.toDataURL("image/png").split(",")[1];
+      }),
+      "base64",
+    ),
+  });
   await expect(page.locator(".custom-brand-logo")).toBeVisible();
   await page.getByLabel("Systemprofilname").fill("My film system");
   await page
@@ -135,14 +148,17 @@ test("themes, logo and system profile survive reload and export", async ({
     .click();
   await page.reload();
   await expect(page.locator(".custom-brand-logo")).toBeVisible();
+  await configuration(page, "Firmen");
   await page
     .getByLabel("Systemvorlage", { exact: true })
     .selectOption({ label: "Vesper Research" });
+  await configuration(page, "Firmen");
   await page
     .getByLabel("Systemvorlage", { exact: true })
     .selectOption({ label: "My film system" });
   await expect(page.locator(".os-wordmark strong")).toHaveText("NIGHT CITY OS");
   await expect(page.locator(".custom-brand-logo")).toBeVisible();
+  await configuration(page, "Themes");
   await page
     .getByLabel("Farbtheme", { exact: true })
     .selectOption({ label: "My film amber" });
@@ -159,7 +175,9 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
     "Orbital Tracking",
     "Analysetisch",
   ]) {
+    await closeConfiguration(page);
     await select(page, name);
+    await configuration(page, "Effekte");
     await page.getByRole("slider", { name: "glow", exact: true }).fill("1");
     await expect(page.locator(".display-fx")).toHaveCount(1);
     expect(
@@ -168,6 +186,7 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
         .evaluate((el) => getComputedStyle(el).pointerEvents),
     ).toBe("none");
   }
+  await closeConfiguration(page);
   await pause(page);
   const fx = await page.locator(".display-fx").innerHTML();
   await page.waitForTimeout(150);

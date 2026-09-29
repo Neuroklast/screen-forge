@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SceneHeader, Wave, type SceneProps } from "../Scenes";
 import { formatTime, noise } from "../../core/runtime";
@@ -40,6 +40,7 @@ export function Warhead(props: SceneProps) {
     bypass === null ? 0 : Math.max(0, Math.min(1, (time - bypass) / 7));
   const holdProgress =
     hold === null ? 0 : Math.max(0, Math.min(1, (time - hold) / 3));
+  useEffect(()=>{if(state.safe)window.dispatchEvent(new CustomEvent('screenforge:input',{detail:{type:'signal',value:'device.safe'}}));else if(state.expired)window.dispatchEvent(new CustomEvent('screenforge:input',{detail:{type:'signal',value:'device.expired'}}));},[state.safe,state.expired]);
   const phase = state.safe
     ? "DISARMED"
     : state.expired

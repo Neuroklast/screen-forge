@@ -40,6 +40,33 @@ export function scenePalette(scene: SceneId) {
 export const schema = z.object({
   version: z.literal(1),
   palette: paletteSchema.optional(),
+  mediaIds: z.array(z.string().max(80)).max(100).default([]),
+  pin: z
+    .string()
+    .regex(/^\d{4,8}$/)
+    .default("2048"),
+  pinEnabled: z.boolean().default(false),
+  font: z
+    .enum([
+      "space",
+      "matrix",
+      "matrixDisplay",
+      "digit7",
+      "digit14",
+      "digit16",
+      "gridtile",
+      "binary",
+    ])
+    .default("space"),
+  tokens: z
+    .record(
+      z.string().regex(/^--sf-[a-z0-9-]+$/),
+      z
+        .string()
+        .max(100)
+        .regex(/^[#a-zA-Z0-9.,% ()+\/-]+$/),
+    )
+    .default({}),
   device: z.enum(["antimatter", "nuclear"]).default("antimatter"),
   skin: z.enum(["standard", "cyberdeck"]).default("standard"),
   brand: z
@@ -134,6 +161,11 @@ export function defaults(scene: SceneId = "corporate"): Config {
   const s = scenes.find((x) => x.id === scene)!;
   return {
     version: 1,
+    mediaIds: [],
+    pin: "2048",
+    pinEnabled: false,
+    font: "space",
+    tokens: {},
     skin: "standard",
     device: "antimatter",
     scene,

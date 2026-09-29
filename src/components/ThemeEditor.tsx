@@ -2,6 +2,19 @@ import { useState } from "react";
 import { z } from "zod";
 import { paletteSchema, scenePalette, type Config } from "../core/config";
 const themeSchema = z.object({
+  tokens: z.record(z.string(), z.string()).default({}),
+  font: z
+    .enum([
+      "space",
+      "matrix",
+      "matrixDisplay",
+      "digit7",
+      "digit14",
+      "digit16",
+      "gridtile",
+      "binary",
+    ])
+    .default("space"),
   name: z.string().min(1).max(40),
   palette: paletteSchema,
   accent: z.string().regex(/^#[\da-f]{6}$/i),
@@ -52,6 +65,8 @@ export function ThemeEditor({
   const presets: Theme[] = colors.map(
     ([name, background, surface, text, secondary, accent]) => ({
       name,
+      tokens: {},
+      font: "space",
       palette: { background: background.trim(), surface, text, secondary },
       accent,
       mood: name === "Crimson lockdown" ? "tense" : "clinical",
@@ -151,6 +166,8 @@ export function ThemeEditor({
           onClick={() => {
             const t = {
               name: name.trim(),
+              tokens: config.tokens,
+              font: config.font,
               palette,
               accent: config.accent,
               mood: config.mood,

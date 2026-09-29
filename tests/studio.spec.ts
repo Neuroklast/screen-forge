@@ -1,3 +1,4 @@
+import { configuration, closeConfiguration } from "./helpers";
 import { test, expect } from "@playwright/test";
 test("all scenes render and operator controls reset a take", async ({
   page,
@@ -34,7 +35,10 @@ test("prepared input, preset export, stage escape and persistence", async ({
     .getByRole("button", { name: /Netzwerkterminal/ })
     .first()
     .click();
-  await page.locator(".os-sidebar").getByRole("button",{name:/Terminal/}).click();
+  await page
+    .locator(".os-sidebar")
+    .getByRole("button", { name: /Terminal/ })
+    .click();
   await page.getByLabel("Terminaleingabe").fill("abcdef");
   await expect(page.getByLabel("Terminaleingabe")).toHaveValue("inspec");
   await page.getByLabel("Terminaleingabe").fill("x".repeat(100));
@@ -42,14 +46,17 @@ test("prepared input, preset export, stage escape and persistence", async ({
   await expect(page.locator(".console-lines")).toContainText(
     "analysis complete",
   );
+  await configuration(page, "Inhalt");
   await page.getByLabel("Titel", { exact: true }).fill("TEST SYSTEM");
   await page.reload();
   await expect(page.locator(".os-wordmark strong")).toHaveText("TEST SYSTEM");
+  await configuration(page, "Inhalt");
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Exportieren" }).click();
   expect((await download).suggestedFilename()).toBe(
     "screenforge-terminal.json",
   );
+  await closeConfiguration(page);
   await page.getByRole("button", { name: "Nur Ausgabe" }).click();
   await expect(page.locator(".studio")).toHaveClass(/is-clean/);
   await page.locator("body").click({ position: { x: 3, y: 3 } });
@@ -64,7 +71,9 @@ test("countdown stops at zero and reset restores original time", async ({
     .getByRole("button", { name: /Countdown/ })
     .first()
     .click();
+  await configuration(page, "Eingaben");
   await page.getByLabel("Dauer in Sekunden").fill("1");
+  await closeConfiguration(page);
   await page.getByRole("button", { name: "Abspielen", exact: true }).click();
   await expect(page.locator(".countdown-digits")).toHaveText("00:00:00", {
     timeout: 4000,
@@ -102,8 +111,13 @@ test("multitouch scale, rotate and cancel remain finite", async ({ page }) => {
     send("pointermove", 1, 120, 130);
     send("pointerup", 1, 120, 130);
   });
-  await expect(page.locator(".gesture-content")).not.toHaveAttribute("style", /scale\(1\)/);
-  const transform = await page.locator(".gesture-content").getAttribute("style");
+  await expect(page.locator(".gesture-content")).not.toHaveAttribute(
+    "style",
+    /scale\(1\)/,
+  );
+  const transform = await page
+    .locator(".gesture-content")
+    .getAttribute("style");
   expect(transform).not.toContain("NaN");
   expect(transform).not.toContain("scale(1)");
   await page.getByTitle("Ansicht zurücksetzen").click();

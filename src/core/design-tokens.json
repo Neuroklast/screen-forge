@@ -1,0 +1,3500 @@
+{
+  "--sf-color-e1e3e2": {
+    "value": "#e1e3e2",
+    "kind": "color",
+    "uses": [
+      ":root / color"
+    ]
+  },
+  "--sf-color-111314": {
+    "value": "#111314",
+    "kind": "color",
+    "uses": [
+      ":root / background"
+    ]
+  },
+  "--sf-font-weight-400": {
+    "value": "400",
+    "kind": "font-weight",
+    "uses": [
+      ":root / font-weight",
+      ".thumb-visual / font-weight",
+      "h1 / font-weight",
+      ".event-table b / font-weight",
+      ".countdown-digits / font-weight"
+    ]
+  },
+  "--sf-color-343839": {
+    "value": "#343839",
+    "kind": "color",
+    "uses": [
+      "button / border",
+      "input,\nselect,\ntextarea / border",
+      ".color-label > div / border",
+      ".director-scenes / border-bottom"
+    ]
+  },
+  "--sf-stroke-1px": {
+    "value": "1px",
+    "kind": "stroke",
+    "uses": [
+      "button / border",
+      "input,\nselect,\ntextarea / border",
+      ".studio-header / border-bottom",
+      ".scene-library / border-right",
+      ".scene-card / border"
+    ]
+  },
+  "--sf-layout-36px": {
+    "value": "36px",
+    "kind": "layout",
+    "uses": [
+      "button / min-height",
+      ".icon-button / width",
+      ".color-label input / width",
+      ".cue-buttons button / min-height",
+      ".os-brand-chip / height"
+    ]
+  },
+  "--sf-color-ffffff0b": {
+    "value": "#ffffff0b",
+    "kind": "color",
+    "uses": [
+      "button:hover / background",
+      ".scene-thumbnail / border"
+    ]
+  },
+  "--sf-color-d8f49c": {
+    "value": "#d8f49c",
+    "kind": "color",
+    "uses": [
+      "button:focus-visible,\na:focus-visible,\ninput:focus-visible,\nselect:focus-visible,\ntextarea:focus-visible / outline"
+    ]
+  },
+  "--sf-stroke-2px": {
+    "value": "2px",
+    "kind": "stroke",
+    "uses": [
+      "button:focus-visible,\na:focus-visible,\ninput:focus-visible,\nselect:focus-visible,\ntextarea:focus-visible / outline",
+      ".cue-buttons button / border-radius",
+      ".family-corporate .scene-header / border-bottom",
+      ".family-corporate .header-status / border",
+      ".family-corporate .corp-nav / border-right"
+    ]
+  },
+  "--sf-stroke-3px": {
+    "value": "3px",
+    "kind": "stroke",
+    "uses": [
+      "button:focus-visible,\na:focus-visible,\ninput:focus-visible,\nselect:focus-visible,\ntextarea:focus-visible / outline-offset",
+      "input,\nselect,\ntextarea / border-radius",
+      ".scene-card / border-radius",
+      ".icon-button / border-radius",
+      ".mood-tense .scene-header / border-bottom-width"
+    ]
+  },
+  "--sf-opacity-0-4": {
+    "value": "0.4",
+    "kind": "opacity",
+    "uses": [
+      "button:disabled / opacity",
+      ".thumb-line / opacity",
+      ".corp-nav > button span / opacity",
+      ".event-table time / opacity",
+      ".holo-hint / opacity"
+    ]
+  },
+  "--sf-color-171a1b": {
+    "value": "#171a1b",
+    "kind": "color",
+    "uses": [
+      "input,\nselect,\ntextarea / background",
+      ".color-label > div / background"
+    ]
+  },
+  "--sf-color-dfe3df": {
+    "value": "#dfe3df",
+    "kind": "color",
+    "uses": [
+      "input,\nselect,\ntextarea / color"
+    ]
+  },
+  "--sf-space-9px": {
+    "value": "9px",
+    "kind": "space",
+    "uses": [
+      "input,\nselect,\ntextarea / padding",
+      ".scene-card / padding",
+      ".scene-card-title / margin-top",
+      ".library-footer / gap",
+      ".corp-seal > span / margin-top"
+    ]
+  },
+  "--sf-color-c5e69b": {
+    "value": "#c5e69b",
+    "kind": "color",
+    "uses": [
+      "input[type=\"range\"] / accent-color"
+    ]
+  },
+  "--sf-layout-18px": {
+    "value": "18px",
+    "kind": "layout",
+    "uses": [
+      "input[type=\"range\"] / height",
+      ".acquire / bottom",
+      ".cyber-os input[type=\"range\"] / min-height",
+      ".os-panel::before / width",
+      ".tracking-hud / right"
+    ]
+  },
+  "--sf-layout-224px": {
+    "value": "224px",
+    "kind": "layout",
+    "uses": [
+      ".studio / grid-template-columns",
+      ".settings-hidden / grid-template-columns"
+    ]
+  },
+  "--sf-layout-260px": {
+    "value": "260px",
+    "kind": "layout",
+    "uses": [
+      ".studio / grid-template-columns"
+    ]
+  },
+  "--sf-layout-78px": {
+    "value": "78px",
+    "kind": "layout",
+    "uses": [
+      ".studio / grid-template-rows",
+      ".family-corporate .wave / height"
+    ]
+  },
+  "--sf-color-2b2e2f": {
+    "value": "#2b2e2f",
+    "kind": "color",
+    "uses": [
+      ".studio-header / border-bottom",
+      ".scene-library / border-right",
+      ".inspector / border-left",
+      ".inspector section / border-bottom",
+      ".inspector / border-top"
+    ]
+  },
+  "--sf-space-26px": {
+    "value": "26px",
+    "kind": "space",
+    "uses": [
+      ".studio-header / padding",
+      ".library-footer / padding-top",
+      ".countdown-main / padding",
+      ".inspector / padding",
+      ".family-corporate .corp-layout / padding"
+    ]
+  },
+  "--sf-space-25px": {
+    "value": "25px",
+    "kind": "space",
+    "uses": [
+      ".studio-header / gap",
+      ".scene-library / padding",
+      ".scene-header / gap",
+      ".corp-nav / padding-right",
+      ".corp-metrics / gap"
+    ]
+  },
+  "--sf-space-13px": {
+    "value": "13px",
+    "kind": "space",
+    "uses": [
+      ".wordmark / gap",
+      ".timeline / gap",
+      ".family-corporate .scene-footer / padding-top",
+      ".os-side-foot > strong / margin",
+      ".os-status-tag / padding"
+    ]
+  },
+  "--sf-type-25px": {
+    "value": "25px",
+    "kind": "type",
+    "uses": [
+      ".app-symbol / font-size",
+      ".os-wordmark strong / font",
+      ".os-dashboard-right h3 / font-size",
+      ".corp-record h3 / font-size"
+    ]
+  },
+  "--sf-type-3px": {
+    "value": "-3px",
+    "kind": "type",
+    "uses": [
+      ".app-symbol / letter-spacing",
+      ".os-brand-chip / letter-spacing"
+    ]
+  },
+  "--sf-color-d2ebac": {
+    "value": "#d2ebac",
+    "kind": "color",
+    "uses": [
+      ".app-symbol / color"
+    ]
+  },
+  "--sf-color-6d765e": {
+    "value": "#6d765e",
+    "kind": "color",
+    "uses": [
+      ".app-symbol span / color"
+    ]
+  },
+  "--sf-space-4px": {
+    "value": "4px",
+    "kind": "space",
+    "uses": [
+      ".app-symbol span / margin",
+      ".corp-nav > button / padding",
+      ".cue-buttons button / padding",
+      ".color-label > div / padding",
+      ".playback / gap"
+    ]
+  },
+  "--sf-type-20px": {
+    "value": "20px",
+    "kind": "type",
+    "uses": [
+      ".wordmark strong / font-size",
+      ".holo-readout h3 / font",
+      ".os-brand-chip / font-size",
+      ".os-terminal-side h3 / font-size",
+      ".os-small-meter strong / font-size"
+    ]
+  },
+  "--sf-font-weight-500": {
+    "value": "500",
+    "kind": "font-weight",
+    "uses": [
+      ".wordmark strong / font-weight",
+      ".primary-button / font-weight",
+      ".scene-brand strong / font-weight",
+      ".terminal-console h2 / font-weight",
+      ".family-corporate .scene-brand .micro / font-weight"
+    ]
+  },
+  "--sf-type-0-6px": {
+    "value": "-0.6px",
+    "kind": "type",
+    "uses": [
+      ".wordmark strong / letter-spacing",
+      ".family-corporate .corp-panels h3 / letter-spacing",
+      ".os-button / letter-spacing"
+    ]
+  },
+  "--sf-type-8px": {
+    "value": "8px",
+    "kind": "type",
+    "uses": [
+      ".wordmark strong > span / font-size",
+      ".stage-topline,\n.stage-bottomline / font",
+      ".corp-seal .micro / font-size",
+      ".event-table b / font-size",
+      ".device-index .micro / font-size"
+    ]
+  },
+  "--sf-type-1-3px": {
+    "value": "1.3px",
+    "kind": "type",
+    "uses": [
+      ".wordmark strong > span / letter-spacing",
+      ".family-corporate .corp-metrics strong / letter-spacing"
+    ]
+  },
+  "--sf-color-7f8781": {
+    "value": "#7f8781",
+    "kind": "color",
+    "uses": [
+      ".wordmark strong > span / color"
+    ]
+  },
+  "--sf-space-3px": {
+    "value": "3px",
+    "kind": "space",
+    "uses": [
+      ".wordmark strong > span / margin-top",
+      ".transport-time small / margin-top",
+      ".cue-buttons / padding",
+      ".preset-actions .reset-design / margin-top",
+      ".os-brand-chip / padding"
+    ]
+  },
+  "--sf-type-10px": {
+    "value": "10px",
+    "kind": "type",
+    "uses": [
+      ".project-label / font",
+      ".sidebar-heading / font",
+      ".scene-card p / font-size",
+      ".library-footer / font-size",
+      ".micro / font-size"
+    ]
+  },
+  "--sf-type-1px": {
+    "value": "1px",
+    "kind": "type",
+    "uses": [
+      ".project-label / letter-spacing",
+      ".sidebar-heading / letter-spacing",
+      ".scene-thumbnail small / letter-spacing",
+      "h1 / letter-spacing",
+      ".stage-topline,\n.stage-bottomline / letter-spacing"
+    ]
+  },
+  "--sf-color-9da79c": {
+    "value": "#9da79c",
+    "kind": "color",
+    "uses": [
+      ".project-label / color"
+    ]
+  },
+  "--sf-space-10px": {
+    "value": "10px",
+    "kind": "space",
+    "uses": [
+      ".project-label / gap",
+      ".primary-button / gap",
+      ".header-status small / margin-top",
+      ".corp-panels h3 / margin",
+      ".console-lines p / margin"
+    ]
+  },
+  "--sf-layout-5px": {
+    "value": "5px",
+    "kind": "layout",
+    "uses": [
+      ".tiny-dot,\n.status-dot / width",
+      ".tiny-dot,\n.status-dot / height",
+      ".thumb-visual / top",
+      ".thumb-tracking .thumb-visual,\n.thumb-hologram .thumb-visual / top",
+      ".os-topbar::after / height"
+    ]
+  },
+  "--sf-color-b8d991": {
+    "value": "#b8d991",
+    "kind": "color",
+    "uses": [
+      ".tiny-dot,\n.status-dot / background"
+    ]
+  },
+  "--sf-space-16px": {
+    "value": "16px",
+    "kind": "space",
+    "uses": [
+      ".version / margin-left",
+      ".primary-button / padding",
+      ".scene-library / padding",
+      ".corp-nav > button / padding",
+      ".reticle / gap"
+    ]
+  },
+  "--sf-color-69726a": {
+    "value": "#69726a",
+    "kind": "color",
+    "uses": [
+      ".version / color"
+    ]
+  },
+  "--sf-color-d1e9aa": {
+    "value": "#d1e9aa",
+    "kind": "color",
+    "uses": [
+      ".primary-button / background",
+      ".icon-button.selected / color",
+      ".play-button / background",
+      ".cue-buttons button.current / color"
+    ]
+  },
+  "--sf-color-182016": {
+    "value": "#182016",
+    "kind": "color",
+    "uses": [
+      ".primary-button / color"
+    ]
+  },
+  "--sf-space-11px": {
+    "value": "11px",
+    "kind": "space",
+    "uses": [
+      ".primary-button / padding",
+      ".family-corporate .corp-seal .micro / margin-top",
+      ".family-corporate .section-heading > svg / margin-top",
+      ".family-corporate .corp-main h2 / margin",
+      ".os-sidebar / padding"
+    ]
+  },
+  "--sf-type-12px": {
+    "value": "12px",
+    "kind": "type",
+    "uses": [
+      ".primary-button / font-size",
+      ".scene-card-title / font-size",
+      ".corp-nav > button / font-size",
+      ".directory > button / font-size",
+      ".console-lines / font-size"
+    ]
+  },
+  "--sf-color-e1f7c0": {
+    "value": "#e1f7c0",
+    "kind": "color",
+    "uses": [
+      ".primary-button:hover / background"
+    ]
+  },
+  "--sf-color-89918d": {
+    "value": "#89918d",
+    "kind": "color",
+    "uses": [
+      ".sidebar-heading / color"
+    ]
+  },
+  "--sf-type-24px": {
+    "value": "24px",
+    "kind": "type",
+    "uses": [
+      ".library-intro / font-size",
+      ".brand-monogram / font"
+    ]
+  },
+  "--sf-type-0-7px": {
+    "value": "-0.7px",
+    "kind": "type",
+    "uses": [
+      ".library-intro / letter-spacing",
+      ".os-top-status / letter-spacing",
+      ".os-profile-portrait > span / letter-spacing",
+      ".os-contact button > span / letter-spacing"
+    ]
+  },
+  "--sf-space-24px": {
+    "value": "24px",
+    "kind": "space",
+    "uses": [
+      ".library-intro / margin",
+      ".inspector section / padding",
+      ".os-topbar / padding",
+      ".os-taskbar / padding",
+      ".warhead-layout / gap"
+    ]
+  },
+  "--sf-color-778079": {
+    "value": "#778079",
+    "kind": "color",
+    "uses": [
+      ".library-intro span / color"
+    ]
+  },
+  "--sf-space-8px": {
+    "value": "8px",
+    "kind": "space",
+    "uses": [
+      ".scene-card / margin-bottom",
+      "h1 / margin",
+      ".header-status .status-dot / margin-right",
+      ".text-button / gap",
+      ".inspector label > input:not([type=\"color\"]),\n.inspector label > select,\n.inspector textarea / margin-top"
+    ]
+  },
+  "--sf-color-20261e": {
+    "value": "#20261e",
+    "kind": "color",
+    "uses": [
+      ".scene-card.active / background"
+    ]
+  },
+  "--sf-color-516143": {
+    "value": "#516143",
+    "kind": "color",
+    "uses": [
+      ".scene-card.active / border-color"
+    ]
+  },
+  "--sf-color-838c86": {
+    "value": "#838c86",
+    "kind": "color",
+    "uses": [
+      ".scene-card p / color"
+    ]
+  },
+  "--sf-space-5px": {
+    "value": "5px",
+    "kind": "space",
+    "uses": [
+      ".scene-card p / margin",
+      ".reticle .micro / padding",
+      ".exit-stage / padding",
+      ".workspace-note / gap",
+      ".family-corporate .header-status small / margin-top"
+    ]
+  },
+  "--sf-color-95a487": {
+    "value": "#95a487",
+    "kind": "color",
+    "uses": [
+      ".scene-card-title svg / color"
+    ]
+  },
+  "--sf-layout-67px": {
+    "value": "67px",
+    "kind": "layout",
+    "uses": [
+      ".scene-thumbnail / height"
+    ]
+  },
+  "--sf-color-111615": {
+    "value": "#111615",
+    "kind": "color",
+    "uses": [
+      ".scene-thumbnail / background"
+    ]
+  },
+  "--sf-color-8aa5960b": {
+    "value": "#8aa5960b",
+    "kind": "color",
+    "uses": [
+      ".scene-thumbnail / background-image"
+    ]
+  },
+  "--sf-layout-1px": {
+    "value": "1px",
+    "kind": "layout",
+    "uses": [
+      ".scene-thumbnail / background-image",
+      ".map-corner / text-shadow",
+      ".family-corporate .wave / background-image",
+      ".os-brand-chip > span / bottom",
+      ".os-top-divider / width"
+    ]
+  },
+  "--sf-layout-90deg": {
+    "value": "90deg",
+    "kind": "layout",
+    "uses": [
+      ".scene-thumbnail / background-image",
+      ".family-corporate .wave / background-image",
+      ".os-overlay-grid / background-image",
+      ".fx-grid / background-image",
+      ".fx-chroma / background"
+    ]
+  },
+  "--sf-layout-16px": {
+    "value": "16px",
+    "kind": "layout",
+    "uses": [
+      ".scene-thumbnail / background-size",
+      ".inspector label > input[type=\"range\"] / min-height",
+      ".os-small-meter > div / bottom"
+    ]
+  },
+  "--sf-layout-20px": {
+    "value": "20px",
+    "kind": "layout",
+    "uses": [
+      ".thumb-visual / left",
+      ".top-left / top",
+      ".top-left / left",
+      ".top-right / top",
+      ".top-right / right"
+    ]
+  },
+  "--sf-type-35px": {
+    "value": "35px",
+    "kind": "type",
+    "uses": [
+      ".thumb-visual / font-size",
+      ".holo-layout h2 / font",
+      ".family-corporate .scene-brand strong / font-size",
+      ".os-personnel-hero h3 / font"
+    ]
+  },
+  "--sf-type-2px": {
+    "value": "-2px",
+    "kind": "type",
+    "uses": [
+      ".thumb-visual / letter-spacing",
+      ".scene-brand .micro / letter-spacing",
+      ".terminal-console h2 / letter-spacing",
+      ".holo-number small / letter-spacing",
+      ".family-corporate .scene-brand .micro / letter-spacing"
+    ]
+  },
+  "--sf-layout-7px": {
+    "value": "7px",
+    "kind": "layout",
+    "uses": [
+      ".scene-thumbnail small / right",
+      ".scene-thumbnail small / bottom",
+      ".os-sidebar > button.active / clip-path",
+      ".os-operator-avatar / right",
+      ".os-button / clip-path"
+    ]
+  },
+  "--sf-type-6px": {
+    "value": "6px",
+    "kind": "type",
+    "uses": [
+      ".scene-thumbnail small / font",
+      ".terminal .scene-brand strong / letter-spacing",
+      ".wordmark strong > span / font-size",
+      ".stage-topline / font-size",
+      ".stage-bottomline / font-size"
+    ]
+  },
+  "--sf-layout-10px": {
+    "value": "10px",
+    "kind": "layout",
+    "uses": [
+      ".thumb-line / left",
+      ".thumb-line / top",
+      ".thumb-line / bottom",
+      ".exit-stage / top",
+      ".exit-stage / right"
+    ]
+  },
+  "--sf-layout-2px": {
+    "value": "2px",
+    "kind": "layout",
+    "uses": [
+      ".thumb-line / width",
+      ".thin-line / height",
+      ".os-sidebar > button.active::before / width",
+      ".os-panel::before / height",
+      ".os-dashboard-metrics i / height"
+    ]
+  },
+  "--sf-type-29px": {
+    "value": "29px",
+    "kind": "type",
+    "uses": [
+      ".thumb-countdown .thumb-visual / font",
+      ".corp-metrics strong / font",
+      ".family-corporate .corp-metrics strong / font-size"
+    ]
+  },
+  "--sf-layout-12px": {
+    "value": "12px",
+    "kind": "layout",
+    "uses": [
+      ".thumb-countdown .thumb-visual / top",
+      ".gesture-controls / bottom",
+      ".holo-svg / filter",
+      ".holo-hint / bottom",
+      ".family-corporate .corp-metrics > div::before,\n.family-corporate .corp-panels > section::before / width"
+    ]
+  },
+  "--sf-type-58px": {
+    "value": "58px",
+    "kind": "type",
+    "uses": [
+      ".thumb-tracking .thumb-visual,\n.thumb-hologram .thumb-visual / font-size"
+    ]
+  },
+  "--sf-layout-55px": {
+    "value": "55px",
+    "kind": "layout",
+    "uses": [
+      ".thumb-tracking .thumb-visual,\n.thumb-hologram .thumb-visual / left",
+      ".holo-readout .wave / height",
+      ".scene-thumbnail / height",
+      ".config-menu .color-label>input / width",
+      ".sequence-chain article / min-height"
+    ]
+  },
+  "--sf-color-87947c": {
+    "value": "#87947c",
+    "kind": "color",
+    "uses": [
+      ".library-footer / color"
+    ]
+  },
+  "--sf-color-646d67": {
+    "value": "#646d67",
+    "kind": "color",
+    "uses": [
+      ".library-footer small / color"
+    ]
+  },
+  "--sf-type-9px": {
+    "value": "9px",
+    "kind": "type",
+    "uses": [
+      ".library-footer small / font-size",
+      ".eyebrow / font",
+      ".header-status small / font-size",
+      ".scene-footer / font-size",
+      ".between / font-size"
+    ]
+  },
+  "--sf-space-28px": {
+    "value": "28px",
+    "kind": "space",
+    "uses": [
+      ".workspace / padding",
+      ".family-corporate .corporate / padding",
+      ".family-corporate .corp-metrics / margin-bottom",
+      ".os-content / padding",
+      ".warhead .countdown-digits / margin"
+    ]
+  },
+  "--sf-space-30px": {
+    "value": "30px",
+    "kind": "space",
+    "uses": [
+      ".workspace / padding",
+      ".corp-main h2 / margin",
+      ".holo-layout / padding",
+      ".holo-layout aside > .scene-button / margin-top",
+      ".os-lock-screen / padding"
+    ]
+  },
+  "--sf-color-20262244": {
+    "value": "#20262244",
+    "kind": "color",
+    "uses": [
+      ".workspace / background"
+    ]
+  },
+  "--sf-space-2px": {
+    "value": "2px",
+    "kind": "space",
+    "uses": [
+      ".workspace-heading / margin",
+      ".os-brand-chip / padding",
+      ".warhead-controls input[type=range] / margin-top",
+      ".sequence-node / gap",
+      ".director-nav / gap"
+    ]
+  },
+  "--sf-space-27px": {
+    "value": "27px",
+    "kind": "space",
+    "uses": [
+      ".workspace-heading / margin",
+      ".scene-header / padding-bottom",
+      ".os-topbar / padding"
+    ]
+  },
+  "--sf-type-1-7px": {
+    "value": "1.7px",
+    "kind": "type",
+    "uses": [
+      ".eyebrow / letter-spacing",
+      ".os-wordmark small / letter-spacing"
+    ]
+  },
+  "--sf-color-85917f": {
+    "value": "#85917f",
+    "kind": "color",
+    "uses": [
+      ".eyebrow / color"
+    ]
+  },
+  "--sf-type-27px": {
+    "value": "27px",
+    "kind": "type",
+    "uses": [
+      "h1 / font-size",
+      ".os-dashboard-metrics strong / font",
+      ".os-cluster-card strong / font"
+    ]
+  },
+  "--sf-color-4b5940": {
+    "value": "#4b5940",
+    "kind": "color",
+    "uses": [
+      ".icon-button.selected / border-color"
+    ]
+  },
+  "--sf-color-39413c": {
+    "value": "#39413c",
+    "kind": "color",
+    "uses": [
+      ".stage-shell / border"
+    ]
+  },
+  "--sf-color-080d0d": {
+    "value": "#080d0d",
+    "kind": "color",
+    "uses": [
+      ".stage-shell / background"
+    ]
+  },
+  "--sf-color-0004": {
+    "value": "#0004",
+    "kind": "color",
+    "uses": [
+      ".stage-shell / box-shadow"
+    ]
+  },
+  "--sf-layout-22px": {
+    "value": "22px",
+    "kind": "layout",
+    "uses": [
+      ".stage-shell / box-shadow",
+      ".bottom-left / bottom",
+      ".os-case-links button / min-height",
+      ".warhead-controls input[type=range] / min-height",
+      ".sequence-node-actions button / min-height"
+    ]
+  },
+  "--sf-layout-80px": {
+    "value": "80px",
+    "kind": "layout",
+    "uses": [
+      ".stage-shell / box-shadow"
+    ]
+  },
+  "--sf-layout-33px": {
+    "value": "33px",
+    "kind": "layout",
+    "uses": [
+      ".stage-topline,\n.stage-bottomline / height"
+    ]
+  },
+  "--sf-color-171d19": {
+    "value": "#171d19",
+    "kind": "color",
+    "uses": [
+      ".stage-topline,\n.stage-bottomline / background"
+    ]
+  },
+  "--sf-color-303c33": {
+    "value": "#303c33",
+    "kind": "color",
+    "uses": [
+      ".stage-topline,\n.stage-bottomline / border-bottom",
+      ".stage-bottomline / border-top"
+    ]
+  },
+  "--sf-space-12px": {
+    "value": "12px",
+    "kind": "space",
+    "uses": [
+      ".stage-topline,\n.stage-bottomline / padding",
+      ".scene-button / padding",
+      ".corp-seal .micro / margin-top",
+      ".corp-main h2 / margin",
+      ".corp-metrics strong / margin"
+    ]
+  },
+  "--sf-color-91a08c": {
+    "value": "#91a08c",
+    "kind": "color",
+    "uses": [
+      ".stage-topline,\n.stage-bottomline / color"
+    ]
+  },
+  "--sf-space-7px": {
+    "value": "7px",
+    "kind": "space",
+    "uses": [
+      ".stage-topline > span:first-child / gap",
+      ".corp-panels button / margin-top",
+      ".workspace-note > span:first-child / gap",
+      ".color-label > div / padding",
+      ".cue-buttons button / padding"
+    ]
+  },
+  "--sf-layout-28px": {
+    "value": "28px",
+    "kind": "layout",
+    "uses": [
+      ".stage-topline button / min-height",
+      ".os-operator-avatar / width",
+      ".os-sequence-library p / height"
+    ]
+  },
+  "--sf-layout-27px": {
+    "value": "27px",
+    "kind": "layout",
+    "uses": [
+      ".stage-bottomline / height",
+      ".os-sequence-display p / min-height",
+      ".media-grid input,.media-grid select,.media-grid button / min-height"
+    ]
+  },
+  "--sf-type-7px": {
+    "value": "7px",
+    "kind": "type",
+    "uses": [
+      ".stage-bottomline / font-size",
+      ".holo-hint / font-size",
+      ".transport-time small / font-size",
+      ".family-corporate .corp-seal::after / font-size",
+      ".family-corporate .corp-seal .micro / font-size"
+    ]
+  },
+  "--sf-color-070b0c": {
+    "value": "#070b0c",
+    "kind": "color",
+    "uses": [
+      ".stage / background"
+    ]
+  },
+  "--sf-color-0b1314": {
+    "value": "#0b1314",
+    "kind": "color",
+    "uses": [
+      ".scene-canvas / --scene-bg"
+    ]
+  },
+  "--sf-color-b6d7ce": {
+    "value": "#b6d7ce",
+    "kind": "color",
+    "uses": [
+      ".scene-canvas / --accent"
+    ]
+  },
+  "--sf-space-34px": {
+    "value": "34px",
+    "kind": "space",
+    "uses": [
+      ".scene-inner / padding"
+    ]
+  },
+  "--sf-space-42px": {
+    "value": "42px",
+    "kind": "space",
+    "uses": [
+      ".scene-inner / padding",
+      ".device-status / margin-top"
+    ]
+  },
+  "--sf-layout-95px": {
+    "value": "95px",
+    "kind": "layout",
+    "uses": [
+      ".scene-header / min-height"
+    ]
+  },
+  "--sf-space-18px": {
+    "value": "18px",
+    "kind": "space",
+    "uses": [
+      ".scene-brand / gap",
+      ".scene-button / padding",
+      ".corp-nav > button / gap",
+      ".terminal-console form > button / padding",
+      ".workspace-heading / margin-bottom"
+    ]
+  },
+  "--sf-type-28px": {
+    "value": "28px",
+    "kind": "type",
+    "uses": [
+      ".scene-brand strong / font-size",
+      ".device-index > span / font-size"
+    ]
+  },
+  "--sf-type-4px": {
+    "value": "4px",
+    "kind": "type",
+    "uses": [
+      ".scene-brand strong / letter-spacing",
+      ".os-wordmark strong / letter-spacing",
+      ".skin-cyberdeck .os-wordmark strong / letter-spacing"
+    ]
+  },
+  "--sf-space-6px": {
+    "value": "6px",
+    "kind": "space",
+    "uses": [
+      ".scene-brand .micro / margin-top",
+      ".preset-actions > button / gap",
+      ".exit-stage / gap",
+      ".scene-library nav / gap",
+      ".scene-card / padding"
+    ]
+  },
+  "--sf-layout-650px": {
+    "value": "650px",
+    "kind": "layout",
+    "uses": [
+      ".scene-brand .micro / max-width"
+    ]
+  },
+  "--sf-type-44px": {
+    "value": "44px",
+    "kind": "type",
+    "uses": [
+      ".brand-mark / font-size"
+    ]
+  },
+  "--sf-type-1-8px": {
+    "value": "1.8px",
+    "kind": "type",
+    "uses": [
+      ".micro / letter-spacing",
+      ".family-corporate .corp-main h2 / letter-spacing"
+    ]
+  },
+  "--sf-opacity-0-7": {
+    "value": "0.7",
+    "kind": "opacity",
+    "uses": [
+      ".micro / opacity",
+      ".thin-line / opacity",
+      ".os-profile-portrait svg / opacity"
+    ]
+  },
+  "--sf-type-1-2px": {
+    "value": "1.2px",
+    "kind": "type",
+    "uses": [
+      ".header-status / letter-spacing",
+      ".transport-time small / letter-spacing",
+      ".family-corporate .corp-panels section > .micro / letter-spacing",
+      ".os-window-bar / letter-spacing",
+      ".os-panel-heading / letter-spacing"
+    ]
+  },
+  "--sf-opacity-0-45": {
+    "value": "0.45",
+    "kind": "opacity",
+    "uses": [
+      ".header-status small / opacity",
+      ".terminal-console h2 span / opacity",
+      ".muted / opacity",
+      ".device-index / opacity",
+      ".os-side-bars i / opacity"
+    ]
+  },
+  "--sf-space-17px": {
+    "value": "17px",
+    "kind": "space",
+    "uses": [
+      ".scene-footer / padding-top",
+      ".corp-panels section / padding-top",
+      ".inspector section / padding",
+      ".family-corporate .corp-seal / padding",
+      ".family-corporate .corp-panels section / padding"
+    ]
+  },
+  "--sf-opacity-0-5": {
+    "value": "0.5",
+    "kind": "opacity",
+    "uses": [
+      ".scene-footer / opacity",
+      ".directory > button span / opacity",
+      ".device-bottom p / opacity",
+      ".holo-layout p / opacity",
+      ".holo-tab / opacity"
+    ]
+  },
+  "--sf-layout-44px": {
+    "value": "44px",
+    "kind": "layout",
+    "uses": [
+      ".scene-button / min-height",
+      ".scene-inner input / min-height",
+      ".gesture-controls button / min-width",
+      ".gesture-controls button / height",
+      ".studio button / min-height"
+    ]
+  },
+  "--sf-layout-82px": {
+    "value": "82px",
+    "kind": "layout",
+    "uses": [
+      ".wave / height",
+      ".sequence-chain article / max-height"
+    ]
+  },
+  "--sf-opacity-0-65": {
+    "value": "0.65",
+    "kind": "opacity",
+    "uses": [
+      ".wave / opacity",
+      ".corp-seal / opacity",
+      ".process-steps .done / opacity"
+    ]
+  },
+  "--sf-color-000": {
+    "value": "#000",
+    "kind": "color",
+    "uses": [
+      ".display-texture / background",
+      ".map-corner / text-shadow",
+      ".is-clean / background",
+      ".is-clean .workspace / background",
+      ".is-clean .stage / background"
+    ]
+  },
+  "--sf-layout-0deg": {
+    "value": "0deg",
+    "kind": "layout",
+    "uses": [
+      ".display-texture / background",
+      ".family-corporate .display-texture / background",
+      ".os-overlay-scan / background",
+      ".fx-scan / background",
+      ".display-fx .fx-tear / background"
+    ]
+  },
+  "--sf-layout-3px": {
+    "value": "3px",
+    "kind": "layout",
+    "uses": [
+      ".display-texture / background",
+      ".countdown-progress / height",
+      ".map-corner / text-shadow",
+      ".family-corporate .thin-line / height",
+      ".family-corporate .display-texture / background"
+    ]
+  },
+  "--sf-layout-4px": {
+    "value": "4px",
+    "kind": "layout",
+    "uses": [
+      ".display-texture / background",
+      ".family-corporate .display-texture / background",
+      ".os-link-dot / width",
+      ".os-link-dot / height",
+      ".os-profile-portrait > span / bottom"
+    ]
+  },
+  "--sf-layout-32px": {
+    "value": "32px",
+    "kind": "layout",
+    "uses": [
+      ".damage-band / height",
+      ".os-window-bar / height",
+      ".os-overlay-grid / background-size",
+      ".tracking-hud .wave / height",
+      ".warhead-controls .scene-button / min-height"
+    ]
+  },
+  "--sf-color-080c0d": {
+    "value": "#080c0d",
+    "kind": "color",
+    "uses": [
+      ".mood-tense / --scene-bg"
+    ]
+  },
+  "--sf-type-5px": {
+    "value": "5px",
+    "kind": "type",
+    "uses": [
+      ".mood-tense .scene-brand strong / letter-spacing",
+      ".os-profile-portrait > span / font-size",
+      ".brand-monogram small / font"
+    ]
+  },
+  "--sf-layout-196px": {
+    "value": "196px",
+    "kind": "layout",
+    "uses": [
+      ".corp-layout / grid-template-columns"
+    ]
+  },
+  "--sf-space-40px": {
+    "value": "40px",
+    "kind": "space",
+    "uses": [
+      ".corp-layout / gap",
+      ".terminal-grid / gap",
+      ".countdown-main / padding"
+    ]
+  },
+  "--sf-space-35px": {
+    "value": "35px",
+    "kind": "space",
+    "uses": [
+      ".corp-layout / padding",
+      ".device-bottom / margin-top",
+      ".os-contact / gap"
+    ]
+  },
+  "--sf-color-abc8bc24": {
+    "value": "#abc8bc24",
+    "kind": "color",
+    "uses": [
+      ".corp-nav / border-right"
+    ]
+  },
+  "--sf-color-abc8bc16": {
+    "value": "#abc8bc16",
+    "kind": "color",
+    "uses": [
+      ".corp-nav > button / border-bottom",
+      ".event-table > div:not(.micro) / border-bottom"
+    ]
+  },
+  "--sf-color-91a39c": {
+    "value": "#91a39c",
+    "kind": "color",
+    "uses": [
+      ".corp-nav > button / color"
+    ]
+  },
+  "--sf-space-72px": {
+    "value": "72px",
+    "kind": "space",
+    "uses": [
+      ".corp-seal / margin-top"
+    ]
+  },
+  "--sf-type-32px": {
+    "value": "32px",
+    "kind": "type",
+    "uses": [
+      ".corp-main h2 / font"
+    ]
+  },
+  "--sf-space-32px": {
+    "value": "32px",
+    "kind": "space",
+    "uses": [
+      ".corp-metrics / margin-bottom",
+      ".corp-panels / gap",
+      ".terminal-grid / padding",
+      ".terminal-analysis / padding-left",
+      ".family-corporate .corp-layout / gap"
+    ]
+  },
+  "--sf-layout-35px": {
+    "value": "35px",
+    "kind": "layout",
+    "uses": [
+      ".thin-line / width",
+      ".inspector label > input:not([type=\"color\"]),\n.inspector label > select,\n.inspector textarea / min-height",
+      ".family-corporate .section-heading > svg / width",
+      ".family-corporate .section-heading > svg / height",
+      ".os-side-bars / height"
+    ]
+  },
+  "--sf-color-abc8bc30": {
+    "value": "#abc8bc30",
+    "kind": "color",
+    "uses": [
+      ".corp-panels section / border-top",
+      ".directory > button / border-bottom"
+    ]
+  },
+  "--sf-type-19px": {
+    "value": "19px",
+    "kind": "type",
+    "uses": [
+      ".corp-panels h3 / font",
+      ".workspace-heading h1 / font-size"
+    ]
+  },
+  "--sf-space-15px": {
+    "value": "15px",
+    "kind": "space",
+    "uses": [
+      ".corp-panels h3 / margin",
+      ".event-table > div:not(.micro) / gap",
+      ".terminal-stat / margin",
+      ".device-index / gap",
+      ".holo-tab / padding"
+    ]
+  },
+  "--sf-opacity-0-6": {
+    "value": "0.6",
+    "kind": "opacity",
+    "uses": [
+      ".corp-panels p / opacity",
+      ".terminal-stat small / opacity",
+      ".os-operator-avatar / opacity",
+      ".os-folder-tree small / opacity"
+    ]
+  },
+  "--sf-layout-100px": {
+    "value": "100px",
+    "kind": "layout",
+    "uses": [
+      ".event-table > div:not(.micro) / grid-template-columns",
+      ".family-corporate .scene-header / min-height",
+      ".os-lock-emblem / width",
+      ".os-lock-emblem / height"
+    ]
+  },
+  "--sf-layout-110px": {
+    "value": "110px",
+    "kind": "layout",
+    "uses": [
+      ".event-table > div:not(.micro) / grid-template-columns"
+    ]
+  },
+  "--sf-space-20px": {
+    "value": "20px",
+    "kind": "space",
+    "uses": [
+      ".directory input / margin-bottom",
+      ".directory > button / padding",
+      ".terminal-console h2 / margin",
+      ".terminal-analysis .wave / margin-top",
+      ".device-status / gap"
+    ]
+  },
+  "--sf-type-11px": {
+    "value": "11px",
+    "kind": "type",
+    "uses": [
+      ".directory p / font-size",
+      ".device-status b / font-size",
+      ".inspector label > input:not([type=\"color\"]),\n.inspector label > select,\n.inspector textarea / font-size",
+      ".exit-stage / font-size",
+      ".overlay-settings summary / font-size"
+    ]
+  },
+  "--sf-color-11120e": {
+    "value": "#11120e",
+    "kind": "color",
+    "uses": [
+      ".family-terminal / --scene-bg"
+    ]
+  },
+  "--sf-type-26px": {
+    "value": "26px",
+    "kind": "type",
+    "uses": [
+      ".terminal .scene-brand strong / font-size"
+    ]
+  },
+  "--sf-type-43px": {
+    "value": "43px",
+    "kind": "type",
+    "uses": [
+      ".terminal-console h2 / font",
+      ".family-corporate .corp-main h2 / font-size"
+    ]
+  },
+  "--sf-layout-286px": {
+    "value": "286px",
+    "kind": "layout",
+    "uses": [
+      ".console-lines / height"
+    ]
+  },
+  "--sf-space-22px": {
+    "value": "22px",
+    "kind": "space",
+    "uses": [
+      ".console-lines p / margin",
+      ".scene-library / padding",
+      ".workspace / padding",
+      ".family-corporate .corporate / padding",
+      ".family-corporate .scene-header / padding-bottom"
+    ]
+  },
+  "--sf-color-ffffff20": {
+    "value": "#ffffff20",
+    "kind": "color",
+    "uses": [
+      ".terminal-console form > button / border-left",
+      ".countdown .scene-header / border-bottom-color",
+      ".device-status / border-top",
+      ".tracking-main / border",
+      ".gesture-controls button / border-color"
+    ]
+  },
+  "--sf-color-d3bd602e": {
+    "value": "#d3bd602e",
+    "kind": "color",
+    "uses": [
+      ".terminal-analysis / border-left"
+    ]
+  },
+  "--sf-layout-225px": {
+    "value": "225px",
+    "kind": "layout",
+    "uses": [
+      ".network-map / height",
+      ".studio / grid-template-columns"
+    ]
+  },
+  "--sf-type-30px": {
+    "value": "30px",
+    "kind": "type",
+    "uses": [
+      ".terminal-stat / font-size",
+      ".skin-cyberdeck .os-content h2 / font-size"
+    ]
+  },
+  "--sf-layout-60px": {
+    "value": "60px",
+    "kind": "layout",
+    "uses": [
+      ".terminal-analysis .wave / height",
+      ".studio,.studio.settings-hidden / grid-template-rows"
+    ]
+  },
+  "--sf-color-ff916e": {
+    "value": "#ff916e",
+    "kind": "color",
+    "uses": [
+      ".alert-text / color"
+    ]
+  },
+  "--sf-color-151211": {
+    "value": "#151211",
+    "kind": "color",
+    "uses": [
+      ".family-countdown / --scene-bg"
+    ]
+  },
+  "--sf-layout-25px": {
+    "value": "25px",
+    "kind": "layout",
+    "uses": [
+      ".device-index / top",
+      ".color-label input / height",
+      ".toast / bottom",
+      ".toast button / min-height",
+      ".family-corporate .thin-line / width"
+    ]
+  },
+  "--sf-layout-40px": {
+    "value": "40px",
+    "kind": "layout",
+    "uses": [
+      ".device-index / right",
+      ".os-lock-emblem / top",
+      ".os-sidebar > button / min-height",
+      ".config-menu / width",
+      ".sequence-node / grid-template-columns"
+    ]
+  },
+  "--sf-space-33px": {
+    "value": "33px",
+    "kind": "space",
+    "uses": [
+      ".countdown-main > .micro / margin-top"
+    ]
+  },
+  "--sf-type-150px": {
+    "value": "150px",
+    "kind": "type",
+    "uses": [
+      ".countdown-digits / font-size"
+    ]
+  },
+  "--sf-layout-24px": {
+    "value": "24px",
+    "kind": "layout",
+    "uses": [
+      ".countdown-digits / text-shadow",
+      ".family-corporate .wave / background-size",
+      ".os-topbar::after / left",
+      ".stage-topline / height",
+      ".stage-topline / min-height"
+    ]
+  },
+  "--sf-color-ffffff15": {
+    "value": "#ffffff15",
+    "kind": "color",
+    "uses": [
+      ".countdown-progress / background",
+      ".holo-tab / border-bottom"
+    ]
+  },
+  "--sf-space-14px": {
+    "value": "14px",
+    "kind": "space",
+    "uses": [
+      ".countdown-caption / margin-top",
+      ".inspector label > input[type=\"range\"] / margin-top",
+      ".toast / gap",
+      ".scene-library / padding",
+      ".workspace / padding"
+    ]
+  },
+  "--sf-space-23px": {
+    "value": "23px",
+    "kind": "space",
+    "uses": [
+      ".device-status / padding-top",
+      ".tracking-main / margin",
+      ".workspace-note / margin-top",
+      ".family-corporate .corp-layout / padding",
+      ".family-corporate .corp-panels / gap"
+    ]
+  },
+  "--sf-color-ff726b": {
+    "value": "#ff726b",
+    "kind": "color",
+    "uses": [
+      ".critical .countdown-caption / color",
+      ".critical .countdown-progress > div / background"
+    ]
+  },
+  "--sf-space-1px": {
+    "value": "1px",
+    "kind": "space",
+    "uses": [
+      ".gesture-controls / gap",
+      ".cue-buttons / gap",
+      ".os-sequence-detail / padding-top"
+    ]
+  },
+  "--sf-color-0a151cde": {
+    "value": "#0a151cde",
+    "kind": "color",
+    "uses": [
+      ".gesture-controls / background"
+    ]
+  },
+  "--sf-color-071511a0": {
+    "value": "#071511a0",
+    "kind": "color",
+    "uses": [
+      ".reticle .micro / background"
+    ]
+  },
+  "--sf-color-0a1915dd": {
+    "value": "#0a1915dd",
+    "kind": "color",
+    "uses": [
+      ".acquire / background"
+    ]
+  },
+  "--sf-layout-230px": {
+    "value": "230px",
+    "kind": "layout",
+    "uses": [
+      ".holo-layout / grid-template-columns",
+      ".os-dimension-layout / grid-template-columns"
+    ]
+  },
+  "--sf-layout-180px": {
+    "value": "180px",
+    "kind": "layout",
+    "uses": [
+      ".holo-layout / grid-template-columns",
+      ".os-body / grid-template-columns"
+    ]
+  },
+  "--sf-opacity-1": {
+    "value": "1",
+    "kind": "opacity",
+    "uses": [
+      ".holo-tab.selected / opacity",
+      ".exit-stage:hover,\n.exit-stage:focus-visible / opacity",
+      ".family-corporate .micro / opacity",
+      ".family-corporate .header-status small / opacity",
+      ".family-corporate .corp-nav > button span / opacity"
+    ]
+  },
+  "--sf-color-ffffff18": {
+    "value": "#ffffff18",
+    "kind": "color",
+    "uses": [
+      ".holo-readout / border-left"
+    ]
+  },
+  "--sf-type-55px": {
+    "value": "55px",
+    "kind": "type",
+    "uses": [
+      ".holo-number / font-size"
+    ]
+  },
+  "--sf-layout-42px": {
+    "value": "42px",
+    "kind": "layout",
+    "uses": [
+      ".play-button / width",
+      ".play-button / height",
+      ".os-sidebar > button / min-height"
+    ]
+  },
+  "--sf-color-142011": {
+    "value": "#142011",
+    "kind": "color",
+    "uses": [
+      ".play-button / color"
+    ]
+  },
+  "--sf-color-e0f4be": {
+    "value": "#e0f4be",
+    "kind": "color",
+    "uses": [
+      ".play-button:hover / background"
+    ]
+  },
+  "--sf-color-a2aca1": {
+    "value": "#a2aca1",
+    "kind": "color",
+    "uses": [
+      ".playback > .icon-button / color"
+    ]
+  },
+  "--sf-type-15px": {
+    "value": "15px",
+    "kind": "type",
+    "uses": [
+      ".transport-time / font",
+      ".os-messages .message-body / font-size"
+    ]
+  },
+  "--sf-color-6e7d6e": {
+    "value": "#6e7d6e",
+    "kind": "color",
+    "uses": [
+      ".transport-time small / color"
+    ]
+  },
+  "--sf-color-343b34": {
+    "value": "#343b34",
+    "kind": "color",
+    "uses": [
+      ".cue-buttons / border"
+    ]
+  },
+  "--sf-stroke-4px": {
+    "value": "4px",
+    "kind": "stroke",
+    "uses": [
+      ".cue-buttons / border-radius",
+      ".family-corporate .corp-nav > button.selected / border-left"
+    ]
+  },
+  "--sf-layout-29px": {
+    "value": "29px",
+    "kind": "layout",
+    "uses": [
+      ".cue-buttons button / min-height"
+    ]
+  },
+  "--sf-color-8e9a8b": {
+    "value": "#8e9a8b",
+    "kind": "color",
+    "uses": [
+      ".cue-buttons button / color"
+    ]
+  },
+  "--sf-color-2b3725": {
+    "value": "#2b3725",
+    "kind": "color",
+    "uses": [
+      ".cue-buttons button.current / background"
+    ]
+  },
+  "--sf-color-a3b197": {
+    "value": "#a3b197",
+    "kind": "color",
+    "uses": [
+      ".text-button / color"
+    ]
+  },
+  "--sf-color-71806e": {
+    "value": "#71806e",
+    "kind": "color",
+    "uses": [
+      ".timeline / color"
+    ]
+  },
+  "--sf-color-6d7d6b": {
+    "value": "#6d7d6b",
+    "kind": "color",
+    "uses": [
+      ".workspace-note / color"
+    ]
+  },
+  "--sf-space-19px": {
+    "value": "19px",
+    "kind": "space",
+    "uses": [
+      ".inspector-section-title / margin-bottom",
+      ".os-panel / padding",
+      ".os-person-notes / margin",
+      ".os-cluster-card / padding"
+    ]
+  },
+  "--sf-color-737f70": {
+    "value": "#737f70",
+    "kind": "color",
+    "uses": [
+      ".inspector-section-title > span / color"
+    ]
+  },
+  "--sf-color-919b93": {
+    "value": "#919b93",
+    "kind": "color",
+    "uses": [
+      ".inspector label / color"
+    ]
+  },
+  "--sf-color-bacaac": {
+    "value": "#bacaac",
+    "kind": "color",
+    "uses": [
+      ".inspector label output / color"
+    ]
+  },
+  "--sf-color-6d796e": {
+    "value": "#6d796e",
+    "kind": "color",
+    "uses": [
+      ".inspector-hint / color"
+    ]
+  },
+  "--sf-layout-70px": {
+    "value": "70px",
+    "kind": "layout",
+    "uses": [
+      ".inspector textarea / min-height",
+      ".fx-phosphor / box-shadow",
+      ".config-menu / top",
+      ".studio,.studio.settings-hidden / grid-template-rows"
+    ]
+  },
+  "--sf-color-778575": {
+    "value": "#778575",
+    "kind": "color",
+    "uses": [
+      ".preset-actions .reset-design / color"
+    ]
+  },
+  "--sf-color-617455": {
+    "value": "#617455",
+    "kind": "color",
+    "uses": [
+      ".toast / border"
+    ]
+  },
+  "--sf-color-20291f": {
+    "value": "#20291f",
+    "kind": "color",
+    "uses": [
+      ".toast / background"
+    ]
+  },
+  "--sf-color-0006": {
+    "value": "#0006",
+    "kind": "color",
+    "uses": [
+      ".toast / box-shadow"
+    ]
+  },
+  "--sf-layout-15px": {
+    "value": "15px",
+    "kind": "layout",
+    "uses": [
+      ".toast / box-shadow",
+      ".os-top-divider / height",
+      ".os-phase-index / width"
+    ]
+  },
+  "--sf-layout-50px": {
+    "value": "50px",
+    "kind": "layout",
+    "uses": [
+      ".toast / box-shadow",
+      ".os-record-modal / box-shadow"
+    ]
+  },
+  "--sf-color-101710e0": {
+    "value": "#101710e0",
+    "kind": "color",
+    "uses": [
+      ".exit-stage / background"
+    ]
+  },
+  "--sf-opacity-0": {
+    "value": "0",
+    "kind": "opacity",
+    "uses": [
+      ".exit-stage / opacity",
+      ".show-import input / opacity"
+    ]
+  },
+  "--sf-opacity-0-25": {
+    "value": "0.25",
+    "kind": "opacity",
+    "uses": [
+      ".exit-stage / opacity"
+    ]
+  },
+  "--sf-layout-250px": {
+    "value": "250px",
+    "kind": "layout",
+    "uses": [
+      ".studio / grid-template-columns",
+      ".settings-hidden / grid-template-columns"
+    ]
+  },
+  "--sf-layout-285px": {
+    "value": "285px",
+    "kind": "layout",
+    "uses": [
+      ".studio / grid-template-columns",
+      ".warhead-layout / grid-template-columns"
+    ]
+  },
+  "--sf-space-38px": {
+    "value": "38px",
+    "kind": "space",
+    "uses": [
+      ".workspace / padding",
+      ".os-lock-screen / padding",
+      ".os-lock-stages / margin-top"
+    ]
+  },
+  "--sf-space-45px": {
+    "value": "45px",
+    "kind": "space",
+    "uses": [
+      ".workspace / padding"
+    ]
+  },
+  "--sf-layout-85px": {
+    "value": "85px",
+    "kind": "layout",
+    "uses": [
+      ".scene-thumbnail / height",
+      ".media-grid img / height"
+    ]
+  },
+  "--sf-layout-190px": {
+    "value": "190px",
+    "kind": "layout",
+    "uses": [
+      ".studio / grid-template-columns",
+      ".settings-hidden / grid-template-columns"
+    ]
+  },
+  "--sf-layout-170px": {
+    "value": "170px",
+    "kind": "layout",
+    "uses": [
+      ".studio / grid-template-columns",
+      ".settings-hidden / grid-template-columns",
+      ".os-file-layout / grid-template-columns",
+      ".fx-atmosphere / box-shadow"
+    ]
+  },
+  "--sf-layout-72px": {
+    "value": "72px",
+    "kind": "layout",
+    "uses": [
+      ".studio-header / height"
+    ]
+  },
+  "--sf-type-17px": {
+    "value": "17px",
+    "kind": "type",
+    "uses": [
+      ".wordmark strong / font-size",
+      ".os-person-meta b / font-size",
+      ".codepad-grid button / font-size"
+    ]
+  },
+  "--sf-layout-134px": {
+    "value": "134px",
+    "kind": "layout",
+    "uses": [
+      ".scene-card / min-width",
+      ".scene-card / max-width",
+      ".os-profile-portrait / width"
+    ]
+  },
+  "--sf-type-23px": {
+    "value": "23px",
+    "kind": "type",
+    "uses": [
+      "h1 / font-size",
+      ".warhead-safe-banner / font-size",
+      ".config-header button / font-size"
+    ]
+  },
+  "--sf-layout-13px": {
+    "value": "13px",
+    "kind": "layout",
+    "uses": [
+      ".thumb-tracking .thumb-visual / top"
+    ]
+  },
+  "--sf-layout-8px": {
+    "value": "8px",
+    "kind": "layout",
+    "uses": [
+      ".exit-stage / left",
+      ".exit-stage / bottom",
+      ".family-corporate .corp-seal::after / right",
+      ".os-sidebar > button.active::before / top",
+      ".os-sidebar > button.active::before / bottom"
+    ]
+  },
+  "--sf-color-c5d3bb": {
+    "value": "#c5d3bb",
+    "kind": "color",
+    "uses": [
+      ".overlay-settings summary / color"
+    ]
+  },
+  "--sf-color-oklch-0-98-0-0": {
+    "value": "oklch(0.98 0 0)",
+    "kind": "color",
+    "uses": [
+      ".family-corporate / --scene-bg"
+    ]
+  },
+  "--sf-color-oklch-0-15-0-0": {
+    "value": "oklch(0.15 0 0)",
+    "kind": "color",
+    "uses": [
+      ".family-corporate / --corp-ink"
+    ]
+  },
+  "--sf-color-oklch-0-45-0-0": {
+    "value": "oklch(0.45 0 0)",
+    "kind": "color",
+    "uses": [
+      ".family-corporate / --corp-muted"
+    ]
+  },
+  "--sf-color-c3c3bf": {
+    "value": "#c3c3bf",
+    "kind": "color",
+    "uses": [
+      ".family-corporate / --corp-line"
+    ]
+  },
+  "--sf-space-36px": {
+    "value": "36px",
+    "kind": "space",
+    "uses": [
+      ".family-corporate .corporate / padding",
+      ".os-file-info / margin-top"
+    ]
+  },
+  "--sf-layout-58px": {
+    "value": "58px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .brand-mark / width",
+      ".family-corporate .brand-mark / height"
+    ]
+  },
+  "--sf-font-weight-700": {
+    "value": "700",
+    "kind": "font-weight",
+    "uses": [
+      ".family-corporate .scene-brand strong / font-weight",
+      ".family-corporate .corp-main h2 / font-weight",
+      ".thumb-corporate .thumb-visual / font-weight"
+    ]
+  },
+  "--sf-type-1-5px": {
+    "value": "-1.5px",
+    "kind": "type",
+    "uses": [
+      ".family-corporate .scene-brand strong / letter-spacing",
+      ".warhead-heading / letter-spacing"
+    ]
+  },
+  "--sf-type-1-4px": {
+    "value": "1.4px",
+    "kind": "type",
+    "uses": [
+      ".family-corporate .micro / letter-spacing",
+      ".cyber-os h2 / letter-spacing",
+      ".os-kicker / letter-spacing"
+    ]
+  },
+  "--sf-layout-206px": {
+    "value": "206px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .header-status / min-width"
+    ]
+  },
+  "--sf-layout-6px": {
+    "value": "6px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .header-status .status-dot / width",
+      ".family-corporate .header-status .status-dot / height",
+      ".family-corporate .corp-seal::after / top",
+      ".family-corporate .corp-metrics > div::before,\n.family-corporate .corp-panels > section::before / left",
+      ".family-corporate .corp-metrics > div::before,\n.family-corporate .corp-panels > section::before / top"
+    ]
+  },
+  "--sf-layout-183px": {
+    "value": "183px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .corp-layout / grid-template-columns"
+    ]
+  },
+  "--sf-layout-48px": {
+    "value": "48px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .corp-nav > button / min-height",
+      ".os-taskbar / height",
+      ".os-phase-list > div:not(.os-phase-timing) / min-height",
+      ".os-modal-shade / inset",
+      ".os-unlock-rail input::-webkit-slider-thumb / width"
+    ]
+  },
+  "--sf-font-weight-600": {
+    "value": "600",
+    "kind": "font-weight",
+    "uses": [
+      ".family-corporate .corp-nav > button / font-weight",
+      ".family-corporate .corp-metrics strong / font-weight",
+      ".family-corporate .corp-panels h3 / font-weight"
+    ]
+  },
+  "--sf-type-0-5px": {
+    "value": "0.5px",
+    "kind": "type",
+    "uses": [
+      ".family-corporate .corp-nav > button / letter-spacing",
+      ".family-corporate .between / letter-spacing",
+      ".cyber-os h3 / letter-spacing",
+      ".os-discreet-note / letter-spacing"
+    ]
+  },
+  "--sf-color-e5e5e1": {
+    "value": "#e5e5e1",
+    "kind": "color",
+    "uses": [
+      ".family-corporate .corp-nav > button:hover / background",
+      ".family-corporate .directory > button:hover / background"
+    ]
+  },
+  "--sf-color-fff": {
+    "value": "#fff",
+    "kind": "color",
+    "uses": [
+      ".family-corporate .corp-nav > button.selected / color",
+      ".family-corporate .corp-metrics > div / background",
+      ".family-corporate .corp-panels section / background",
+      ".family-corporate .corp-panels section > .micro / background",
+      ".family-corporate .scene-button / color"
+    ]
+  },
+  "--sf-color-c9c9c6": {
+    "value": "#c9c9c6",
+    "kind": "color",
+    "uses": [
+      ".family-corporate .corp-nav > button.selected span / color"
+    ]
+  },
+  "--sf-space-47px": {
+    "value": "47px",
+    "kind": "space",
+    "uses": [
+      ".family-corporate .corp-seal / margin-top"
+    ]
+  },
+  "--sf-layout-11px": {
+    "value": "11px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .corp-panels section > .micro / left"
+    ]
+  },
+  "--sf-layout-9px": {
+    "value": "-9px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .corp-panels section > .micro / top",
+      ".os-operator-avatar / top",
+      ".scene-inner / text-shadow",
+      ".skin-cyberdeck .os-sidebar button.selected,\n.skin-cyberdeck .os-sidebar button.active / clip-path",
+      ".os-messages nav button / clip-path"
+    ]
+  },
+  "--sf-color-1515150c": {
+    "value": "#1515150c",
+    "kind": "color",
+    "uses": [
+      ".family-corporate .wave / background-image"
+    ]
+  },
+  "--sf-layout-1-8px": {
+    "value": "1.8px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .wave path / stroke-width"
+    ]
+  },
+  "--sf-type-22px": {
+    "value": "22px",
+    "kind": "type",
+    "uses": [
+      ".family-corporate .corp-panels h3 / font-size",
+      ".codepad h2 / font"
+    ]
+  },
+  "--sf-layout-38px": {
+    "value": "38px",
+    "kind": "layout",
+    "uses": [
+      ".family-corporate .scene-button / min-height"
+    ]
+  },
+  "--sf-color-16161624": {
+    "value": "#16161624",
+    "kind": "color",
+    "uses": [
+      ".family-corporate .display-texture / background"
+    ]
+  },
+  "--sf-color-eeeeea": {
+    "value": "#eeeeea",
+    "kind": "color",
+    "uses": [
+      ".family-corporate.mood-tense / --scene-bg"
+    ]
+  },
+  "--sf-color-e8e6e1": {
+    "value": "#e8e6e1",
+    "kind": "color",
+    "uses": [
+      ".family-corporate.mood-damaged / --scene-bg"
+    ]
+  },
+  "--sf-color-f8f8f5": {
+    "value": "#f8f8f5",
+    "kind": "color",
+    "uses": [
+      ".scene-thumbnail.thumb-corporate / background"
+    ]
+  },
+  "--sf-color-171717": {
+    "value": "#171717",
+    "kind": "color",
+    "uses": [
+      ".scene-thumbnail.thumb-corporate / color"
+    ]
+  },
+  "--sf-color-a7a7a1": {
+    "value": "#a7a7a1",
+    "kind": "color",
+    "uses": [
+      ".scene-thumbnail.thumb-corporate / border"
+    ]
+  },
+  "--sf-color-080d12": {
+    "value": "#080d12",
+    "kind": "color",
+    "uses": [
+      ".cyber-os / --os-bg",
+      ".cyber-os input / background"
+    ]
+  },
+  "--sf-color-0e171f": {
+    "value": "#0e171f",
+    "kind": "color",
+    "uses": [
+      ".cyber-os / --os-panel"
+    ]
+  },
+  "--sf-color-233642": {
+    "value": "#233642",
+    "kind": "color",
+    "uses": [
+      ".cyber-os / --os-line"
+    ]
+  },
+  "--sf-color-80dce5": {
+    "value": "#80dce5",
+    "kind": "color",
+    "uses": [
+      ".cyber-os / --os-cyan"
+    ]
+  },
+  "--sf-color-6e8d9b": {
+    "value": "#6e8d9b",
+    "kind": "color",
+    "uses": [
+      ".cyber-os / --os-muted"
+    ]
+  },
+  "--sf-color-d6e2e5": {
+    "value": "#d6e2e5",
+    "kind": "color",
+    "uses": [
+      ".cyber-os / --os-text"
+    ]
+  },
+  "--sf-color-e9d27b": {
+    "value": "#e9d27b",
+    "kind": "color",
+    "uses": [
+      ".cyber-os / --os-yellow"
+    ]
+  },
+  "--sf-layout-34px": {
+    "value": "34px",
+    "kind": "layout",
+    "uses": [
+      ".cyber-os button / min-height",
+      ".cyber-os .gesture-controls button / height"
+    ]
+  },
+  "--sf-color-80dce50c": {
+    "value": "#80dce50c",
+    "kind": "color",
+    "uses": [
+      ".cyber-os button:hover / background"
+    ]
+  },
+  "--sf-type-34px": {
+    "value": "34px",
+    "kind": "type",
+    "uses": [
+      ".cyber-os h2 / font"
+    ]
+  },
+  "--sf-type-21px": {
+    "value": "21px",
+    "kind": "type",
+    "uses": [
+      ".cyber-os h3 / font",
+      ".os-dimension-stats strong / font-size",
+      ".sequence-node>span / font-size"
+    ]
+  },
+  "--sf-layout-79px": {
+    "value": "79px",
+    "kind": "layout",
+    "uses": [
+      ".os-topbar / height",
+      ".os-modal-shade / inset"
+    ]
+  },
+  "--sf-color-0d131a": {
+    "value": "#0d131a",
+    "kind": "color",
+    "uses": [
+      ".os-topbar / background"
+    ]
+  },
+  "--sf-layout-97px": {
+    "value": "97px",
+    "kind": "layout",
+    "uses": [
+      ".os-topbar::after / width"
+    ]
+  },
+  "--sf-color-0c1015": {
+    "value": "#0c1015",
+    "kind": "color",
+    "uses": [
+      ".os-brand-chip / color"
+    ]
+  },
+  "--sf-layout-540px": {
+    "value": "540px",
+    "kind": "layout",
+    "uses": [
+      ".os-wordmark strong / max-width",
+      ".os-wordmark small / max-width"
+    ]
+  },
+  "--sf-color-80dce550": {
+    "value": "#80dce550",
+    "kind": "color",
+    "uses": [
+      ".os-link-dot / box-shadow"
+    ]
+  },
+  "--sf-layout-633px": {
+    "value": "633px",
+    "kind": "layout",
+    "uses": [
+      ".os-body / height"
+    ]
+  },
+  "--sf-color-0a1118": {
+    "value": "#0a1118",
+    "kind": "color",
+    "uses": [
+      ".os-sidebar / background",
+      ".mood-tense .cyber-os / --os-panel"
+    ]
+  },
+  "--sf-opacity-0-55": {
+    "value": "0.55",
+    "kind": "opacity",
+    "uses": [
+      ".os-sidebar > button small / opacity"
+    ]
+  },
+  "--sf-layout-39px": {
+    "value": "39px",
+    "kind": "layout",
+    "uses": [
+      ".os-operator-avatar / height",
+      ".os-unlock-rail input::-moz-range-thumb / height"
+    ]
+  },
+  "--sf-color-111921": {
+    "value": "#111921",
+    "kind": "color",
+    "uses": [
+      ".os-window-bar / background"
+    ]
+  },
+  "--sf-type-0-4px": {
+    "value": "0.4px",
+    "kind": "type",
+    "uses": [
+      ".os-window-meta / letter-spacing"
+    ]
+  },
+  "--sf-space-21px": {
+    "value": "21px",
+    "kind": "space",
+    "uses": [
+      ".os-content / padding",
+      ".os-personnel-hero / padding-bottom",
+      ".os-person-meta / margin-top"
+    ]
+  },
+  "--sf-layout-601px": {
+    "value": "601px",
+    "kind": "layout",
+    "uses": [
+      ".os-content / height"
+    ]
+  },
+  "--sf-layout-74px": {
+    "value": "74px",
+    "kind": "layout",
+    "uses": [
+      ".os-section-head / min-height"
+    ]
+  },
+  "--sf-layout-37px": {
+    "value": "37px",
+    "kind": "layout",
+    "uses": [
+      ".os-button / min-height"
+    ]
+  },
+  "--sf-color-0b1117": {
+    "value": "#0b1117",
+    "kind": "color",
+    "uses": [
+      ".os-button / color"
+    ]
+  },
+  "--sf-color-80dce510": {
+    "value": "#80dce510",
+    "kind": "color",
+    "uses": [
+      ".os-button.secondary:hover / background"
+    ]
+  },
+  "--sf-color-111e27": {
+    "value": "#111e27",
+    "kind": "color",
+    "uses": [
+      ".os-panel / background"
+    ]
+  },
+  "--sf-color-0c151e": {
+    "value": "#0c151e",
+    "kind": "color",
+    "uses": [
+      ".os-panel / background"
+    ]
+  },
+  "--sf-layout-130deg": {
+    "value": "130deg",
+    "kind": "layout",
+    "uses": [
+      ".os-panel / background",
+      ".skin-cyberdeck .os-panel,\n.skin-cyberdeck .os-sequence-display,\n.skin-cyberdeck .os-personnel-record / background",
+      ".os-messages article / background"
+    ]
+  },
+  "--sf-layout-426px": {
+    "value": "426px",
+    "kind": "layout",
+    "uses": [
+      ".os-dashboard / height"
+    ]
+  },
+  "--sf-layout-290px": {
+    "value": "290px",
+    "kind": "layout",
+    "uses": [
+      ".os-dashboard-map .os-trace / height"
+    ]
+  },
+  "--sf-layout-17px": {
+    "value": "17px",
+    "kind": "layout",
+    "uses": [
+      ".os-dashboard-metrics i / width",
+      ".sequence-link / bottom"
+    ]
+  },
+  "--sf-color-9ebfbd": {
+    "value": "#9ebfbd",
+    "kind": "color",
+    "uses": [
+      ".os-console-lines / color"
+    ]
+  },
+  "--sf-color-111d26": {
+    "value": "#111d26",
+    "kind": "color",
+    "uses": [
+      ".os-terminal-console form / background"
+    ]
+  },
+  "--sf-layout-46px": {
+    "value": "46px",
+    "kind": "layout",
+    "uses": [
+      ".os-terminal-console input / min-height"
+    ]
+  },
+  "--sf-layout-45px": {
+    "value": "45px",
+    "kind": "layout",
+    "uses": [
+      ".os-terminal-console form > button / width",
+      ".os-overlay-glow / box-shadow",
+      ".warhead-core .wave / height"
+    ]
+  },
+  "--sf-layout-255px": {
+    "value": "255px",
+    "kind": "layout",
+    "uses": [
+      ".os-terminal-side > .os-trace / height",
+      ".os-messages / grid-template-columns"
+    ]
+  },
+  "--sf-layout-235px": {
+    "value": "235px",
+    "kind": "layout",
+    "uses": [
+      ".os-search / width"
+    ]
+  },
+  "--sf-layout-420px": {
+    "value": "420px",
+    "kind": "layout",
+    "uses": [
+      ".os-file-layout / height"
+    ]
+  },
+  "--sf-color-80dce509": {
+    "value": "#80dce509",
+    "kind": "color",
+    "uses": [
+      ".os-folder-tree button.active / background"
+    ]
+  },
+  "--sf-space-65px": {
+    "value": "65px",
+    "kind": "space",
+    "uses": [
+      ".os-folder-tree > .os-kicker / margin-top"
+    ]
+  },
+  "--sf-layout-75px": {
+    "value": "75px",
+    "kind": "layout",
+    "uses": [
+      ".os-file-table-head,\n.os-file-table > button / grid-template-columns",
+      ".os-messages nav button / min-height"
+    ]
+  },
+  "--sf-layout-125px": {
+    "value": "125px",
+    "kind": "layout",
+    "uses": [
+      ".os-file-table-head,\n.os-file-table > button / grid-template-columns"
+    ]
+  },
+  "--sf-layout-205px": {
+    "value": "205px",
+    "kind": "layout",
+    "uses": [
+      ".os-personnel-layout / grid-template-columns"
+    ]
+  },
+  "--sf-color-101921": {
+    "value": "#101921",
+    "kind": "color",
+    "uses": [
+      ".os-personnel-layout > nav > button / background"
+    ]
+  },
+  "--sf-color-15212a": {
+    "value": "#15212a",
+    "kind": "color",
+    "uses": [
+      ".os-personnel-layout > nav > button.active / background"
+    ]
+  },
+  "--sf-type-18px": {
+    "value": "18px",
+    "kind": "type",
+    "uses": [
+      ".os-personnel-layout > nav > button strong / font",
+      ".os-sequence-library h3 / font-size",
+      ".os-sequence-display h3 / font-size"
+    ]
+  },
+  "--sf-layout-158px": {
+    "value": "158px",
+    "kind": "layout",
+    "uses": [
+      ".os-profile-portrait / height"
+    ]
+  },
+  "--sf-color-101e27": {
+    "value": "#101e27",
+    "kind": "color",
+    "uses": [
+      ".os-profile-portrait / background"
+    ]
+  },
+  "--sf-space-29px": {
+    "value": "29px",
+    "kind": "space",
+    "uses": [
+      ".os-person-meta / gap"
+    ]
+  },
+  "--sf-layout-430px": {
+    "value": "430px",
+    "kind": "layout",
+    "uses": [
+      ".os-clusters-layout / height"
+    ]
+  },
+  "--sf-color-142a32": {
+    "value": "#142a32",
+    "kind": "color",
+    "uses": [
+      ".os-cluster-map / background"
+    ]
+  },
+  "--sf-color-0b131c": {
+    "value": "#0b131c",
+    "kind": "color",
+    "uses": [
+      ".os-cluster-map / background",
+      ".os-sequence-display / background"
+    ]
+  },
+  "--sf-layout-350px": {
+    "value": "350px",
+    "kind": "layout",
+    "uses": [
+      ".os-cluster-map > .os-trace / height"
+    ]
+  },
+  "--sf-color-111b24": {
+    "value": "#111b24",
+    "kind": "color",
+    "uses": [
+      ".os-cluster-card / background"
+    ]
+  },
+  "--sf-type-0-8px": {
+    "value": "0.8px",
+    "kind": "type",
+    "uses": [
+      ".os-cluster-card > span / letter-spacing"
+    ]
+  },
+  "--sf-layout-435px": {
+    "value": "435px",
+    "kind": "layout",
+    "uses": [
+      ".os-dimension-layout / height"
+    ]
+  },
+  "--sf-color-10232d": {
+    "value": "#10232d",
+    "kind": "color",
+    "uses": [
+      ".os-dimension-layout > .gesture-surface / background",
+      ".os-sequence-display / background"
+    ]
+  },
+  "--sf-color-090f16": {
+    "value": "#090f16",
+    "kind": "color",
+    "uses": [
+      ".os-dimension-layout > .gesture-surface / background"
+    ]
+  },
+  "--sf-color-101a23": {
+    "value": "#101a23",
+    "kind": "color",
+    "uses": [
+      ".os-dimension-layout > aside / background",
+      ".os-sequence-library > button / background"
+    ]
+  },
+  "--sf-layout-202px": {
+    "value": "202px",
+    "kind": "layout",
+    "uses": [
+      ".os-sequence-library > button / height"
+    ]
+  },
+  "--sf-color-14212b": {
+    "value": "#14212b",
+    "kind": "color",
+    "uses": [
+      ".os-sequence-library > button:hover / background"
+    ]
+  },
+  "--sf-layout-54px": {
+    "value": "54px",
+    "kind": "layout",
+    "uses": [
+      ".os-sequence-card-art / height",
+      ".codepad-grid button / height"
+    ]
+  },
+  "--sf-color-101820": {
+    "value": "#101820",
+    "kind": "color",
+    "uses": [
+      ".os-taskbar / background"
+    ]
+  },
+  "--sf-type-13px": {
+    "value": "13px",
+    "kind": "type",
+    "uses": [
+      ".os-taskbar-logo / font-size",
+      ".os-task-time / font-size",
+      ".tracking-hud h3 / font-size"
+    ]
+  },
+  "--sf-layout-131px": {
+    "value": "131px",
+    "kind": "layout",
+    "uses": [
+      ".os-taskbar-logo / width"
+    ]
+  },
+  "--sf-color-80dce507": {
+    "value": "#80dce507",
+    "kind": "color",
+    "uses": [
+      ".os-task-buttons > button.active / background"
+    ]
+  },
+  "--sf-type-31px": {
+    "value": "31px",
+    "kind": "type",
+    "uses": [
+      ".os-sequence .os-section-head h2 / font-size"
+    ]
+  },
+  "--sf-layout-214px": {
+    "value": "214px",
+    "kind": "layout",
+    "uses": [
+      ".os-sequence-grid / grid-template-columns",
+      ".os-contact > button / height"
+    ]
+  },
+  "--sf-layout-197px": {
+    "value": "197px",
+    "kind": "layout",
+    "uses": [
+      ".os-sequence-grid / grid-template-columns"
+    ]
+  },
+  "--sf-layout-432px": {
+    "value": "432px",
+    "kind": "layout",
+    "uses": [
+      ".os-sequence-grid / height"
+    ]
+  },
+  "--sf-color-17232a": {
+    "value": "#17232a",
+    "kind": "color",
+    "uses": [
+      ".os-phase-list > div.current / background"
+    ]
+  },
+  "--sf-opacity-0-8": {
+    "value": "0.8",
+    "kind": "opacity",
+    "uses": [
+      ".os-phase-list > div.done / opacity"
+    ]
+  },
+  "--sf-type-14px": {
+    "value": "14px",
+    "kind": "type",
+    "uses": [
+      ".os-phase-timing strong / font-size",
+      ".workspace-heading h1 / font-size"
+    ]
+  },
+  "--sf-layout-278px": {
+    "value": "278px",
+    "kind": "layout",
+    "uses": [
+      ".os-phase-visual / height"
+    ]
+  },
+  "--sf-layout-185px": {
+    "value": "185px",
+    "kind": "layout",
+    "uses": [
+      ".os-phase-visual > .os-fingerprint / width"
+    ]
+  },
+  "--sf-layout-56px": {
+    "value": "56px",
+    "kind": "layout",
+    "uses": [
+      ".os-small-meter > div / width",
+      ".studio,.studio.settings-hidden / grid-template-rows"
+    ]
+  },
+  "--sf-layout-124px": {
+    "value": "124px",
+    "kind": "layout",
+    "uses": [
+      ".os-log / height"
+    ]
+  },
+  "--sf-color-03080deb": {
+    "value": "#03080deb",
+    "kind": "color",
+    "uses": [
+      ".os-modal-shade / background"
+    ]
+  },
+  "--sf-layout-700px": {
+    "value": "700px",
+    "kind": "layout",
+    "uses": [
+      ".os-record-modal / width"
+    ]
+  },
+  "--sf-color-0e1821": {
+    "value": "#0e1821",
+    "kind": "color",
+    "uses": [
+      ".os-record-modal / background"
+    ]
+  },
+  "--sf-color-0005": {
+    "value": "#0005",
+    "kind": "color",
+    "uses": [
+      ".os-record-modal / box-shadow"
+    ]
+  },
+  "--sf-layout-41px": {
+    "value": "41px",
+    "kind": "layout",
+    "uses": [
+      ".os-record-modal .os-window-bar / height"
+    ]
+  },
+  "--sf-layout-300px": {
+    "value": "300px",
+    "kind": "layout",
+    "uses": [
+      ".os-record-content pre / max-height"
+    ]
+  },
+  "--sf-color-172333": {
+    "value": "#172333",
+    "kind": "color",
+    "uses": [
+      ".os-lock-screen / background"
+    ]
+  },
+  "--sf-color-090d14": {
+    "value": "#090d14",
+    "kind": "color",
+    "uses": [
+      ".os-lock-screen / background"
+    ]
+  },
+  "--sf-layout-590px": {
+    "value": "590px",
+    "kind": "layout",
+    "uses": [
+      ".os-lock-main / width"
+    ]
+  },
+  "--sf-layout-150px": {
+    "value": "-150px",
+    "kind": "layout",
+    "uses": [
+      ".os-lock-emblem / left",
+      ".os-overlay-grain / background-size",
+      ".fx-noise / background-size",
+      ".corp-record dl / grid-template-columns"
+    ]
+  },
+  "--sf-layout-21px": {
+    "value": "21px",
+    "kind": "layout",
+    "uses": [
+      ".os-lock-emblem > span / right"
+    ]
+  },
+  "--sf-type-46px": {
+    "value": "46px",
+    "kind": "type",
+    "uses": [
+      ".os-lock-main h2 / font-size"
+    ]
+  },
+  "--sf-layout-61px": {
+    "value": "61px",
+    "kind": "layout",
+    "uses": [
+      ".os-unlock-rail / height"
+    ]
+  },
+  "--sf-color-17242e": {
+    "value": "#17242e",
+    "kind": "color",
+    "uses": [
+      ".os-unlock-rail / background"
+    ]
+  },
+  "--sf-layout-57px": {
+    "value": "57px",
+    "kind": "layout",
+    "uses": [
+      ".os-unlock-rail input::-webkit-slider-thumb / height"
+    ]
+  },
+  "--sf-stroke-9px": {
+    "value": "9px",
+    "kind": "stroke",
+    "uses": [
+      ".os-unlock-rail input::-webkit-slider-thumb / border"
+    ]
+  },
+  "--sf-layout-30px": {
+    "value": "30px",
+    "kind": "layout",
+    "uses": [
+      ".os-unlock-rail input::-moz-range-thumb / width",
+      ".mood-tense .header-status,\n.mood-damaged .header-status / box-shadow"
+    ]
+  },
+  "--sf-layout-195px": {
+    "value": "195px",
+    "kind": "layout",
+    "uses": [
+      ".os-contact > button / width"
+    ]
+  },
+  "--sf-color-101e28": {
+    "value": "#101e28",
+    "kind": "color",
+    "uses": [
+      ".os-contact > button / background",
+      ".os-contact button > span / background"
+    ]
+  },
+  "--sf-type-41px": {
+    "value": "41px",
+    "kind": "type",
+    "uses": [
+      ".os-contact > div > strong / font"
+    ]
+  },
+  "--sf-color-80dce533": {
+    "value": "#80dce533",
+    "kind": "color",
+    "uses": [
+      ".os-overlay-grid / background-image"
+    ]
+  },
+  "--sf-color-80dce51a": {
+    "value": "#80dce51a",
+    "kind": "color",
+    "uses": [
+      ".os-overlay-glow / background"
+    ]
+  },
+  "--sf-color-80dce522": {
+    "value": "#80dce522",
+    "kind": "color",
+    "uses": [
+      ".os-overlay-glow / box-shadow"
+    ]
+  },
+  "--sf-color-28ffff": {
+    "value": "#28ffff",
+    "kind": "color",
+    "uses": [
+      ".os-display-overlays > .os-overlay-chroma / border-left"
+    ]
+  },
+  "--sf-color-ff245e": {
+    "value": "#ff245e",
+    "kind": "color",
+    "uses": [
+      ".os-display-overlays > .os-overlay-chroma / border-right"
+    ]
+  },
+  "--sf-color-251218": {
+    "value": "#251218",
+    "kind": "color",
+    "uses": [
+      ".os-warning .os-topbar / background"
+    ]
+  },
+  "--sf-color-0b131ce8": {
+    "value": "#0b131ce8",
+    "kind": "color",
+    "uses": [
+      ".cyber-os .gesture-controls / background"
+    ]
+  },
+  "--sf-color-05080c": {
+    "value": "#05080c",
+    "kind": "color",
+    "uses": [
+      ".mood-tense .cyber-os / --os-bg"
+    ]
+  },
+  "--sf-layout-450px": {
+    "value": "450px",
+    "kind": "layout",
+    "uses": [
+      ".os-lock-screen .os-lock-main / min-height"
+    ]
+  },
+  "--sf-color-80dce529": {
+    "value": "#80dce529",
+    "kind": "color",
+    "uses": [
+      ".fx-grid / background-image"
+    ]
+  },
+  "--sf-color-000b": {
+    "value": "#000b",
+    "kind": "color",
+    "uses": [
+      ".fx-scan / background"
+    ]
+  },
+  "--sf-layout-90px": {
+    "value": "90px",
+    "kind": "layout",
+    "uses": [
+      ".display-fx .fx-sweep / height",
+      ".config-menu / box-shadow"
+    ]
+  },
+  "--sf-color-b9f5ff28": {
+    "value": "#b9f5ff28",
+    "kind": "color",
+    "uses": [
+      ".display-fx .fx-sweep / background"
+    ]
+  },
+  "--sf-color-26eaff": {
+    "value": "#26eaff",
+    "kind": "color",
+    "uses": [
+      ".fx-chroma / box-shadow"
+    ]
+  },
+  "--sf-color-ff406a": {
+    "value": "#ff406a",
+    "kind": "color",
+    "uses": [
+      ".fx-chroma / box-shadow"
+    ]
+  },
+  "--sf-color-00ffff09": {
+    "value": "#00ffff09",
+    "kind": "color",
+    "uses": [
+      ".fx-chroma / background"
+    ]
+  },
+  "--sf-color-ff005509": {
+    "value": "#ff005509",
+    "kind": "color",
+    "uses": [
+      ".fx-chroma / background"
+    ]
+  },
+  "--sf-color-aff": {
+    "value": "#aff",
+    "kind": "color",
+    "uses": [
+      ".display-fx .fx-tear / background"
+    ]
+  },
+  "--sf-color-aef": {
+    "value": "#aef",
+    "kind": "color",
+    "uses": [
+      ".display-fx .fx-tear / border-top"
+    ]
+  },
+  "--sf-color-8883": {
+    "value": "#8883",
+    "kind": "color",
+    "uses": [
+      ".process-rail / background"
+    ]
+  },
+  "--sf-opacity-0-35": {
+    "value": "0.35",
+    "kind": "opacity",
+    "uses": [
+      ".process-steps span / opacity"
+    ]
+  },
+  "--sf-type-42px": {
+    "value": "42px",
+    "kind": "type",
+    "uses": [
+      ".holo-number / font-size"
+    ]
+  },
+  "--sf-layout-92px": {
+    "value": "92px",
+    "kind": "layout",
+    "uses": [
+      ".tracking-hud / top",
+      ".mood-damaged .fx-atmosphere / background"
+    ]
+  },
+  "--sf-layout-164px": {
+    "value": "164px",
+    "kind": "layout",
+    "uses": [
+      ".tracking-hud / width"
+    ]
+  },
+  "--sf-color-07120de6": {
+    "value": "#07120de6",
+    "kind": "color",
+    "uses": [
+      ".tracking-hud / background"
+    ]
+  },
+  "--sf-color-9ad9c044": {
+    "value": "#9ad9c044",
+    "kind": "color",
+    "uses": [
+      ".tracking-hud / border"
+    ]
+  },
+  "--sf-color-07120df0": {
+    "value": "#07120df0",
+    "kind": "color",
+    "uses": [
+      ".tracking-actions .scene-button / background"
+    ]
+  },
+  "--sf-layout-800px": {
+    "value": "800px",
+    "kind": "layout",
+    "uses": [
+      ".countdown .process-readout / max-width"
+    ]
+  },
+  "--sf-color-e020383b": {
+    "value": "#e020383b",
+    "kind": "color",
+    "uses": [
+      ".fx-atmosphere / background"
+    ]
+  },
+  "--sf-color-b52b442e": {
+    "value": "#b52b442e",
+    "kind": "color",
+    "uses": [
+      ".fx-atmosphere / background"
+    ]
+  },
+  "--sf-color-360511": {
+    "value": "#360511",
+    "kind": "color",
+    "uses": [
+      ".fx-atmosphere / box-shadow"
+    ]
+  },
+  "--sf-color-aa1230": {
+    "value": "#aa1230",
+    "kind": "color",
+    "uses": [
+      ".mood-tense .scene-header,\n.mood-damaged .scene-header / background"
+    ]
+  },
+  "--sf-color-ee3e5a": {
+    "value": "#ee3e5a",
+    "kind": "color",
+    "uses": [
+      ".mood-tense .scene-header,\n.mood-damaged .scene-header / border-color"
+    ]
+  },
+  "--sf-color-ff6979": {
+    "value": "#ff6979",
+    "kind": "color",
+    "uses": [
+      ".mood-tense .scene-inner,\n.mood-damaged .scene-inner / --os-yellow"
+    ]
+  },
+  "--sf-color-6e1125": {
+    "value": "#6e1125",
+    "kind": "color",
+    "uses": [
+      ".mood-tense .scene-inner,\n.mood-damaged .scene-inner / --os-panel"
+    ]
+  },
+  "--sf-color-e34a60": {
+    "value": "#e34a60",
+    "kind": "color",
+    "uses": [
+      ".mood-tense .header-status,\n.mood-damaged .header-status / color"
+    ]
+  },
+  "--sf-color-e027392b": {
+    "value": "#e027392b",
+    "kind": "color",
+    "uses": [
+      ".mood-tense .header-status,\n.mood-damaged .header-status / box-shadow"
+    ]
+  },
+  "--sf-type-2-4px": {
+    "value": "2.4px",
+    "kind": "type",
+    "uses": [
+      ".mood-tense .scene-inner .micro,\n.mood-damaged .scene-inner .micro / letter-spacing"
+    ]
+  },
+  "--sf-color-ed294816": {
+    "value": "#ed294816",
+    "kind": "color",
+    "uses": [
+      ".mood-damaged .fx-atmosphere / background"
+    ]
+  },
+  "--sf-layout-91px": {
+    "value": "91px",
+    "kind": "layout",
+    "uses": [
+      ".mood-damaged .fx-atmosphere / background"
+    ]
+  },
+  "--sf-layout-96px": {
+    "value": "96px",
+    "kind": "layout",
+    "uses": [
+      ".mood-damaged .fx-atmosphere / background"
+    ]
+  },
+  "--sf-layout-26px": {
+    "value": "26px",
+    "kind": "layout",
+    "uses": [
+      ".theme-editor input[type=\"color\"] / height",
+      ".sequence-palette button / min-height"
+    ]
+  },
+  "--sf-color-778792": {
+    "value": "#778792",
+    "kind": "color",
+    "uses": [
+      ".theme-editor p / color"
+    ]
+  },
+  "--sf-layout-210px": {
+    "value": "210px",
+    "kind": "layout",
+    "uses": [
+      ".terminal-visual-frame / height"
+    ]
+  },
+  "--sf-type-16px": {
+    "value": "16px",
+    "kind": "type",
+    "uses": [
+      ".os-terminal-side > .os-panel h3 / font-size",
+      ".warhead-core dd / font-size",
+      ".studio-header .wordmark strong / font-size"
+    ]
+  },
+  "--sf-type-0-3px": {
+    "value": "0.3px",
+    "kind": "type",
+    "uses": [
+      ".brand-monogram small / letter-spacing"
+    ]
+  },
+  "--sf-layout-14px": {
+    "value": "14px",
+    "kind": "layout",
+    "uses": [
+      ".skin-cyberdeck .os-panel,\n.skin-cyberdeck .os-sequence-display,\n.skin-cyberdeck .os-personnel-record / clip-path"
+    ]
+  },
+  "--sf-layout-415px": {
+    "value": "415px",
+    "kind": "layout",
+    "uses": [
+      ".os-messages / height"
+    ]
+  },
+  "--sf-color-7ce0b4": {
+    "value": "#7ce0b4",
+    "kind": "color",
+    "uses": [
+      ".warhead.device-safe / --accent"
+    ]
+  },
+  "--sf-layout-215px": {
+    "value": "215px",
+    "kind": "layout",
+    "uses": [
+      ".warhead-layout / grid-template-columns"
+    ]
+  },
+  "--sf-color-ffffff12": {
+    "value": "#ffffff12",
+    "kind": "color",
+    "uses": [
+      ".warhead-core dl>div / border-bottom",
+      ".warhead-journal>div:not(.micro) / border-bottom"
+    ]
+  },
+  "--sf-type-77px": {
+    "value": "77px",
+    "kind": "type",
+    "uses": [
+      ".warhead .countdown-digits / font-size"
+    ]
+  },
+  "--sf-opacity-5": {
+    "value": ".5",
+    "kind": "opacity",
+    "uses": [
+      ".warhead-milliseconds / opacity"
+    ]
+  },
+  "--sf-opacity-4": {
+    "value": ".4",
+    "kind": "opacity",
+    "uses": [
+      ".warhead-journal>div>span / opacity",
+      ".sequence-node>span / opacity"
+    ]
+  },
+  "--sf-opacity-6": {
+    "value": ".6",
+    "kind": "opacity",
+    "uses": [
+      ".warhead-controls small / opacity",
+      ".director-scenes>span / opacity",
+      ".sequence-node>small / opacity",
+      ".sequence-editor>footer / opacity"
+    ]
+  },
+  "--sf-opacity-25": {
+    "value": ".25",
+    "kind": "opacity",
+    "uses": [
+      ".device-expired .warhead-core svg,.device-expired .warhead-journal / opacity"
+    ]
+  },
+  "--sf-color-ae19362b": {
+    "value": "#ae19362b",
+    "kind": "color",
+    "uses": [
+      ".device-expired .warhead-state / background"
+    ]
+  },
+  "--sf-color-ff5268": {
+    "value": "#ff5268",
+    "kind": "color",
+    "uses": [
+      ".device-expired .warhead-state / color",
+      ".device-expired .warhead-state / border-color"
+    ]
+  },
+  "--sf-color-28342a": {
+    "value": "#28342a",
+    "kind": "color",
+    "uses": [
+      ".director-nav button.active,.director-scenes button.active / background"
+    ]
+  },
+  "--sf-color-9aaa85": {
+    "value": "#9aaa85",
+    "kind": "color",
+    "uses": [
+      ".director-nav button.active,.director-scenes button.active / border-color"
+    ]
+  },
+  "--sf-color-d6edb6": {
+    "value": "#d6edb6",
+    "kind": "color",
+    "uses": [
+      ".director-nav button.active,.director-scenes button.active / color",
+      ".config-tabs button[aria-selected=true] / color",
+      ".media-grid .active,.media-folders .active / color"
+    ]
+  },
+  "--sf-layout-680px": {
+    "value": "680px",
+    "kind": "layout",
+    "uses": [
+      ".config-menu / width"
+    ]
+  },
+  "--sf-color-14191d": {
+    "value": "#14191d",
+    "kind": "color",
+    "uses": [
+      ".config-menu / background"
+    ]
+  },
+  "--sf-color-47534f": {
+    "value": "#47534f",
+    "kind": "color",
+    "uses": [
+      ".config-menu / border"
+    ]
+  },
+  "--sf-color-0009": {
+    "value": "#0009",
+    "kind": "color",
+    "uses": [
+      ".config-menu / box-shadow"
+    ]
+  },
+  "--sf-color-35423c": {
+    "value": "#35423c",
+    "kind": "color",
+    "uses": [
+      ".config-header / border-bottom",
+      ".config-tabs / border-bottom",
+      ".config-menu .preset-actions / border-top",
+      ".sequence-editor / border",
+      ".show-import / border"
+    ]
+  },
+  "--sf-color-2c392c": {
+    "value": "#2c392c",
+    "kind": "color",
+    "uses": [
+      ".config-tabs button[aria-selected=true] / background"
+    ]
+  },
+  "--sf-color-a4bc88": {
+    "value": "#a4bc88",
+    "kind": "color",
+    "uses": [
+      ".config-tabs button[aria-selected=true] / border-color"
+    ]
+  },
+  "--sf-color-111719": {
+    "value": "#111719",
+    "kind": "color",
+    "uses": [
+      ".sequence-editor / background"
+    ]
+  },
+  "--sf-layout-160px": {
+    "value": "160px",
+    "kind": "layout",
+    "uses": [
+      ".sequence-editor>header input / width"
+    ]
+  },
+  "--sf-layout-330px": {
+    "value": "330px",
+    "kind": "layout",
+    "uses": [
+      ".sequence-body / grid-template-columns"
+    ]
+  },
+  "--sf-color-192224": {
+    "value": "#192224",
+    "kind": "color",
+    "uses": [
+      ".sequence-chain article / background"
+    ]
+  },
+  "--sf-color-aacb8d": {
+    "value": "#aacb8d",
+    "kind": "color",
+    "uses": [
+      ".sequence-chain article.selected / border-color",
+      ".media-grid .active,.media-folders .active / border-color"
+    ]
+  },
+  "--sf-color-80e5d0": {
+    "value": "#80e5d0",
+    "kind": "color",
+    "uses": [
+      ".sequence-chain article.running / box-shadow"
+    ]
+  },
+  "--sf-color-92a98e": {
+    "value": "#92a98e",
+    "kind": "color",
+    "uses": [
+      ".sequence-link / color"
+    ]
+  },
+  "--sf-color-080e11": {
+    "value": "#080e11",
+    "kind": "color",
+    "uses": [
+      ".media-grid img / background"
+    ]
+  },
+  "--sf-layout-340px": {
+    "value": "340px",
+    "kind": "layout",
+    "uses": [
+      ".codepad / width"
+    ]
+  },
+  "--sf-layout-62px": {
+    "value": "62px",
+    "kind": "layout",
+    "uses": [
+      ".config-menu / top"
+    ]
+  },
+  "--sf-layout-120px": {
+    "value": "120px",
+    "kind": "layout",
+    "uses": [
+      ".sequence-editor>header input / width"
+    ]
+  },
+  "--sf-layout-140px": {
+    "value": "140px",
+    "kind": "layout",
+    "uses": [
+      ".sequence-body / grid-template-columns"
+    ]
+  }
+}

@@ -10,6 +10,7 @@ import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/inter/600.css";
 import App from "./App";
+import "./tokens.css";
 import "./styles.css";
 import "./scenes/corporate.css";
 import "./scenes/os/os.css";
@@ -20,3 +21,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 
 import "./scenes/shared/live.css";
+import './director.css';
+import './fonts.css';

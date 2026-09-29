@@ -12,6 +12,7 @@ export type SceneProps = {
   cue: Cue;
   onCue: (cue: Cue) => void;
   onPlay?: () => void;
+  operation?:string;
   onTimelineExtend?: (end: number) => void;
 };
 function Label({ children }: { children: React.ReactNode }) {
