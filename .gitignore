@@ -5,3 +5,5 @@ playwright-report/
 *.local
 .DS_Store
 screen-forge/
+
+.exercise-data/
