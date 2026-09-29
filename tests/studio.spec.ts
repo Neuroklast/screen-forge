@@ -19,7 +19,6 @@ test("all scenes render and operator controls reset a take", async ({
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
     await expect(page.locator(".scene-inner")).toBeVisible();
   }
-  await page.getByRole("button", { name: "Abspielen", exact: true }).click();
   await page.waitForTimeout(1200);
   await page.getByRole("button", { name: "Pause", exact: true }).click();
   await expect(page.locator(".transport-time")).not.toContainText("00:00:00");

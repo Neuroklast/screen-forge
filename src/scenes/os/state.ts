@@ -1,5 +1,6 @@
 import type { SequenceId } from "./sequences";
 export type AppId =
+  | "messages"
   | "overview"
   | "terminal"
   | "files"

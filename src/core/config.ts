@@ -16,8 +16,47 @@ const overlaySchema = z.object({
   glitch: z.number().min(0).max(1).default(0.2),
   chromatic: z.number().min(0).max(1).default(0.15),
 });
+export const paletteSchema = z.object({
+  background: z.string().regex(/^#[0-9a-f]{6}$/i),
+  surface: z.string().regex(/^#[0-9a-f]{6}$/i),
+  text: z.string().regex(/^#[0-9a-f]{6}$/i),
+  secondary: z.string().regex(/^#[0-9a-f]{6}$/i),
+});
+export function scenePalette(scene: SceneId) {
+  return scene === "corporate"
+    ? {
+        background: "#f4f3f0",
+        surface: "#e4e3df",
+        text: "#151515",
+        secondary: "#62636b",
+      }
+    : {
+        background: "#080d12",
+        surface: "#0e171f",
+        text: "#d6e2e5",
+        secondary: "#80dce5",
+      };
+}
 export const schema = z.object({
   version: z.literal(1),
+  palette: paletteSchema.optional(),
+  skin: z.enum(["standard", "cyberdeck"]).default("standard"),
+  brand: z
+    .object({
+      mark: z
+        .enum(["default", "umbrella", "hex", "orbital"])
+        .default("default"),
+      logo: z
+        .string()
+        .max(180000)
+        .refine(
+          (s) =>
+            s === "" ||
+            /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(s),
+        )
+        .default(""),
+    })
+    .optional(),
   scene: z.enum(sceneIds),
   title: z.string().trim().min(1).max(40),
   subtitle: z.string().max(70),
@@ -94,13 +133,14 @@ export function defaults(scene: SceneId = "corporate"): Config {
   const s = scenes.find((x) => x.id === scene)!;
   return {
     version: 1,
+    skin: "standard",
     scene,
     title: s.title,
     subtitle: s.subtitle,
     identifier: "VS-204 / UNIT 07",
     accent: s.accent,
     mood: "clinical",
-    effects: 0.25,
+    effects: scene === "corporate" ? 0.45 : 0.8,
     density: "detailed",
     duration: 180,
     brightness: 1,

@@ -1,4 +1,10 @@
-import { useReducer, useState, useEffect, type CSSProperties } from "react";
+import {
+  useReducer,
+  useState,
+  useEffect,
+  useRef,
+  type CSSProperties,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   TerminalSquare,
@@ -22,7 +28,7 @@ import {
 import type { SceneProps } from "../Scenes";
 import { formatTime } from "../../core/runtime";
 import { GestureSurface } from "../../components/GestureSurface";
-import { files, folders, people, type VirtualFile } from "./data";
+import { files as baseFiles, folders, people, type VirtualFile } from "./data";
 import {
   sequences,
   sequenceDuration,
@@ -33,7 +39,10 @@ import { osReducer, initialOsState, type AppId } from "./state";
 import { TraceMap, Hypercube, FingerprintGraphic } from "./Visuals";
 import { SequencePanel } from "./SequencePanel";
 import { LockScreen } from "./LockScreen";
-import { DisplayOverlays } from "./Overlays";
+import { Messages } from "./Messages";
+import { BrandMark } from "../../components/BrandMark";
+import { useActorPlayback, TerminalVisual } from "./ActorPlayback";
+import { Changed } from "../shared/Process";
 const apps: { id: AppId; name: string; icon: typeof Folder; code: string }[] = [
   { id: "overview", name: "Workspace", icon: LayoutDashboard, code: "00" },
   { id: "terminal", name: "Terminal", icon: TerminalSquare, code: "01" },
@@ -41,6 +50,7 @@ const apps: { id: AppId; name: string; icon: typeof Folder; code: string }[] = [
   { id: "personnel", name: "Personnel", icon: Users, code: "03" },
   { id: "clusters", name: "Data clusters", icon: Network, code: "04" },
   { id: "dimension", name: "4D projection", icon: Box, code: "05" },
+  { id: "messages", name: "Messages", icon: FileText, code: "07" },
   { id: "sequences", name: "Sequences", icon: Layers, code: "06" },
 ];
 const rootVariants = {
@@ -54,8 +64,30 @@ const childVariants = {
   hidden: { opacity: 0, y: 7 },
   visible: { opacity: 1, y: 0 },
 };
-export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: SceneProps) {
+export function CyberOS({
+  config,
+  time,
+  cue,
+  onCue,
+  onPlay,
+  onTimelineExtend,
+}: SceneProps) {
   const [state, dispatch] = useReducer(osReducer, initialOsState);
+  const files: VirtualFile[] = [
+    ...baseFiles,
+    ...state.history.map((id, i) => ({
+      path: `/workspace/${id}-${i + 1}.report`,
+      kind: "text" as const,
+      size: "1.2 KB",
+      classification: id === "operation" ? "REVIEW" : "VERIFIED",
+      content: `${id.toUpperCase()} / COMPLETED PROCESS\n${sequences
+        .find((s) => s.id === id)
+        ?.phases.map((p) => p.name + " / COMPLETE")
+        .join(
+          "\n",
+        )}\n\n${id === "operation" ? "Containment exception isolated. Operator review required." : "Result verified and committed to local workspace."}`,
+    })),
+  ];
   const [folder, setFolder] = useState("/archives"),
     [query, setQuery] = useState(""),
     [file, setFile] = useState<VirtualFile | null>(null),
@@ -71,7 +103,15 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
     [angle, setAngle] = useState(0.5),
     [tilt, setTilt] = useState(0.4),
     [rotate, setRotate] = useState(true),
-    [frozenTime,setFrozenTime]=useState(0),[rotationOffset,setRotationOffset]=useState(0);
+    [frozenTime, setFrozenTime] = useState(0),
+    [rotationOffset, setRotationOffset] = useState(0);
+  const actor = useActorPlayback(time, onPlay, config.script);
+  const consoleRef = useRef<HTMLDivElement>(null);
+  const displayedLines = config.actorMode ? actor.lines : terminalLines;
+  useEffect(() => {
+    const el = consoleRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [displayedLines.length, state.app]);
   const reduced = useReducedMotion();
   const visualTime = reduced ? 0 : time;
   const open = (app: AppId) => {
@@ -81,7 +121,13 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
   const play = () => onPlay?.();
   const run = (id: SequenceId) => {
     dispatch({ type: "run", id, time, multiplier: config.sequenceScale });
-    onTimelineExtend?.(time + sequenceDuration(sequences.find(s=>s.id===id)!, config.sequenceScale));
+    onTimelineExtend?.(
+      time +
+        sequenceDuration(
+          sequences.find((s) => s.id === id)!,
+          config.sequenceScale,
+        ),
+    );
     onCue("active");
     play();
   };
@@ -95,13 +141,24 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
     active && state.sequence
       ? sequenceState(active, elapsed, state.sequence.multiplier).done
       : false;
-  const operationPhase=active && state.sequence ? sequenceState(active,elapsed,state.sequence.multiplier).index : -1;
-  useEffect(()=>{if(active?.id==='operation')onCue(operationPhase===active.phases.length-1?'warning':'active');},[active?.id,operationPhase,onCue]);
+  const operationPhase =
+    active && state.sequence
+      ? sequenceState(active, elapsed, state.sequence.multiplier).index
+      : -1;
+  useEffect(() => {
+    if (active?.id === "operation")
+      onCue(operationPhase === active.phases.length - 1 ? "warning" : "active");
+  }, [active?.id, operationPhase, onCue]);
   const closeSequence = () => {
     dispatch({ type: "closeSequence", completed: !!done });
     onCue(done ? "complete" : "idle");
   };
   const submit = () => {
+    if (config.actorMode) {
+      actor.submit(command);
+      setCommand("");
+      return;
+    }
     const raw = command.trim();
     if (!raw) return;
     setCommands((p) => [...p.slice(-30), raw]);
@@ -191,11 +248,8 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
         ];
         break;
       case "inspect":
-        response = [
-          "Relay map loaded · 6 nodes verified",
-          "Local analysis complete · archive ready",
-        ];
-        onCue("active");
+        response = ["Relay inspection queued / reading channel signatures…"];
+        run("intrusion");
         break;
       default:
         response = [`Unrecognized local command: ${op}. Type help.`];
@@ -217,7 +271,7 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
       <header className="os-topbar">
         <div className="os-wordmark">
           <span className="os-brand-chip">
-            BL<span>09</span>
+            <BrandMark config={config} />
           </span>
           <div>
             <strong>{config.title}</strong>
@@ -311,6 +365,16 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                 animate="visible"
                 exit={{ opacity: 0 }}
               >
+                {state.app === "messages" && (
+                  <Messages
+                    onAction={(i) => {
+                      if (i === 0) run("decrypt");
+                      else if (i === 1) open("personnel");
+                      else if (i === 3) run("reconstruct");
+                      else open("files");
+                    }}
+                  />
+                )}
                 {state.app === "overview" && (
                   <>
                     <div className="os-section-head">
@@ -391,7 +455,9 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                           ].map(([label, value]) => (
                             <motion.div variants={childVariants} key={label}>
                               <span>{label}</span>
-                              <strong>{value}</strong>
+                              <strong>
+                                <Changed value={value} />
+                              </strong>
                               <i />
                             </motion.div>
                           ))}
@@ -434,12 +500,15 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                       </div>
                       <div
                         className="console-lines os-console-lines"
+                        ref={consoleRef}
                         role="log"
                         aria-label="Terminalausgabe"
                       >
-                        {terminalLines.map((line, i) => (
-                          <div
-                            key={i}
+                        {displayedLines.map((line, i) => (
+                          <motion.div
+                            key={`${i}-${line}`}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
                             className={
                               line.startsWith("operator@")
                                 ? "os-command-line"
@@ -447,7 +516,7 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                             }
                           >
                             {line || "\u00a0"}
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
                       <form
@@ -464,17 +533,37 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                           value={command}
                           placeholder={
                             config.actorMode
-                              ? "Type to reveal prepared command"
+                              ? actor.busy
+                                ? "Receiving channel response…"
+                                : "Type any keys to continue the operation"
                               : "help / ls / scan / decrypt"
                           }
                           onChange={(e) =>
                             setCommand(
                               config.actorMode
-                                ? config.script.slice(0, e.target.value.length)
+                                ? actor.target.slice(0, e.target.value.length)
                                 : e.target.value,
                             )
                           }
                           onKeyDown={(e) => {
+                            if (
+                              config.actorMode &&
+                              (e.key.length === 1 || e.key === "Backspace")
+                            ) {
+                              e.preventDefault();
+                              if (!actor.busy) {
+                                const next = actor.target.slice(
+                                  0,
+                                  command.length + 3,
+                                );
+                                if (next.length === actor.target.length) {
+                                  actor.submit(next);
+                                  setCommand("");
+                                } else setCommand(next);
+                              }
+                              return;
+                            }
+
                             if (e.key === "ArrowUp") {
                               e.preventDefault();
                               const next = Math.min(
@@ -525,17 +614,19 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                       <div className="os-between">
                         <span>
                           {config.actorMode
-                            ? "SCRIPTED INPUT ENABLED"
+                            ? `ACTOR SEQUENCE / STEP ${actor.index + 1} ${actor.busy ? "PROCESSING" : "READY"}`
                             : "LOCAL COMMAND PARSER"}
                         </span>
                         <span>TAB COMPLETE / ↑ HISTORY</span>
                       </div>
                     </section>
                     <aside className="os-terminal-side">
-                      <span className="os-kicker">ATTACHED RESOURCES</span>
-                      <TraceMap
+                      <TerminalVisual
                         time={visualTime}
-                        progress={0.75}
+                        index={actor.index}
+                        progress={actor.progress}
+                        mode={actor.stage.mode}
+                        title={actor.stage.title}
                         seed={config.seed}
                       />
                       <div className="os-panel">
@@ -636,8 +727,8 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                           <div>
                             <strong>Local archive mirror</strong>
                             <p>
-                              Records are available immediately. Recovery
-                              sequences are staged separately.
+                              Completed operations create verified reports in
+                              /workspace.
                             </p>
                           </div>
                         </div>
@@ -693,16 +784,26 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                             <span className="os-kicker">
                               {people[person].role}
                             </span>
-                            <h3>{people[person].name}</h3>
-                            <p>{people[person].department}</p>
+                            <h3>
+                              <Changed value={people[person].name} />
+                            </h3>
+                            <p>
+                              <Changed value={people[person].department} />
+                            </p>
                             <div className="os-person-meta">
                               <div>
                                 <span>CLEARANCE</span>
-                                <b>{people[person].clearance}</b>
+                                <b>
+                                  <Changed value={people[person].clearance} />
+                                </b>
                               </div>
                               <div>
                                 <span>CONFIDENCE</span>
-                                <b>{people[person].signal}%</b>
+                                <b>
+                                  <Changed
+                                    value={people[person].signal + "%"}
+                                  />
+                                </b>
                               </div>
                               <div>
                                 <span>STATUS</span>
@@ -835,7 +936,11 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                     <div className="os-dimension-layout">
                       <GestureSurface label="4D-Projektion verschieben und zoomen">
                         <Hypercube
-                          time={rotate ? Math.max(0,visualTime-rotationOffset) : frozenTime}
+                          time={
+                            rotate
+                              ? Math.max(0, visualTime - rotationOffset)
+                              : frozenTime
+                          }
                           angle={angle}
                           tilt={tilt}
                         />
@@ -875,7 +980,14 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                         <button
                           className="os-button secondary"
                           onClick={() => {
-                            if(rotate)setFrozenTime(Math.max(0,visualTime-rotationOffset));else{setRotationOffset(visualTime-frozenTime);play();}
+                            if (rotate)
+                              setFrozenTime(
+                                Math.max(0, visualTime - rotationOffset),
+                              );
+                            else {
+                              setRotationOffset(visualTime - frozenTime);
+                              play();
+                            }
                             setRotate((p) => !p);
                           }}
                         >
@@ -920,48 +1032,55 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
                           Operator-controlled playback.
                         </p>
                       </div>
-                      <button className="os-button" onClick={()=>run('operation')}>Run full operation <ChevronRight size={13}/></button>
+                      <button
+                        className="os-button"
+                        onClick={() => run("operation")}
+                      >
+                        Run full operation <ChevronRight size={13} />
+                      </button>
                     </div>
                     <div className="os-sequence-library">
-                      {sequences.filter(s=>s.id!=='operation').map((s, i) => (
-                        <motion.button
-                          variants={childVariants}
-                          key={s.id}
-                          onClick={() => run(s.id)}
-                        >
-                          <span className="os-sequence-card-code">
-                            {s.code}
-                            <small>
-                              {formatTime(
-                                sequenceDuration(s, config.sequenceScale),
+                      {sequences
+                        .filter((s) => s.id !== "operation")
+                        .map((s, i) => (
+                          <motion.button
+                            variants={childVariants}
+                            key={s.id}
+                            onClick={() => run(s.id)}
+                          >
+                            <span className="os-sequence-card-code">
+                              {s.code}
+                              <small>
+                                {formatTime(
+                                  sequenceDuration(s, config.sequenceScale),
+                                )}
+                              </small>
+                            </span>
+                            <div className="os-sequence-card-art">
+                              {i % 3 === 0 ? (
+                                <Activity size={45} strokeWidth={0.8} />
+                              ) : i % 3 === 1 ? (
+                                <Network size={45} strokeWidth={0.8} />
+                              ) : (
+                                <Layers size={45} strokeWidth={0.8} />
                               )}
-                            </small>
-                          </span>
-                          <div className="os-sequence-card-art">
-                            {i % 3 === 0 ? (
-                              <Activity size={45} strokeWidth={0.8} />
-                            ) : i % 3 === 1 ? (
-                              <Network size={45} strokeWidth={0.8} />
-                            ) : (
-                              <Layers size={45} strokeWidth={0.8} />
-                            )}
-                            <div>
-                              {s.phases.map((p, j) => (
-                                <i
-                                  key={p.name}
-                                  style={{ width: `${12 + j * 9}px` }}
-                                />
-                              ))}
+                              <div>
+                                {s.phases.map((p, j) => (
+                                  <i
+                                    key={p.name}
+                                    style={{ width: `${12 + j * 9}px` }}
+                                  />
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                          <h3>{s.name}</h3>
-                          <p>{s.subtitle}</p>
-                          <div className="os-between">
-                            <span>{s.phases.length} DISTINCT PHASES</span>
-                            <ArrowUpRight size={17} />
-                          </div>
-                        </motion.button>
-                      ))}
+                            <h3>{s.name}</h3>
+                            <p>{s.subtitle}</p>
+                            <div className="os-between">
+                              <span>{s.phases.length} DISTINCT PHASES</span>
+                              <ArrowUpRight size={17} />
+                            </div>
+                          </motion.button>
+                        ))}
                     </div>
                   </>
                 )}
@@ -1009,7 +1128,28 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
               role="dialog"
               aria-modal="true"
               aria-label="Dateivorschau"
-                onKeyDown={e=>{if(e.key==='Escape'){e.stopPropagation();setFile(null);}if(e.key==='Tab'){const buttons=Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('button'));const first=buttons[0],last=buttons[buttons.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}}}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.stopPropagation();
+                  setFile(null);
+                }
+                if (e.key === "Tab") {
+                  const buttons = Array.from(
+                    e.currentTarget.querySelectorAll<HTMLButtonElement>(
+                      "button",
+                    ),
+                  );
+                  const first = buttons[0],
+                    last = buttons[buttons.length - 1];
+                  if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                  } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                  }
+                }
+              }}
               initial={{ clipPath: "inset(45% 0)", y: 12 }}
               animate={{ clipPath: "inset(0% 0)", y: 0 }}
               exit={{ opacity: 0 }}
@@ -1017,7 +1157,8 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
               <div className="os-window-bar">
                 <span>{file.path}</span>
                 <button
-                  autoFocus aria-label="Dateivorschau schließen"
+                  autoFocus
+                  aria-label="Dateivorschau schließen"
                   onClick={() => setFile(null)}
                 >
                   <X size={16} />
@@ -1073,7 +1214,6 @@ export function CyberOS({ config, time, cue, onCue, onPlay, onTimelineExtend }: 
           />
         )}
       </AnimatePresence>
-      <DisplayOverlays config={config} time={visualTime} />
     </div>
   );
 }

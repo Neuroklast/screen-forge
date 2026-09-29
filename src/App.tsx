@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import {
   defaults,
+  scenePalette,
   downloadPreset,
   loadConfig,
   scenes,
@@ -27,6 +28,9 @@ import {
   type SceneId,
 } from "./core/config";
 import { formatTime, useSceneClock, type Cue } from "./core/runtime";
+import { SystemProfiles } from "./components/SystemProfiles";
+import { ThemeEditor } from "./components/ThemeEditor";
+import { DisplayOverlays } from "./scenes/os/Overlays";
 import { sceneComponents } from "./scenes/Scenes";
 export default function App() {
   const [config, setConfig] = useState<Config>(loadConfig),
@@ -35,7 +39,7 @@ export default function App() {
     [settings, setSettings] = useState(true),
     [clean, setClean] = useState(false),
     [notice, setNotice] = useState(""),
-    [timelineEnd,setTimelineEnd]=useState(0);
+    [timelineEnd, setTimelineEnd] = useState(0);
   const clock = useSceneClock();
   const stage = useRef<HTMLDivElement>(null),
     upload = useRef<HTMLInputElement>(null);
@@ -53,6 +57,7 @@ export default function App() {
   const select = (id: SceneId) => {
     reset();
     setConfig(defaults(id));
+    clock.setPlaying(id !== "countdown");
   };
   useEffect(() => {
     try {
@@ -116,7 +121,7 @@ export default function App() {
   const importPreset = async (file?: File) => {
     if (!file) return;
     try {
-      if (file.size > 100000) throw new Error("Datei zu groß");
+      if (file.size > 400000) throw new Error("Datei zu groß");
       const next = schema.parse(JSON.parse(await file.text()));
       reset();
       setConfig(next);
@@ -128,7 +133,8 @@ export default function App() {
     }
     if (upload.current) upload.current.value = "";
   };
-  const timelineMax=Math.max(config.duration,timelineEnd);
+  const palette = config.palette ?? scenePalette(config.scene);
+  const timelineMax = Math.max(config.duration, timelineEnd);
   const scale = Math.min(size.width / 1280, size.height / 760);
   return (
     <MotionConfig
@@ -234,14 +240,24 @@ export default function App() {
             </div>
             <div className="stage" ref={stage}>
               <div
-                className={`scene-canvas family-${config.scene} mood-${config.mood} density-${config.density}`}
+                className={`scene-canvas family-${config.scene} skin-${config.skin} mood-${config.mood} density-${config.density}`}
                 style={
                   {
                     width: 1280,
                     height: 760,
                     transform: `translate(-50%, -50%) scale(${scale})`,
                     "--accent": config.accent,
+                    "--theme-bg": palette.background,
+                    "--theme-surface": palette.surface,
+                    "--theme-text": palette.text,
+                    "--theme-secondary": palette.secondary,
+                    "--mood-pulse":
+                      (0.4 + Math.sin(clock.elapsed * 2.3) * 0.2) *
+                      config.effects,
                     "--fx": config.effects,
+                    "--display-glow": config.overlays.glow * config.effects,
+                    "--display-chroma":
+                      config.overlays.chromatic * config.effects,
                     filter: `brightness(${config.brightness})`,
                   } as CSSProperties
                 }
@@ -253,24 +269,11 @@ export default function App() {
                   cue={cue}
                   onCue={setCue}
                   onPlay={() => clock.setPlaying(true)}
-                  onTimelineExtend={(end)=>setTimelineEnd(t=>Math.max(t,end))}
+                  onTimelineExtend={(end) =>
+                    setTimelineEnd((t) => Math.max(t, end))
+                  }
                 />
-                <div
-                  hidden={config.scene === "terminal"}
-                  className="display-texture"
-                  style={{ opacity: config.effects * 0.22 }}
-                />
-                {config.scene !== "terminal" &&
-                  config.mood === "damaged" &&
-                  config.effects > 0 && (
-                    <div
-                      className="damage-band"
-                      style={{
-                        opacity: config.effects * 0.1,
-                        top: `${20 + (Math.floor(clock.elapsed / 3) % 5) * 13}%`,
-                      }}
-                    />
-                  )}
+                <DisplayOverlays config={config} time={clock.elapsed} />
               </div>
             </div>
             <div className="stage-bottomline">
@@ -350,6 +353,15 @@ export default function App() {
             <span>ART DIRECTION</span>
             <SlidersHorizontal size={14} />
           </div>
+          <SystemProfiles
+            config={config}
+            onChange={setConfig}
+            onLoad={(next) => {
+              reset();
+              setConfig(next);
+              clock.setPlaying(next.scene !== "countdown");
+            }}
+          />
           <section>
             <div className="inspector-section-title">
               <span>01</span> Inhalt
@@ -447,6 +459,42 @@ export default function App() {
               />
             </label>
           </section>
+          <ThemeEditor config={config} onChange={setConfig} />
+          <details className="overlay-settings" open>
+            <summary>Display-Overlays</summary>
+            {Object.entries(config.overlays).map(([key, value]) => (
+              <label key={key}>
+                {
+                  (
+                    {
+                      scanlines: "Scanlines",
+                      glow: "CRT Glow",
+                      grid: "Technikraster",
+                      grain: "Tech Noise / Körnung",
+                      vignette: "Vignette",
+                      glitch: "Signalstörungen",
+                      chromatic: "Chromatische Kanten",
+                    } as Record<string, string>
+                  )[key]
+                }
+                <output>{Math.round(value * 100)}%</output>
+                <input
+                  aria-label={key}
+                  type="range"
+                  min="0"
+                  max="1"
+                  step=".01"
+                  value={value}
+                  onChange={(e) =>
+                    update("overlays", {
+                      ...config.overlays,
+                      [key]: +e.target.value,
+                    })
+                  }
+                />
+              </label>
+            ))}
+          </details>{" "}
           <section>
             <div className="inspector-section-title">
               <span>03</span> Ablauf
@@ -479,41 +527,7 @@ export default function App() {
                     onChange={(e) => update("sequenceScale", +e.target.value)}
                   />
                 </label>
-                <details className="overlay-settings">
-                  <summary>Display-Overlays</summary>
-                  {Object.entries(config.overlays).map(([key, value]) => (
-                    <label key={key}>
-                      {
-                        (
-                          {
-                            scanlines: "Scanlines",
-                            glow: "CRT Glow",
-                            grid: "Technikraster",
-                            grain: "Körnung",
-                            vignette: "Vignette",
-                            glitch: "Signalstörungen",
-                            chromatic: "Chromatische Kanten",
-                          } as Record<string, string>
-                        )[key]
-                      }
-                      <output>{Math.round(value * 100)}%</output>
-                      <input
-                        aria-label={key}
-                        type="range"
-                        min="0"
-                        max="1"
-                        step=".01"
-                        value={value}
-                        onChange={(e) =>
-                          update("overlays", {
-                            ...config.overlays,
-                            [key]: +e.target.value,
-                          })
-                        }
-                      />
-                    </label>
-                  ))}
-                </details>
+
                 <label className="checkbox-label">
                   <input
                     type="checkbox"

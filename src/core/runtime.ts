@@ -18,7 +18,7 @@ export function noise(index: number, seed: number) {
 }
 export function useSceneClock() {
   const [elapsed, setElapsed] = useState(0),
-    [playing, setPlaying] = useState(false);
+    [playing, setPlaying] = useState(true);
   const value = useRef(0);
   useEffect(() => {
     if (!playing) return;
@@ -28,7 +28,7 @@ export function useSceneClock() {
     const tick = (now: number) => {
       value.current += (now - previous) / 1000;
       previous = now;
-      if (now - published >= 32) {
+      if (now - published >= 16) {
         setElapsed(value.current);
         published = now;
       }

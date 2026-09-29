@@ -177,8 +177,8 @@ export function TraceMap({
   seed?: number;
 }) {
   const nodes = Array.from({ length: 20 }, (_, i) => ({
-    x: 35 + noise(i, seed) * 430,
-    y: 35 + noise(i, seed + 1) * 300,
+    x: 35 + noise(i, seed) * 430 + Math.sin(time * 0.6 + i) * 9,
+    y: 35 + noise(i, seed + 1) * 300 + Math.cos(time * 0.45 + i) * 7,
   }));
   return (
     <svg viewBox="0 0 500 370" className="os-trace" aria-hidden="true">
@@ -190,6 +190,30 @@ export function TraceMap({
             opacity={i / 20 < progress ? 0.5 : 0.08}
           />
         ))}
+        {nodes.slice(1).map((p, i) => {
+          const a = nodes[Math.floor(i / 2)],
+            dx = p.x - a.x,
+            dy = p.y - a.y,
+            length = Math.abs(dx) + Math.abs(dy),
+            travel = ((time * (0.4 + (i % 4) * 0.1) + i * 0.17) % 1) * length;
+          const x = travel < Math.abs(dx) ? a.x + Math.sign(dx) * travel : p.x;
+          const y =
+            travel < Math.abs(dx)
+              ? a.y
+              : a.y + Math.sign(dy) * (travel - Math.abs(dx));
+          return (
+            <g key={`packet-${i}`} opacity={i / 20 < progress ? 1 : 0.15}>
+              <circle
+                cx={x}
+                cy={y}
+                r="2.3"
+                fill="var(--os-cyan)"
+                stroke="none"
+              />
+              <circle cx={x} cy={y} r="5" opacity=".25" />
+            </g>
+          );
+        })}
         {nodes.map((p, i) => (
           <g key={i} opacity={i / 20 < progress ? 1 : 0.2}>
             <rect
@@ -207,7 +231,13 @@ export function TraceMap({
               fill="currentColor"
             >{`R${i.toString().padStart(2, "0")}`}</text>
             {i === Math.floor(time) % 20 && (
-              <circle cx={p.x} cy={p.y} r="12" stroke="var(--accent)" />
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r={8 + (time % 1) * 16}
+                opacity={1 - (time % 1)}
+                stroke="var(--accent)"
+              />
             )}
           </g>
         ))}

@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+import { Changed } from "../shared/Process";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, ChevronRight, Square } from "lucide-react";
 import { formatTime, noise } from "../../core/runtime";
@@ -17,6 +19,13 @@ export function SequencePanel({
   onClose: () => void;
 }) {
   const state = sequenceState(sequence, elapsed, multiplier);
+  const list = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = list.current,
+      row = el?.children[state.index] as HTMLElement | undefined;
+    if (el && row)
+      el.scrollTop = Math.max(0, row.offsetTop - el.offsetTop - 70);
+  }, [state.index]);
   const logs = sequence.phases
     .flatMap((p, i) =>
       i < state.index
@@ -50,7 +59,7 @@ export function SequencePanel({
         </button>
       </div>
       <div className="os-sequence-grid">
-        <aside className="os-phase-list">
+        <aside className="os-phase-list" ref={list}>
           {sequence.phases.map((p, i) => (
             <div
               key={p.name}
@@ -105,7 +114,13 @@ export function SequencePanel({
               />
             </motion.div>
           </AnimatePresence>
-          <h3>{state.done ? (sequence.id==='operation'?"Containment exception.":"Sequence verified.") : state.phase.name}</h3>
+          <h3>
+            {state.done
+              ? sequence.id === "operation"
+                ? "Containment exception."
+                : "Sequence verified."
+              : state.phase.name}
+          </h3>
           <p>
             {state.done
               ? "Local result committed to the workspace."
@@ -129,15 +144,17 @@ export function SequencePanel({
             <div className="os-small-meter" key={label}>
               <span>{label}</span>
               <strong>
-                {(state.done
-                  ? 100
-                  : Math.min(
-                      99.9,
-                      72 +
-                        state.progress * 25 +
-                        noise(i + Math.floor(state.elapsed / 3), seed) * 2,
-                    )
-                ).toFixed(1)}
+                <Changed
+                  value={(state.done
+                    ? 100
+                    : Math.min(
+                        99.9,
+                        72 +
+                          state.progress * 25 +
+                          noise(i + Math.floor(state.elapsed / 3), seed) * 2,
+                      )
+                  ).toFixed(1)}
+                />
                 <small>%</small>
               </strong>
               <div>
