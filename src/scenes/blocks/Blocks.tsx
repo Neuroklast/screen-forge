@@ -81,10 +81,19 @@ export function Medical({ config, time, onPlay, onCue }: SceneProps) {
   const patient = assigned ?? createPatient();
   const v = { ...vitalsOf(patient, time, config.seed), ...(assigned?.overrides ?? {}) };
   const alarm = patient.kind === "arrest" || patient.kind === "desat";
+  const options = config.sceneOptions.medical;
+  const prev = vitalsOf(patient, Math.max(0, time - 2), config.seed);
+  const arrow = (now: number, before: number) =>
+    now > before + 1 ? "▲" : now < before - 1 ? "▼" : "▬";
+  const glucose = (5.5 + Math.sin(time / 3 + config.seed) * 1.5).toFixed(1);
+  const lactate = (1.2 + Math.abs(Math.sin(time / 5)) * 1.8).toFixed(1);
   return (
     <div className="block-scene scene-inner">
       <HudFrame label="BIO MONITOR" className="block-frame block-frame-fill">
-        <div className={`bio-monitor ${alarm ? "alarm" : ""}`}>
+        <div
+          className={`bio-monitor ${alarm ? "alarm" : ""}`}
+          data-alarm={alarm && options.alarms ? "on" : "off"}
+        >
           <div className="bio-id">
             <span>{patient.name}</span>
             <b>{patient.kind.toUpperCase()}</b>
@@ -95,11 +104,21 @@ export function Medical({ config, time, onPlay, onCue }: SceneProps) {
           <dl className="bio-grid">
             <div>
               <dt>HR</dt>
-              <dd>{v.hr}</dd>
+              <dd>
+                {v.hr}
+                {options.trends && (
+                  <em className="bio-trend">{arrow(v.hr, prev.hr)}</em>
+                )}
+              </dd>
             </div>
             <div>
               <dt>SPO2</dt>
-              <dd>{v.spo2}</dd>
+              <dd>
+                {v.spo2}
+                {options.trends && (
+                  <em className="bio-trend">{arrow(v.spo2, prev.spo2)}</em>
+                )}
+              </dd>
             </div>
             <div>
               <dt>RR</dt>
@@ -122,6 +141,14 @@ export function Medical({ config, time, onPlay, onCue }: SceneProps) {
             <div>
               <dt>GCS</dt>
               <dd>{v.gcs}</dd>
+            </div>
+            <div>
+              <dt>GLU</dt>
+              <dd>{glucose}</dd>
+            </div>
+            <div>
+              <dt>LAC</dt>
+              <dd>{lactate}</dd>
             </div>
           </dl>
           <button

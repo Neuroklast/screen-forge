@@ -41,6 +41,10 @@ const MODULE_LABELS: Record<ModuleId, string> = {
   slide: "Schieber",
   ordnance: "Sprengkörper",
   beacon: "Bake",
+  clock: "Uhr",
+  rotary: "Drehregler",
+  "code-table": "Codetabelle",
+  "data-sheet": "Datenblatt",
 };
 const FIELD_MODULES: ModuleId[] = [
   "tracking",
@@ -53,6 +57,10 @@ const FIELD_MODULES: ModuleId[] = [
   "comms",
   "ordnance",
   "beacon",
+  "clock",
+  "rotary",
+  "code-table",
+  "data-sheet",
 ];
 const SYSTEM_MODULES: ModuleId[] = ["os", "corporate", "hologram", "slide"];
 

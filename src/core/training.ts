@@ -29,6 +29,10 @@ export const modules = [
   "slide",
   "ordnance",
   "beacon",
+  "clock",
+  "rotary",
+  "code-table",
+  "data-sheet",
 ] as const;
 export const propKinds = [
   "ordnance",
@@ -54,6 +58,9 @@ export const moduleEvents: Record<string, string[]> = {
   ordnance: ["ordnance.stage", "ordnance.disarmed", "ordnance.tampered"],
   beacon: ["beacon.active", "beacon.lost"],
   terminal: ["shell.success", "terminal.bypass"],
+  "data-sheet": ["data.relay"],
+  "code-table": ["code.solved"],
+  rotary: ["rotary.aligned"],
 };
 export const vitalSchema = z.object({
   hr: finite.min(0).max(250),

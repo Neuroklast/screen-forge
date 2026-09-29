@@ -148,7 +148,7 @@ export function CodeTable({ config, cue, onCue }: SceneProps) {
   const message = (options.message || "RELAY").toUpperCase();
   const cipher = message
     .split("")
-    .map((c) => String(c.charCodeAt(0) - 64).padStart(2, "0"))
+    .map((c) => (/[A-Z]/.test(c) ? String(c.charCodeAt(0) - 64).padStart(2, "0") : c))
     .join(" ");
   const [value, setValue] = useState("");
   const [attempts, setAttempts] = useState(0);

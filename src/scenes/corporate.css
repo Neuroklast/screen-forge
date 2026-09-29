@@ -363,3 +363,29 @@
 .thumb-corporate .thumb-visual {
   font-weight: var(--sf-font-weight-700);
 }
+
+.corp-window-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid currentColor;
+  border-bottom: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.corp-window-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.6;
+}
+.corp-window-meta i {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border: 1px solid currentColor;
+}

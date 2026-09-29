@@ -36,6 +36,10 @@ Every module declares:
 | `access` | `"Zugang"` | `code` | `granted`, `denied` | code, auto-relock | player |
 | `lock` | `"Verriegelung"` | — | `locked`, `unlocked` | seal duration | player, hq |
 | `beacon` | `"Bake"` | `beacon` prop | `beacon-active`, `beacon-lost` | signal window, hold time | player |
+| `clock` | `"Uhr"` | — | — | mode, label | player |
+| `rotary` | `"Drehregler"` | — | `rotary.aligned` | dials, targets | player |
+| `code-table` | `"Codetabelle"` | — | `code.solved` | message, group size | player |
+| `data-sheet` | `"Datenblatt"` | — | `data.relay` | schematic, steps, relay text | player |
 | `ordnance` | `"Sprengkörper"` | `ordnance` prop | `stage-passed`, `tampered`, `disarmed` | stages, timer, fictional type | player |
 
 ### Module notes

@@ -17,7 +17,8 @@ Rework every scene and block to the V2 specs: a real operating-system feel (squa
 - Done: V2-8 terminal goal config — `sceneOptions.terminal.steps`/`goal`/`prompt` (editable in the inspector); the CLI uses configured steps when present. V2-6 further: squared window-bar controls with hover/focus, ellipsized window title, `osNotify` on sequence completion.
 - Done: V2-10 countdown — device profiles (transfer/bomb/reactor/custom with label) drive family, telemetry and timer labels; a phase banner shows the current phase with per-phase accent; the inspector gains type, label and (for bombs) the assembly variant.
 - Done: V2-16 new blocks — `clock`, `rotary`, `code-table` and the requested `data-sheet` (schematic + disposal steps to read and relay via comms) in `src/scenes/blocks/Instruments.tsx`; registry, config options and inspector wired. V2-13/V2-15 partial: lock shows the attempt count, slide shows the stage count.
-- Open: V2-6 (full OS chrome), V2-9 (corporate windowed surface), V2-14 (medical values/layout), training modules for the new blocks.
+- Done: V2-9 corporate window bar (OS-like windowed surface) and V2-14 medical (trend arrows, extra values GLU/LAC, configurable alarm pulse). New blocks registered as training modules (`clock`/`rotary`/`code-table`/`data-sheet`) with signal whitelist; the EOD template ships a data-sheet station.
+- Open: V2-6 (full OS chrome; taskbar/start-menu polish).
 
 ## Tasks
 

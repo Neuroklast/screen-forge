@@ -356,3 +356,22 @@
   height: 100%;
   background: var(--accent);
 }
+
+.bio-trend {
+  margin-left: 4px;
+  font-style: normal;
+  color: var(--accent);
+}
+.bio-monitor[data-alarm="on"] {
+  animation: bio-alarm 1s steps(2, end) infinite;
+}
+@keyframes bio-alarm {
+  50% {
+    opacity: 0.72;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bio-monitor[data-alarm="on"] {
+    animation: none;
+  }
+}

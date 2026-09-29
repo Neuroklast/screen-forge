@@ -92,6 +92,16 @@ export function Corporate(props: SceneProps) {
           </div>
         </nav>
         <main className="corp-main">
+          <div className="corp-window-bar">
+            <span>
+              {config.title} / {tab.toUpperCase()}
+            </span>
+            <span className="corp-window-meta">
+              FACILITY 07
+              <i />
+              <i />
+            </span>
+          </div>
           <div className="section-heading">
             <div>
               <div className="micro">FACILITY 07 / {tab.toUpperCase()}</div>

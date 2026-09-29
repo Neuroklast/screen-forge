@@ -58,6 +58,7 @@ export const missionTemplates: MissionTemplate[] = [
           bindings: { patient: "", prop: "ordnance-1", objective: "" },
         },
         { id: "term-1", name: "Wartungsterminal", role: "element", module: "terminal" },
+        { id: "data-1", name: "Datenblatt", role: "element", module: "data-sheet" },
         { id: "cam-1", name: "Kamera 01", role: "element", module: "camera" },
       ],
       props: [
