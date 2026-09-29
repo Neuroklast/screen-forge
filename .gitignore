@@ -7,3 +7,7 @@ playwright-report/
 screen-forge/
 
 .exercise-data/
+
+# Local media masters and served example media (packaging decision: plan task X2)
+secret data/
+public/media/
