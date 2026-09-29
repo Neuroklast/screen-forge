@@ -1117,6 +1117,39 @@ export default function App() {
               {config.scene === "data-sheet" && (
                 <>
                   <label>
+                    Hürde
+                    <select
+                      aria-label="Hürde"
+                      value={config.sceneOptions.dataSheet.subject}
+                      onChange={(e) =>
+                        updateSceneOptions("dataSheet", {
+                          subject: e.target
+                            .value as Config["sceneOptions"]["dataSheet"]["subject"],
+                        })
+                      }
+                    >
+                      <option value="countdown">Countdown / Sprengkörper</option>
+                      <option value="terminal">Terminal / Hacken</option>
+                      <option value="access">Zugang / Verriegelung</option>
+                      <option value="custom">Eigenes</option>
+                    </select>
+                  </label>
+                  <label>
+                    Suchbegriffe (Komma)
+                    <input
+                      value={config.sceneOptions.dataSheet.search.join(", ")}
+                      maxLength={120}
+                      onChange={(e) =>
+                        updateSceneOptions("dataSheet", {
+                          search: e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        })
+                      }
+                    />
+                  </label>
+                  <label>
                     Titel
                     <input
                       value={config.sceneOptions.dataSheet.title}

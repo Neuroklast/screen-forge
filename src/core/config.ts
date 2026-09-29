@@ -97,8 +97,16 @@ export function sceneOptionsDefaults() {
     rotary: { dials: 3 },
     codeTable: { groupSize: 4, message: "RELAY" },
     dataSheet: {
-      title: "SPRENGKÖRPER / DATENBLATT",
+      subject: "countdown" as const,
+      title: "",
       image: "",
+      search: [] as string[],
+      archive: [] as {
+        code: string;
+        name: string;
+        body: string;
+        correct: boolean;
+      }[],
       lines: [] as string[],
       steps: [] as string[],
       relayText: "",
@@ -199,8 +207,23 @@ export const sceneOptionsSchema = z.object({
     .default(() => sceneOptionsDefaults().codeTable),
   dataSheet: z
     .object({
-      title: z.string().max(60).default("SPRENGKÖRPER / DATENBLATT"),
+      subject: z
+        .enum(["countdown", "terminal", "access", "custom"])
+        .default("countdown"),
+      title: z.string().max(60).default(""),
       image: z.string().max(200).default(""),
+      search: z.array(z.string().max(40)).max(8).default([]),
+      archive: z
+        .array(
+          z.object({
+            code: z.string().max(20),
+            name: z.string().max(80),
+            body: z.string().max(240).default(""),
+            correct: z.boolean().default(false),
+          }),
+        )
+        .max(24)
+        .default([]),
       lines: z.array(z.string().max(120)).max(24).default([]),
       steps: z.array(z.string().max(160)).max(24).default([]),
       relayText: z.string().max(200).default(""),

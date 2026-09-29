@@ -55,7 +55,12 @@ export function Clock({ config, time, cue, onCue }: SceneProps) {
             {[0, 1, 2, 3].map((i) => {
               const at = config.duration * (0.15 + i * 0.2);
               return (
-                <li key={i} className={time >= at ? "is-past" : time >= at - 30 ? "is-now" : ""}>
+                <li
+                  key={i}
+                  className={
+                    time >= at ? "is-past" : time >= at - 30 ? "is-now" : ""
+                  }
+                >
                   <span>T+{formatTime(at)}</span>
                   <b>Entry {i + 1}</b>
                 </li>
@@ -85,7 +90,9 @@ export function Rotary({ config, cue, onCue }: SceneProps) {
   const [values, setValues] = useState(() => targets.map(() => 15));
   const aligned = values.every((v, i) => Math.abs(v - targets[i]) <= 2);
   const set = (i: number, n: number) =>
-    setValues((v) => v.map((x, j) => (j === i ? Math.max(0, Math.min(100, n)) : x)));
+    setValues((v) =>
+      v.map((x, j) => (j === i ? Math.max(0, Math.min(100, n)) : x)),
+    );
   const confirm = () => {
     if (aligned) {
       playSound("load");
@@ -148,7 +155,9 @@ export function CodeTable({ config, cue, onCue }: SceneProps) {
   const message = (options.message || "RELAY").toUpperCase();
   const cipher = message
     .split("")
-    .map((c) => (/[A-Z]/.test(c) ? String(c.charCodeAt(0) - 64).padStart(2, "0") : c))
+    .map((c) =>
+      /[A-Z]/.test(c) ? String(c.charCodeAt(0) - 64).padStart(2, "0") : c,
+    )
     .join(" ");
   const [value, setValue] = useState("");
   const [attempts, setAttempts] = useState(0);
@@ -201,26 +210,144 @@ export function CodeTable({ config, cue, onCue }: SceneProps) {
   );
 }
 
-const DEFAULT_LINES = [
-  "CONTAINMENT-BAUGRUPPE / SERIES 09",
-  "STATUS: SCHARF",
-  "BAUTEIL A: INNENRING",
-  "BAUTEIL B: AUSSENRING",
-  "HINWEIS: FIKTIVES GERÄT",
-];
-const DEFAULT_STEPS = [
-  "Gehäuse entriegeln",
-  "Innenring auf Referenz ausrichten",
-  "Umgehung am Wartungsport setzen",
-  "Baugruppe entschärfen",
-];
+type SheetEntry = {
+  code: string;
+  name: string;
+  body: string;
+  correct: boolean;
+};
+type SheetSubject = {
+  title: string;
+  search: string[];
+  archive: SheetEntry[];
+  lines: string[];
+  steps: string[];
+  relayText: string;
+};
+
+// Fictional datasheets per hurdle. The operator must search the archive and
+// open the correct entry before the procedure is revealed.
+const SUBJECT_DEFAULTS: Record<string, SheetSubject> = {
+  countdown: {
+    title: "SEQUENCE CONTROL / DATASHEET 09-C",
+    search: ["containment", "09-04", "bypass"],
+    archive: [
+      {
+        code: "ARC-07-01",
+        name: "Coolant loop A",
+        body: "Nominal 4.20 K / loop A only. Contains no bypass path.",
+        correct: false,
+      },
+      {
+        code: "ARC-09-04",
+        name: "Containment bypass",
+        body: "Bypass order and phase tolerances. Revision 09-C.",
+        correct: true,
+      },
+      {
+        code: "ARC-12-02",
+        name: "Firmware notes",
+        body: "Diagnostic tier 04. Superseded by 09-C.",
+        correct: false,
+      },
+    ],
+    lines: [
+      "B_FIELD_AXIAL 0.240 T ±0.004",
+      "CRYO_TEMP_LHE 4.20 K ±0.05",
+      "CHAMBER_VACUUM 3.1e-8 Torr max",
+      "PHASE A/B/C REF 25–75 %",
+      "CROSS-REF ARC-09-04 / TIER 04",
+    ],
+    steps: [
+      "Diagnostics: CHANNEL SCAN abwarten (8 s)",
+      "Shunt-Code A7F3 eingeben",
+      "Phase A/B/C auf Referenz trimmen (±2)",
+      "HOLD 3 s — Restore containment",
+    ],
+    relayText: "Bypass-Reihenfolge und Toleranzen per Funk durchgeben.",
+  },
+  terminal: {
+    title: "BLACKLINE / AUTH RECOVERY DATASHEET",
+    search: ["auth", "token", "07"],
+    archive: [
+      {
+        code: "NET-02",
+        name: "Port map",
+        body: "Three open ports. No credential path.",
+        correct: false,
+      },
+      {
+        code: "AUTH-07",
+        name: "Legacy token",
+        body: "Maintenance token 07-RELAY, auth service v2.1.",
+        correct: true,
+      },
+      {
+        code: "LOG-11",
+        name: "Session notes",
+        body: "Guest session only. Superseded by AUTH-07.",
+        correct: false,
+      },
+    ],
+    lines: [
+      "SERVICE auth v2.1",
+      "TOKEN 07-RELAY (maintenance)",
+      "CMD login --token 07-RELAY",
+      "CROSS-REF AUTH-07",
+    ],
+    steps: [
+      "status — Link prüfen",
+      "scan --local — Ports erfassen",
+      "inspect auth — Schwachstelle bestätigen",
+      "login --token 07-RELAY — Session anheben",
+    ],
+    relayText: "Token und Befehlsfolge per Funk durchgeben.",
+  },
+  access: {
+    title: "DOOR 02 / INTERLOCK DATASHEET",
+    search: ["override", "failsafe", "acs"],
+    archive: [
+      {
+        code: "ACS-01",
+        name: "Bolt current",
+        body: "Ramp 0–100 % over 2 s. No release path.",
+        correct: false,
+      },
+      {
+        code: "ACS-02",
+        name: "Failsafe override",
+        body: "Override order and relock delay. Revision ACS-02.",
+        correct: true,
+      },
+    ],
+    lines: ["HOLD 2.0 s for unlatch", "RE-LOCK delay 30 s", "CROSS-REF ACS-02"],
+    steps: ["Zugangscode eingeben", "HOLD to unlatch", "Verriegelung prüfen"],
+    relayText: "Override-Reihenfolge per Funk durchgeben.",
+  },
+};
 
 export function DataSheet({ config, cue, onCue }: SceneProps) {
   const options = config.sceneOptions.dataSheet;
-  const lines = options.lines.length ? options.lines : DEFAULT_LINES;
-  const steps = options.steps.length ? options.steps : DEFAULT_STEPS;
+  const base = SUBJECT_DEFAULTS[options.subject] ?? SUBJECT_DEFAULTS.countdown;
+  const title = options.title || base.title;
+  const hints = options.search.length ? options.search : base.search;
+  const archive = options.archive.length ? options.archive : base.archive;
+  const lines = options.lines.length ? options.lines : base.lines;
+  const steps = options.steps.length ? options.steps : base.steps;
+  const relayText = options.relayText || base.relayText;
+  const [query, setQuery] = useState("");
+  const [tries, setTries] = useState(0);
+  const [opened, setOpened] = useState<SheetEntry | null>(null);
   const [read, setRead] = useState<boolean[]>(() => steps.map(() => false));
-  const allRead = read.every(Boolean);
+  const found = opened?.correct === true;
+  const results = query.trim()
+    ? archive.filter((e) =>
+        `${e.code} ${e.name} ${e.body}`
+          .toLowerCase()
+          .includes(query.trim().toLowerCase()),
+      )
+    : [];
+  const allRead = found && read.every(Boolean);
   const relay = () => {
     if (!allRead) return;
     playSound("load");
@@ -231,53 +358,121 @@ export function DataSheet({ config, cue, onCue }: SceneProps) {
     <div className="instrument scene-inner">
       <HudFrame label="DATA SHEET" className="instrument-frame">
         <header className="instrument-head">
-          <span>{options.title}</span>
-          <b>{allRead ? "READY TO RELAY" : "READ"}</b>
+          <span>{title}</span>
+          <b>{found ? (allRead ? "READY TO RELAY" : "OPEN") : "ARCHIVE LOCKED"}</b>
         </header>
-        <div className="sheet-layout">
-          <figure className="sheet-figure">
-            {options.image ? (
-              <img src={options.image} alt="Schema" />
-            ) : (
-              <svg viewBox="0 0 200 140" aria-label="Schema (fiktiv)">
-                <rect x="20" y="20" width="160" height="100" fill="none" stroke="currentColor" />
-                <circle cx="100" cy="70" r="34" fill="none" stroke="currentColor" />
-                <circle cx="100" cy="70" r="20" fill="none" stroke="var(--accent)" />
-                <path d="M60 40H140M60 100H140" stroke="currentColor" />
-                <text x="100" y="134" textAnchor="middle" fontSize="8" fill="currentColor">
-                  SCHEMATIC / FIKTIV
-                </text>
-              </svg>
+
+        {!found && (
+          <>
+            <p className="sheet-locked">
+              Kein Datenblatt geladen. Akte im Archiv suchen und die passende
+              Revision öffnen.
+            </p>
+            <form
+              className="sheet-search"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!results.length) setTries((n) => n + 1);
+                playSound("click");
+              }}
+            >
+              <input
+                aria-label="Archivsuche"
+                value={query}
+                placeholder="SUCHBEGRIFF"
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <button className="scene-button" type="submit">
+                SEARCH ARCHIVE
+              </button>
+            </form>
+            {tries > 0 && (
+              <p className="sheet-hint">
+                Hinweis: Revision oder Bauteil eingrenzen — z. B. {hints[0]}.
+              </p>
             )}
-          </figure>
-          <div className="sheet-body">
-            <ul className="sheet-lines">
-              {lines.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-            <ol className="sheet-steps">
-              {steps.map((step, i) => (
-                <li key={step} className={read[i] ? "is-read" : ""}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={read[i]}
-                      onChange={(e) => {
-                        playSound("click");
-                        setRead((v) => v.map((x, j) => (j === i ? e.target.checked : x)));
-                      }}
-                    />
-                    {step}
-                  </label>
+            <ul className="sheet-results">
+              {results.map((e) => (
+                <li key={e.code}>
+                  <button
+                    className={`sheet-result ${opened?.code === e.code ? "is-open" : ""}`}
+                    onClick={() => {
+                      playSound("openFolder");
+                      setOpened(e);
+                      setRead(steps.map(() => false));
+                    }}
+                  >
+                    <span>{e.code}</span>
+                    <b>{e.name}</b>
+                    <small>{opened?.code === e.code ? e.body : "öffnen"}</small>
+                  </button>
                 </li>
               ))}
-            </ol>
+              {query && !results.length && (
+                <li className="sheet-empty">Keine Akte zu „{query}“ gefunden.</li>
+              )}
+            </ul>
+            {opened && !opened.correct && (
+              <p className="sheet-hint">
+                Diese Akte enthält keinen Entschärfungsweg.
+              </p>
+            )}
+          </>
+        )}
+
+        {found && (
+          <div className="sheet-layout">
+            <figure className="sheet-figure">
+              {options.image ? (
+                <img src={options.image} alt="Schema" />
+              ) : (
+                <svg viewBox="0 0 200 140" aria-label="Schema (fiktiv)">
+                  <rect x="20" y="20" width="160" height="100" fill="none" stroke="currentColor" />
+                  <circle cx="100" cy="70" r="34" fill="none" stroke="currentColor" />
+                  <circle cx="100" cy="70" r="20" fill="none" stroke="var(--accent)" />
+                  <path d="M60 40H140M60 100H140" stroke="currentColor" />
+                  <text x="100" y="134" textAnchor="middle" fontSize="8" fill="currentColor">
+                    {opened?.code} / FIKTIV
+                  </text>
+                </svg>
+              )}
+            </figure>
+            <div className="sheet-body">
+              <ul className="sheet-lines">
+                {lines.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+              <ol className="sheet-steps">
+                {steps.map((step, i) => (
+                  <li key={step} className={read[i] ? "is-read" : ""}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={read[i]}
+                        onChange={(e) => {
+                          playSound("click");
+                          setRead((v) =>
+                            v.map((x, j) => (j === i ? e.target.checked : x)),
+                          );
+                        }}
+                      />
+                      {step}
+                    </label>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
-        </div>
+        )}
+
         <div className="sheet-relay">
-          <span>{options.relayText || "Daten an Funk weitergeben."}</span>
-          <button className="scene-button" disabled={!allRead || cue === "complete"} onClick={relay}>
+          <span>{relayText}</span>
+          <button
+            className="scene-button"
+            disabled={!allRead || cue === "complete"}
+            onClick={relay}
+          >
             RELAY VIA COMMS
           </button>
         </div>

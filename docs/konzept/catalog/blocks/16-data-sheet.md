@@ -1,75 +1,72 @@
 # Catalog — Block: Data Sheet (Datenblatt)
 
 > ScreenForge concept set · Catalog · Target block (Soll, new) · Language: EN, UI labels DE
-> Scene id `data-sheet` · Code: `src/scenes/blocks/Instruments.tsx` (`DataSheet`) · Film block first, training module later
+> Scene id `data-sheet` · Code: `src/scenes/blocks/Instruments.tsx` (`DataSheet`) · Film + training module
 > Related: [11-comms.md](11-comms.md) · [../../scenarios/06-eod-disposal.md](../../scenarios/06-eod-disposal.md)
 
 ## Purpose
 
-A technical data sheet for a fictional ordnance device: schematic plus key data and an ordered disposal procedure. The operator reads the sheet, ticks each step, and **relays the procedure to the other person via comms**. This creates a read-and-report loop between two players.
+A **hurdle-bound** technical data sheet: the solution document for the active challenge (disarming the countdown device, bypassing a login, overriding an interlock). It is **not handed to the operator**: the sheet must first be **found in an archive** (search → results → open the correct revision, with decoys), then read and **relayed via comms**. Complex and authentic, never a simple label.
 
 ## Look & feel
 
 | Rule | Detail |
 | --- | --- |
-| Squared | 1 px frame, no rounded corners |
-| Dense | Monospace data lines, compact step list |
-| Schematic | Media image if configured, otherwise an inline fictional schematic (never a broken image) |
-| Fictional | Labels are abstract; no real wiring, chemistry or procedure detail |
-
-## Component tree
-
-- `HudFrame` `DATA SHEET` → header (title + read state), two columns:
-  - left: schematic figure (`sceneOptions.dataSheet.image` or inline SVG),
-  - right: data lines (`lines`) and ordered steps (`steps`) with checkboxes.
-- Footer: relay text (`relayText`) + `RELAY VIA COMMS` button.
+| Squared, dense | 1 px frame, monospace, no rounded corners |
+| Archive first | Locked state until the correct revision is opened |
+| Authentic | Data lines carry tolerances and cross-references; decoy revisions exist |
+| Fictional | Abstract labels only; no real wiring, chemistry or procedure detail |
 
 ## Behaviour
 
-| Step | Result |
+| Phase | Result |
 | --- | --- |
-| Read | Data lines and steps are visible; checkboxes start unchecked |
-| Tick | Each step can be marked read; the header shows the read state |
-| Relay | Enabled once all steps are read; emits `data.relay`, cue `complete`, `load` sound |
-| Reset | Scene reset clears the read marks |
+| Locked | `ARCHIVE LOCKED`; a search field is shown |
+| Search | Substring match over archive code, name and body |
+| Open | Opening the **correct** revision reveals schematic, data lines and steps; a decoy shows its body only |
+| Read | Each step is ticked; the header shows the read state |
+| Relay | Enabled once all steps are read; emits `data.relay`, cue `complete` |
+| Hint | After a failed search, one hint term is offered |
+| Reset | Returns to the locked archive state |
 
-- The schematic never grows the frame: fixed aspect, `object-fit: contain` for images.
-- The step list is capped and scroll-free (layout contracts, [../../usability/09-layout-contracts.md](../../usability/09-layout-contracts.md)).
+- The operator reads the procedure and relays it to the second player through the comms block — the read-and-report loop.
 
 ## Config (`sceneOptions.dataSheet`)
 
 | Option | Meaning |
 | --- | --- |
-| `title` | Header title |
-| `image` | Optional media URL (packaged asset); empty = inline schematic |
-| `lines` | Key data lines |
-| `steps` | Ordered disposal steps |
+| `subject` | Hurdle the sheet solves: `countdown` / `terminal` / `access` / `custom` |
+| `search` | Hint terms offered after a failed search |
+| `archive` | Archive entries `{ code, name, body, correct }` — one correct revision, decoys allowed |
+| `lines` | Data lines (tolerances, cross-references) |
+| `steps` | Ordered procedure steps |
 | `relayText` | Prompt shown before relaying |
+| `image` | Optional schematic image; empty = inline fictional schematic |
 
-Defaults ship a fictional `Containment-Baugruppe / Series 09` sheet with five data lines and four steps.
+Defaults ship per-subject fictional datasheets (countdown `09-C`, terminal `AUTH-07`, access `ACS-02`).
 
 ## Film & training use
 
-- Film: a readable prop in EOD scenes; the actor ticks steps and reads the procedure aloud.
-- Training: pairs with the comms block so the reader relays to the operator; completion emits `data.relay` for injects/objectives (module support in a later increment).
+- Film: a search-and-read prop; the actor finds the sheet and reads the procedure on camera.
+- Training: the reader relays to the operator via comms; completion emits `data.relay` for injects/objectives.
 
 ## Target state (Soll)
 
-- MUST show a schematic (image or inline) and the ordered steps without any real ordnance detail.
-- MUST require all steps read before relaying.
-- SHOULD pair with the comms block (the relay text becomes a canned message).
-- MAY add a per-step "relayed" marker for two-player exercises.
+- MUST require finding the correct revision before the procedure is revealed.
+- MUST pair the sheet with a hurdle (subject) and keep content fictional and abstract.
+- SHOULD include at least one decoy revision and tolerance/cross-reference data for authenticity.
+- MAY add a per-step "relayed" marker and a direct hand-off into the comms block.
 
 ## Edge cases
 
-- Missing image: inline schematic renders; no broken image, no layout shift.
-- Empty steps: inspector warning; the relay button stays disabled.
-- Very long lines: truncated with ellipsis, never wrapping the frame.
-- Reset: all read marks clear.
+- No matching result: explicit empty state, hint after the first attempt.
+- Decoy opened: shows its body and a note that it contains no solution.
+- Empty archive/steps: inspector warning; relay stays disabled.
+- Reset: locked archive state restored.
 
 ## Acceptance criteria
 
-- [ ] Given the default sheet, the schematic and steps render squared and dense.
-- [ ] Given not all steps are read, the relay button is disabled.
+- [ ] Given the locked sheet, searching and opening the correct revision reveals the steps.
+- [ ] Given a decoy revision, no steps are revealed.
 - [ ] Given all steps read, relaying emits `data.relay` once and sets `complete`.
-- [ ] Given a missing image, the inline schematic renders without layout shift.
+- [ ] Given the default subject, content is fictional and carries tolerances/cross-references.
