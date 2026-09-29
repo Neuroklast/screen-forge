@@ -5,7 +5,14 @@ import { CyberOS } from "./os/CyberOS";
 
 import type { Config } from "../core/config";
 import { noise, type Cue } from "../core/runtime";
-import { Access, Camera, Comms, Lock, Medical } from "./blocks/Blocks";
+import {
+  Access,
+  Camera,
+  Comms,
+  Lock,
+  Medical,
+  Slide,
+} from "./blocks/Blocks";
 
 export type SceneProps = {
   config: Config;
@@ -112,4 +119,5 @@ export const sceneComponents = {
   medical: Medical,
   camera: Camera,
   comms: Comms,
+  slide: Slide,
 };

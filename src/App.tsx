@@ -23,6 +23,7 @@ import {
   schema,
   type Config,
   type SceneId,
+  keepLook,
   withScene,
 } from "./core/config";
 import { formatTime, useSceneClock, type Cue } from "./core/runtime";
@@ -31,17 +32,34 @@ import { TokenEditor } from "./components/TokenEditor";
 import { CodePad } from "./components/CodePad";
 import { MediaManager } from "./components/MediaManager";
 import { SequenceEditor } from "./components/SequenceEditor";
-import { loadShow, nextStep, triggerMatches, type Step } from "./core/director";
+import {
+  failStep,
+  loadShow,
+  nextStep,
+  triggerMatches,
+  type Step,
+} from "./core/director";
+import {
+  appendTake,
+  downloadTakeLog,
+  type TakeEvent,
+} from "./core/takeLog";
 import { SystemProfiles } from "./components/SystemProfiles";
 import { ThemeEditor } from "./components/ThemeEditor";
 import { DisplayOverlays } from "./scenes/os/Overlays";
 import { sceneComponents } from "./scenes/Scenes";
+import { stageFormats, stageOf, stageOrient, stageRecipe } from "./core/stage";
+import { onAccent } from "./core/contrast";
 export default function App() {
   const [config, setConfig] = useState<Config>(loadConfig),
     [cue, setCue] = useState<Cue>("idle"),
     [take, setTake] = useState(1),
     [settings, setSettings] = useState(false),
-    [clean, setClean] = useState(false),
+    [clean, setClean] = useState(
+      () =>
+        typeof location !== "undefined" &&
+        new URLSearchParams(location.search).has("kiosk"),
+    ),
     [notice, setNotice] = useState(""),
     [timelineEnd, setTimelineEnd] = useState(0);
   const [configTab, setConfigTab] = useState("content"),
@@ -49,16 +67,23 @@ export default function App() {
     [unlocked, setUnlocked] = useState(false);
   const [show, setShow] = useState(loadShow),
     [running, setRunning] = useState<string | null>(null);
+  const [takeLog, setTakeLog] = useState<TakeEvent[]>([]);
+  const [kioskPin, setKioskPin] = useState("");
+  const kiosk =
+    typeof location !== "undefined" &&
+    new URLSearchParams(location.search).has("kiosk");
   const clock = useSceneClock();
+  const training = config.workspace === "training";
   const applyStep = (step: Step) => {
-    setConfig({
-      ...step.config,
+    setUnlocked(false);
+    setConfig((c) => ({
+      ...keepLook(c, step.config),
       pinEnabled: step.trigger === "pin" || step.config.pinEnabled,
-        pin:
-          step.trigger === "pin" && /^[A-Za-z0-9]{4,8}$/.test(step.value)
-            ? step.value
-            : step.config.pin,
-    });
+      pin:
+        step.trigger === "pin" && /^[A-Za-z0-9]{4,8}$/.test(step.value)
+          ? step.value
+          : step.config.pin,
+    }));
     setCue(step.cue);
     setTake((n) => n + 1);
     clock.seek(0);
@@ -66,9 +91,28 @@ export default function App() {
     setRunning(step.id);
     clock.setPlaying(true);
   };
+  const noteTake = (kind: TakeEvent["kind"], gate: string) => {
+    if (!training) return;
+    setTakeLog((log) =>
+      appendTake(log, { at: clock.elapsed, kind, gate }),
+    );
+  };
   const advanceShow = () => {
     if (!running) return;
+    const step = show.steps.find((s) => s.id === running);
+    noteTake("ok", step?.value || step?.name || running);
     const next = nextStep(show, running);
+    if (next) applyStep(next);
+    else {
+      setRunning(null);
+      clock.setPlaying(false);
+    }
+  };
+  const failShow = () => {
+    if (!running) return;
+    const step = show.steps.find((s) => s.id === running);
+    noteTake("fail", step?.value || step?.name || running);
+    const next = failStep(show, running);
     if (next) applyStep(next);
     else {
       setRunning(null);
@@ -89,7 +133,22 @@ export default function App() {
     if (!running || !clock.playing) return;
     const step = show.steps.find((s) => s.id === running);
     if (step && triggerMatches(step, clock.elapsed)) advanceShow();
-  }, [clock.elapsed, clock.playing, running, show]);
+    if (
+      training &&
+      step &&
+      step.timeout > 0 &&
+      clock.elapsed >= step.timeout &&
+      step.trigger !== "time"
+    ) {
+      noteTake("timeout", step.value || step.name);
+      const next = failStep(show, running);
+      if (next) applyStep(next);
+      else {
+        setRunning(null);
+        clock.setPlaying(false);
+      }
+    }
+  }, [clock.elapsed, clock.playing, running, show, training]);
   useEffect(() => {
     const input = (e: Event) => {
       const detail = (e as CustomEvent<{ type: string; value: string }>).detail;
@@ -118,7 +177,7 @@ export default function App() {
   }, [running, show, clock.playing, settings, clock.elapsed]);
   const stage = useRef<HTMLDivElement>(null),
     upload = useRef<HTMLInputElement>(null);
-  const [size, setSize] = useState({ width: 1280, height: 760 });
+  const [size, setSize] = useState({ width: 1280, height: 720 });
   const selected = scenes.find((x) => x.id === config.scene)!;
   const Scene = sceneComponents[config.scene];
   const update = <K extends keyof Config>(key: K, value: Config[K]) =>
@@ -155,8 +214,10 @@ export default function App() {
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setClean(false);
-        setSettings(false);
+        if (!kiosk) {
+          setClean(false);
+          setSettings(false);
+        }
         return;
       }
       const target = e.target as HTMLElement;
@@ -171,7 +232,7 @@ export default function App() {
         clock.setPlaying((p) => !p);
       }
       if (e.key.toLowerCase() === "r") reset();
-      if (e.key.toLowerCase() === "h") setClean((p) => !p);
+      if (e.key.toLowerCase() === "h" && !kiosk) setClean((p) => !p);
     };
     window.addEventListener("keydown", handle);
     return () => window.removeEventListener("keydown", handle);
@@ -218,14 +279,18 @@ export default function App() {
   };
   const palette = config.palette ?? scenePalette(config.scene);
   const timelineMax = Math.max(config.duration, timelineEnd);
-  const scale = Math.min(size.width / 1280, size.height / 760);
+  const stageFmt = stageOf(config.format);
+  const scale = Math.min(
+    size.width / stageFmt.width,
+    size.height / stageFmt.height,
+  );
   return (
     <MotionConfig
       reducedMotion="user"
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
     >
       <div
-        className={`studio director-${directorTab} ${clean ? "is-clean" : ""} ${!settings ? "settings-hidden" : ""}`}
+        className={`studio director-${directorTab} workspace-${config.workspace} ${clean ? "is-clean" : ""} ${!settings ? "settings-hidden" : ""} ${kiosk ? "is-kiosk" : ""}`}
       >
         <header className="studio-header">
           <a className="wordmark" href="#" onClick={(e) => e.preventDefault()}>
@@ -256,9 +321,24 @@ export default function App() {
               Konfiguration
             </button>
           </nav>
+          <nav className="workspace-switch" aria-label="Arbeitsmodus">
+            <button
+              className={config.workspace === "film" ? "active" : ""}
+              onClick={() => update("workspace", "film")}
+            >
+              Film
+            </button>
+            <button
+              className={training ? "active" : ""}
+              onClick={() => update("workspace", "training")}
+            >
+              Training
+            </button>
+          </nav>
           <div className="project-label">
             <span className="tiny-dot" />
-            LOCAL WORKSPACE <span className="version">V.01</span>
+            {training ? "TRAINING" : "FILM / TV"}{" "}
+            <span className="version">V.01</span>
           </div>
           <button className="primary-button" onClick={fullscreen}>
             <Monitor size={15} /> Bühne starten <ArrowUpRight size={15} />
@@ -317,14 +397,25 @@ export default function App() {
                 <span className="tiny-dot" />
                 {clock.playing ? "PLAYING" : "STANDBY"}
               </span>
-              <span>LIVE PREVIEW / 1280 × 760</span>
+              <span>
+                LIVE PREVIEW / {stageFmt.width} × {stageFmt.height}
+              </span>
               <button onClick={fullscreen} aria-label="Vollbild">
                 <Maximize size={14} />
               </button>
             </div>
-            <div className="stage" ref={stage}>
+            <div
+              className="stage"
+              ref={stage}
+              style={{ aspectRatio: `${stageFmt.width} / ${stageFmt.height}` }}
+            >
               <div
                 className={`scene-canvas family-${config.scene} skin-${config.skin} mood-${config.mood} density-${config.density}${config.overlays.glow < 0.08 && config.overlays.chromatic < 0.08 ? " is-flat" : ""}`}
+                data-orient={stageOrient(config.format)}
+                data-recipe={stageRecipe(config.format)}
+                data-format={config.format}
+                data-frame={config.frame.style}
+                data-workspace={config.workspace}
                 style={
                   {
                     ...config.tokens,
@@ -338,10 +429,11 @@ export default function App() {
                       gridtile: "Gridtile",
                       binary: "codiceBinario",
                     }[config.font],
-                    width: 1280,
-                    height: 760,
+                    width: stageFmt.width,
+                    height: stageFmt.height,
                     transform: `translate(-50%, -50%) scale(${scale})`,
                     "--accent": config.accent,
+                    "--on-accent": onAccent(config.accent),
                     "--theme-bg": palette.background,
                     "--theme-surface": palette.surface,
                     "--theme-text": palette.text,
@@ -384,6 +476,9 @@ export default function App() {
                   />
                 )}
                 <DisplayOverlays config={config} time={clock.elapsed} />
+                {training && config.exerciseMark && (
+                  <div className="exercise-mark">UNCLASSIFIED // EXERCISE</div>
+                )}
               </div>
             </div>
             <div className="stage-bottomline">
@@ -608,6 +703,39 @@ export default function App() {
                 </div>
               </label>
               <label>
+                Bühnenformat
+                <select
+                  aria-label="Bühnenformat"
+                  value={config.format}
+                  onChange={(e) =>
+                    update("format", e.target.value as Config["format"])
+                  }
+                >
+                  {stageFormats.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name} · {f.width}×{f.height}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Elementrahmen
+                <select
+                  aria-label="Elementrahmen"
+                  value={config.frame.style}
+                  onChange={(e) =>
+                    update("frame", {
+                      ...config.frame,
+                      style: e.target.value as Config["frame"]["style"],
+                    })
+                  }
+                >
+                  <option value="hud">HUD</option>
+                  <option value="plate">Platte</option>
+                  <option value="none">Ohne</option>
+                </select>
+              </label>
+              <label>
                 Informationsdichte
                 <select
                   value={config.density}
@@ -746,6 +874,43 @@ export default function App() {
               <div className="inspector-section-title">
                 <span>03</span> Ablauf
               </div>
+              {training && (
+                <>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={config.exerciseMark}
+                      onChange={(e) =>
+                        update("exerciseMark", e.target.checked)
+                      }
+                    />{" "}
+                    EXERCISE-Kennung auf der Bühne
+                  </label>
+                  <label>
+                    Instructor-PIN
+                    <input
+                      aria-label="Instructor-PIN"
+                      defaultValue={config.instructorPin}
+                      maxLength={8}
+                      onBlur={(e) => {
+                        const v = e.target.value;
+                        if (/^[A-Za-z0-9]{4,8}$/.test(v))
+                          update("instructorPin", v);
+                      }}
+                    />
+                  </label>
+                  <p className="inspector-hint">
+                    Kiosk: gleiche URL mit ?kiosk=1. Studio nur mit Instructor-PIN.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => downloadTakeLog(show.name, takeLog)}
+                    disabled={!takeLog.length}
+                  >
+                    Take-Log exportieren ({takeLog.length})
+                  </button>
+                </>
+              )}
               {config.scene === "countdown" && (
                 <label>
                   Gerätetyp
@@ -803,6 +968,21 @@ export default function App() {
                     Vorbereitetes Tippen
                   </label>
                   <label>
+                    Befehle bis Erfolg
+                    <input
+                      aria-label="Befehle bis Erfolg"
+                      type="number"
+                      min={1}
+                      max={40}
+                      value={config.commandsUntilSuccess}
+                      onChange={(e) => {
+                        const n = Number(e.target.value);
+                        if (Number.isInteger(n) && n >= 1 && n <= 40)
+                          update("commandsUntilSuccess", n);
+                      }}
+                    />
+                  </label>
+                  <label>
                     Vorbereiteter Befehl
                     <textarea
                       value={config.script}
@@ -844,7 +1024,12 @@ export default function App() {
               className="reset-design"
               onClick={() => {
                 reset();
-                setConfig(defaults(config.scene));
+                setConfig({
+                  ...defaults(config.scene),
+                  workspace: config.workspace,
+                  instructorPin: config.instructorPin,
+                  exerciseMark: config.exerciseMark,
+                });
                 clock.setPlaying(config.scene !== "countdown");
               }}
             >
@@ -852,15 +1037,35 @@ export default function App() {
             </button>
           </div>
         </aside>
-        {clean && (
-          <button
-            className="exit-stage"
-            onClick={exitClean}
-            aria-label="Bühne verlassen"
-          >
-            <X size={16} /> Studio
-          </button>
-        )}
+        {clean &&
+          (kiosk ? (
+            <form
+              className="exit-stage kiosk-gate"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (kioskPin === config.instructorPin) {
+                  setClean(false);
+                  setKioskPin("");
+                }
+              }}
+            >
+              <input
+                aria-label="Instructor-PIN"
+                value={kioskPin}
+                maxLength={8}
+                placeholder="PIN"
+                onChange={(e) => setKioskPin(e.target.value)}
+              />
+            </form>
+          ) : (
+            <button
+              className="exit-stage"
+              onClick={exitClean}
+              aria-label="Bühne verlassen"
+            >
+              <X size={16} /> Studio
+            </button>
+          ))}
         <AnimatePresence>
           {notice && (
             <motion.div

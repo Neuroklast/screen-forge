@@ -116,6 +116,7 @@ export function useActorPlayback(
   onPlay: (() => void) | undefined,
   firstCommand: string,
   systemName: string,
+  until = 4,
 ) {
   const [index, setIndex] = useState(0),
     [running, setRunning] = useState<{
@@ -150,11 +151,20 @@ export function useActorPlayback(
         ].slice(-60),
       );
       setRunning(null);
-      setIndex((i) => i + 1);
+      setIndex((i) => {
+        const next = i + 1;
+        if (next >= until)
+          window.dispatchEvent(
+            new CustomEvent("screenforge:input", {
+              detail: { type: "signal", value: "shell.success" },
+            }),
+          );
+        return next;
+      });
     }
-  }, [running, progress]);
+  }, [running, progress, until]);
   const submit = (command: string) => {
-    if (running || !command.trim()) return;
+    if (running || !command.trim() || index >= until) return;
     playSound("scroll");
     setRunning({ start: time, index, command: target });
     window.dispatchEvent(

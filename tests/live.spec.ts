@@ -198,6 +198,7 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
     "Medizin",
     "Kamera",
     "Funk",
+    "Schieber",
   ]) {
     await closeConfiguration(page);
     await select(page, name);

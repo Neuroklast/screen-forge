@@ -41,6 +41,9 @@ import { SequencePanel } from "./SequencePanel";
 import { LockScreen } from "./LockScreen";
 import { Messages } from "./Messages";
 import { BrandMark } from "../../components/BrandMark";
+import { StageKeys } from "../../components/StageKeys";
+import { gate } from "../../core/director";
+import { exampleMedia } from "../../core/exampleMedia";
 import { useActorPlayback, TerminalVisual } from "./ActorPlayback";
 import { Changed } from "../shared/Process";
 import { playSound, stopLoop } from "../../core/sound";
@@ -74,7 +77,11 @@ export function CyberOS({
   onTimelineExtend,
   operation,
 }: SceneProps) {
-  const [state, dispatch] = useReducer(osReducer, initialOsState);
+  const [state, dispatch] = useReducer(osReducer, {
+    ...initialOsState,
+    app: config.osApp,
+  });
+  const [cracked, setCracked] = useState<string[]>([]);
   const files: VirtualFile[] = [
     ...baseFiles,
     ...state.history.map((id, i) => ({
@@ -94,6 +101,7 @@ export function CyberOS({
     [query, setQuery] = useState(""),
     [file, setFile] = useState<VirtualFile | null>(null),
     [person, setPerson] = useState(0),
+    [dossierTab, setDossierTab] = useState("bio"),
     [cluster, setCluster] = useState(0),
     [command, setCommand] = useState(""),
     [terminalLines, setTerminalLines] = useState<string[]>([
@@ -108,9 +116,36 @@ export function CyberOS({
     [frozenTime, setFrozenTime] = useState(0),
     [rotationOffset, setRotationOffset] = useState(0),
     [menu, setMenu] = useState(false);
-  const actor = useActorPlayback(time, onPlay, config.script, config.title);
+  const actor = useActorPlayback(
+    time,
+    onPlay,
+    config.script,
+    config.title,
+    config.commandsUntilSuccess,
+  );
+  const portraits = exampleMedia.filter((a) =>
+    a.folder.includes("portraits"),
+  );
   const consoleRef = useRef<HTMLDivElement>(null);
   const displayedLines = config.actorMode ? actor.lines : terminalLines;
+  const typeKey = (key: string) => {
+    if (key === "Enter") {
+      submit();
+      return;
+    }
+    if (config.actorMode) {
+      if (actor.busy) return;
+      if (key.length === 1) playSound("type");
+      const next = scriptedInput(actor.target, command, key);
+      if (key.length === 1 && next.length === actor.target.length) {
+        actor.submit(next);
+        setCommand("");
+      } else setCommand(next);
+      return;
+    }
+    if (key === "Backspace") setCommand((c) => c.slice(0, -1));
+    else if (key.length === 1) setCommand((c) => c + key);
+  };
   useEffect(() => {
     const el = consoleRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -236,7 +271,7 @@ export function CyberOS({
           response = [`Opening ${target.name}.`];
         } else
           response = [
-            "Apps: overview terminal files personnel clusters dimension sequences",
+            "Apps: overview terminal files personnel clusters dimension",
           ];
         break;
       }
@@ -685,6 +720,7 @@ export function CyberOS({
                         />
                         <button aria-label="Befehl ausführen">↵</button>
                       </form>
+                      <StageKeys onKey={typeKey} disabled={actor.busy} />
                       <div className="os-between">
                         <span>
                           {config.actorMode
@@ -787,7 +823,20 @@ export function CyberOS({
                                   .includes(query.toLowerCase()),
                             )
                             .map((f) => (
-                              <button key={f.path} onClick={() => setFile(f)}>
+                              <button
+                                key={f.path}
+                                onClick={() => {
+                                  setFile(f);
+                                  window.dispatchEvent(
+                                    new CustomEvent("screenforge:input", {
+                                      detail: {
+                                        type: "signal",
+                                        value: gate("file.found", f.path),
+                                      },
+                                    }),
+                                  );
+                                }}
+                              >
                                 <span>
                                   <FileText size={15} />
                                   {f.path.split("/").pop()}
@@ -830,10 +879,18 @@ export function CyberOS({
                           <button
                             key={p.id}
                             className={person === i ? "active" : ""}
-                            onClick={() => {
-                              playSound("openProfile");
-                              setPerson(i);
-                            }}
+                               onClick={() => {
+                               playSound("openProfile");
+                               setPerson(i);
+                               window.dispatchEvent(
+                                 new CustomEvent("screenforge:input", {
+                                   detail: {
+                                     type: "signal",
+                                     value: "dossier.open",
+                                   },
+                                 }),
+                               );
+                             }}
                           >
                             <span>{p.id}</span>
                             <strong>{p.name}</strong>
@@ -844,19 +901,13 @@ export function CyberOS({
                       <section className="os-personnel-record">
                         <div className="os-personnel-hero">
                           <div className="os-profile-portrait">
-                            <svg viewBox="0 0 150 180" aria-hidden="true">
-                              <g fill="none" stroke="currentColor">
-                                <path d="M37 83C29 18 121 16 113 83L105 108L91 120V139L131 157L141 179H9L19 157L59 139V120L44 108Z" />
-                                <path d="M38 72H112M44 88H63M87 88H106M76 85L70 104H81M59 114H91M59 139L76 155L91 139" />
-                                <path d="M10 15H30M10 15V35M120 15H140V35M10 145V165H30M120 165H140V145" />
-                              </g>
-                              <path
-                                d="M0 100H150"
-                                stroke="var(--accent)"
-                                opacity=".7"
+                            {portraits[person] ? (
+                              <img
+                                src={portraits[person].src}
+                                alt=""
                               />
-                            </svg>
-                            <span>IDENTITY MODEL / {people[person].id}</span>
+                            ) : null}
+                            <span>FILE PHOTO / {people[person].id}</span>
                           </div>
                           <div>
                             <span className="os-kicker">
@@ -916,9 +967,36 @@ export function CyberOS({
                             </div>
                           </div>
                         </div>
+                        <nav className="os-dossier-tabs">
+                          {["bio", "clearance", "media", "events"].map((tab) => (
+                            <button
+                              key={tab}
+                              className={dossierTab === tab ? "on" : ""}
+                              onClick={() => setDossierTab(tab)}
+                            >
+                              {tab.toUpperCase()}
+                            </button>
+                          ))}
+                        </nav>
                         <div className="os-person-notes">
-                          <span className="os-kicker">RECORD SUMMARY</span>
-                          <p>{people[person].notes}</p>
+                          <span className="os-kicker">
+                            {dossierTab === "bio"
+                              ? "RECORD SUMMARY"
+                              : dossierTab === "clearance"
+                                ? "CLEARANCE FILE"
+                                : dossierTab === "media"
+                                  ? "LINKED MEDIA"
+                                  : "EVENT LOG"}
+                          </span>
+                          <p>
+                            {dossierTab === "bio"
+                              ? people[person].notes
+                              : dossierTab === "clearance"
+                                ? `Level ${people[person].clearance} / ${people[person].facility} / implant ${people[person].implant}`
+                                : dossierTab === "media"
+                                  ? portraits[person]?.name ?? "No still assigned"
+                                  : people[person].events.join(" · ")}
+                          </p>
                         </div>
                         <div className="os-person-events">
                           {people[person].events.map((e, i) => (
@@ -1206,7 +1284,7 @@ export function CyberOS({
           </span>
         </button>
         <div className="os-task-buttons">
-          {["terminal", "files", "personnel", "sequences"].map((id) => {
+          {["terminal", "files", "personnel"].map((id) => {
             const a = apps.find((x) => x.id === id)!;
             return (
               <button
@@ -1280,17 +1358,28 @@ export function CyberOS({
                 <span className="os-kicker">
                   {file.classification} / {file.size}
                 </span>
-                <pre>{file.content}</pre>
+                <pre>
+                  {file.kind === "archive" && !cracked.includes(file.path)
+                    ? "CIPHERTEXT / KEY REQUIRED\nHold Recover archive to restore the index."
+                    : file.content}
+                </pre>
                 <div className="os-inline-actions">
                   <button className="os-button" onClick={() => setFile(null)}>
                     Close record
                   </button>
-                  {file.kind === "archive" && (
+                  {file.kind === "archive" && !cracked.includes(file.path) && (
                     <button
                       className="os-button secondary"
                       onClick={() => {
-                        setFile(null);
-                        run("decrypt");
+                        setCracked((p) => [...p, file.path]);
+                        window.dispatchEvent(
+                          new CustomEvent("screenforge:input", {
+                            detail: {
+                              type: "signal",
+                              value: gate("file.decrypt", file.path),
+                            },
+                          }),
+                        );
                       }}
                     >
                       Recover archive

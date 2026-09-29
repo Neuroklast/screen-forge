@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { deleteMedia, saveMedia, useMedia } from "../core/media";
+import { deleteMedia, saveMedia, seedExampleMedia, useMedia } from "../core/media";
+import { exampleMedia } from "../core/exampleMedia";
 import type { Config } from "../core/config";
 import { isModelAsset } from "../scenes/shared/ModelViewport";
 export function MediaManager({
@@ -55,6 +56,33 @@ export function MediaManager({
           }}
         >
           Ordner öffnen / erstellen
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              await seedExampleMedia();
+              const next = Array.from(
+                new Set([
+                  ...savedFolders,
+                  ...exampleMedia.map((a) => a.folder),
+                ]),
+              );
+              try {
+                localStorage.setItem(
+                  "screenforge.folders.v1",
+                  JSON.stringify(next),
+                );
+                setSavedFolders(next);
+              } catch {
+                /* folders stay session-only */
+              }
+              setStatus("Beispielmedien geladen.");
+            } catch {
+              setStatus("Beispielmedien konnten nicht geladen werden.");
+            }
+          }}
+        >
+          Beispiele laden
         </button>
         <label>
           Bilder hochladen

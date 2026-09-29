@@ -2,7 +2,6 @@ import { useState } from "react";
 import { scenes, defaults, type Config } from "../core/config";
 import { newStep, showSchema, type Show, type Step } from "../core/director";
 import { showTemplateLabels, showTemplates } from "../core/showTemplates";
-import { sequences } from "../scenes/os/sequences";
 export function SequenceEditor({
   show,
   onChange,
@@ -274,15 +273,32 @@ export function SequenceEditor({
               </label>
               {item.config.scene === "terminal" && (
                 <label>
-                  OS-Sequenz
+                  OS-App
                   <select
-                    value={item.operation}
-                    onChange={(e) => set({ operation: e.target.value })}
+                    aria-label="OS-App"
+                    value={item.config.osApp}
+                    onChange={(e) =>
+                      set({
+                        config: {
+                          ...item.config,
+                          osApp: e.target.value as Config["osApp"],
+                        },
+                      })
+                    }
                   >
-                    <option value="">Keine</option>
-                    {sequences.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
+                    {(
+                      [
+                        "overview",
+                        "terminal",
+                        "files",
+                        "personnel",
+                        "clusters",
+                        "dimension",
+                        "messages",
+                      ] as const
+                    ).map((id) => (
+                      <option key={id} value={id}>
+                        {id}
                       </option>
                     ))}
                   </select>
@@ -343,6 +359,40 @@ export function SequenceEditor({
                     }
                   />
                 </label>
+              )}
+              {config.workspace === "training" && (
+                <>
+                  <label>
+                    Timeout Sekunden
+                    <input
+                      aria-label="Timeout"
+                      type="number"
+                      min={0}
+                      value={item.timeout}
+                      onChange={(e) =>
+                        set({ timeout: Math.max(0, +e.target.value) })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Bei Fehler / Timeout
+                    <select
+                      aria-label="Fehlerknoten"
+                      value={item.onFail}
+                      onChange={(e) => set({ onFail: e.target.value })}
+                    >
+                      <option value="">Ablauf beenden</option>
+                      <option value="end">Ablauf beenden</option>
+                      {show.steps
+                        .filter((s) => s.id !== item.id)
+                        .map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                </>
               )}
               <label>
                 Verknüpfung

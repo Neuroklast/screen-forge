@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { z } from "zod";
-import { paletteSchema, scenePalette, type Config } from "../core/config";
+import {
+  applyTheme,
+  paletteSchema,
+  scenePalette,
+  type Config,
+} from "../core/config";
 const themeSchema = z.object({
   tokens: z.record(z.string(), z.string()).default({}),
   font: z
@@ -97,6 +102,8 @@ export function ThemeEditor({
     }),
   );
   const palette = config.palette ?? scenePalette(config.scene);
+  const themes = [...presets, ...custom];
+  const themeIndex = themes.findIndex((t) => t.name === config.theme);
   const persist = (next: Theme[]) => {
     try {
       localStorage.setItem("screenforge.themes.v1", JSON.stringify(next));
@@ -113,20 +120,22 @@ export function ThemeEditor({
         Theme auswählen
         <select
           aria-label="Farbtheme"
-          defaultValue=""
+          value={themeIndex >= 0 ? String(themeIndex) : ""}
           onChange={(e) => {
-            const t = [...presets, ...custom][Number(e.target.value)];
+            const t = themes[Number(e.target.value)];
             if (t) {
-              onChange({
-                ...config,
-                palette: t.palette,
-                accent: t.accent,
-                mood: t.mood,
-                effects: t.effects,
-                overlays: t.overlays,
-                font: t.font,
-                tokens: t.tokens,
-              });
+              onChange(
+                applyTheme(config, {
+                  theme: t.name,
+                  palette: t.palette,
+                  accent: t.accent,
+                  mood: t.mood,
+                  effects: t.effects,
+                  overlays: t.overlays,
+                  font: t.font,
+                  tokens: t.tokens,
+                }),
+              );
               setName(t.name);
               setStatus("Theme geladen. Firma bleibt.");
             }

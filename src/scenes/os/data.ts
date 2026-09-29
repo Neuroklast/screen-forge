@@ -47,6 +47,22 @@ export const files: VirtualFile[] = [
       "N. MERCER\nArchive administrator\nEmployee record NM-0108\nClearance: level 05\nAssignment: Archive 04\nStatus: review\n\nHistorical record contains inconsistent timestamps.",
   },
   {
+    path: "/archives/locator.beacon",
+    kind: "text",
+    size: "18.2 KB",
+    classification: "RESTRICTED",
+    content:
+      "LOCATOR BEACON / TRANSPONDER 12\nCarrier: 164.075 MHz\nHandshake: locator handshake --id 12 --verify\nStatus: dormant\n\nOpen this record to arm the locator take.",
+  },
+  {
+    path: "/archives/noise.cache",
+    kind: "text",
+    size: "9.4 KB",
+    classification: "JUNK",
+    content:
+      "UNALLOCATED CACHE\nNo transponder signature.\nDiscard.",
+  },
+  {
     path: "/archives/sector-07.fragment",
     kind: "archive",
     size: "418 MB",

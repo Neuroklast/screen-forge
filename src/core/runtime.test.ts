@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { countdown, formatTime, noise } from "./runtime";
+import { clockParts, countdown, formatTime, noise } from "./runtime";
+import { contrastRatio, onAccent } from "./contrast";
 import { defaults, schema, sceneIds } from "./config";
 describe("scene time", () => {
   it("clamps a completed countdown and handles hours", () => {
@@ -7,6 +8,10 @@ describe("scene time", () => {
     expect(countdown(180, 30)).toBe(150);
     expect(formatTime(3599.1)).toBe("01:00:00");
     expect(formatTime(-1)).toBe("00:00:00");
+    expect(clockParts(24)).toEqual({ hh: "00", mm: "00", ss: "24" });
+    expect(contrastRatio("#f5f5f5", "#000000")).toBeGreaterThan(4.5);
+    expect(onAccent("#e10600")).toBe("#f5f5f5");
+    expect(onAccent("#ffffff")).toBe("#111111");
   });
   it("reproduces synthetic readings by time index and seed", () => {
     expect(noise(5, 2048)).toBe(noise(5, 2048));

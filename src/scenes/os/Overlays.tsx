@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { Config } from "../../core/config";
 import { noise } from "../../core/runtime";
+import { stageOf } from "../../core/stage";
 export function DisplayOverlays({
   config,
   time,
@@ -10,6 +11,7 @@ export function DisplayOverlays({
 }) {
   const fx = config.overlays,
     frame = Math.floor(time * 24);
+  const stage = stageOf(config.format);
   const burst =
     noise(Math.floor(time * 9), config.seed) >
     (config.mood === "damaged" ? 0.63 : 0.92);
@@ -57,13 +59,13 @@ export function DisplayOverlays({
       />
       <svg
         className="fx-tech-noise"
-        viewBox="0 0 1280 760"
+        viewBox={`0 0 ${stage.width} ${stage.height}`}
         preserveAspectRatio="none"
         style={{ opacity: fx.grain * config.effects * 0.85 }}
       >
         {Array.from({ length: 48 }, (_, i) => {
-          const x = noise(i + frame, 22) * 1280,
-            y = noise(i + frame, 97) * 760,
+          const x = noise(i + frame, 22) * stage.width,
+            y = noise(i + frame, 97) * stage.height,
             w = 1 + noise(i + frame, 10) * 14;
           return i % 5 === 0 ? (
             <rect

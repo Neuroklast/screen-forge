@@ -12,6 +12,7 @@ export async function configuration(page: Page, tab: string) {
     await page.getByLabel("Konfiguration öffnen").click();
   await page.getByRole("tab", { name: tab, exact: true }).click();
 }
+export { boxesOverlap } from "../src/core/layout";
 export async function closeConfiguration(page: Page) {
   const close = page.getByLabel("Konfiguration schließen");
   if (await close.isVisible()) await close.click();

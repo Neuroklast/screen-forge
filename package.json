@@ -4,6 +4,7 @@
   "description": "Offline-first interactive screen graphics for film and television",
   "scripts": {
     "dev": "vite",
+    "exercise": "node server/exercise.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run src/core",
@@ -23,6 +24,7 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "three": "^0.186.1",
+    "ws": "^8.22.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

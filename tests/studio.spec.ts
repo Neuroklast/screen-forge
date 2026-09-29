@@ -1,4 +1,9 @@
-import { configuration, closeConfiguration, osApp } from "./helpers";
+import {
+  configuration,
+  closeConfiguration,
+  osApp,
+  boxesOverlap,
+} from "./helpers";
 import { test, expect } from "@playwright/test";
 test("all scenes render and operator controls reset a take", async ({
   page,
@@ -17,6 +22,7 @@ test("all scenes render and operator controls reset a take", async ({
     "Medizin",
     "Kamera",
     "Funk",
+    "Schieber",
   ]) {
     await page
       .getByRole("button", { name: new RegExp(title) })
@@ -31,6 +37,30 @@ test("all scenes render and operator controls reset a take", async ({
   await page.getByRole("button", { name: "Take zurücksetzen" }).click();
   await expect(page.locator(".transport-time")).toContainText("00:00:00");
   expect(errors).toEqual([]);
+});
+test("warhead controls, tty and arming rail do not overlap", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: /Countdown/ })
+    .first()
+    .click();
+  const controls = await page.locator(".warhead-controls").boundingBox();
+  const tty = await page.locator(".warhead-tty").boundingBox();
+  const rail = await page.locator(".arming-rail").boundingBox();
+  const bar = await page.locator(".phase-bar").first().boundingBox();
+  expect(controls).toBeTruthy();
+  expect(tty).toBeTruthy();
+  expect(rail).toBeTruthy();
+  expect(bar).toBeTruthy();
+  expect(boxesOverlap(controls!, tty!)).toBe(false);
+  expect(boxesOverlap(controls!, rail!)).toBe(false);
+  expect(boxesOverlap(tty!, rail!)).toBe(false);
+  expect(
+    bar!.x >= controls!.x - 1 &&
+      bar!.x + bar!.width <= controls!.x + controls!.width + 1,
+  ).toBe(true);
 });
 test("prepared input, preset export, stage escape and persistence", async ({
   page,

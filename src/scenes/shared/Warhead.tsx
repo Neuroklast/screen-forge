@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SceneHeader, type SceneProps } from "../Scenes";
-import { formatTime, noise, scriptedInput } from "../../core/runtime";
+import { clockParts, formatTime, noise, scriptedInput } from "../../core/runtime";
 import { Changed } from "./Process";
 import { AtomEmblem } from "../../components/BrandMark";
 import { playSound } from "../../core/sound";
@@ -193,6 +193,7 @@ export function Warhead(props: SceneProps) {
   const cancelHold = () => {
     if (!state.safe) setHold(null);
   };
+  const clock = clockParts(state.left);
   const family =
     config.device === "nuclear"
       ? "FISSILE ASSEMBLY"
@@ -267,7 +268,13 @@ export function Warhead(props: SceneProps) {
                 ? "LOSS OF CONTAINMENT"
                 : "TIME TO MAGNETIC_COLLAPSE"}
           </div>
-          <div className="countdown-digits">{formatTime(state.left)}</div>
+          <div className="countdown-digits" aria-label={formatTime(state.left)}>
+            <span>{clock.hh}</span>
+            <i>:</i>
+            <span>{clock.mm}</span>
+            <i>:</i>
+            <span>{clock.ss}</span>
+          </div>
           <div className="warhead-milliseconds">
             {state.safe
               ? "CRYO ONLINE / B-FIELD HOLDING"
@@ -284,15 +291,11 @@ export function Warhead(props: SceneProps) {
           <div className="warhead-state">
             <Changed value={phase} />
           </div>
-          <div className="warhead-journal">
-            <div className="micro">
-              ARMING {arm.code} / {arm.title}
-            </div>
-            <p className="warhead-arm-sub">{arm.sub}</p>
-            {logs.slice(-4).map((line) => (
-              <div key={line}>{line}</div>
+          <pre className="warhead-tty">
+            {logs.map((line, i) => (
+              <div key={i}>{line}</div>
             ))}
-          </div>
+          </pre>
           <AnimatePresence>
             {state.safe && (
               <motion.div

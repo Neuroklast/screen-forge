@@ -1,5 +1,5 @@
 import { identityOf, withScene, type Config } from "./config";
-import type { Show, Step } from "./director";
+import { gate, type Show, type Step } from "./director";
 function node(
   name: string,
   config: Config,
@@ -13,6 +13,8 @@ function node(
     trigger: "key",
     duration: 12,
     value: "Enter",
+    onFail: "",
+    timeout: 0,
     ...extra,
   };
 }
@@ -25,7 +27,7 @@ function chain(name: string, parts: Omit<Step, "id" | "next">[]): Show {
   steps.forEach((s, i) => {
     s.next = i === steps.length - 1 ? "end" : steps[i + 1].id;
   });
-  return { version: 1, name, steps };
+  return { version: 2, name, steps };
 }
 function scene(
   base: Config,
@@ -63,14 +65,25 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             actorMode: false,
           },
         }),
-        node("Locator handshake", term, {
-          operation: "beacon",
+        node("Find locator file", scene(base, "terminal", { ...id, osApp: "files" }), {
           trigger: "signal",
-          value: "shell.submit",
+          value: gate("file.found", "/archives/locator.beacon"),
           config: {
             ...term,
+            osApp: "files",
+            pinEnabled: false,
+            actorMode: false,
+          },
+        }),
+        node("Locator handshake", scene(base, "terminal", { ...id, osApp: "terminal" }), {
+          trigger: "signal",
+          value: gate("shell.success"),
+          config: {
+            ...term,
+            osApp: "terminal",
             pinEnabled: false,
             actorMode: true,
+            commandsUntilSuccess: 1,
             script: "locator handshake --id 12 --verify",
           },
         }),
@@ -83,11 +96,14 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
     {
       name: "Sprengkopf-Wartung",
       show: chain("Sprengkopf-Wartung", [
-        node("ACCESS", count, {
+        node("KEYPAD", scene(base, "lock", { ...id, pin, pinMode: "numeric" }), {
           cue: "idle",
-          trigger: "pin",
-          value: pin,
-          config: { ...count, pinEnabled: true, pinMode: "numeric", pin },
+          trigger: "signal",
+          value: "lock.open",
+        }),
+        node("SLIDE", scene(base, "slide", id), {
+          trigger: "signal",
+          value: "slide.open",
         }),
         node("HOLD CONTAINMENT", count, {
           cue: "warning",
@@ -111,16 +127,15 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             pin,
           },
         }),
-        node("COPY VOLUME", term, {
-          operation: "theft",
+        node("Find sealed volume", scene(base, "terminal", { ...id, osApp: "files" }), {
           trigger: "signal",
-          value: "shell.submit",
-          config: {
-            ...term,
-            pinEnabled: false,
-            actorMode: true,
-            script: "extract --sealed 04 --read-only",
-          },
+          value: gate("file.found", "/archives/sector-07.fragment"),
+          config: { ...term, osApp: "files", pinEnabled: false, actorMode: false },
+        }),
+        node("Decrypt volume", scene(base, "terminal", { ...id, osApp: "files" }), {
+          trigger: "signal",
+          value: gate("file.decrypt", "/archives/sector-07.fragment"),
+          config: { ...term, osApp: "files", pinEnabled: false, actorMode: false },
         }),
       ]),
     },
@@ -138,27 +153,46 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             pin: "PKG08",
           },
         }),
-        node("COMMIT QUEUE", term, {
-          operation: "payload",
-          trigger: "key",
-          value: "c",
-          config: { ...term, pinEnabled: false, actorMode: false },
+        node("COMMIT QUEUE", scene(base, "terminal", { ...id, osApp: "terminal" }), {
+          trigger: "signal",
+          value: gate("shell.success"),
+          config: {
+            ...term,
+            osApp: "terminal",
+            pinEnabled: false,
+            actorMode: true,
+            commandsUntilSuccess: 2,
+            script: "commit queue --image PKG08",
+          },
         }),
       ]),
     },
     {
       name: "Gegenmaßnahme",
       show: chain("Gegenmaßnahme", [
-        node("ISOLATE SESSION", term, {
-          operation: "counterhack",
+        node("ISOLATE SESSION", scene(base, "terminal", { ...id, osApp: "terminal" }), {
           cue: "warning",
-          trigger: "key",
-          value: "x",
+          trigger: "signal",
+          value: gate("shell.success"),
+          config: {
+            ...term,
+            osApp: "terminal",
+            actorMode: true,
+            commandsUntilSuccess: 2,
+            script: "isolate session --force",
+          },
         }),
-        node("RESTORE SHELL", term, {
+        node("RESTORE SHELL", scene(base, "terminal", { ...id, osApp: "terminal" }), {
           cue: "complete",
-          trigger: "key",
-          value: "y",
+          trigger: "signal",
+          value: gate("shell.success"),
+          config: {
+            ...term,
+            osApp: "terminal",
+            actorMode: true,
+            commandsUntilSuccess: 1,
+            script: "restore shell",
+          },
         }),
       ]),
     },
@@ -176,11 +210,9 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             pin,
           },
         }),
-        node("UNLATCH", term, {
-          operation: "door",
-          trigger: "key",
-          value: "o",
-          config: { ...term, pinEnabled: false },
+        node("UNLATCH", scene(base, "access", id), {
+          trigger: "signal",
+          value: "access.open",
         }),
       ]),
     },
@@ -192,28 +224,37 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
           trigger: "key",
           value: "e",
         }),
-        node("PAGE DUTY", term, {
-          operation: "medical",
-          trigger: "key",
-          value: "p",
+        node("OPEN DOSSIER", scene(base, "terminal", { ...id, osApp: "personnel" }), {
+          trigger: "signal",
+          value: "dossier.open",
+          config: { ...term, osApp: "personnel", pinEnabled: false },
+        }),
+        node("PAGE DUTY", scene(base, "medical", id), {
+          trigger: "signal",
+          value: "medical.enable",
         }),
       ]),
     },
     {
       name: "Einrichtungsterminal",
       show: chain("Einrichtungsterminal", [
-        node("Directory", term, {
-          operation: "facility",
+        node("Find notes", scene(base, "terminal", { ...id, osApp: "files" }), {
           cue: "idle",
-          trigger: "key",
-          value: "n",
-          config: { ...term, actorMode: true, script: "ls /facility" },
+          trigger: "signal",
+          value: gate("file.found", "/workspace/operator.notes"),
+          config: { ...term, osApp: "files", actorMode: false },
         }),
-        node("END SESSION", term, {
+        node("END SESSION", scene(base, "terminal", { ...id, osApp: "terminal" }), {
           cue: "idle",
-          trigger: "key",
-          value: "q",
-          config: { ...term, actorMode: true, script: "status" },
+          trigger: "signal",
+          value: gate("shell.success"),
+          config: {
+            ...term,
+            osApp: "terminal",
+            actorMode: true,
+            commandsUntilSuccess: 1,
+            script: "status",
+          },
         }),
       ]),
     },

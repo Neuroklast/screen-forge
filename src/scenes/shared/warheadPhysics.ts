@@ -60,37 +60,40 @@ export function generateTelemetry(
     gamma: p > 0.4 ? 0.0002 + p * 0.511 : 0,
   };
 }
-const logPool = [
-  "[TRAP_CTRL] INFO: Penning trap axial potential normalized.",
-  "[UHV_PUMP] INFO: Ion getter pump 4 holding at 1.2E-12 Torr.",
-  "[DIAG] CHECK: Positronium formation rate nominal.",
-  "[CRYO_SYS] INFO: He-3 circulation flow steady.",
-  "[TRAP_CTRL] INFO: Axial frequency lock 1.27 MHz.",
-  "[AUTH] ALERT: LOCAL_ADMIN_PRIVILEGES_FORCED",
-  "[SYS] COMMAND_RECV: INITIATE_AIRGAP_PROTOCOL",
-  "[TRAP_CTRL] WARN: External telemetry sync severed.",
-  "[CRYO_SYS] WARN: Helium flow rate restricted by override.",
-  "[CRYO_SYS] CRITICAL: LHE temp rising. Superconductor quench imminent.",
-  "[MAG_SYS] WARN: B_FIELD_AXIAL degrading.",
-  "[UHV_PUMP] CRITICAL: Vacuum degradation detected.",
-  "[DIAG] ALARM: ANNIHILATION_BG spiking. Gamma flash 0.511 MeV.",
-  "[TRAP_CTRL] ALERT: QUADRUPOLE_POTENTIAL_FLATTENED.",
-  "[SYS] STATUS: TOTAL_FIELD_COLLAPSE sequence locked.",
-  "[SYS] STATUS: Waiting for timer actuation (SHUNT_CIRCUIT_BREAK).",
-];
+function stamp(t: number) {
+  const ms = String(Math.floor((t % 1) * 1000)).padStart(3, "0");
+  const s = Math.max(0, Math.floor(t));
+  return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s / 60) % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}.${ms}`;
+}
 export function armingLog(progress: number, time: number, seed: number) {
-  const n = 6;
-  const head = Math.min(
-    logPool.length,
-    4 + Math.floor(progress * (logPool.length - 4)),
-  );
-  const start = Math.max(0, head - n);
-  return logPool.slice(start, head).map((line, i) => {
-    const t = Math.max(0, time - (n - 1 - i) * 0.18);
-    const ms = String(Math.floor((t % 1) * 1000)).padStart(3, "0");
-    const s = Math.floor(t);
-    const stamp = `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s / 60) % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}.${ms}`;
-    return `[${stamp}] ${line}`;
+  const tel = generateTelemetry(progress, time, seed);
+  const fz = (1.274 - progress * 0.41).toFixed(3);
+  const ig = (4.18 - progress * 3.1).toFixed(2);
+  const dT = (0.002 + progress * 0.11).toFixed(3);
+  const rows = [
+    `[TRAP_CTRL] B_FIELD_AXIAL ${tel.bField.toFixed(4)} T  f_z=${fz} MHz  Q=${(12.4 - progress * 9).toFixed(1)}`,
+    `[UHV_PUMP] P=${sci(tel.vacuum, 2)} Torr  I_getter=${ig} mA  stage=${progress < 0.4 ? "HOLD" : "OFFLINE"}`,
+    `[CRYO_SYS] T_LHe=${tel.cryo.toFixed(3)} K  dT/dt=${dT} K/s  He-3 flow=${(1.02 - progress * 0.9).toFixed(2)} g/s`,
+    `[DIAG] ANNIHILATION_BG ${tel.annihil.toFixed(3)} cps  E_gamma=${tel.gamma.toFixed(3)} MeV  n_flash=${Math.floor(progress * 48)}`,
+    `[MAG_SYS] CONTAINMENT_MARGIN ${tel.margin.toFixed(3)} mm  I_coil=${(182 - progress * 170).toFixed(1)} A`,
+    `[BEAM] E_e=${tel.eBeam.toFixed(3)} MeV  n_pbar=${sci(tel.pbar, 2)} cm-3  T_perp=${(8.2 + progress * 40).toFixed(1)} K`,
+    `[SYS] AIRGAP=${progress >= 0.05 ? "OPEN" : "CLOSED"}  QUENCH=${progress >= 0.2 ? "ARMED" : "INHIBIT"}  SHUNT=${progress >= 0.8 ? "TIMED" : "SAFE"}`,
+    `[TRAP_CTRL] quadrupole V_r=${(42.0 * (1 - progress * 0.94)).toFixed(2)} V  plasma r/R=${(0.12 + progress * 0.81).toFixed(3)}`,
+  ];
+  if (progress >= 0.4)
+    rows.push(
+      `[DIAG] GAMMA_FLASH ${tel.gamma.toFixed(4)} MeV  positronium rate ${sci(2.1e3 * (1 + progress * 40), 1)} /s`,
+    );
+  if (progress >= 0.8)
+    rows.push(
+      `[SYS] PRIMARY_POWER_SHUNT_ARMED  T_break=${(1 - progress).toFixed(2)}  WAITING CIRCUIT_BREAKER`,
+    );
+  const n = 10;
+  const tick = Math.floor(time * 5);
+  return Array.from({ length: n }, (_, i) => {
+    const idx = (tick + i) % rows.length;
+    const t = Math.max(0, time - (n - 1 - i) * 0.2);
+    return `[${stamp(t)}] ${rows[idx]}`;
   });
 }
 export function hexDump(progress: number, time: number, seed: number) {

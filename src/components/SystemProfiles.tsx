@@ -165,6 +165,7 @@ export function SystemProfiles({
     ),
     [name, setName] = useState("My corporation"),
     [status, setStatus] = useState("");
+  const companyIndex = companies.findIndex((p) => p.name === config.company);
   const persist = (next: typeof profiles) => {
     try {
       localStorage.setItem("screenforge.systems.v1", JSON.stringify(next));
@@ -179,20 +180,25 @@ export function SystemProfiles({
       <summary>Firmen & Systeme</summary>
       <label>
         Systemvorlage
-        <select
-          aria-label="Systemvorlage"
-          defaultValue=""
-          onChange={(e) => {
-            const i = Number(e.target.value);
-            if (i < companies.length) {
-              onChange(applyIdentity(config, companies[i].identity));
-              setName(companies[i].name);
-              setStatus("Firma gesetzt. Farben bleiben beim Theme.");
-              return;
-            }
+          <select
+            aria-label="Systemvorlage"
+            value={companyIndex >= 0 ? String(companyIndex) : ""}
+            onChange={(e) => {
+              const i = Number(e.target.value);
+              if (i < companies.length) {
+                onChange(
+                  applyIdentity(config, {
+                    ...companies[i].identity,
+                    company: companies[i].name,
+                  }),
+                );
+                setName(companies[i].name);
+                setStatus("Firma gesetzt. Farben bleiben beim Theme.");
+                return;
+              }
             const p = profiles[i - companies.length];
             if (p) {
-              onLoad(p.config);
+              onLoad({ ...p.config, company: p.name });
               setName(p.name);
               setStatus("System geladen.");
             }

@@ -13,7 +13,7 @@
 }
 .warhead .scene-brand strong {
   font-size: var(--sf-type-24px);
-  letter-spacing: var(--sf-type-2px);
+  letter-spacing: 0.04em;
 }
 .warhead-heading {
   margin: var(--sf-space-8px) 0;
@@ -25,12 +25,17 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
 }
 .warhead-core,
 .warhead-timer,
 .warhead-controls {
   min-height: 0;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 .warhead-core {
   display: flex;
@@ -58,6 +63,8 @@
 .warhead-core dd {
   margin: var(--sf-space-2px) 0 0;
   font-size: var(--sf-type-10px);
+  font-family: "IBM Plex Mono", monospace;
+  letter-spacing: 0;
 }
 .warhead-core .wave {
   display: none;
@@ -67,12 +74,31 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 .warhead .countdown-digits {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0;
   font-size: var(--sf-type-58px);
-  letter-spacing: var(--sf-type-2px);
+  letter-spacing: 0;
   margin: var(--sf-space-8px) 0;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.warhead .countdown-digits span {
+  font-family: "DigitTech7", "IBM Plex Mono", monospace;
+  letter-spacing: 0;
+}
+.warhead .countdown-digits i {
+  font-family: "IBM Plex Mono", monospace;
+  font-style: normal;
+  font-size: 0.55em;
+  width: 0.45em;
+  text-align: center;
+  opacity: 0.7;
+  letter-spacing: 0;
 }
 .warhead-milliseconds {
   margin-bottom: var(--sf-space-8px);
@@ -88,13 +114,17 @@
   overflow-wrap: anywhere;
   line-height: 1.35;
 }
-.warhead-journal {
-  overflow: hidden;
+.warhead-tty {
+  flex: 1;
   min-height: 0;
-  flex: 0 0 auto;
-  font-size: var(--sf-type-7px);
-  line-height: 1.45;
+  margin-top: var(--sf-space-8px);
+  padding: var(--sf-space-6px);
+  border: var(--sf-stroke-1px) solid color-mix(in srgb, var(--accent) 35%, transparent);
+  font: var(--sf-type-7px) "IBM Plex Mono", monospace;
+  line-height: 1.4;
   letter-spacing: 0;
+  white-space: pre-wrap;
+  overflow: hidden;
 }
 .warhead-arm-sub {
   margin: 0 0 var(--sf-space-6px);
@@ -205,12 +235,14 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--sf-space-6px);
   flex-shrink: 0;
-  margin-top: var(--sf-space-8px);
-  padding-top: var(--sf-space-8px);
+  position: relative;
+  z-index: 0;
+  margin-top: var(--sf-space-6px);
+  padding-top: var(--sf-space-6px);
   border-top: var(--sf-stroke-1px) solid color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .arming-step {
-  min-height: var(--sf-layout-56px);
+  min-height: 0;
   padding: var(--sf-space-6px) var(--sf-space-8px);
   border-left: var(--sf-stroke-2px) solid color-mix(in srgb, var(--theme-text) 18%, transparent);
   opacity: 0.35;

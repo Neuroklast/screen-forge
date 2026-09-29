@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { stageFormatIds } from "./stage";
 export const sceneIds = [
   "corporate",
   "terminal",
@@ -10,6 +11,7 @@ export const sceneIds = [
   "medical",
   "camera",
   "comms",
+  "slide",
 ] as const;
 export type SceneId = (typeof sceneIds)[number];
 const overlaySchema = z.object({
@@ -103,6 +105,8 @@ export const schema = z.object({
     })
     .optional(),
   scene: z.enum(sceneIds),
+  company: z.string().max(40).default(""),
+  theme: z.string().max(40).default(""),
   title: z.string().trim().min(1).max(40),
   subtitle: z.string().max(70),
   identifier: z.string().max(24),
@@ -110,6 +114,32 @@ export const schema = z.object({
   mood: z.enum(["clinical", "tense", "damaged"]),
   effects: z.number().min(0).max(1),
   density: z.enum(["focused", "detailed"]),
+  format: z.enum(stageFormatIds).default("16-9"),
+  workspace: z.enum(["film", "training"]).default("film"),
+  instructorPin: z
+    .string()
+    .regex(/^[A-Za-z0-9]{4,8}$/)
+    .default("2048"),
+  exerciseMark: z.boolean().default(false),
+  osApp: z
+    .enum([
+      "overview",
+      "terminal",
+      "files",
+      "personnel",
+      "clusters",
+      "dimension",
+      "messages",
+    ])
+    .default("overview"),
+  commandsUntilSuccess: z.number().int().min(1).max(40).default(4),
+  frame: z
+    .object({
+      style: z.enum(["none", "hud", "plate"]).default("hud"),
+      corners: z.boolean().default(true),
+      labels: z.boolean().default(true),
+    })
+    .default({ style: "hud", corners: true, labels: true }),
   duration: z.number().int().min(1).max(35999),
   brightness: z.number().min(0.5).max(1.25),
   actorMode: z.boolean(),
@@ -229,6 +259,16 @@ export const scenes: {
     subtitle: "VOICE / DATA CHANNEL",
     kind: "block",
   },
+  {
+    id: "slide",
+    name: "Schieber",
+    code: "11 / SLIDE",
+    description: "Schieben zum Freigeben.",
+    accent: "#80dce5",
+    title: "SLIDE",
+    subtitle: "GATE ALIGNMENT",
+    kind: "block",
+  },
 ];
 export function identityOf(config: Config): Pick<
   Config,
@@ -237,6 +277,8 @@ export function identityOf(config: Config): Pick<
   | "identifier"
   | "accent"
   | "brand"
+  | "company"
+  | "theme"
   | "palette"
   | "skin"
   | "font"
@@ -251,6 +293,13 @@ export function identityOf(config: Config): Pick<
   | "pinMode"
   | "pinFake"
   | "sound"
+  | "format"
+  | "frame"
+  | "commandsUntilSuccess"
+  | "density"
+  | "workspace"
+  | "instructorPin"
+  | "exerciseMark"
 > {
   return {
     title: config.title,
@@ -258,6 +307,8 @@ export function identityOf(config: Config): Pick<
     identifier: config.identifier,
     accent: config.accent,
     brand: config.brand,
+    company: config.company,
+    theme: config.theme,
     palette: config.palette,
     skin: config.skin,
     font: config.font,
@@ -272,15 +323,25 @@ export function identityOf(config: Config): Pick<
     pinMode: config.pinMode,
     pinFake: config.pinFake,
     sound: config.sound,
+    format: config.format,
+    frame: config.frame,
+    commandsUntilSuccess: config.commandsUntilSuccess,
+    density: config.density,
+    workspace: config.workspace,
+    instructorPin: config.instructorPin,
+    exerciseMark: config.exerciseMark,
   };
 }
 export function withScene(config: Config, scene: SceneId): Config {
   return { ...defaults(scene), ...identityOf(config), scene };
 }
+export function keepLook(current: Config, next: Config): Config {
+  return { ...next, ...identityOf(current), scene: next.scene };
+}
 export function applyIdentity(
   config: Config,
   identity: Partial<
-    Pick<Config, "title" | "subtitle" | "identifier" | "brand">
+    Pick<Config, "title" | "subtitle" | "identifier" | "brand" | "company">
   >,
 ): Config {
   return {
@@ -289,6 +350,27 @@ export function applyIdentity(
     subtitle: identity.subtitle ?? config.subtitle,
     identifier: identity.identifier ?? config.identifier,
     brand: identity.brand ?? config.brand,
+    company: identity.company ?? config.company,
+    scene: config.scene,
+  };
+}
+export function applyTheme(
+  config: Config,
+  theme: Pick<
+    Config,
+    "palette" | "accent" | "mood" | "effects" | "overlays" | "font" | "tokens"
+  > & { theme: string },
+): Config {
+  return {
+    ...config,
+    theme: theme.theme,
+    palette: theme.palette,
+    accent: theme.accent,
+    mood: theme.mood,
+    effects: theme.effects,
+    overlays: theme.overlays,
+    font: theme.font,
+    tokens: theme.tokens,
     scene: config.scene,
   };
 }
@@ -307,6 +389,8 @@ export function defaults(scene: SceneId = "corporate"): Config {
     skin: "standard",
     device: "antimatter",
     scene,
+    company: "",
+    theme: "",
     title: s.title,
     subtitle: s.subtitle,
     identifier: "VS-204 / UNIT 07",
@@ -314,6 +398,13 @@ export function defaults(scene: SceneId = "corporate"): Config {
     mood: "clinical",
     effects: scene === "corporate" ? 0.45 : 0.8,
     density: "detailed",
+    format: "16-9",
+    workspace: "film",
+    instructorPin: "2048",
+    exerciseMark: false,
+    osApp: "overview",
+    commandsUntilSuccess: 4,
+    frame: { style: "hud", corners: true, labels: true },
     duration: 180,
     brightness: 1,
     actorMode: true,

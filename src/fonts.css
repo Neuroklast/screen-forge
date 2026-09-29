@@ -7,7 +7,7 @@
 @font-face{font-family:codiceBinario;src:url('/fonts/codicebinario/codiceBinario.otf') format('opentype');font-display:swap;}
 .scene-canvas .scene-brand strong,
 .scene-canvas .os-wordmark strong {
-  font-family: var(--scene-font), "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
 }
 .scene-canvas h2,
 .scene-canvas h3 {

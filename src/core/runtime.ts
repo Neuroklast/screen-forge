@@ -3,14 +3,17 @@ export type Cue = "idle" | "active" | "warning" | "complete";
 export function countdown(duration: number, elapsed: number) {
   return Math.max(0, duration - elapsed);
 }
-export function formatTime(seconds: number) {
+export function clockParts(seconds: number) {
   const n = Math.max(0, Math.ceil(seconds));
-  return `${Math.floor(n / 3600)
-    .toString()
-    .padStart(
-      2,
-      "0",
-    )}:${Math.floor(n / 60) % 60 < 10 ? "0" : ""}${Math.floor(n / 60) % 60}:${(n % 60).toString().padStart(2, "0")}`;
+  return {
+    hh: Math.floor(n / 3600).toString().padStart(2, "0"),
+    mm: (Math.floor(n / 60) % 60).toString().padStart(2, "0"),
+    ss: (n % 60).toString().padStart(2, "0"),
+  };
+}
+export function formatTime(seconds: number) {
+  const p = clockParts(seconds);
+  return `${p.hh}:${p.mm}:${p.ss}`;
 }
 export function noise(index: number, seed: number) {
   const v = Math.sin(index * 127.1 + seed * 311.7) * 43758.5453;

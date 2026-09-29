@@ -10,13 +10,37 @@ import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/inter/600.css";
 import App from "./App";
+import { sessionFromSearch } from "./core/session";
+import { ExerciseProvider } from "./core/useExercise";
+import { TrainerView } from "./views/TrainerView";
+import { HqView } from "./views/HqView";
+import { ElementView } from "./views/ElementView";
 import "./tokens.css";
 import "./styles.css";
 import "./scenes/corporate.css";
 import "./scenes/os/os.css";
+const session = sessionFromSearch(location.search);
+function Root() {
+  if (session.role === "film") return <App />;
+  return (
+    <ExerciseProvider
+      role={session.role}
+      room={session.room}
+      station={session.station}
+    >
+      {session.role === "trainer" ? (
+        <TrainerView room={session.room} />
+      ) : session.role === "hq" ? (
+        <HqView />
+      ) : (
+        <ElementView station={session.station} />
+      )}
+    </ExerciseProvider>
+  );
+}
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <Root />
   </React.StrictMode>,
 );
 

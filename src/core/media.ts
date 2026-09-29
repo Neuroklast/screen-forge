@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { exampleMedia } from "./exampleMedia";
 export type MediaAsset = {
   id: string;
   name: string;
@@ -65,6 +66,24 @@ export const saveMedia = (asset: MediaAsset) =>
   transact("readwrite", (store) => store.put(asset));
 export const deleteMedia = (id: string) =>
   transact("readwrite", (store) => store.delete(id));
+export async function seedExampleMedia() {
+  const existing = await listMedia();
+  const have = new Set(existing.map((a) => a.id));
+  for (const item of exampleMedia) {
+    if (have.has(item.id) || /\.mp4$/i.test(item.name)) continue;
+    const res = await fetch(item.src);
+    if (!res.ok) continue;
+    const blob = await res.blob();
+    if (blob.size > 12_000_000) continue;
+    await saveMedia({
+      id: item.id,
+      name: item.name,
+      folder: item.folder,
+      type: blob.type || "image/jpeg",
+      blob,
+    });
+  }
+}
 export function useMedia() {
   const [assets, setAssets] = useState<MediaView[]>([]),
     [error, setError] = useState("");

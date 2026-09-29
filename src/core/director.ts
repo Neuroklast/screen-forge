@@ -6,14 +6,16 @@ export const stepSchema = z.object({
   config: schema,
   cue: z.enum(["idle", "active", "warning", "complete"]),
   operation: z.string().max(40).default(""),
-  trigger: z.enum(["time", "key", "pin", "signal"]),
+  trigger: z.enum(["time", "key", "pin", "signal"]).default("signal"),
   duration: z.number().min(0.1).max(35999),
   value: z.string().max(80),
   next: z.string().max(80),
+  onFail: z.string().max(80).default(""),
+  timeout: z.number().min(0).max(35999).default(0),
 });
 export const showSchema = z
   .object({
-    version: z.literal(1),
+    version: z.union([z.literal(1), z.literal(2)]).default(1),
     name: z.string().max(80),
     steps: z.array(stepSchema).max(60),
   })
@@ -25,9 +27,12 @@ export const showSchema = z
     (show) =>
       show.steps.every(
         (s) =>
-          !s.next ||
+          (!s.next ||
           s.next === "end" ||
-          show.steps.some((t) => t.id === s.next),
+          show.steps.some((t) => t.id === s.next)) &&
+        (!s.onFail ||
+          s.onFail === "end" ||
+          show.steps.some((t) => t.id === s.onFail)),
       ),
     "Invalid link",
   );
@@ -44,7 +49,14 @@ export function newStep(config: Config): Step {
     duration: 10,
     value: "Enter",
     next: "",
+    onFail: "",
+    timeout: 0,
   };
+}
+export function failStep(show: Show, id: string) {
+  const s = show.steps.find((x) => x.id === id);
+  if (!s || !s.onFail || s.onFail === "end") return null;
+  return show.steps.find((n) => n.id === s.onFail) ?? null;
 }
 export function nextStep(show: Show, id: string) {
   const index = show.steps.findIndex((s) => s.id === id),
@@ -54,6 +66,9 @@ export function nextStep(show: Show, id: string) {
     : s.next
       ? (show.steps.find((n) => n.id === s.next) ?? null)
       : (show.steps[index + 1] ?? null);
+}
+export function gate(kind: "file.found" | "file.decrypt" | "shell.success", path = "") {
+  return path ? `${kind}:${path}` : kind;
 }
 export function triggerMatches(
   step: Step,
@@ -71,7 +86,7 @@ export function loadShow(): Show {
     );
   } catch {
     return {
-      version: 1,
+      version: 2,
       name: "Take 01",
       steps: [newStep(defaults("terminal"))],
     };
