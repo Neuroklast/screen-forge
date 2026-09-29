@@ -1,0 +1,55 @@
+# Catalog — Sounds
+
+> ScreenForge concept set · Catalog · Target state (Soll) · Language: EN, UI labels DE
+> Code: `src/core/sound.ts` (54), `sounds/` (16 WAVs, ~1.9 MB)
+> Related: [23-asset-and-catalog-gaps.md](23-asset-and-catalog-gaps.md)
+
+## Sound map (16)
+
+| File | Size | id | Trigger | Call sites |
+| --- | --- | --- | --- | --- |
+| `Button_simple_click_01.wav` | 22.7 KB | `click` | UI/button, channel select, app open | `CodePad.tsx:32`, `Blocks.tsx:179,239`, `CyberOS.tsx:160` |
+| `Code_fail_07.wav` | 23.3 KB | `fail` | wrong PIN/code | `CodePad.tsx:47` |
+| `COUNTDOWN BEEP.wav` | 42.7 KB | `beep` | countdown tick | `Warhead.tsx:156` |
+| `Text_type_scroll_effect_01.wav` | 151 KB | `scroll` | terminal submit | `ActorPlayback.tsx:168` |
+| `Text_type_scroll_effect_02.wav` | 144 KB | `scroll2` | **unused** | — |
+| `abort.wav` | 105 KB | `abort` | **unused** | — |
+| `countdown alert.wav` | 317 KB | `alert` | countdown expiry + warnings | `Warhead.tsx:130,150` |
+| `denied.wav` | 93 KB | `denied` | **unused** (denied path plays `fail`) | — |
+| `hack 01.wav` | 434 KB | `hack1` | OS sequence run | `CyberOS.tsx:167` |
+| `hack 02.wav` | 252 KB | `hack2` | OS `operation` sequence | `CyberOS.tsx:167` |
+| `load.wav` | 124 KB | `load` | successful unlock | `CodePad.tsx:39` |
+| `open folder.wav` | 47 KB | `openFolder` | Files app open | `CyberOS.tsx:159` |
+| `open profile loop till finished.wav` | 26 KB | `openProfile` | Personnel open/switch (one-shot, despite name) | `CyberOS.tsx:158,883` |
+| `prompt.wav` | 99 KB | `prompt` | pad mount, hold buttons, diagnostics | `CodePad.tsx:57`, `Blocks.tsx:62,132,278`, `Warhead.tsx:320` |
+| `temrinal output new line .wav` | 98 KB | `newline` | terminal output line (filename typo) | `ActorPlayback.tsx:142` |
+| `typing key press sound.wav` | 25 KB | `type` | keypress in pads/terminal | `CodePad.tsx:53`, `CyberOS.tsx:138,659`, `Warhead.tsx:357` |
+
+## Playback model
+
+- One-shot: `playSound(id)` → `new Audio(src)`, volume `0.72`, fire-and-forget (`sound.ts:29-34`).
+- Loops: `playLoop` / `stopLoop`, volume `0.62`; `playLoop` is currently dead code; `stopLoop` only used for `openProfile` cleanup.
+- Enable/disable: global `enabled` flag, wired to `config.sound` (default `true`); disabling stops loops (`:20-25`).
+- Bundling: Vite fingerprints WAVs via `import.meta.url`; all 16 ship in `dist/assets/`.
+
+## Rules
+
+- Sound is never the sole feedback channel ([../usability/00-principles.md](../usability/00-principles.md)); every cue has a visual equivalent.
+- Field devices SHOULD default to sounds off; stage/HQ/director default on (config-driven).
+- No real radio/weapon/explosion samples; fictional tones only (principle P1).
+- Volume stays ≤ 0.72; no sudden loud transients (training environments).
+
+## Target state (Soll)
+
+- MUST add a sound manifest with provenance and license per file; today no license documentation exists.
+- SHOULD assign the unused sounds: `abort` → abort banner, `denied` → access denied (instead of `fail`), `scroll2` → variant for long output; delete what stays unused.
+- SHOULD add missing event sounds: objective complete, inject fired, device offline/online, message received, latch sealed.
+- SHOULD support per-sound volume categories (UI / scene / alert) in config and mission packages.
+- MAY add a mute-by-role policy (e.g. assessor muted).
+
+## Acceptance criteria
+
+- [ ] Given `config.sound = false`, no sound plays and loops stop.
+- [ ] Given the abort action, the `abort` sound plays (once assigned) and the banner shows.
+- [ ] Given a manifest entry missing, the sound is skipped without breaking playback.
+- [ ] Given a field device profile, sounds default to off.

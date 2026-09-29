@@ -2,6 +2,13 @@
 
 Interaktive Filmoberflächen mit React, TypeScript, Motion und Vite. Alle angezeigten Systeme sind Fiktion. Keine Shell-Ausführung, kein Netzwerkzugriff aus Szenen, keine Waffentechnik. Lokale SVG-Grafiken und eigenständige Szenen. Das Konzernsystem verwendet die vom Nutzer vorgegebene helle, schwarz-rote Designreferenz aus Neuroklast/umbrella-corp-band-t.
 
+## Konzept (Soll-Zustand)
+
+Das fachliche Konzept und das Usability-Konzept (englisch, taktisch/fiktiv) beschreiben den Zielzustand: Modi (Film & TV, Training, Demo), alle Rollen, freier Einsatzbaukasten per Drag & drop mit 1..n Geräten und optionalen Entitäten, Szenario-Vorlagen sowie Startseiten mit geführtem und Expertenmodus.
+
+- Einstieg: [docs/konzept/README.md](docs/konzept/README.md)
+- Ist/Soll-Abgleich für die Umsetzung: [docs/konzept/domain/12-gap-analysis.md](docs/konzept/domain/12-gap-analysis.md)
+
 ## Windows: starten
 
 1. ZIP vollständig entpacken.
