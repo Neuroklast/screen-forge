@@ -10,6 +10,7 @@ import { DossierEditor } from "../training/Dossiers";
 import { TacticalMap } from "../training/TacticalMap";
 import { PatientControl } from "../training/PatientControl";
 import { TemplateGallery } from "../training/TemplateGallery";
+import { briefingFilename, missionBriefing } from "../core/briefing";
 import "../training/roles.css";
 export function TrainerView({ room }: { room: string }) {
   const ex = useTraining(),
@@ -34,6 +35,9 @@ export function TrainerView({ room }: { room: string }) {
     setDraft(s);
     setDirty(true);
   };
+  const briefingText = missionBriefing(draft, {
+    date: `${new Date().toISOString().slice(0, 16).replace("T", " ")}Z`,
+  });
   const save = (s = draft) => {
     const result = scenarioSchema.safeParse(s);
     if (!result.success) {
@@ -145,6 +149,7 @@ export function TrainerView({ room }: { room: string }) {
           ["devices", "Geräte vorbereiten"],
           ["live", "Live-Steuerung"],
           ["editor", "Szenario bearbeiten"],
+          ["briefing", "Briefing"],
           ["dossiers", "Personalakten"],
         ].map(([id, name]) => (
           <button
@@ -222,6 +227,10 @@ export function TrainerView({ room }: { room: string }) {
                   <button onClick={() => setGallery(true)} disabled={!ex.state.frozen}>
                     <strong>Vorlage laden</strong>
                     <span>Baukasten mit einer fertigen Vorlage starten.</span>
+                  </button>
+                  <button onClick={() => setTab("briefing")}>
+                    <strong>Briefing erzeugen</strong>
+                    <span>Volltext-Briefing im Einsatzbefehl-Stil.</span>
                   </button>
                   <button onClick={() => setTab("devices")}>
                     <strong>Vorbereitetes Szenario starten</strong>
@@ -583,6 +592,37 @@ export function TrainerView({ room }: { room: string }) {
                 <ScenarioEditor draft={draft} change={change} />
               )}
             </>
+          )}
+          {tab === "briefing" && (
+            <section className="panel">
+              <div className="button-row">
+                <button
+                  onClick={() => {
+                    void navigator.clipboard
+                      ?.writeText(briefingText)
+                      .then(() => setMessage("Briefing kopiert."))
+                      .catch(() => setMessage("Kopieren nicht möglich."));
+                  }}
+                >
+                  Kopieren
+                </button>
+                <button
+                  onClick={() => {
+                    const url = URL.createObjectURL(
+                      new Blob([briefingText], { type: "text/plain" }),
+                    );
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = briefingFilename(draft);
+                    a.click();
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                  }}
+                >
+                  Als Datei
+                </button>
+              </div>
+              <pre className="briefing-text">{briefingText}</pre>
+            </section>
           )}
           {tab === "dossiers" && (
             <DossierEditor

@@ -18,6 +18,7 @@ Rework every scene and block to the V2 specs: a real operating-system feel (squa
 - Done: V2-10 countdown — device profiles (transfer/bomb/reactor/custom with label) drive family, telemetry and timer labels; a phase banner shows the current phase with per-phase accent; the inspector gains type, label and (for bombs) the assembly variant.
 - Done: V2-16 new blocks — `clock`, `rotary`, `code-table` and the requested `data-sheet` (schematic + disposal steps to read and relay via comms) in `src/scenes/blocks/Instruments.tsx`; registry, config options and inspector wired. V2-13/V2-15 partial: lock shows the attempt count, slide shows the stage count.
 - Done: V2-9 corporate window bar (OS-like windowed surface) and V2-14 medical (trend arrows, extra values GLU/LAC, configurable alarm pulse). New blocks registered as training modules (`clock`/`rotary`/`code-table`/`data-sheet`) with signal whitelist; the EOD template ships a data-sheet station.
+- Done: mission briefing generator — [../../src/core/briefing.ts](../../src/core/briefing.ts) turns a built mission into an English SMEAC/OPORD full-text briefing (situation, mission, execution, timeline, support, command & signal, annexes); TrainerView gains a "Briefing" tab with copy/download ([../konzept/formats/05-briefing-format.md](../konzept/formats/05-briefing-format.md)).
 - Open: V2-6 (full OS chrome; taskbar/start-menu polish).
 
 ## Tasks

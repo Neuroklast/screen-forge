@@ -598,3 +598,17 @@
     font-size: 12px;
   }
 }
+
+.briefing-text {
+  margin: 10px 0 0;
+  padding: 12px;
+  border: 1px solid #1e2a33;
+  background: #0a1016;
+  color: #d6e2e5;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  max-height: 62vh;
+  overflow: auto;
+}

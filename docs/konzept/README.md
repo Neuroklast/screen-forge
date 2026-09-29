@@ -101,6 +101,7 @@
 | F2 | [formats/02-package-format.md](formats/02-package-format.md) | `.sfpack` layout, manifest, hashes |
 | F3 | [formats/03-show-theme-profile-formats.md](formats/03-show-theme-profile-formats.md) | Show, preset, theme, profile files |
 | F4 | [formats/04-import-export-migration.md](formats/04-import-export-migration.md) | Import pipeline, migration, security |
+| F5 | [formats/05-briefing-format.md](formats/05-briefing-format.md) | Full-text mission briefing (SMEAC/OPORD) |
 
 ## Control & orchestration
 
