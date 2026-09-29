@@ -1,10 +1,10 @@
 import { BrandMark } from "../components/BrandMark";
 import { Corporate, Tracking, Hologram } from "./shared/LiveScenes";
-import { Changed, ProcessReadout, useProcess } from "./shared/Process";
+import { Warhead } from "./shared/Warhead";
 import { CyberOS } from "./os/CyberOS";
 
 import type { Config } from "../core/config";
-import { countdown, formatTime, noise, type Cue } from "../core/runtime";
+import { noise, type Cue } from "../core/runtime";
 
 export type SceneProps = {
   config: Config;
@@ -58,113 +58,6 @@ export function SceneHeader({ config, tag }: { config: Config; tag: string }) {
     </header>
   );
 }
-export function Countdown(props: SceneProps) {
-  const { config, time, cue } = props;
-  const process = useProcess(props);
-  const left = countdown(config.duration, time),
-    done = left === 0 || cue === "complete",
-    warning = cue === "warning" || left <= 30;
-  return (
-    <div className={`countdown scene-inner ${warning ? "critical" : ""}`}>
-      <SceneHeader
-        config={config}
-        tag={
-          done
-            ? "SEQUENCE COMPLETE"
-            : warning
-              ? "OPERATOR ATTENTION"
-              : "SEQUENCE MONITOR"
-        }
-      />
-      <div className="countdown-main">
-        <div className="device-index">
-          <span>09</span>
-          <Label>
-            CONTROL MODULE
-            <br />
-            REMOTE DISPLAY
-          </Label>
-        </div>
-        <Label>
-          {done ? "END OF SEQUENCE" : "TIME REMAINING / SYNCHRONIZED"}
-        </Label>
-        <div className="countdown-digits">{formatTime(done ? 0 : left)}</div>
-        <div className="countdown-progress">
-          <div
-            style={{ width: `${done ? 0 : (left / config.duration) * 100}%` }}
-          />
-        </div>
-        <div className="between countdown-caption">
-          <span>
-            {done
-              ? "SEQUENCE ENDED"
-              : warning
-                ? "ATTENTION REQUIRED"
-                : "TIMING REFERENCE STABLE"}
-          </span>
-          <span>T−{Math.ceil(left).toString().padStart(5, "0")}</span>
-        </div>
-        <div className="device-status">
-          {[
-            ["POWER", "EXTERNAL / STABLE"],
-            ["ENCLOSURE", warning ? "REVIEW PENDING" : "SEALED"],
-            ["TELEMETRY", warning ? "INTERRUPTED" : "CONNECTED"],
-            ["DISPLAY", "SELF-TEST PASSED"],
-          ].map(([a, b]) => (
-            <div key={a}>
-              <Label>{a}</Label>
-              <b>
-                <Changed
-                  value={process.job && !process.done ? "VERIFYING" : b}
-                />
-              </b>
-            </div>
-          ))}
-        </div>
-        {config.density === "detailed" && (
-          <div className="device-bottom">
-            <div>
-              <Label>DEVICE EVENT REGISTER</Label>
-              <p>
-                00:00:00 / Timing reference acquired
-                <br />
-                {formatTime(time)} /{" "}
-                {done
-                  ? "Sequence ended"
-                  : warning
-                    ? "Status exception recorded"
-                    : "Display synchronisation nominal"}
-              </p>
-            </div>
-            <button
-              className="scene-button"
-              disabled={done || (!!process.job && !process.done)}
-              onClick={() =>
-                process.start(
-                  "DISPLAY DIAGNOSTICS",
-                  [
-                    "Check timing reference",
-                    "Verify power channel",
-                    "Read enclosure sensors",
-                  ],
-                  Math.max(0.5, Math.min(9, left)),
-                  "Display channels verified / report saved",
-                )
-              }
-            >
-              DIAGNOSTICS
-            </button>
-          </div>
-        )}
-        <ProcessReadout process={process} />
-      </div>
-      <footer className="scene-footer">
-        <span>SC-09 / INDEPENDENT DISPLAY MODULE</span>
-        <span>CHECKSUM 84F2 · REV 03</span>
-      </footer>
-    </div>
-  );
-}
 export function Terrain() {
   return (
     <>
@@ -209,7 +102,7 @@ export function Terrain() {
 export const sceneComponents = {
   corporate: Corporate,
   terminal: CyberOS,
-  countdown: Countdown,
+  countdown: Warhead,
   tracking: Tracking,
   hologram: Hologram,
 };

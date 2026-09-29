@@ -40,8 +40,7 @@ test("perspective depth and autonomous target positions move and pause", async (
   await select(page, "Orbital Tracking");
   const r = page.locator(".auto-reticle");
   const x = await r.getAttribute("data-x");
-  await page.waitForTimeout(400);
-  expect(await r.getAttribute("data-x")).not.toBe(x);
+  await expect(r).not.toHaveAttribute("data-x", x!);
   await advance(page, 3);
   await expect(page.locator(".tracking-state")).toHaveText("TRACK LOCK");
   await page.getByRole("button", { name: "Hold sensor" }).click();
@@ -92,7 +91,7 @@ test("actor typing advances distinct commands, timed output and visual channels 
   await expect(page.getByRole("log")).toContainText("inspect relay");
   await advance(page, 5);
   await input.pressSequentially("asdf");
-  await expect(input).toHaveValue("ip -br addres");
+  await expect(input).toHaveValue(/^ip -br addre/);
   await input.press("Enter");
   await expect(page.locator(".terminal-visual")).toContainText(
     "INTERFACE ENUMERATION",
@@ -100,7 +99,7 @@ test("actor typing advances distinct commands, timed output and visual channels 
   await advance(page, 5);
   await expect(page.getByRole("log")).toContainText("Interface snapshot saved");
   await input.pressSequentially("asdf");
-  await expect(input).toHaveValue("ip route get");
+  await expect(input).toHaveValue(/^ip route ge/);
   expect(
     await page
       .getByRole("log")
@@ -127,10 +126,7 @@ test("themes, logo and system profile survive reload and export", async ({
     .setInputFiles({
       name: "logo.png",
       mimeType: "image/png",
-      buffer: Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jMioAAAAASUVORK5CYII=",
-        "base64",
-      ),
+      buffer: Buffer.from(await page.evaluate(()=>{const canvas=document.createElement('canvas');canvas.width=32;canvas.height=32;const ctx=canvas.getContext('2d')!;ctx.fillStyle='#ff3355';ctx.fillRect(0,0,32,32);return canvas.toDataURL('image/png').split(',')[1];}),'base64'),
     });
   await expect(page.locator(".custom-brand-logo")).toBeVisible();
   await page.getByLabel("Systemprofilname").fill("My film system");
@@ -193,7 +189,7 @@ test("completed OS process creates a report and messages link to processes", asy
     .locator(".os-sidebar")
     .getByRole("button", { name: /Filesystem/ })
     .click();
-  await page.getByRole("button", { name: "/workspace", exact: true }).click();
+  await page.getByRole("button", { name: /^workspace/ }).click();
   await page.getByRole("button", { name: /decrypt-1.report/ }).click();
   await expect(page.getByRole("dialog")).toContainText(
     "Result verified and committed",

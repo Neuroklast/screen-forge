@@ -499,6 +499,25 @@ export default function App() {
             <div className="inspector-section-title">
               <span>03</span> Ablauf
             </div>
+            {config.scene === "countdown" && (
+              <label>
+                Gerätetyp
+                <select
+                  aria-label="Gerätetyp"
+                  value={config.device}
+                  onChange={(e) => {
+                    reset();
+                    setConfig({
+                      ...config,
+                      device: e.target.value as Config["device"],
+                    });
+                  }}
+                >
+                  <option value="antimatter">Antimaterie-Sprengkopf</option>
+                  <option value="nuclear">Nuklearer Sprengkopf</option>
+                </select>
+              </label>
+            )}
             <label>
               Dauer in Sekunden
               <input

@@ -102,9 +102,8 @@ test("multitouch scale, rotate and cancel remain finite", async ({ page }) => {
     send("pointermove", 1, 120, 130);
     send("pointerup", 1, 120, 130);
   });
-  const transform = await page
-    .locator(".gesture-content")
-    .getAttribute("style");
+  await expect(page.locator(".gesture-content")).not.toHaveAttribute("style", /scale\(1\)/);
+  const transform = await page.locator(".gesture-content").getAttribute("style");
   expect(transform).not.toContain("NaN");
   expect(transform).not.toContain("scale(1)");
   await page.getByTitle("Ansicht zurücksetzen").click();
@@ -120,7 +119,7 @@ test("mobile layout and preset validation", async ({ page }) => {
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);
   await page
-    .locator("input[type=file]")
+    .locator('input[type=file][accept=".json,application/json"]')
     .setInputFiles({
       name: "bad.json",
       mimeType: "application/json",

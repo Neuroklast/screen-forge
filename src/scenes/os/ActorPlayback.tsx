@@ -113,6 +113,7 @@ export function useActorPlayback(
   time: number,
   onPlay: (() => void) | undefined,
   firstCommand: string,
+  systemName: string,
 ) {
   const [index, setIndex] = useState(0),
     [running, setRunning] = useState<{
@@ -121,7 +122,7 @@ export function useActorPlayback(
       command: string;
     } | null>(null),
     [history, setHistory] = useState<string[]>([
-      "BLACKLINE / session fixture mounted",
+      `${systemName} / session fixture mounted`,
       "Cached network environment ready. Awaiting operator.",
     ]);
   const stage = chain[index % chain.length];

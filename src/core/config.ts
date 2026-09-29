@@ -40,6 +40,7 @@ export function scenePalette(scene: SceneId) {
 export const schema = z.object({
   version: z.literal(1),
   palette: paletteSchema.optional(),
+  device: z.enum(["antimatter", "nuclear"]).default("antimatter"),
   skin: z.enum(["standard", "cyberdeck"]).default("standard"),
   brand: z
     .object({
@@ -134,6 +135,7 @@ export function defaults(scene: SceneId = "corporate"): Config {
   return {
     version: 1,
     skin: "standard",
+    device: "antimatter",
     scene,
     title: s.title,
     subtitle: s.subtitle,

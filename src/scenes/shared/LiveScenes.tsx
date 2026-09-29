@@ -244,7 +244,7 @@ export function Corporate(props: SceneProps) {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                   />
-                  {!record &&
+                  {(!record || !process.job) &&
                     (tab === "Personnel" ? personnel : archive)
                       .filter((x) =>
                         x.toLowerCase().includes(query.toLowerCase()),
@@ -308,7 +308,7 @@ export function Corporate(props: SceneProps) {
         </main>
       </div>
       <footer className="scene-footer">
-        <span>VESPER INTERNAL / AUTHORIZED PERSONNEL</span>
+        <span>{config.title} INTERNAL / AUTHORIZED PERSONNEL</span>
         <span>SESSION {formatTime(time)} · REV 4.09</span>
       </footer>
     </div>
@@ -441,7 +441,7 @@ export function Hologram(props: SceneProps) {
         </aside>
       </div>
       <footer className="scene-footer">
-        <span>AEON / PERSPECTIVE RECONSTRUCTION</span>
+        <span>{config.title} / PERSPECTIVE RECONSTRUCTION</span>
         <span>SESSION {formatTime(time)}</span>
       </footer>
     </div>

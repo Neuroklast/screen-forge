@@ -95,7 +95,7 @@ export function CyberOS({
     [cluster, setCluster] = useState(0),
     [command, setCommand] = useState(""),
     [terminalLines, setTerminalLines] = useState<string[]>([
-      "BLACKLINE environment attached.",
+      `${config.title} environment attached.`,
       "Type help for local commands. Every operation is a simulation.",
     ]),
     [commands, setCommands] = useState<string[]>([]),
@@ -105,7 +105,7 @@ export function CyberOS({
     [rotate, setRotate] = useState(true),
     [frozenTime, setFrozenTime] = useState(0),
     [rotationOffset, setRotationOffset] = useState(0);
-  const actor = useActorPlayback(time, onPlay, config.script);
+  const actor = useActorPlayback(time, onPlay, config.script,config.title);
   const consoleRef = useRef<HTMLDivElement>(null);
   const displayedLines = config.actorMode ? actor.lines : terminalLines;
   useEffect(() => {
@@ -333,7 +333,7 @@ export function CyberOS({
             <span className="os-window-meta">
               {active
                 ? "SEQUENCE IN PROGRESS"
-                : "BL://WORKSPACE/" + state.app.toUpperCase()}
+                : config.title + "://WORKSPACE/" + state.app.toUpperCase()}
               <i />
               <i />
               <i />
