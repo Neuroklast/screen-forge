@@ -20,6 +20,10 @@
 | `aborted` | All training surfaces | Full-width red banner `"ÜBUNG ABGEBROCHEN"` + time + role | Reset by EXCON |
 | `error` | Any action | Inline message + retry; toast only as duplicate | Retry/back |
 | `reconnecting` | Devices | `"Verbindung verloren — versuche erneut (3/10)"` | Reconnect |
+| `queued` | Field device | `"Ausstehend — wird gesendet"` on the command | ACK |
+| `rejected` | Field device | `"Abgelehnt: <Grund>"` + resync | Dismiss/resync |
+| `stale` | HQ/EXCON/Professional | Value + `"AGE 00:18"` (or `"veraltet"`) | Fresh data |
+| `SYNC UNKNOWN` | Field device after offline gap | `"Abgleich unklar"` + authoritative deadline | Reconnect |
 
 ## Feedback timing rules
 

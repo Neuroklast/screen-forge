@@ -41,6 +41,12 @@ A fictional facility reports an accident with two casualties. The medical statio
 | Objective-3 | objective | evacuation coordinated to Zone-1 |
 | Objective-4 | objective | handover note completed |
 
+## Assessment log
+
+The Medic view records MARCH as an assessment status sequence (M/A/R/C/H each `assessed` /
+`pending` / `not-assessed`) with timestamps and a report action — no procedure instructions
+([11-role-sops.md](11-role-sops.md), [13-doctrine-packs.md](13-doctrine-packs.md)).
+
 ## MEL
 
 | T+ | Inject | Trigger | Action | Purpose | Fallback |

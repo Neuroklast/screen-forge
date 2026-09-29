@@ -51,6 +51,9 @@
 | `demo` | `"Demo"` | Offline showcase mode: seeded content, guided tour. |
 | `guided` | `"Geführt"` | Depth level: wizard, defaults, reduced choices. |
 | `advanced` | `"Experte"` | Depth level: full builder, bindings, injects. |
+| `profile` | `"Profil"` | Experience profile (orthogonal to depth): Easy / Advanced / Professional. |
+| `easy` | `"Einfach"` | Profile: one task, large targets, deterministic recovery. |
+| `professional` | `"Professionell"` | Profile: provenance, uncertainty, role separation, degradation. |
 | `LIVE` | `"Live"` | Mission data source: real GPS, real time, server tick. |
 | `PLAYBACK` | `"Aufzeichnung"` | Mission data source: deterministic routes, rehearsal/replay. |
 | `EXCON` | `"Übungsleitung"` | Exercise control cell; the authority that runs the exercise. |
@@ -67,6 +70,14 @@
 | `SIG_LOST` | `"Signalverlust"` | Player GPS stale beyond threshold (10 s). |
 | `frozen` | `"pausiert"` | Exercise clock paused; mission edits allowed. |
 | `revision` | `"Version"` | Monotonic mission version; devices reload on change. |
+| `command` | `"Befehl"` | Operator action sent to the server with a stable `eventId`. |
+| `log event` | `"Log-Eintrag"` | Authoritative, server-sequenced change in the event journal. |
+| `outbox` | `"Ausgangskorb"` | Client queue of unsent/unacked commands. |
+| `deadline` | `"Frist"` | Absolute server time; display is a prediction, the server is authority. |
+| `failurePolicy` | `"Fehlerstrategie"` | `continue` / `degrade` / `hold` / `branch` / `trainerDecision`. |
+| `safetyGate` | `"Sicherheitsschwelle"` | Preconditions without which an inject never fires. |
+| `stale` | `"veraltet"` | Data older than its freshness threshold; shown with age. |
+| `SYNC UNKNOWN` | `"Abgleich unklar"` | Client cannot know the authoritative time after an offline gap. |
 
 ## Forbidden or deprecated terms
 

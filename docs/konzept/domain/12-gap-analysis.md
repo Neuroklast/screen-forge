@@ -3,7 +3,7 @@
 > ScreenForge concept set · Target state (Soll) · Status of this file: **maintained** — update when code moves.
 > Evidence paths are relative to the repo root. `Action`: `new` | `extend` | `refactor` | `keep` | `remove`.
 > Asset/catalog findings (media, fonts, sounds, dead wiring): [../catalog/23-asset-and-catalog-gaps.md](../catalog/23-asset-and-catalog-gaps.md).
-> Implementation progress: Phase 1–3 complete; Phase 4 partially (phase model, manual fire, safety/assessor, abort, notes). Scene rework V2: `sceneOptions` + migration, uncropped photos, squared UI, and the OS/Terminal split (desktop `os`, goal-driven CLI `terminal`). Open: OS chrome and synthetic sounds, then the remaining V2 scene work ([../../plan/11-scene-rework-v2.md](../../plan/11-scene-rework-v2.md)). See also [../../plan/09-backlog-foundation-to-catalog.md](../../plan/09-backlog-foundation-to-catalog.md) and [../../plan/10-backlog-runtime-to-cleanup.md](../../plan/10-backlog-runtime-to-cleanup.md).
+> Implementation progress: Phase 1–3 complete; Phase 4 partially (phase model, manual fire, safety/assessor, abort, notes). Scene rework V2: `sceneOptions` + migration, uncropped photos, squared UI, and the OS/Terminal split (desktop `os`, goal-driven CLI `terminal`). Open: OS chrome and synthetic sounds, then the remaining V2 scene work ([../../plan/11-scene-rework-v2.md](../../plan/11-scene-rework-v2.md)). See also [../../plan/09-backlog-foundation-to-catalog.md](../../plan/09-backlog-foundation-to-catalog.md) and [../../plan/10-backlog-runtime-to-cleanup.md](../../plan/10-backlog-runtime-to-cleanup.md). Phase 8 (durable engine) is planned: command/event durability, MEL v2, experience profiles and templates ([../../plan/12-durable-engine.md](../../plan/12-durable-engine.md)).
 
 ## Summary
 
@@ -29,6 +29,13 @@
 | 18 | Docs | Concept set is SSOT; README current | README describes film-only state, never mentions training (`README.md`) | refactor |
 | 19 | Dead code | No unused modules | `core/dossiers.ts` load/save unused; legacy film dossiers | remove |
 | 20 | Tests | Cover builder, roles, demo, migration | 21 unit + 19 e2e; none for builder/demo/migration | extend |
+| 21 | Durable command/event engine | Command envelope, ACK, journal, outbox, resume | Snapshot broadcast + JSON snapshot; no outbox (`server/exercise.mjs`, `useExercise.tsx`) | refactor |
+| 22 | Clock & deadline model | `serverNow`/`exerciseElapsed`/`deadline`/`clockRevision` | Server clock only; no offset/deadline fields | extend |
+| 23 | MEL management layer | expectedOutcome, evidence, failurePolicy, safetyGate, status, reschedule audit | purpose/fallback only (`control/01`) | extend |
+| 24 | Experience profiles | Easy/Advanced/Professional | guided/expert toggle only | new |
+| 25 | Doctrine packs | Versioned medical profiles | hardcoded kinds/interventions | new |
+| 26 | Symbology provider | Semantic descriptor + versioned renderer | plain map markers | new |
+| 27 | Field client | PWA vs native shell, offline maps | PWA only | new |
 
 ## Detailed notes
 

@@ -69,6 +69,8 @@ One clean, efficient way to steer everything: who may do what, in which phase, f
 ## Audit trail
 
 - Every control action logs: `at` (server clock), `role`, `actor` (station/session), `action`, `target`, `result`.
+- Each action is a command with a stable `eventId`; accepted commands become journaled domain events ([05-sync-and-durability.md](05-sync-and-durability.md)).
+- MEL reschedules are audited as their own events (`from`, `to`, `actor`, `reason`, `revision`).
 - The log is append-only per exercise and included in the debrief export.
 - Auth events (login, invite redemption, revoke, failed unlock) are part of the audit trail.
 

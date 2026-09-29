@@ -41,6 +41,8 @@ Template = Mission without room state, in `presets/missions/`
 | `injects` | `Inject[]` | v1 name `rules`, migrated |
 | `briefing` | string? | markdown, shown on HQ/briefing |
 | `debriefHints` | string[]? | AAR prompts |
+| `safetyProfile` | object? | stop signal, safety officer, restricted zones, prop register, abort recipients ([../scenarios/12-safety-profile.md](../scenarios/12-safety-profile.md)) |
+| `doctrine` | `{id,version}?` | Pinned doctrine pack ([../scenarios/13-doctrine-packs.md](../scenarios/13-doctrine-packs.md)) |
 
 ## Station
 
@@ -67,7 +69,7 @@ Template = Mission without room state, in `presets/missions/`
 | `Objective` | `id, name, team?, condition: {type: inject|manual|compound, events[]}, state` |
 | `Team` | `id, name, color` |
 | `Actor` | `id, name, character, briefing?, dossierId?` |
-| `Inject` | `id, name, enabled, trigger, actions[], unless?, at?, jitter?, zone?, station?, signal?, prop?, from?, to?` |
+| `Inject` | `id, name, enabled, trigger, actions[], unless?, at?, jitter?, zone?, station?, signal?, prop?, from?, to?` plus MEL v2: `category?, status?, purpose?, expectedOutcome[]?, evidence[]?, failurePolicy?, safetyGate?, owner?, audience[]?, conditions[]?, escalation?, plannedAtOriginal?, scheduledAt?, timeBasis?, revision?` |
 
 ## Show (film)
 
@@ -91,14 +93,17 @@ Template = Mission without room state, in `presets/missions/`
 - Migration MUST be lossless for v1 fields; unknown future fields are preserved on round-trip where possible.
 - Film `Config` keeps `version: 1`; training mission gets its own `version: 2` literal.
 - Breaking changes bump the mission version; old versions remain readable for one major cycle.
+- MEL v2 fields are additive/optional, so mission `version` stays `2`; unknown fields survive round-trip.
 
 ## Persistence
 
 | Store | Content | Lifetime |
 | --- | --- | --- |
-| `.exercise-data/rooms.json` | Rooms, baseline, credentials | Server restarts |
+| `.exercise-data/rooms.json` | Rooms, baseline, credentials (legacy/export) | Server restarts |
+| `.exercise-data/journal/<room>.jsonl` | Append-only domain event log (source of truth) | Server restarts |
+| `.exercise-data/snapshots/<room>.json` | Compacted state snapshot | Server restarts |
 | localStorage | Film config, show, drafts, depth setting | Browser |
-| IndexedDB | Media blobs | Browser |
+| IndexedDB | Command outbox + media blobs | Browser |
 | `presets/*.json` | Film look presets (existing) | Repo |
 | `presets/missions/*.json` | Mission templates (new) | Repo |
 | `.exercise-data/browser-tests/` | Playwright test data | Tests |

@@ -16,6 +16,20 @@ This library defines **exercise design**: scenario structure, screen content, in
 | Environmental | Noise, camera feeds, signal loss, device friction | Camera, comms, GPS, `SIG_LOST`, overlays |
 | Evaluative | Observable criteria, notes, AAR | Log, assessor notes, debrief ([10-evaluation-and-aar.md](10-evaluation-and-aar.md)) |
 
+## Reference sources and boundaries
+
+Prioritise authorised, current, reproducible sources: exercise frameworks (e.g. CJCSM 3500.03F, NATO
+exercise doctrine, BBK LÜKEX), casualty-care guidelines (JTS) and symbology standards
+(MIL-STD-2525/APP-6) for terminology only. Never import leaked or unofficial SOPs/TTPs, and never
+encode real special-operations procedures; professional customers supply their own authorised
+criteria. See [11-role-sops.md](11-role-sops.md) and [12-safety-profile.md](12-safety-profile.md).
+
+## Failure philosophy
+
+A missed inject or error yields a new state (later information, harder objective, degraded system,
+alternate route, trainer branch) — never a game-over. `failurePolicy` is defined per inject
+([../control/01-inject-orchestration.md](../control/01-inject-orchestration.md)).
+
 ## Fidelity levels
 
 | Level | German | Elements | Use |

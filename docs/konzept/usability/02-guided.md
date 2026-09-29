@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Guided mode lets a first-time user run a complete exercise from a template without understanding the data model. It never hides the escape hatch to expert mode.
+Guided mode lets a first-time user run a complete exercise from a template without understanding the data model. It never hides the escape hatch to expert mode. It corresponds to the **Easy** experience profile ([10-experience-profiles.md](10-experience-profiles.md)).
 
 ## Template gallery
 
@@ -23,6 +23,7 @@ Vorlagen                         [Suche…]   Filter: [Training ▾] [Dauer ▾]
 - `"Vorschau"` shows briefing, device list, entities, objectives, preview image — read-only.
 - Filters: mode, difficulty, duration, roles needed; search matches name + summary.
 - `"Leerer Einsatz bauen"` jumps to the expert builder (explicit, not hidden).
+- Baseline templates include the airsoft "Relay Recovery", film "Secure Data Transfer" and professional "Distributed Command Incident" ([../scenarios/11-role-sops.md](../scenarios/11-role-sops.md)).
 
 ## Wizard steps
 

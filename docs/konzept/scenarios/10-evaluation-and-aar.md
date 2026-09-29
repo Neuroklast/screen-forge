@@ -20,6 +20,7 @@ Evaluation turns a running exercise into learning: observable criteria, assessor
 - Scenarios MAY override weights and add one domain criterion (e.g. procedure order in [06-eod-disposal.md](06-eod-disposal.md)).
 - Scores are optional: 1–5 per criterion, only with a note justifying the value.
 - Criteria MUST be observable in the log; no "attitude" or "leadership style" ratings.
+- Every MEL entry declares `expectedOutcome` and the `evidence` log events that prove it, so the AAR can compare expected vs actual ([../control/01-inject-orchestration.md](../control/01-inject-orchestration.md)).
 
 ## Assessor workflow
 

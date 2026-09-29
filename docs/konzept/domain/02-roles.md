@@ -47,6 +47,7 @@ Rows are capabilities; columns are roles. `F` = film, `T` = training, `D` = demo
 
 ## Rules
 
+- Role SOP abstractions (what a role recognises, reports or documents) live in [../scenarios/11-role-sops.md](../scenarios/11-role-sops.md); they NEVER contain real procedures.
 - `safety` MUST be able to pause and abort without EXCON confirmation; abort is logged and shown to all roles.
 - `assessor` and `hq` NEVER mutate exercise state except explicitly allowed actions (notes, messages, dossier release, objective completion when enabled per mission).
 - `player` sees only own station, own team, released dossiers, own objectives — enforced server-side by projection.

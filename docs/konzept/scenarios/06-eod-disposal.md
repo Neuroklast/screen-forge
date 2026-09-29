@@ -7,6 +7,15 @@
 
 A fictional device-disposal coordination exercise: identify a fictional ordnance prop, establish a cordon, work through abstract console stages, and document the result. The device is deliberately abstract — no real explosive, wiring, or procedure content appears anywhere.
 
+## Coordination state machine
+
+```text
+UNKNOWN → SUSPECTED → ISOLATED → REPORTED → SPECIALIST_PENDING → CLEARED
+```
+
+- The exercise trains recognition, isolation, reporting and waiting for a qualified release.
+- No render-safe procedure, circuitry or initiation detail appears anywhere ([11-role-sops.md](11-role-sops.md)).
+
 ## Training goals
 
 - Procedure adherence on a staged console (order matters; errors are recoverable but visible).

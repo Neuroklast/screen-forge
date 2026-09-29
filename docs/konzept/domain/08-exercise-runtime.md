@@ -9,6 +9,7 @@
 - Server: Node process (`server/exercise.mjs` today) serving `dist/` + WebSocket `/exercise` on the LAN.
 - Clients: EXCON console, HQ, field devices, assessor view. Film/demo run without the server.
 - Tick: 250 ms; full state on change, clock-only ticks otherwise; deterministic simulation from `seed`.
+- Data classes: commands (durable, deduplicated), domain events (server-sequenced, replayable), telemetry (latest-wins), media (WebRTC) — [../control/05-sync-and-durability.md](../control/05-sync-and-durability.md).
 
 ## Clock and lifecycle
 
@@ -24,6 +25,8 @@
 - `"Übung starten"` MUST require: ≥1 station, linter clean, at least one connected device (warning only if none).
 - `reset` restores the baseline snapshot (mission + initial entity states) without losing the mission.
 - Abort is distinct from pause: abort sets `aborted`, surfaces a full-screen banner on all devices, and cannot be resumed — only reset.
+- Time model: `serverNow`, `exerciseElapsed`, `deadlineAtServer`, `clockState`, `clockRevision`; the display is a prediction, the server is authority ([../control/05-sync-and-durability.md](../control/05-sync-and-durability.md)).
+- Durability: accepted commands become immutable, server-sequenced domain events in an append-only journal; clients resume from `lastServerSeq`.
 
 ## Injects (rules engine)
 
@@ -95,7 +98,9 @@ Action types: `patient`, `release`, `camera`, `objective`, `message`, `prop`, `l
 | Reliability | Server restart restores rooms from `.exercise-data/rooms.json` within 5 s |
 | Security | WS same-origin only; tokens hashed; no secrets in client; EXERCISE watermark |
 | Determinism | Same seed + same inputs = same simulation outcome (playback-grade) |
-| Clock | Server clock is authoritative; clients show server time, not local |
+| Clock | Server clock is authoritative; clients show server time, not local; deadlines carry `clockRevision` |
+| Durability | Accepted commands become journaled domain events; restart restores from snapshot + journal |
+| Offline | Field commands queue in an IndexedDB outbox and reconcile on reconnect; control commands are never silently dropped |
 
 ## Edge cases
 
@@ -104,6 +109,7 @@ Action types: `patient`, `release`, `camera`, `objective`, `message`, `prop`, `l
 - Invite link scanned twice: second redemption fails with `"Bereits zugewiesen"` and shows the station name.
 - Room file corrupt: server refuses to start, keeps a `.bak`, logs the error; no silent reset.
 - Inject fires while clock paused: timers do not advance; manual injects are blocked while paused.
+- Failure philosophy: a missed inject or error yields a new state (later information, degraded system, alternate route, trainer branch), never a game-over.
 
 ## Acceptance criteria
 

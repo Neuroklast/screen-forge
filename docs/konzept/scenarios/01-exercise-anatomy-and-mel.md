@@ -29,6 +29,7 @@
 | Escalation | Next inject if ignored | `"Kontaktverlust T+06:00"` |
 
 - The MEL is authored in advanced mode ([../domain/04-mission-builder.md](../domain/04-mission-builder.md)) and fired by the inject scheduler ([../control/01-inject-orchestration.md](../control/01-inject-orchestration.md)).
+- MEL v2 adds `expectedOutcome`, `evidence`, `failurePolicy`, `safetyGate`, `owner`, `status` and a live `plannedAtOriginal`/`scheduledAt` pair; the term stays MEL (`"Ereignisliste"`) ([../control/01-inject-orchestration.md](../control/01-inject-orchestration.md)).
 - Every inject MUST have a purpose; decorative events are removed in review.
 - Manual injects are reserved for EXCON discretion (escalation, recovery after missed events).
 

@@ -69,6 +69,18 @@ EXCON and HQ need to reach the field: task updates, warnings, requests, and ackn
 | Field device | message drawer with unread badge, ack button, channel filter |
 | Comms module | message log integrated with the waveform panel ([../catalog/blocks/11-comms.md](../catalog/blocks/11-comms.md)) |
 
+## Link and sensor degradation
+
+EXCON MAY degrade information quality as a semantic state (no real frequencies or jamming parameters):
+
+```text
+link.quality · link.latency · link.loss · position.accuracy · sensor.confidence
+message.delay · message.corruption · source.trust
+```
+
+- Effects: stale position, delayed/corrupt message, low-confidence sensor, contradictory sources, dropped feed.
+- Professional profiles show source, age and quality per message/position ([../usability/10-experience-profiles.md](../usability/10-experience-profiles.md)).
+
 ## Rules
 
 - Text-first, offline-capable: messages queue locally and flush on reconnect; no external service.

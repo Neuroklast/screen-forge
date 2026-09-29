@@ -27,6 +27,7 @@
 | 10 | [domain/10-demo.md](domain/10-demo.md) | Demo mode, kiosk, onboarding |
 | 11 | [domain/11-data-model.md](domain/11-data-model.md) | Schemas, versioning, migration |
 | 12 | [domain/12-gap-analysis.md](domain/12-gap-analysis.md) | Planning implementation work |
+| 13 | [domain/13-field-client.md](domain/13-field-client.md) | Field shell, background location, offline maps |
 
 ## Usability concept
 
@@ -42,6 +43,7 @@
 | U7 | [usability/07-accessibility-devices.md](usability/07-accessibility-devices.md) | Touch, tablets, HQ, stage, a11y |
 | U8 | [usability/08-flows.md](usability/08-flows.md) | End-to-end journeys per mode |
 | U9 | [usability/09-layout-contracts.md](usability/09-layout-contracts.md) | Any scene/block layout: grid, overflow, z-index, truncation, scaling |
+| U10 | [usability/10-experience-profiles.md](usability/10-experience-profiles.md) | Easy/Advanced/Professional density, provenance, degradation |
 
 ## Catalog (scenes, components, assets)
 
@@ -75,6 +77,7 @@
 | C21 | [catalog/21-dossiers.md](catalog/21-dossiers.md) | Personnel files, templates, photos |
 | C22 | [catalog/22-sounds.md](catalog/22-sounds.md) | 16 sounds, triggers, policies |
 | C23 | [catalog/23-asset-and-catalog-gaps.md](catalog/23-asset-and-catalog-gaps.md) | Asset findings and measures |
+| C24 | [catalog/components/19-symbology.md](catalog/components/19-symbology.md) | Symbol semantic descriptor → versioned renderer |
 
 ## Scenario library (exercise-design realism, fiction only)
 
@@ -91,6 +94,9 @@
 | S8 | [scenarios/08-convoy-route.md](scenarios/08-convoy-route.md) | Convoy and route coordination |
 | S9 | [scenarios/09-counter-intrusion.md](scenarios/09-counter-intrusion.md) | Intrusion detection and response |
 | S10 | [scenarios/10-evaluation-and-aar.md](scenarios/10-evaluation-and-aar.md) | Criteria, assessor workflow, AAR |
+| S11 | [scenarios/11-role-sops.md](scenarios/11-role-sops.md) | Role SOP abstractions (operator, access, medic, EOD) |
+| S12 | [scenarios/12-safety-profile.md](scenarios/12-safety-profile.md) | Safety profile, props, deconfliction |
+| S13 | [scenarios/13-doctrine-packs.md](scenarios/13-doctrine-packs.md) | Versioned doctrine packs, patient model split |
 
 ## Data formats
 
@@ -112,6 +118,7 @@
 | K2 | [control/02-readiness-monitoring.md](control/02-readiness-monitoring.md) | Readiness checks, alerts, multi-room |
 | K3 | [control/03-comms-and-notifications.md](control/03-comms-and-notifications.md) | Messages, canned texts, notifications |
 | K4 | [control/04-debrief-replay-aar.md](control/04-debrief-replay-aar.md) | Timeline, replay, notes, exports |
+| K5 | [control/05-sync-and-durability.md](control/05-sync-and-durability.md) | Commands/events, outbox, resume, clock, transport classes |
 
 ## Conventions in this set
 

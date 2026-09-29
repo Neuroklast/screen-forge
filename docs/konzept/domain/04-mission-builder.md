@@ -61,6 +61,17 @@ Severities: `error` blocks start, `warning` recommends, `info` explains.
 | Duration > 2 h | warning | `"Übungsdauer prüfen."` |
 | Unused entity | info | `"Entität ist keinem Gerät zugewiesen."` |
 | > 40 stations | error | schema cap |
+| Inject unreachable | error | `"Ereignis nicht erreichbar."` |
+| Action on incompatible entity | error | `"Wirkung passt nicht zur Entität."` |
+| Dependency cycle without repeat rule | error | `"Zyklus ohne Wiederholungsregel."` |
+| Repeat without cap | error | `"Wiederholung ohne Obergrenze."` |
+| Invalid safety gate | error | `"Sicherheitsschwelle ungültig."` |
+| Inject without purpose | warning | `"Ereignis ohne Zweck."` |
+| Inject without expected outcome | warning | `"Kein erwartetes Ergebnis."` |
+| Missing fallback (external delivery) | warning | `"Kein Fallback bei externer Zustellung."` |
+
+- Inject classes (Information, Communications, Resource, Human, Environment, Authority, Safety, Evaluation) group the palette.
+- A cycle is allowed only when explicitly repeatable (`repeatable: true`, `maxIterations`, `exitCondition`); otherwise it is an error ([../control/01-inject-orchestration.md](../control/01-inject-orchestration.md)).
 
 - The linter panel MUST be always reachable and show a badge count on the `"Prüfen"` action.
 - Clicking a finding selects and reveals the offending item.

@@ -79,6 +79,10 @@ Expert mode exposes the full model: all modules, entities, bindings, injects, ma
 - **Map editing:** place zones/objectives by click-drag; numeric entry in inspector; route editor per player station (click path, drag points, `"Route löschen"`).
 - **Inject table:** sortable list view (`"Ereignisse"` tab) with inline enable toggles and duplicate.
 
+## Experience profile
+
+The builder depth (`guided`/`expert`) is independent of the experience profile. Advanced/Professional density, provenance and symbology are defined in [10-experience-profiles.md](10-experience-profiles.md); Professional adds source/age/quality display without changing this builder.
+
 ## Guided↔expert switching
 
 - Toggle in header; switching to guided collapses drawers and shows summaries; data untouched.

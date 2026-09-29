@@ -19,6 +19,8 @@ The debrief turns the exercise into evidence: a complete timeline, deterministic
 | Live | updates during the run; frozen at `ended` |
 
 - The timeline is the single source for the AAR; every finding must reference at least one event ([../scenarios/10-evaluation-and-aar.md](../scenarios/10-evaluation-and-aar.md)).
+- The timeline is reconstructed from the append-only event journal (`serverSeq`), so it survives a restart and supports deterministic replay.
+- Planned, EXCON-changed and actual times are shown separately (`plannedAtOriginal` / `scheduledAt` / fired time).
 
 ## Replay
 

@@ -24,6 +24,33 @@ The MEL (Master Event List) is the exercise's script. Orchestration makes it con
 - Every inject keeps its `purpose` and `fallback` text from the scenario file and shows them in the panel.
 - Actions are the v2 set: `patient`, `release`, `camera`, `objective`, `message`, `prop`, `lock`, `beacon`, `ordnance`, `sound`, `state`, `inject`.
 
+## MEL v2 (management layer)
+
+Beyond trigger + action, every MEL entry carries training intent and audit state:
+
+| Field | Purpose |
+| --- | --- |
+| `purpose` | why the inject exists (no decorative injects) |
+| `expectedOutcome[]` | observable reaction |
+| `evidence[]` | which log event proves the outcome |
+| `failurePolicy` | `continue` / `degrade` / `hold` / `branch` / `trainerDecision` |
+| `fallback` | alternative delivery if the primary fails |
+| `escalation` | optional follow-up inject |
+| `safetyGate` | preconditions without which the inject never fires |
+| `owner` | responsible controller |
+| `audience[]` | roles/stations that see the effect |
+| `conditions[]` | extra guards |
+| `plannedAtOriginal` | original planned time (never overwritten) |
+| `scheduledAt` | current planned time (live edits) |
+| `timeBasis` | `exercise` or `wall` |
+| `status` | `planned` / `held` / `armed` / `fired` / `skipped` / `expired` / `replaced` |
+| `revision` | live-edit conflict control |
+
+- Inject classes group the palette: Information, Communications, Resource, Human, Environment, Authority, Safety, Evaluation.
+- A reschedule is a command, not a field overwrite: `MSEL_RESCHEDULED { entryId, from, to, actor, reason, revision }`.
+- A fired inject is never "withdrawn" by moving its time; a new controller event is created instead.
+- Failure never produces a game-over: `failurePolicy` yields a new state or a trainer branch.
+
 ## Scheduler panel (EXCON)
 
 ```text

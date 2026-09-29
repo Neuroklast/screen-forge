@@ -45,6 +45,8 @@ The Medical block is a simulated patient monitor: seven vitals, an ECG trace, al
 - SHOULD show the bound patient name in training and hide the "UNKNOWN / FIELD" fallback there.
 - SHOULD drive alarm states from mission injects (e.g. `arrest` after an inject) and log each intervention with station + time.
 - MUST keep vitals fictional and simulation-only; no real medical device behavior.
+- SHOULD separate underlying state, physiology and the visible monitor; a treatment changes parameters, never "healed" instantly ([../scenarios/13-doctrine-packs.md](../scenarios/13-doctrine-packs.md)).
+- SHOULD show MARCH assessment states (labels only, no instructions) and terminology from the pinned doctrine pack.
 
 ## Rework V2 (Soll)
 

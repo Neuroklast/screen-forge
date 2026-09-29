@@ -25,6 +25,7 @@
 | 5 Film | Push/sync, kiosk skip, rehearsal migration, operations, show linter |
 | 6 Demo | Offline tour, WS guard, reset, kiosk idle |
 | 7 Cleanup | Fresh-clone smoke (manual), build/e2e green after removals |
+| 8 Durable engine | Duplicate `eventId` ×100 → one effect; reconnect before ACK; restart replay; clock ±5 min; 60 s frozen tab; 30 min offline reconciliation; role-projected events redaction; graph lint cycles |
 
 ## Test rules
 
