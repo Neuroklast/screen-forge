@@ -17,10 +17,10 @@ export default defineConfig({
       : {},
     viewport: { width: 1600, height: 1000 },
   },
-  webServer: {
+  webServer: [{
     command: "npm run dev",
     url: "http://127.0.0.1:5173",
     reuseExistingServer: !process.env.CI,
-  },
+  }, { command: "node server/exercise.mjs", url: "http://127.0.0.1:8787/health", reuseExistingServer: false, env: { EXERCISE_ADMIN_KEY: "browser-test-key", EXERCISE_DATA_DIR: ".exercise-data/browser-tests" } }],
   reporter: "list",
 });

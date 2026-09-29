@@ -30,14 +30,16 @@ function Root() {
       room={session.room}
       station={session.station}
     >
-      <ConnectionGate>{session.role === "trainer" ? (
-        <TrainerView room={session.room} />
-      ) : session.role === "hq" ? (
-        <HqView room={session.room} />
-      ) : (
-        <ElementView station={session.station} />
-      )}
-    </ConnectionGate></ExerciseProvider>
+      <ConnectionGate>
+        {session.role === "trainer" ? (
+          <TrainerView room={session.room} />
+        ) : session.role === "hq" ? (
+          <HqView room={session.room} />
+        ) : (
+          <ElementView station={session.station} />
+        )}
+      </ConnectionGate>
+    </ExerciseProvider>
   );
 }
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -49,5 +51,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 import "./scenes/shared/live.css";
 import "./scenes/shared/warhead.css";
 import "./scenes/blocks/blocks.css";
-import './director.css';
-import './fonts.css';
+import "./director.css";
+import "./fonts.css";

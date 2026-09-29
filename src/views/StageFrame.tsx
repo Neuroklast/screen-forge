@@ -47,7 +47,11 @@ export function StageFrame({
   const fmt = stageOf(config.format);
   const scale = Math.min(size.width / fmt.width, size.height / fmt.height);
   return (
-    <div className="role-stage" ref={stage} style={{ aspectRatio: `${fmt.width}/${fmt.height}` }}>
+    <div
+      className="role-stage"
+      ref={stage}
+      style={{ aspectRatio: `${fmt.width}/${fmt.height}` }}
+    >
       <div
         className={`scene-canvas family-${scene} mood-${config.mood} density-${config.density}`}
         data-orient={stageOrient(config.format)}

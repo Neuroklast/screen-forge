@@ -1,20 +1,820 @@
-import { useState } from 'react';
-import { modules, stationSchema, patientSchema, ruleSchema, type Scenario, type Action } from '../core/training';
+import { useState } from "react";
+import {
+  moduleEvents,
+  modules,
+  stationSchema,
+  patientSchema,
+  ruleSchema,
+  type Scenario,
+  type Action,
+} from "../core/training";
 const uid = (prefix: string) => `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
-export function ScenarioEditor({ draft, change }: { draft: Scenario; change: (s: Scenario) => void }) {
-  const [tab, setTab] = useState('devices');
+export function ScenarioEditor({
+  draft,
+  change,
+}: {
+  draft: Scenario;
+  change: (s: Scenario) => void;
+}) {
+  const [tab, setTab] = useState("devices");
   const patch = (s: Partial<Scenario>) => change({ ...draft, ...s });
-  return <section className="panel"><nav className="tab-bar">{[['devices','Geräte & Bindungen'],['patients','Patienten'],['rules','Ereignisse'],['area','Gelände & Ziele']].map(([id,name]) => <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>{name}</button>)}</nav>
-    {tab === 'devices' && <><p>Modul und Datenbindung sind unabhängig. Mehrere Geräte können denselben Patienten darstellen.</p>{draft.stations.map(st => <fieldset key={st.id} className="editor-row"><legend>{st.id}</legend><label>Name<input value={st.name} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, name: e.target.value } : s) })} /></label><label>Rolle<select value={st.role} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, role: e.target.value as 'hq' | 'element' } : s) })}><option value="element">Feldgerät</option><option value="hq">HQ</option></select></label><label>Modul<select value={st.scene} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, scene: e.target.value as typeof s.scene, entityId: e.target.value === 'medical' ? draft.patients[0]?.id || '' : '' } : s) })}>{modules.map(m => <option key={m}>{m}</option>)}</select></label>{st.scene === 'medical' && <label>Patient<select value={st.entityId} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, entityId: e.target.value } : s) })}>{draft.patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}<label>Team<input value={st.team} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, team: e.target.value } : s) })} /></label><label className="check"><input type="checkbox" checked={st.player} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, player: e.target.checked } : s) })} />GPS-Spieler</label>{['countdown','access','lock'].includes(st.scene) && <><label>Laufzeit (s)<input type="number" value={st.duration} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, duration: Number(e.target.value) } : s) })} /></label><label>Aktiver Shunt-Code<input inputMode="numeric" value={st.code} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, code: e.target.value } : s) })} /></label></>}<button onClick={() => patch({ stations: draft.stations.filter(s => s.id !== st.id) })}>Entfernen</button></fieldset>)}<button onClick={() => patch({ stations: [...draft.stations, stationSchema.parse({ id: uid('station'), name: 'Neue Station', role: 'element', scene: 'medical', entityId: draft.patients[0]?.id || '' })] })}>Station hinzufügen</button></>}
-    {tab === 'patients' && <>{draft.patients.map(p => <fieldset key={p.id} className="editor-row"><legend>{p.id}</legend><label>Name<input value={p.name} onChange={e => patch({ patients: draft.patients.map(row => row.id === p.id ? { ...row, name: e.target.value } : row) })} /></label><label>Verletzungen / Befund<textarea value={p.injuries} onChange={e => patch({ patients: draft.patients.map(row => row.id === p.id ? { ...row, injuries: e.target.value } : row) })} /></label><button onClick={() => patch({ patients: draft.patients.filter(row => row.id !== p.id) })}>Entfernen</button></fieldset>)}<button onClick={() => patch({ patients: [...draft.patients, patientSchema.parse({ id: uid('patient'), name: 'Neuer Patient', kind: 'stable', since: 0 })] })}>Patient hinzufügen</button></>}
-    {tab === 'rules' && <><p>Jedes Ereignis läuft einmal pro Durchgang. „Zufallsfenster“ verschiebt den Zeitpunkt reproduzierbar um bis zu diese Anzahl Sekunden. Bei Zonen zählt eine frische Position einschließlich GPS-Genauigkeit vollständig innerhalb der Zone.</p>{draft.rules.map(r => {
-      const set = (v: Partial<typeof r>) => patch({ rules: draft.rules.map(row => row.id === r.id ? { ...row, ...v } : row) });
-      return <fieldset className="rule-editor" key={r.id}><legend>{r.id}</legend><div className="form-grid"><label>Name<input value={r.name} onChange={e => set({ name: e.target.value })} /></label><label>Auslöser<select value={r.trigger} onChange={e => set({ trigger: e.target.value as typeof r.trigger, station: draft.stations.find(s => s.role === 'element')?.id || '', zone: draft.zones[0]?.id || '' })}><option value="timer">Zeitpunkt</option><option value="zone">GPS-Zone betreten</option><option value="intervention">Behandlung gemeldet</option><option value="prop">Terminal freigegeben</option></select></label><label>Station<select value={r.station} onChange={e => set({ station: e.target.value })}><option value="">Keine</option>{draft.stations.filter(s => s.role === 'element').map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>{r.trigger === 'timer' && <><label>Zeitpunkt (s)<input type="number" value={r.at} onChange={e => set({ at: Number(e.target.value) })} /></label><label>Zufallsfenster (s)<input type="number" value={r.jitter} onChange={e => set({ jitter: Number(e.target.value) })} /></label></>}{r.trigger === 'zone' && <label>Zone<select value={r.zone} onChange={e => set({ zone: e.target.value })}>{draft.zones.map(z => <option key={z.id} value={z.id}>{z.name}</option>)}</select></label>}{r.trigger === 'intervention' && <label>Behandlung<select value={r.intervention} onChange={e => set({ intervention: e.target.value })}>{['treated','tourniquet','oxygen','evacuated'].map(v => <option key={v}>{v}</option>)}</select></label>}<label>Auslassen, wenn Station bereits meldete<select value={r.unless} onChange={e => set({ unless: e.target.value })}><option value="">Immer ausführen</option>{['treated','tourniquet','oxygen','evacuated'].map(v => <option key={v}>{v}</option>)}</select></label><label className="check"><input type="checkbox" checked={r.enabled} onChange={e => set({ enabled: e.target.checked })} />Aktiv</label></div>{r.actions.map((a,i) => <ActionEditor key={i} action={a} scenario={draft} onChange={action => set({ actions: r.actions.map((old,j) => i === j ? action : old) })} onRemove={() => set({ actions: r.actions.filter((_,j) => i !== j) })} />)}<div className="button-row"><button onClick={() => set({ actions: [...r.actions, { type: 'message', text: 'Neue Meldung' }] })}>Folgeaktion hinzufügen</button><button onClick={() => patch({ rules: draft.rules.filter(row => row.id !== r.id) })}>Ereignis entfernen</button></div></fieldset>;
-    })}<button onClick={() => patch({ rules: [...draft.rules, ruleSchema.parse({ id: uid('event'), name: 'Neues Ereignis', trigger: 'timer', actions: [{ type: 'message', text: 'Status prüfen' }] })] })}>Ereignis hinzufügen</button></>}
-    {tab === 'area' && <><div className="form-grid">{(['lat','lng','zoom'] as const).map(k => <label key={k}>{k}<input type="number" step="any" value={draft.map[k]} onChange={e => patch({ map: { ...draft.map, [k]: Number(e.target.value) } })} /></label>)}<label>HTTPS XYZ-Kacheln<input value={draft.map.tiles} onChange={e => patch({ map: { ...draft.map, tiles: e.target.value } })} /></label><label>Kartenattribution<input value={draft.map.attribution} onChange={e => patch({ map: { ...draft.map, attribution: e.target.value } })} /></label></div>{draft.zones.map(z => <fieldset className="editor-row" key={z.id}><legend>Zone {z.id}</legend><input aria-label="Zonenname" value={z.name} onChange={e => patch({ zones: draft.zones.map(v => v.id === z.id ? { ...v, name: e.target.value } : v) })} />{(['lat','lng','radius'] as const).map(k => <label key={k}>{k}<input type="number" step="any" value={z[k]} onChange={e => patch({ zones: draft.zones.map(v => v.id === z.id ? { ...v, [k]: Number(e.target.value) } : v) })} /></label>)}<button onClick={() => patch({ zones: draft.zones.filter(v => v.id !== z.id) })}>Entfernen</button></fieldset>)}<button onClick={() => patch({ zones: [...draft.zones, { id: uid('zone'), name: 'Neue Zone', lat: draft.map.lat, lng: draft.map.lng, radius: 100 }] })}>Zone hinzufügen</button><h3>Einsatzziele</h3>{draft.objectives.map(o => <div className="button-row" key={o.id}><input aria-label="Einsatzziel" value={o.name} onChange={e => patch({ objectives: draft.objectives.map(v => v.id === o.id ? { ...v, name: e.target.value } : v) })} /><button onClick={() => patch({ objectives: draft.objectives.filter(v => v.id !== o.id) })}>Entfernen</button></div>)}<button onClick={() => patch({ objectives: [...draft.objectives, { id: uid('objective'), name: 'Neues Ziel' }] })}>Ziel hinzufügen</button><h3>Playback-Routen</h3>{draft.stations.filter(s => s.player).map(st => <fieldset key={st.id}><legend>{st.name}</legend>{st.route.map((p,i) => <div className="button-row" key={i}>{(['lat','lng'] as const).map(k => <label key={k}>{k}<input type="number" step="any" value={p[k]} onChange={e => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, route: s.route.map((v,j) => i === j ? { ...v, [k]: Number(e.target.value) } : v) } : s) })} /></label>)}</div>)}<button onClick={() => patch({ stations: draft.stations.map(s => s.id === st.id ? { ...s, route: [...s.route, { lat: draft.map.lat, lng: draft.map.lng }] } : s) })}>Wegpunkt hinzufügen</button></fieldset>)}</>}
-  </section>;
+  return (
+    <section className="panel">
+      <nav className="tab-bar">
+        {[
+          ["devices", "Geräte & Bindungen"],
+          ["patients", "Patienten"],
+          ["rules", "Ereignisse"],
+          ["area", "Gelände & Ziele"],
+        ].map(([id, name]) => (
+          <button
+            key={id}
+            className={tab === id ? "active" : ""}
+            onClick={() => setTab(id)}
+          >
+            {name}
+          </button>
+        ))}
+      </nav>
+      {tab === "devices" && (
+        <>
+          <p>
+            Modul und Datenbindung sind unabhängig. Mehrere Geräte können
+            denselben Patienten darstellen.
+          </p>
+          {draft.stations.map((st) => (
+            <fieldset key={st.id} className="editor-row">
+              <legend>{st.id}</legend>
+              <label>
+                Name
+                <input
+                  value={st.name}
+                  onChange={(e) =>
+                    patch({
+                      stations: draft.stations.map((s) =>
+                        s.id === st.id ? { ...s, name: e.target.value } : s,
+                      ),
+                    })
+                  }
+                />
+              </label>
+              <label>
+                Rolle
+                <select
+                  value={st.role}
+                  onChange={(e) =>
+                    patch({
+                      stations: draft.stations.map((s) =>
+                        s.id === st.id
+                          ? {
+                              ...s,
+                              role: e.target.value as "hq" | "element",
+                              scene:
+                                e.target.value === "hq" ? "tracking" : s.scene,
+                            }
+                          : s,
+                      ),
+                    })
+                  }
+                >
+                  <option value="element">Feldgerät</option>
+                  <option value="hq">HQ</option>
+                </select>
+              </label>
+              <label>
+                Modul
+                <select
+                  value={st.scene}
+                  onChange={(e) =>
+                    patch({
+                      stations: draft.stations.map((s) =>
+                        s.id === st.id
+                          ? {
+                              ...s,
+                              scene: e.target.value as typeof s.scene,
+                              entityId:
+                                e.target.value === "medical"
+                                  ? draft.patients[0]?.id || ""
+                                  : "",
+                            }
+                          : s,
+                      ),
+                    })
+                  }
+                >
+                  {modules.map((m) => (
+                    <option key={m}>{m}</option>
+                  ))}
+                </select>
+              </label>
+              {st.scene === "medical" && (
+                <label>
+                  Patient
+                  <select
+                    value={st.entityId}
+                    onChange={(e) =>
+                      patch({
+                        stations: draft.stations.map((s) =>
+                          s.id === st.id
+                            ? { ...s, entityId: e.target.value }
+                            : s,
+                        ),
+                      })
+                    }
+                  >
+                    {draft.patients.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <label>
+                Team
+                <input
+                  value={st.team}
+                  onChange={(e) =>
+                    patch({
+                      stations: draft.stations.map((s) =>
+                        s.id === st.id ? { ...s, team: e.target.value } : s,
+                      ),
+                    })
+                  }
+                />
+              </label>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={st.player}
+                  onChange={(e) =>
+                    patch({
+                      stations: draft.stations.map((s) =>
+                        s.id === st.id ? { ...s, player: e.target.checked } : s,
+                      ),
+                    })
+                  }
+                />
+                GPS-Spieler
+              </label>
+              {["countdown", "access", "lock"].includes(st.scene) && (
+                <>
+                  <label>
+                    Laufzeit (s)
+                    <input
+                      type="number"
+                      value={st.duration}
+                      onChange={(e) =>
+                        patch({
+                          stations: draft.stations.map((s) =>
+                            s.id === st.id
+                              ? { ...s, duration: Number(e.target.value) }
+                              : s,
+                          ),
+                        })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Aktiver Shunt-Code
+                    <input
+                      inputMode="numeric"
+                      value={st.code}
+                      onChange={(e) =>
+                        patch({
+                          stations: draft.stations.map((s) =>
+                            s.id === st.id ? { ...s, code: e.target.value } : s,
+                          ),
+                        })
+                      }
+                    />
+                  </label>
+                </>
+              )}
+              <button
+                onClick={() =>
+                  patch({
+                    stations: draft.stations.filter((s) => s.id !== st.id),
+                  })
+                }
+              >
+                Entfernen
+              </button>
+            </fieldset>
+          ))}
+          <button
+            onClick={() =>
+              patch({
+                stations: [
+                  ...draft.stations,
+                  stationSchema.parse({
+                    id: uid("station"),
+                    name: "Neue Station",
+                    role: "element",
+                    scene: "medical",
+                    entityId: draft.patients[0]?.id || "",
+                  }),
+                ],
+              })
+            }
+          >
+            Station hinzufügen
+          </button>
+        </>
+      )}
+      {tab === "patients" && (
+        <>
+          {draft.patients.map((p) => (
+            <fieldset key={p.id} className="editor-row">
+              <legend>{p.id}</legend>
+              <label>
+                Name
+                <input
+                  value={p.name}
+                  onChange={(e) =>
+                    patch({
+                      patients: draft.patients.map((row) =>
+                        row.id === p.id
+                          ? { ...row, name: e.target.value }
+                          : row,
+                      ),
+                    })
+                  }
+                />
+              </label>
+              <label>
+                Verletzungen / Befund
+                <textarea
+                  value={p.injuries}
+                  onChange={(e) =>
+                    patch({
+                      patients: draft.patients.map((row) =>
+                        row.id === p.id
+                          ? { ...row, injuries: e.target.value }
+                          : row,
+                      ),
+                    })
+                  }
+                />
+              </label>
+              <button
+                onClick={() =>
+                  patch({
+                    patients: draft.patients.filter((row) => row.id !== p.id),
+                  })
+                }
+              >
+                Entfernen
+              </button>
+            </fieldset>
+          ))}
+          <button
+            onClick={() =>
+              patch({
+                patients: [
+                  ...draft.patients,
+                  patientSchema.parse({
+                    id: uid("patient"),
+                    name: "Neuer Patient",
+                    kind: "stable",
+                    since: 0,
+                  }),
+                ],
+              })
+            }
+          >
+            Patient hinzufügen
+          </button>
+        </>
+      )}
+      {tab === "rules" && (
+        <>
+          <p>
+            Jedes Ereignis läuft einmal pro Durchgang. „Zufallsfenster“
+            verschiebt den Zeitpunkt reproduzierbar um bis zu diese Anzahl
+            Sekunden. Bei Zonen zählt eine frische Position einschließlich
+            GPS-Genauigkeit vollständig innerhalb der Zone.
+          </p>
+          {draft.rules.map((r) => {
+            const set = (v: Partial<typeof r>) =>
+              patch({
+                rules: draft.rules.map((row) =>
+                  row.id === r.id ? { ...row, ...v } : row,
+                ),
+              });
+            return (
+              <fieldset className="rule-editor" key={r.id}>
+                <legend>{r.id}</legend>
+                <div className="form-grid">
+                  <label>
+                    Name
+                    <input
+                      value={r.name}
+                      onChange={(e) => set({ name: e.target.value })}
+                    />
+                  </label>
+                  <label>
+                    Auslöser
+                    <select
+                      value={r.trigger}
+                      onChange={(e) =>
+                        set({
+                          trigger: e.target.value as typeof r.trigger,
+                          station:
+                            draft.stations.find((s) => s.role === "element")
+                              ?.id || "",
+                          zone: draft.zones[0]?.id || "",
+                        })
+                      }
+                    >
+                      <option value="timer">Zeitpunkt</option>
+                      <option value="zone">GPS-Zone betreten</option>
+                      <option value="intervention">Behandlung gemeldet</option>
+                      <option value="prop">Terminal freigegeben</option>
+                      <option value="signal">Modulaktion</option>
+                    </select>
+                  </label>
+                  <label>
+                    Station
+                    <select
+                      value={r.station}
+                      onChange={(e) => set({ station: e.target.value })}
+                    >
+                      <option value="">Keine</option>
+                      {draft.stations
+                        .filter((s) => s.role === "element")
+                        .map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                  {r.trigger === "timer" && (
+                    <>
+                      <label>
+                        Zeitpunkt (s)
+                        <input
+                          type="number"
+                          value={r.at}
+                          onChange={(e) => set({ at: Number(e.target.value) })}
+                        />
+                      </label>
+                      <label>
+                        Zufallsfenster (s)
+                        <input
+                          type="number"
+                          value={r.jitter}
+                          onChange={(e) =>
+                            set({ jitter: Number(e.target.value) })
+                          }
+                        />
+                      </label>
+                    </>
+                  )}
+                  {r.trigger === "zone" && (
+                    <label>
+                      Zone
+                      <select
+                        value={r.zone}
+                        onChange={(e) => set({ zone: e.target.value })}
+                      >
+                        {draft.zones.map((z) => (
+                          <option key={z.id} value={z.id}>
+                            {z.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  {r.trigger === "signal" && (
+                    <label>
+                      Modulaktion
+                      <select
+                        value={r.intervention}
+                        onChange={(e) => set({ intervention: e.target.value })}
+                      >
+                        <option value="">Aktion wählen</option>
+                        {(
+                          moduleEvents[
+                            draft.stations.find((s) => s.id === r.station)
+                              ?.scene || ""
+                          ] || []
+                        ).map((v) => (
+                          <option key={v}>{v}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  {r.trigger === "intervention" && (
+                    <label>
+                      Behandlung
+                      <select
+                        value={r.intervention}
+                        onChange={(e) => set({ intervention: e.target.value })}
+                      >
+                        {["treated", "tourniquet", "oxygen", "evacuated"].map(
+                          (v) => (
+                            <option key={v}>{v}</option>
+                          ),
+                        )}
+                      </select>
+                    </label>
+                  )}
+                  <label>
+                    Auslassen, wenn Station bereits meldete
+                    <select
+                      value={r.unless}
+                      onChange={(e) => set({ unless: e.target.value })}
+                    >
+                      <option value="">Immer ausführen</option>
+                      {["treated", "tourniquet", "oxygen", "evacuated"].map(
+                        (v) => (
+                          <option key={v}>{v}</option>
+                        ),
+                      )}
+                    </select>
+                  </label>
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={r.enabled}
+                      onChange={(e) => set({ enabled: e.target.checked })}
+                    />
+                    Aktiv
+                  </label>
+                </div>
+                {r.actions.map((a, i) => (
+                  <ActionEditor
+                    key={i}
+                    action={a}
+                    scenario={draft}
+                    onChange={(action) =>
+                      set({
+                        actions: r.actions.map((old, j) =>
+                          i === j ? action : old,
+                        ),
+                      })
+                    }
+                    onRemove={() =>
+                      set({ actions: r.actions.filter((_, j) => i !== j) })
+                    }
+                  />
+                ))}
+                <div className="button-row">
+                  <button
+                    onClick={() =>
+                      set({
+                        actions: [
+                          ...r.actions,
+                          { type: "message", text: "Neue Meldung" },
+                        ],
+                      })
+                    }
+                  >
+                    Folgeaktion hinzufügen
+                  </button>
+                  <button
+                    onClick={() =>
+                      patch({
+                        rules: draft.rules.filter((row) => row.id !== r.id),
+                      })
+                    }
+                  >
+                    Ereignis entfernen
+                  </button>
+                </div>
+              </fieldset>
+            );
+          })}
+          <button
+            onClick={() =>
+              patch({
+                rules: [
+                  ...draft.rules,
+                  ruleSchema.parse({
+                    id: uid("event"),
+                    name: "Neues Ereignis",
+                    trigger: "timer",
+                    actions: [{ type: "message", text: "Status prüfen" }],
+                  }),
+                ],
+              })
+            }
+          >
+            Ereignis hinzufügen
+          </button>
+        </>
+      )}
+      {tab === "area" && (
+        <>
+          <div className="form-grid">
+            {(["lat", "lng", "zoom"] as const).map((k) => (
+              <label key={k}>
+                {k}
+                <input
+                  type="number"
+                  step="any"
+                  value={draft.map[k]}
+                  onChange={(e) =>
+                    patch({
+                      map: { ...draft.map, [k]: Number(e.target.value) },
+                    })
+                  }
+                />
+              </label>
+            ))}
+            <label>
+              HTTPS XYZ-Kacheln
+              <input
+                value={draft.map.tiles}
+                onChange={(e) =>
+                  patch({ map: { ...draft.map, tiles: e.target.value } })
+                }
+              />
+            </label>
+            <label>
+              Kartenattribution
+              <input
+                value={draft.map.attribution}
+                onChange={(e) =>
+                  patch({ map: { ...draft.map, attribution: e.target.value } })
+                }
+              />
+            </label>
+          </div>
+          {draft.zones.map((z) => (
+            <fieldset className="editor-row" key={z.id}>
+              <legend>Zone {z.id}</legend>
+              <input
+                aria-label="Zonenname"
+                value={z.name}
+                onChange={(e) =>
+                  patch({
+                    zones: draft.zones.map((v) =>
+                      v.id === z.id ? { ...v, name: e.target.value } : v,
+                    ),
+                  })
+                }
+              />
+              {(["lat", "lng", "radius"] as const).map((k) => (
+                <label key={k}>
+                  {k}
+                  <input
+                    type="number"
+                    step="any"
+                    value={z[k]}
+                    onChange={(e) =>
+                      patch({
+                        zones: draft.zones.map((v) =>
+                          v.id === z.id
+                            ? { ...v, [k]: Number(e.target.value) }
+                            : v,
+                        ),
+                      })
+                    }
+                  />
+                </label>
+              ))}
+              <button
+                onClick={() =>
+                  patch({ zones: draft.zones.filter((v) => v.id !== z.id) })
+                }
+              >
+                Entfernen
+              </button>
+            </fieldset>
+          ))}
+          <button
+            onClick={() =>
+              patch({
+                zones: [
+                  ...draft.zones,
+                  {
+                    id: uid("zone"),
+                    name: "Neue Zone",
+                    lat: draft.map.lat,
+                    lng: draft.map.lng,
+                    radius: 100,
+                  },
+                ],
+              })
+            }
+          >
+            Zone hinzufügen
+          </button>
+          <h3>Einsatzziele</h3>
+          {draft.objectives.map((o) => (
+            <div className="button-row" key={o.id}>
+              <input
+                aria-label="Einsatzziel"
+                value={o.name}
+                onChange={(e) =>
+                  patch({
+                    objectives: draft.objectives.map((v) =>
+                      v.id === o.id ? { ...v, name: e.target.value } : v,
+                    ),
+                  })
+                }
+              />
+              <button
+                onClick={() =>
+                  patch({
+                    objectives: draft.objectives.filter((v) => v.id !== o.id),
+                  })
+                }
+              >
+                Entfernen
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() =>
+              patch({
+                objectives: [
+                  ...draft.objectives,
+                  { id: uid("objective"), name: "Neues Ziel" },
+                ],
+              })
+            }
+          >
+            Ziel hinzufügen
+          </button>
+          <h3>Playback-Routen</h3>
+          {draft.stations
+            .filter((s) => s.player)
+            .map((st) => (
+              <fieldset key={st.id}>
+                <legend>{st.name}</legend>
+                {st.route.map((p, i) => (
+                  <div className="button-row" key={i}>
+                    {(["lat", "lng"] as const).map((k) => (
+                      <label key={k}>
+                        {k}
+                        <input
+                          type="number"
+                          step="any"
+                          value={p[k]}
+                          onChange={(e) =>
+                            patch({
+                              stations: draft.stations.map((s) =>
+                                s.id === st.id
+                                  ? {
+                                      ...s,
+                                      route: s.route.map((v, j) =>
+                                        i === j
+                                          ? {
+                                              ...v,
+                                              [k]: Number(e.target.value),
+                                            }
+                                          : v,
+                                      ),
+                                    }
+                                  : s,
+                              ),
+                            })
+                          }
+                        />
+                      </label>
+                    ))}
+                  </div>
+                ))}
+                <button
+                  onClick={() =>
+                    patch({
+                      stations: draft.stations.map((s) =>
+                        s.id === st.id
+                          ? {
+                              ...s,
+                              route: [
+                                ...s.route,
+                                { lat: draft.map.lat, lng: draft.map.lng },
+                              ],
+                            }
+                          : s,
+                      ),
+                    })
+                  }
+                >
+                  Wegpunkt hinzufügen
+                </button>
+              </fieldset>
+            ))}
+        </>
+      )}
+    </section>
+  );
 }
-function ActionEditor({ action: a, scenario: s, onChange, onRemove }: { action: Action; scenario: Scenario; onChange: (a: Action) => void; onRemove: () => void }) {
-  const targets = a.type === 'patient' ? s.patients : a.type === 'release' ? s.dossiers : a.type === 'objective' ? s.objectives : a.type === 'camera' ? s.stations.filter(st => st.scene === 'camera') : [];
-  return <div className="editor-row"><label>Aktion<select value={a.type} onChange={e => { const type = e.target.value; onChange(type === 'patient' ? { type, target: s.patients[0]?.id || '', kind: 'desat' } : type === 'release' ? { type, target: s.dossiers[0]?.id || '' } : type === 'objective' ? { type, target: s.objectives[0]?.id || '' } : type === 'camera' ? { type, target: s.stations.find(st => st.scene === 'camera')?.id || '', offline: true } : { type: 'message', text: 'Neue Meldung' }); }}><option value="patient">Patient ändern</option><option value="release">Akte freigeben</option><option value="camera">Kamerasignal</option><option value="objective">Ziel abschließen</option><option value="message">HQ-Meldung</option></select></label>{a.type !== 'message' ? <label>Ziel<select value={a.target} onChange={e => onChange({ ...a, target: e.target.value })}>{targets.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label> : <label>Meldung<input value={a.text} onChange={e => onChange({ ...a, text: e.target.value })} /></label>}{a.type === 'patient' && <select aria-label="Patientenzustand" value={a.kind} onChange={e => onChange({ ...a, kind: e.target.value as typeof a.kind })}>{['stable','tachy','brady','desat','trauma','arrest','recovered'].map(k => <option key={k}>{k}</option>)}</select>}{a.type === 'camera' && <label className="check"><input type="checkbox" checked={a.offline} onChange={e => onChange({ ...a, offline: e.target.checked })} />Signal unterbrochen</label>}<button onClick={onRemove}>Aktion entfernen</button></div>;
+function ActionEditor({
+  action: a,
+  scenario: s,
+  onChange,
+  onRemove,
+}: {
+  action: Action;
+  scenario: Scenario;
+  onChange: (a: Action) => void;
+  onRemove: () => void;
+}) {
+  const targets =
+    a.type === "patient"
+      ? s.patients
+      : a.type === "release"
+        ? s.dossiers
+        : a.type === "objective"
+          ? s.objectives
+          : a.type === "camera"
+            ? s.stations.filter((st) => st.scene === "camera")
+            : [];
+  return (
+    <div className="editor-row">
+      <label>
+        Aktion
+        <select
+          value={a.type}
+          onChange={(e) => {
+            const type = e.target.value;
+            onChange(
+              type === "patient"
+                ? { type, target: s.patients[0]?.id || "", kind: "desat" }
+                : type === "release"
+                  ? { type, target: s.dossiers[0]?.id || "" }
+                  : type === "objective"
+                    ? { type, target: s.objectives[0]?.id || "" }
+                    : type === "camera"
+                      ? {
+                          type,
+                          target:
+                            s.stations.find((st) => st.scene === "camera")
+                              ?.id || "",
+                          offline: true,
+                        }
+                      : { type: "message", text: "Neue Meldung" },
+            );
+          }}
+        >
+          <option value="patient">Patient ändern</option>
+          <option value="release">Akte freigeben</option>
+          <option value="camera">Kamerasignal</option>
+          <option value="objective">Ziel abschließen</option>
+          <option value="message">HQ-Meldung</option>
+        </select>
+      </label>
+      {a.type !== "message" ? (
+        <label>
+          Ziel
+          <select
+            value={a.target}
+            onChange={(e) => onChange({ ...a, target: e.target.value })}
+          >
+            {targets.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <label>
+          Meldung
+          <input
+            value={a.text}
+            onChange={(e) => onChange({ ...a, text: e.target.value })}
+          />
+        </label>
+      )}
+      {a.type === "patient" && (
+        <select
+          aria-label="Patientenzustand"
+          value={a.kind}
+          onChange={(e) =>
+            onChange({ ...a, kind: e.target.value as typeof a.kind })
+          }
+        >
+          {[
+            "stable",
+            "tachy",
+            "brady",
+            "desat",
+            "trauma",
+            "arrest",
+            "recovered",
+          ].map((k) => (
+            <option key={k}>{k}</option>
+          ))}
+        </select>
+      )}
+      {a.type === "camera" && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={a.offline}
+            onChange={(e) => onChange({ ...a, offline: e.target.checked })}
+          />
+          Signal unterbrochen
+        </label>
+      )}
+      <button onClick={onRemove}>Aktion entfernen</button>
+    </div>
+  );
 }

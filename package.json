@@ -7,7 +7,7 @@
     "exercise": "node server/exercise.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "vitest run src/core",
+    "test": "vitest run src/core && node --test server/*.test.mjs",
     "test:e2e": "playwright test",
     "check": "tsc --noEmit"
   },
@@ -44,6 +44,6 @@
   },
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24"
   }
 }
