@@ -16,6 +16,7 @@ import {
   evaluate,
   projectState,
   logEvent,
+  setProp,
 } from "../src/core/training.ts";
 
 const hash = (value) =>
@@ -432,6 +433,13 @@ export async function startExercise({
             logEvent(state, `${st.name}: completed`);
             evaluate(state, { type: "prop", station: st.id });
           }
+        } else if (msg.type === "prop" && meta.role === "element") {
+          const st = state.scenario.stations.find((s) => s.id === meta.station);
+          if (state.frozen || !st || !st.bindings.prop)
+            throw new Error("No prop bound to this station");
+          if (!setProp(state, st.bindings.prop, String(msg.state)))
+            throw new Error("Invalid prop state");
+          evaluate(state, { type: "prop", station: st.id });
         } else {
           if (meta.role !== "trainer")
             throw new Error("Trainer permission required");
@@ -478,6 +486,9 @@ export async function startExercise({
                 revoke(meta.room, st.id);
             baseline.set(meta.room, structuredClone(parsed));
             state.scenario = parsed;
+            state.propStates = Object.fromEntries(
+              parsed.props.map((p) => [p.id, p.initial]),
+            );
             state.revision++;
             for (const m of sockets.values())
               if (m.room === meta.room) m.inspected = false;

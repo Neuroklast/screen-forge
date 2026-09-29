@@ -9,6 +9,7 @@ import { MissionBuilder } from "../builder/MissionBuilder";
 import { DossierEditor } from "../training/Dossiers";
 import { TacticalMap } from "../training/TacticalMap";
 import { PatientControl } from "../training/PatientControl";
+import { TemplateGallery } from "../training/TemplateGallery";
 export function TrainerView({ room }: { room: string }) {
   const ex = useTraining(),
     [tab, setTab] = useState("home"),
@@ -20,7 +21,8 @@ export function TrainerView({ room }: { room: string }) {
     [revision, setRevision] = useState(ex.state.revision),
     [message, setMessage] = useState(""),
     [publicOrigin, setPublicOrigin] = useState(location.origin),
-    [editorMode, setEditorMode] = useState<"builder" | "classic">("builder");
+    [editorMode, setEditorMode] = useState<"builder" | "classic">("builder"),
+    [gallery, setGallery] = useState(false);
   useEffect(() => {
     if (!dirty) {
       setDraft(structuredClone(ex.state.scenario));
@@ -204,6 +206,10 @@ export function TrainerView({ room }: { room: string }) {
                       Fünf kurze Schritte von der Vorlage bis zur Geräteausgabe.
                     </span>
                   </button>
+                  <button onClick={() => setGallery(true)} disabled={!ex.state.frozen}>
+                    <strong>Vorlage laden</strong>
+                    <span>Baukasten mit einer fertigen Vorlage starten.</span>
+                  </button>
                   <button onClick={() => setTab("devices")}>
                     <strong>Vorbereitetes Szenario starten</strong>
                     <span>
@@ -237,6 +243,16 @@ export function TrainerView({ room }: { room: string }) {
                   </label>
                 </div>
               </section>
+              {gallery && (
+                <TemplateGallery
+                  onClose={() => setGallery(false)}
+                  onSelect={(s) => {
+                    change(s);
+                    setGallery(false);
+                    setTab("editor");
+                  }}
+                />
+              )}
               <div className="summary-grid">
                 <div>
                   <b>

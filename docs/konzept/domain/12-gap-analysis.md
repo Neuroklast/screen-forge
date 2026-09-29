@@ -3,7 +3,7 @@
 > ScreenForge concept set · Target state (Soll) · Status of this file: **maintained** — update when code moves.
 > Evidence paths are relative to the repo root. `Action`: `new` | `extend` | `refactor` | `keep` | `remove`.
 > Asset/catalog findings (media, fonts, sounds, dead wiring): [../catalog/23-asset-and-catalog-gaps.md](../catalog/23-asset-and-catalog-gaps.md).
-> Implementation progress: Phase 1 complete (start page, roles, mission v2 + migration). Phase 2 core done (drag & drop builder, linter, defaults, entities, undo/redo, e2e). Next: Phase 3 catalog (props, ordnance/beacon modules, template library). See [../../plan/09-backlog-foundation-to-catalog.md](../../plan/09-backlog-foundation-to-catalog.md).
+> Implementation progress: Phase 1 complete; Phase 2 builder core done; Phase 3 catalog done (prop runtime, `ordnance`/`beacon` modules, 9-template gallery). Next: Phase 4 runtime & control (inject orchestration, safety/assessor, comms, debrief). See [../../plan/09-backlog-foundation-to-catalog.md](../../plan/09-backlog-foundation-to-catalog.md) and [../../plan/10-backlog-runtime-to-cleanup.md](../../plan/10-backlog-runtime-to-cleanup.md).
 
 ## Summary
 

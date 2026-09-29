@@ -58,7 +58,11 @@ export function StartPage() {
         const res = await fetch("/health", { cache: "no-store" });
         const type = res.headers.get("content-type") || "";
         if (alive)
-          setServer(res.ok && type.includes("application/json") ? "online" : "offline");
+          setServer(
+            res.ok && (type.includes("text/plain") || type.includes("application/json"))
+              ? "online"
+              : "offline",
+          );
       } catch {
         if (alive) setServer("offline");
       }

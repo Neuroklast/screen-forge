@@ -26,6 +26,8 @@ export const modules = [
   "hologram",
   "lock",
   "slide",
+  "ordnance",
+  "beacon",
 ] as const;
 export const propKinds = [
   "ordnance",
@@ -39,6 +41,8 @@ export const moduleEvents: Record<string, string[]> = {
   slide: ["slide.open"],
   hologram: ["analysis.complete"],
   corporate: ["identity.confirmed"],
+  ordnance: ["ordnance.stage", "ordnance.disarmed", "ordnance.tampered"],
+  beacon: ["beacon.active", "beacon.lost"],
 };
 export const vitalSchema = z.object({
   hr: finite.min(0).max(250),
@@ -213,6 +217,16 @@ const scenarioV2Schema = z
         issue(`Unknown patient for ${st.name}`);
       if (st.bindings.prop && !s.props.some((p) => p.id === st.bindings.prop))
         issue(`Unknown prop for ${st.name}`);
+      if (
+        st.module === "ordnance" &&
+        !s.props.some((p) => p.id === st.bindings.prop && p.kind === "ordnance")
+      )
+        issue(`Ordnance module needs an ordnance prop for ${st.name}`);
+      if (
+        st.module === "beacon" &&
+        !s.props.some((p) => p.id === st.bindings.prop && p.kind === "beacon")
+      )
+        issue(`Beacon module needs a beacon prop for ${st.name}`);
     }
     for (const st of s.stations)
       if (st.role === "hq" && st.module !== "tracking")
@@ -334,6 +348,7 @@ export type TrainingState = {
   cameraOffline: Record<string, boolean>;
   completed: string[];
   props: Record<string, boolean>;
+  propStates: Record<string, string>;
   log: { at: number; message: string }[];
   presence: Record<string, { online: boolean; lastSeen: number }>;
 };
@@ -353,6 +368,7 @@ export function newState(
     cameraOffline: {},
     completed: [],
     props: {},
+    propStates: Object.fromEntries(scenario.props.map((p) => [p.id, p.initial])),
     log: [],
     presence: {},
   };
@@ -444,6 +460,13 @@ export function template(
 }
 export function logEvent(s: TrainingState, message: string) {
   s.log = [...s.log, { at: s.clock, message }].slice(-300);
+}
+export function setProp(s: TrainingState, propId: string, state: string) {
+  const prop = s.scenario.props.find((p) => p.id === propId);
+  if (!prop || !prop.states.includes(state)) return false;
+  s.propStates[propId] = state;
+  logEvent(s, `${prop.name}: ${state}`);
+  return true;
 }
 export function act(s: TrainingState, a: Action) {
   if (a.type === "patient") {

@@ -28,6 +28,7 @@ The content catalog: prop entity with state machines, the new `ordnance` and `be
 - **C3:** beacon hold 3 s → `active`; window/interference from injects; emits `beacon-active`/`beacon-lost`.
 - **C5:** the 9 templates: `blank`, `eod-disposal`, `data-exfiltration`, `beacon-activation`, `search-rescue`, `medical-emergency`, `access-lockdown`, `milsim-skirmish`, `film-playback`; each validated by the mission schema.
 - **C6:** filters by mode, difficulty, duration, required roles; preview shows briefing, devices, entities, objectives.
+- **Deviation (C2/C3/C5/C8):** `ordnance`/`beacon` ship as training modules with consoles; film scenes for them are deferred (film can use the countdown/tracking scenes). Templates live in [../../src/core/templates.ts](../../src/core/templates.ts) (bundled, always offline) instead of `presets/missions/*.json`; JSON export is a later format task. The sound manifest (C8) is blocked on per-file license information.
 
 ## Acceptance criteria
 

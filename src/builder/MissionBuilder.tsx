@@ -38,6 +38,8 @@ const MODULE_LABELS: Record<ModuleId, string> = {
   hologram: "Projektion",
   lock: "Verriegelung",
   slide: "Schieber",
+  ordnance: "Sprengkörper",
+  beacon: "Bake",
 };
 const FIELD_MODULES: ModuleId[] = [
   "tracking",
@@ -48,6 +50,8 @@ const FIELD_MODULES: ModuleId[] = [
   "access",
   "lock",
   "comms",
+  "ordnance",
+  "beacon",
 ];
 const SYSTEM_MODULES: ModuleId[] = ["corporate", "hologram", "slide"];
 

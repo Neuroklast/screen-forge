@@ -16,6 +16,11 @@
 - Partial: B6 — keyboard/click alternative works; touch long-press drag is not implemented (tap + inspector covers touch).
 - Deviation: the classic editor stays as a secondary tab for map tiles, routes and the action editor until Phase 3 completes.
 
+### Phase 3 — Catalog
+
+- Done: C1 prop runtime + `ordnance`/`beacon` modules ([../../src/core/training.ts](../../src/core/training.ts)), C4 signal whitelist + server `prop` command, C2/C3 training consoles ([../../src/training/OrdnanceConsole.tsx](../../src/training/OrdnanceConsole.tsx), [../../src/training/BeaconControl.tsx](../../src/training/BeaconControl.tsx)), C5 template library ([../../src/core/templates.ts](../../src/core/templates.ts)), C6 gallery ([../../src/training/TemplateGallery.tsx](../../src/training/TemplateGallery.tsx)), C7 gallery loads into the builder, C9 tests ([../../src/core/templates.test.ts](../../src/core/templates.test.ts), [../../src/core/prop.test.ts](../../src/core/prop.test.ts)).
+- Deviations: templates ship as a typed module (not `presets/missions/*.json`); film scenes for `ordnance`/`beacon` are deferred; C8 sound manifest is blocked on per-file license information.
+
 ## Phase 1 — Foundation
 
 | ID | Task | File(s) | Depends | Done when |

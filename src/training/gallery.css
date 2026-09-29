@@ -1,0 +1,96 @@
+.gallery {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid #1e2a33;
+  border-radius: 12px;
+  background: #0a1016;
+}
+
+.gallery-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.gallery-head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.gallery-head button {
+  padding: 6px 12px;
+  border: 1px solid #1e2a33;
+  border-radius: 6px;
+  background: #0e171f;
+  color: #d6e2e5;
+  cursor: pointer;
+}
+
+.gallery-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.gallery-filters label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #8a9aa2;
+}
+
+.gallery-filters select {
+  padding: 4px 6px;
+  border: 1px solid #1e2a33;
+  border-radius: 6px;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #1e2a33;
+  border-radius: 10px;
+  background: #0e171f;
+}
+
+.gallery-card strong {
+  font-size: 15px;
+}
+
+.gallery-card span {
+  color: #8a9aa2;
+  font-size: 12px;
+}
+
+.gallery-meta {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: #4f6570 !important;
+}
+
+.gallery-card button {
+  margin-top: auto;
+  padding: 7px;
+  border: 1px solid #80dce5;
+  border-radius: 6px;
+  background: transparent;
+  color: #80dce5;
+  cursor: pointer;
+}
+
+.gallery-empty {
+  color: #8a9aa2;
+  font-size: 13px;
+}

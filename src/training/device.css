@@ -1,0 +1,126 @@
+.device-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #1e2a33;
+  border-radius: 12px;
+  background: #0a1016;
+  color: #d6e2e5;
+}
+
+.device-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.device-head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.device-state {
+  padding: 3px 10px;
+  border: 1px solid #2a3a44;
+  border-radius: 999px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #80dce5;
+}
+
+.device-state.is-disarmed {
+  color: #76fa96;
+  border-color: #2c5a3a;
+}
+
+.device-state.is-tampered {
+  color: #f36c75;
+  border-color: #5a2530;
+}
+
+.device-state.is-active {
+  color: #e8b563;
+  border-color: #5a4a25;
+}
+
+.device-note {
+  margin: 0;
+  color: #8a9aa2;
+  font-size: 13px;
+}
+
+.device-stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.device-stages button {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #1e2a33;
+  border-radius: 8px;
+  background: #0e171f;
+  color: #d6e2e5;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.device-stages li.done button {
+  border-color: #2c5a3a;
+  color: #76fa96;
+}
+
+.device-stages li.active button {
+  border-color: #80dce5;
+}
+
+.device-stages button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.device-hold {
+  padding: 22px;
+  border: 1px solid #5a4a25;
+  border-radius: 10px;
+  background: #1a1509;
+  color: #e8b563;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.device-hold:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.device-secondary {
+  padding: 10px;
+  border: 1px solid #1e2a33;
+  border-radius: 8px;
+  background: #0e171f;
+  color: #d6e2e5;
+  cursor: pointer;
+}
+
+.device-alert {
+  margin: 0;
+  color: #f36c75;
+}
+
+.device-ok {
+  margin: 0;
+  color: #76fa96;
+}

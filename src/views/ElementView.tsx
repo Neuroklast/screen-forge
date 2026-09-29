@@ -7,6 +7,8 @@ import { CameraFeed } from "../training/CameraFeed";
 import { DeviceTools } from "../training/DeviceTools";
 import { DossierCards } from "../training/Dossiers";
 import { TrainingTerminal } from "../training/TrainingTerminal";
+import { OrdnanceConsole } from "../training/OrdnanceConsole";
+import { BeaconControl } from "../training/BeaconControl";
 export function ElementView({ station }: { station: string }) {
   const ex = useTraining(),
     row = ex.state.scenario.stations.find((s) => s.id === station);
@@ -59,6 +61,10 @@ export function ElementView({ station }: { station: string }) {
         <DossierCards dossiers={ex.state.scenario.dossiers} />
       ) : ["countdown", "access", "lock"].includes(row.module) ? (
         <TrainingTerminal station={row} />
+      ) : row.module === "ordnance" ? (
+        <OrdnanceConsole station={row} />
+      ) : row.module === "beacon" ? (
+        <BeaconControl station={row} />
       ) : (
         <StageFrame
           key={`${row.module}:${row.bindings.patient}`}
