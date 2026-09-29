@@ -18,6 +18,7 @@ export const modules = [
   "medical",
   "camera",
   "tracking",
+  "os",
   "terminal",
   "countdown",
   "access",
@@ -52,6 +53,7 @@ export const moduleEvents: Record<string, string[]> = {
   corporate: ["identity.confirmed"],
   ordnance: ["ordnance.stage", "ordnance.disarmed", "ordnance.tampered"],
   beacon: ["beacon.active", "beacon.lost"],
+  terminal: ["shell.success", "terminal.bypass"],
 };
 export const vitalSchema = z.object({
   hr: finite.min(0).max(250),

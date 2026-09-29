@@ -68,7 +68,7 @@ const childVariants = {
   hidden: { opacity: 0, y: 7 },
   visible: { opacity: 1, y: 0 },
 };
-export function CyberOS({
+export function OperatingSystem({
   config,
   time,
   cue,

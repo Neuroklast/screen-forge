@@ -316,7 +316,7 @@
 .connection-status {
   position: sticky;
   top: 0;
-  z-index: 2000;
+  z-index: var(--sf-z-critical);
   background: #533629;
   color: white;
   font: 14px/1.5 system-ui;
@@ -408,7 +408,7 @@
   color: #cbe0ec;
   padding: 5px 8px;
   font: 10px monospace;
-  z-index: 500;
+  z-index: var(--sf-z-overlay);
   pointer-events: none;
 }
 .camera-screen {

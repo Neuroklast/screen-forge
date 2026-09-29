@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run src/core && node --test server/*.test.mjs",
     "test:e2e": "playwright test",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "check:layout": "node scripts/check-layout.mjs"
   },
   "keywords": [],
   "author": "",

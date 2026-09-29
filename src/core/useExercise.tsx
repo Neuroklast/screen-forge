@@ -135,7 +135,12 @@ export function useExercise(role: Role, room: string, station: string) {
         setOnline(false);
         if (e.code === 4003 || e.code === 4001) {
           setAuthenticated(false);
-          setError(e.reason || "Zugang abgelaufen. Neuen QR-Code anfordern.");
+          setError(
+            (current) =>
+              current ||
+              e.reason ||
+              "Zugang abgelaufen. Neuen QR-Code anfordern.",
+          );
           return;
         }
         retry = setTimeout(connect, Math.min(15000, 1000 * 2 ** attempt++));

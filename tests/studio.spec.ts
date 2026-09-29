@@ -13,7 +13,8 @@ test("all scenes render and operator controls reset a take", async ({
   await page.goto("/?mode=film");
   for (const title of [
     "Konzernsystem",
-    "Netzwerkterminal",
+    "Betriebssystem",
+    "Terminal",
     "Countdown",
     "Orbital Tracking",
     "Analysetisch",
@@ -67,7 +68,7 @@ test("prepared input, preset export, stage escape and persistence", async ({
 }) => {
   await page.goto("/?mode=film");
   await page
-    .getByRole("button", { name: /Netzwerkterminal/ })
+    .getByRole("button", { name: /Betriebssystem/ })
     .first()
     .click();
   await osApp(page, "Terminal");
@@ -86,7 +87,7 @@ test("prepared input, preset export, stage escape and persistence", async ({
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Exportieren" }).click();
   expect((await download).suggestedFilename()).toBe(
-    "screenforge-terminal.json",
+    "screenforge-os.json",
   );
   await closeConfiguration(page);
   await page.getByRole("button", { name: "Nur Ausgabe" }).click();

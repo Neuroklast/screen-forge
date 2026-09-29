@@ -113,7 +113,7 @@ a {
   position: absolute;
   left: var(--sf-space-12px);
   bottom: var(--sf-space-12px);
-  z-index: 30;
+  z-index: var(--sf-z-float);
   pointer-events: none;
   font:
     var(--sf-type-8px) "IBM Plex Mono",
@@ -1303,7 +1303,7 @@ h1 {
   bottom: var(--sf-layout-25px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 20;
+  z-index: var(--sf-z-float);
   padding: var(--sf-space-15px) var(--sf-space-20px);
   border: var(--sf-stroke-1px) solid var(--sf-color-617455);
   background: var(--sf-color-20291f);
@@ -1364,7 +1364,7 @@ h1 {
   position: fixed;
   top: var(--sf-layout-10px);
   right: var(--sf-layout-10px);
-  z-index: 20;
+  z-index: var(--sf-z-float);
   background: var(--sf-color-101710e0);
   display: flex;
   align-items: center;

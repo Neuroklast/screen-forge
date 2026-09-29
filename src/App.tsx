@@ -956,24 +956,25 @@ export default function App() {
                   }}
                 />
               </label>
-              {config.scene === "terminal" && (
+              {config.scene === "os" && (
+                <label>
+                  Sequenzdauer{" "}
+                  <output>×{config.sceneOptions.os.sequenceScale}</output>
+                  <input
+                    aria-label="Sequenzdauer"
+                    type="range"
+                    min=".25"
+                    max="4"
+                    step=".25"
+                    value={config.sceneOptions.os.sequenceScale}
+                    onChange={(e) =>
+                      updateSceneOptions("os", { sequenceScale: +e.target.value })
+                    }
+                  />
+                </label>
+              )}
+              {["os", "terminal"].includes(config.scene) && (
                 <>
-                  <label>
-                    Sequenzdauer{" "}
-                    <output>×{config.sceneOptions.os.sequenceScale}</output>
-                    <input
-                      aria-label="Sequenzdauer"
-                      type="range"
-                      min=".25"
-                      max="4"
-                      step=".25"
-                      value={config.sceneOptions.os.sequenceScale}
-                      onChange={(e) =>
-                        updateSceneOptions("os", { sequenceScale: +e.target.value })
-                      }
-                    />
-                  </label>
-
                   <label className="checkbox-label">
                     <input
                       type="checkbox"

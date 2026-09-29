@@ -63,8 +63,13 @@ export function ElementView({ station }: { station: string }) {
         </>
       ) : row.module === "camera" ? (
         <CameraFeed station={row.id} publish />
+      ) : row.module === "os" ? (
+        <>
+          <StageFrame key={`os:${row.id}`} scene="os" mark />
+          <DossierCards dossiers={ex.state.scenario.dossiers} />
+        </>
       ) : row.module === "terminal" ? (
-        <DossierCards dossiers={ex.state.scenario.dossiers} />
+        <StageFrame key={`terminal:${row.id}`} scene="terminal" mark />
       ) : ["countdown", "access", "lock"].includes(row.module) ? (
         <TrainingTerminal station={row} />
       ) : row.module === "ordnance" ? (

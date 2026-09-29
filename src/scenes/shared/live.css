@@ -19,7 +19,7 @@
 .display-fx {
   position: absolute;
   inset: 0;
-  z-index: 40;
+  --index: 40;
   pointer-events: none;
   overflow: hidden;
   isolation: isolate;
@@ -35,7 +35,7 @@
   background-image:
     linear-gradient(var(--sf-color-80dce529) var(--sf-layout-1px), transparent var(--sf-layout-1px)),
     linear-gradient(var(--sf-layout-90deg), var(--sf-color-80dce529) var(--sf-layout-1px), transparent var(--sf-layout-1px));
-  background-size: var(--sf-layout-16px) var(--sf-layout-16px);
+  background-si-e: var(--sf-layout-16px) var(--sf-layout-16px);
 }
 .fx-scan {
   opacity: var(--scan);
@@ -64,7 +64,7 @@
       var(--sf-color-ffffff0b) var(--sf-layout-3px),
       var(--sf-color-ffffff0b) var(--sf-layout-4px)
     );
-  background-size: var(--sf-layout-16px) var(--sf-layout-10px), var(--sf-layout-12px) var(--sf-layout-18px);
+  background-si-e: var(--sf-layout-16px) var(--sf-layout-10px), var(--sf-layout-12px) var(--sf-layout-18px);
   mix-blend-mode: screen;
 }
 .fx-phosphor {
@@ -126,7 +126,7 @@
 .overlay-settings summary {
   cursor: pointer;
   padding: var(--sf-space-10px) 0;
-  font-size: var(--sf-type-12px);
+  font-si-e: var(--sf-type-12px);
 }
 .process-readout {
   margin-top: var(--sf-space-15px);
@@ -142,7 +142,7 @@
   gap: var(--sf-space-15px);
 }
 .process-readout b {
-  font-size: var(--sf-type-11px);
+  font-si-e: var(--sf-type-11px);
 }
 .process-rail {
   height: var(--sf-layout-3px);
@@ -159,7 +159,7 @@
   display: flex;
   gap: var(--sf-space-12px);
   margin: var(--sf-space-12px) 0;
-  font-size: var(--sf-type-8px);
+  font-si-e: var(--sf-type-8px);
   flex-wrap: wrap;
 }
 .process-steps span {
@@ -175,7 +175,7 @@
 .process-readout .scene-button {
   margin-top: var(--sf-space-10px);
   padding: var(--sf-space-8px) var(--sf-space-12px);
-  font-size: var(--sf-type-9px);
+  font-si-e: var(--sf-type-9px);
 }
 .corp-record {
   padding: var(--sf-space-20px);
@@ -183,13 +183,13 @@
   margin-top: var(--sf-space-16px);
 }
 .corp-record h3 {
-  font-size: var(--sf-type-25px);
+  font-si-e: var(--sf-type-25px);
   margin: var(--sf-space-6px) 0 var(--sf-space-14px);
 }
 .corp-record dl {
   display: grid;
   grid-template-columns: var(--sf-layout-150px) 1fr;
-  font-size: var(--sf-type-12px);
+  font-si-e: var(--sf-type-12px);
   gap: var(--sf-space-12px);
 }
 .corp-record dd {
@@ -209,7 +209,7 @@
 }
 .holo-readout .process-readout {
   padding: var(--sf-space-10px);
-  font-size: var(--sf-type-9px);
+  font-si-e: var(--sf-type-9px);
 }
 .holo-readout .process-steps {
   display: none;
@@ -228,7 +228,7 @@
   margin-top: var(--sf-space-16px);
 }
 .holo-number {
-  font-size: var(--sf-type-42px);
+  font-si-e: var(--sf-type-42px);
 }
 .holo-layout .holo-readout p {
   margin: var(--sf-space-8px) 0;
@@ -250,7 +250,7 @@
     monospace;
 }
 .tracking-hud h3 {
-  font-size: var(--sf-type-13px);
+  font-si-e: var(--sf-type-13px);
   margin: 0 0 var(--sf-space-10px);
 }
 .tracking-hud dl {
@@ -274,7 +274,7 @@
 }
 .tracking-actions .scene-button {
   padding: var(--sf-space-12px);
-  font-size: var(--sf-type-9px);
+  font-si-e: var(--sf-type-9px);
   background: var(--sf-color-07120df0);
 }
 .tracking-main .terrain {
@@ -336,7 +336,7 @@
   grid-template-columns: 1fr;
 }
 .scene-canvas[data-recipe="ultrawide"] .warhead .countdown-digits {
-  font-size: var(--sf-type-43px);
+  font-si-e: var(--sf-type-43px);
 }
 .family-corporate {
   --scene-bg: var(--theme-bg);
@@ -397,7 +397,7 @@
 }
 .theme-editor {
   margin: 0 var(--sf-space-20px) var(--sf-space-20px);
-  font-size: var(--sf-type-12px);
+  font-si-e: var(--sf-type-12px);
 }
 .theme-editor summary {
   padding: var(--sf-space-12px) 0;
@@ -423,10 +423,10 @@
 }
 .theme-actions button {
   padding: var(--sf-space-9px);
-  font-size: var(--sf-type-10px);
+  font-si-e: var(--sf-type-10px);
 }
 .theme-editor p {
-  font-size: var(--sf-type-10px);
+  font-si-e: var(--sf-type-10px);
   color: var(--sf-color-778792);
   line-height: 1.5;
 }
@@ -454,29 +454,29 @@ button:disabled {
   object-fit: contain;
 }
 .terminal-visual > .os-between {
-  font-size: var(--sf-type-8px);
+  font-si-e: var(--sf-type-8px);
   gap: var(--sf-space-8px);
 }
 .terminal-media {
   margin: var(--sf-space-12px) 0;
-  font-size: var(--sf-type-9px);
+  font-si-e: var(--sf-type-9px);
 }
 .terminal-media summary {
   cursor: pointer;
   padding: var(--sf-space-8px) 0;
 }
 .terminal-media input {
-  font-size: var(--sf-type-9px);
+  font-si-e: var(--sf-type-9px);
   width: 100%;
   margin: var(--sf-space-7px) 0;
 }
 .terminal-media p {
-  font-size: var(--sf-type-8px);
+  font-si-e: var(--sf-type-8px);
   line-height: 1.4;
   margin: var(--sf-space-6px) 0;
 }
 .terminal-media .os-button {
-  font-size: var(--sf-type-8px);
+  font-si-e: var(--sf-type-8px);
   margin: var(--sf-space-4px) var(--sf-space-4px) 0 0;
   padding: var(--sf-space-6px);
 }
@@ -491,7 +491,7 @@ button:disabled {
   padding: var(--sf-space-13px);
 }
 .os-terminal-side > .os-panel h3 {
-  font-size: var(--sf-type-16px);
+  font-si-e: var(--sf-type-16px);
 }
 .os-terminal-console .os-console-lines {
   overflow-y: auto;
@@ -592,7 +592,7 @@ button:disabled {
 }
 .skin-cyberdeck .os-content h2 {
   text-transform: uppercase;
-  font-size: var(--sf-type-30px);
+  font-si-e: var(--sf-type-30px);
   font-weight: var(--sf-font-weight-500);
 }
 .skin-cyberdeck .os-section-head {
@@ -600,7 +600,7 @@ button:disabled {
   padding-left: var(--sf-space-14px);
 }
 .system-profiles input[type="file"] {
-  font-size: var(--sf-type-10px);
+  font-si-e: var(--sf-type-10px);
   width: 100%;
 }
 .os-messages {
@@ -639,10 +639,10 @@ button:disabled {
 }
 .os-messages nav small,
 .os-messages nav span {
-  font-size: var(--sf-type-8px);
+  font-si-e: var(--sf-type-8px);
 }
 .os-messages nav strong {
-  font-size: var(--sf-type-11px);
+  font-si-e: var(--sf-type-11px);
 }
 .os-messages article {
   border: var(--sf-stroke-1px) solid var(--accent);
@@ -654,16 +654,16 @@ button:disabled {
   margin: var(--sf-space-16px) 0;
 }
 .message-sender {
-  font-size: var(--sf-type-8px) !important;
+  font-si-e: var(--sf-type-8px) !important;
 }
 .os-messages .message-body {
-  font-size: var(--sf-type-15px);
+  font-si-e: var(--sf-type-15px);
   line-height: 1.8;
   margin: var(--sf-space-25px) 0;
   color: var(--os-text);
 }
 .message-attachment {
-  font-size: var(--sf-type-9px);
+  font-si-e: var(--sf-type-9px);
   border-top: var(--sf-stroke-1px) solid var(--os-line);
   padding-top: var(--sf-space-15px);
   line-height: 2;

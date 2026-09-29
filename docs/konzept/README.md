@@ -41,6 +41,7 @@
 | U6 | [usability/06-copy-jargon.md](usability/06-copy-jargon.md) | German UI strings, tone, errors |
 | U7 | [usability/07-accessibility-devices.md](usability/07-accessibility-devices.md) | Touch, tablets, HQ, stage, a11y |
 | U8 | [usability/08-flows.md](usability/08-flows.md) | End-to-end journeys per mode |
+| U9 | [usability/09-layout-contracts.md](usability/09-layout-contracts.md) | Any scene/block layout: grid, overflow, z-index, truncation, scaling |
 
 ## Catalog (scenes, components, assets)
 

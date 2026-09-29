@@ -21,6 +21,7 @@ import { StartPage } from "./views/StartPage";
 import { SafetyView } from "./views/SafetyView";
 import { AssessorView } from "./views/AssessorView";
 import "./tokens.css";
+import "./layout.css";
 import "./styles.css";
 import "./scenes/corporate.css";
 import "./scenes/os/os.css";

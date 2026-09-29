@@ -1,0 +1,83 @@
+.terminal-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding: 16px;
+  background: var(--theme-bg, #080d12);
+  color: var(--theme-text, #d6e2e5);
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--theme-surface, #0e171f);
+}
+
+.terminal-header strong {
+  letter-spacing: 0.06em;
+}
+
+.terminal-header span {
+  font-size: 12px;
+  color: var(--theme-secondary, #8a9aa2);
+}
+
+.terminal-log {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.terminal-log .is-error {
+  color: #f36c75;
+}
+
+.terminal-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--theme-surface, #0e171f);
+}
+
+.terminal-input span {
+  color: var(--accent, #80dce5);
+  font-size: 13px;
+}
+
+.terminal-input input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--theme-surface, #0e171f);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.terminal-input input:focus {
+  outline: 1px solid var(--accent, #80dce5);
+  outline-offset: -1px;
+}
+
+.terminal-input button {
+  padding: 6px 12px;
+  border: 1px solid var(--theme-surface, #0e171f);
+  background: transparent;
+  color: var(--theme-text, #d6e2e5);
+  font: inherit;
+  cursor: pointer;
+}
+
+.terminal-input button:hover {
+  border-color: var(--accent, #80dce5);
+}

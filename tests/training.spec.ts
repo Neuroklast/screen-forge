@@ -59,7 +59,7 @@ test('dossiers synchronize and trainer patient changes reach the assigned monito
     await page.getByLabel('Name',{exact:true}).fill('Test Person');
     await page.getByLabel('Notizen').fill('Only after release');
     await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();
-    await expect(page.getByRole('status')).toContainText('Szenario gespeichert');
+    await expect(page.locator('.notice[role="status"]')).toContainText('Szenario gespeichert');
     await expect(hq.device.getByText('Test Person',{exact:true})).toHaveCount(0);
     await page.getByRole('button',{name:'Live-Steuerung',exact:true}).click();
     await page.getByRole('button',{name:'Test Person freigeben'}).click();

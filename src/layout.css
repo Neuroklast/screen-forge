@@ -1,0 +1,21 @@
+/* Layout & rendering contracts — see docs/konzept/usability/09-layout-contracts.md.
+   Use these z tokens instead of local magic numbers. */
+:root {
+  --sf-z-base: 0;
+  --sf-z-panel: 10;
+  --sf-z-float: 20;
+  --sf-z-overlay: 40;
+  --sf-z-critical: 50;
+}
+
+/* FUI surfaces never show scrollbars; scrollable data hides them and auto-scrolls. */
+.scene-canvas,
+.scene-canvas *,
+.training-app,
+.training-app * {
+  scrollbar-width: none;
+}
+.scene-canvas *::-webkit-scrollbar,
+.training-app *::-webkit-scrollbar {
+  display: none;
+}

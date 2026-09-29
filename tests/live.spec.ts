@@ -81,7 +81,7 @@ test("actor typing advances distinct commands, timed output and visual channels 
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Netzwerkterminal");
+  await select(page, "Betriebssystem");
   await osApp(page, "Terminal");
   const input = page.getByLabel("Terminaleingabe");
   await input.fill("xxxx");
@@ -154,7 +154,7 @@ test("themes, logo and system profile survive reload and export", async ({
     .getByLabel("Systemvorlage", { exact: true })
     .selectOption({ label: "My film system" });
   await closeConfiguration(page);
-  await select(page, "Netzwerkterminal");
+  await select(page, "Betriebssystem");
   await expect(page.locator(".os-wordmark strong")).toHaveText("ASHENRAI");
   await expect(page.locator(".custom-brand-logo")).toBeVisible();
   await configuration(page, "Themes");
@@ -172,7 +172,7 @@ test("selected company branding applies to every scene", async ({ page }) => {
   await closeConfiguration(page);
   for (const name of [
     "Konzernsystem",
-    "Netzwerkterminal",
+    "Betriebssystem",
     "Countdown",
     "Orbital Tracking",
     "Analysetisch",
@@ -189,7 +189,7 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
   await page.goto("/?mode=film");
   for (const name of [
     "Konzernsystem",
-    "Netzwerkterminal",
+    "Betriebssystem",
     "Countdown",
     "Orbital Tracking",
     "Analysetisch",
@@ -221,7 +221,7 @@ test("completed OS process creates a report and messages link to processes", asy
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Netzwerkterminal");
+  await select(page, "Betriebssystem");
   await osApp(page, "Messages");
   await page.getByRole("button", { name: "Recover attachment" }).click();
   await advance(page, 108);

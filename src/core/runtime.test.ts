@@ -37,7 +37,7 @@ describe("preset import boundary", () => {
       { duration: Infinity },
       { accent: "url(evil)" },
       { effects: 8 },
-      { version: 2 },
+      { version: 3 },
       { title: "" },
     ]) {
       expect(schema.safeParse({ ...defaults(), ...change }).success).toBe(

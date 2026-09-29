@@ -3,7 +3,7 @@
 > ScreenForge concept set · Target state (Soll) · Status of this file: **maintained** — update when code moves.
 > Evidence paths are relative to the repo root. `Action`: `new` | `extend` | `refactor` | `keep` | `remove`.
 > Asset/catalog findings (media, fonts, sounds, dead wiring): [../catalog/23-asset-and-catalog-gaps.md](../catalog/23-asset-and-catalog-gaps.md).
-> Implementation progress: Phase 1–3 complete; Phase 4 partially (phase model, manual fire, safety/assessor, abort, notes). Scene rework V2 started: `sceneOptions` config with migration, uncropped photos with theme tint, squared operational UI. Open: OS/Terminal split and the remaining V2 scene work ([../../plan/11-scene-rework-v2.md](../../plan/11-scene-rework-v2.md)). See also [../../plan/09-backlog-foundation-to-catalog.md](../../plan/09-backlog-foundation-to-catalog.md) and [../../plan/10-backlog-runtime-to-cleanup.md](../../plan/10-backlog-runtime-to-cleanup.md).
+> Implementation progress: Phase 1–3 complete; Phase 4 partially (phase model, manual fire, safety/assessor, abort, notes). Scene rework V2: `sceneOptions` + migration, uncropped photos, squared UI, and the OS/Terminal split (desktop `os`, goal-driven CLI `terminal`). Open: OS chrome and synthetic sounds, then the remaining V2 scene work ([../../plan/11-scene-rework-v2.md](../../plan/11-scene-rework-v2.md)). See also [../../plan/09-backlog-foundation-to-catalog.md](../../plan/09-backlog-foundation-to-catalog.md) and [../../plan/10-backlog-runtime-to-cleanup.md](../../plan/10-backlog-runtime-to-cleanup.md).
 
 ## Summary
 

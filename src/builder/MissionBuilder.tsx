@@ -30,6 +30,7 @@ const MODULE_LABELS: Record<ModuleId, string> = {
   medical: "Medizin",
   camera: "Kamera",
   tracking: "Karte",
+  os: "Betriebssystem",
   terminal: "Terminal",
   countdown: "Zeitgeber",
   access: "Zugang",
@@ -53,7 +54,7 @@ const FIELD_MODULES: ModuleId[] = [
   "ordnance",
   "beacon",
 ];
-const SYSTEM_MODULES: ModuleId[] = ["corporate", "hologram", "slide"];
+const SYSTEM_MODULES: ModuleId[] = ["os", "corporate", "hologram", "slide"];
 
 const ENTITY_LABELS: { collection: Collection; label: string }[] = [
   { collection: "patients", label: "Patient" },

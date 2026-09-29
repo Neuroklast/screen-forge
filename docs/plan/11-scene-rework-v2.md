@@ -11,7 +11,9 @@ Rework every scene and block to the V2 specs: a real operating-system feel (squa
 ## Progress
 
 - Done: V2-1 `sceneOptions` config record + defaults + migration ([../../src/core/config.ts](../../src/core/config.ts), [../../src/core/configMigration.test.ts](../../src/core/configMigration.test.ts)); V2-2 photo fix (uncropped + theme tint in `os.css`); V2-3 squared operational UI.
-- Open: V2-4 (OS/Terminal split) onwards.
+- Done: V2-4/V2-5 OS/Terminal split — scene ids `os` + `terminal`, `OperatingSystem` (renamed from CyberOS), goal-driven [../../src/scenes/terminal/Terminal.tsx](../../src/scenes/terminal/Terminal.tsx), config v2 migration (`terminal`→`os` for v1), show templates and inspector split; V2-17 partial (training modules `os`/`terminal`, terminal signals).
+- Done: V2-19 layout contracts — [../konzept/usability/09-layout-contracts.md](../konzept/usability/09-layout-contracts.md), z-index registry in `src/layout.css`, hidden scrollbars on scene/training surfaces, `npm run check:layout` gate wired into CI (0 errors; warnings list the migration backlog).
+- Open: V2-6 (OS chrome), V2-7 (synthetic sounds) and V2-8 onwards.
 
 ## Tasks
 
@@ -35,6 +37,7 @@ Rework every scene and block to the V2 specs: a real operating-system feel (squa
 | V2-16 | New blocks: clock, rotary, code table | new `src/scenes/blocks/*` | V2-1 | blocks usable in film studio |
 | V2-17 | Training mapping for `os`/`terminal` + new signals | `training.ts`, `ElementView.tsx`, server | V2-5, V2-8 | modules render correctly |
 | V2-18 | Tests: config migration, ScenePhoto, terminal goal, blocks | `src/core/*.test.ts`, `tests/*.spec.ts` | V2-* | green |
+| V2-19 | Layout contracts: doc, z registry, scrollbar hiding, check gate | [../konzept/usability/09-layout-contracts.md](../konzept/usability/09-layout-contracts.md), `src/layout.css`, `scripts/check-layout.mjs` | — | gate green in CI |
 
 ## Order
 

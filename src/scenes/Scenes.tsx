@@ -1,7 +1,8 @@
 import { BrandMark } from "../components/BrandMark";
 import { Corporate, Tracking, Hologram } from "./shared/LiveScenes";
 import { Warhead } from "./shared/Warhead";
-import { CyberOS } from "./os/CyberOS";
+import { OperatingSystem } from "./os/OperatingSystem";
+import { Terminal } from "./terminal/Terminal";
 
 import type { Config } from "../core/config";
 import { noise, type Cue } from "../core/runtime";
@@ -110,7 +111,8 @@ export function Terrain() {
 }
 export const sceneComponents = {
   corporate: Corporate,
-  terminal: CyberOS,
+  os: OperatingSystem,
+  terminal: Terminal,
   countdown: Warhead,
   tracking: Tracking,
   hologram: Hologram,

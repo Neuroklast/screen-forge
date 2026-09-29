@@ -1473,7 +1473,7 @@
 .os-lock-screen {
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: var(--sf-z-panel);
   background: radial-gradient(ellipse at 70% 40%, var(--sf-color-172333), var(--sf-color-090d14) 65%);
   padding: var(--sf-space-30px) var(--sf-space-38px);
   display: flex;
@@ -1737,7 +1737,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 20;
+  z-index: var(--sf-z-float);
   overflow: hidden;
   contain: strict;
 }

@@ -22,3 +22,5 @@
 | 2026-09 | Tooling | For bulk renames prefer the editor tools, or `[IO.File]::ReadAllText`/`WriteAllText` with an explicit UTF-8 no-BOM encoding. Tracked files are recoverable with `git checkout --`, but uncommitted working-tree edits are not. | med |
 | 2026-09 | UI | HTML5 drag & drop does not work on touch — always ship a tap/keyboard path (palette click to add, inspector to bind) alongside DnD. | med |
 | 2026-09 | Tests | The Playwright config runs the exercise server on a fixed port with `reuseExistingServer: false`; a leftover process from an aborted run blocks e2e. Kill port 8787 before re-running. | low |
+| 2026-09 | Config | When reusing a scene id for a new meaning, version-gate the migration (config v1 `terminal` → `os`, v2 keeps `terminal` for the new CLI) — a value-based migration would make the new scene unreachable. | high |
+| 2026-09 | UI | FUI layouts never reflow: fixed stage + `transform: scale()`, grid over `flex-wrap`, no visible scrollbars, capped data lists, and the central z-index registry (`--sf-z-*`) instead of local magic numbers. Gate: `npm run check:layout`. | high |

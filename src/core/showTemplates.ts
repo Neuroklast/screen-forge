@@ -57,6 +57,7 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
   const id = identityOf(base);
   const pin = base.pin || "2048";
   const term = scene(base, "terminal", id);
+  const os = scene(base, "os", id);
   const track = scene(base, "tracking", id);
   const count = scene(base, "countdown", {
     ...id,
@@ -84,7 +85,7 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
         }),
         node(
           "Find locator file",
-          scene(base, "terminal", {
+          scene(base, "os", {
             ...id,
             ...options(base, { os: { startupApp: "files" } }),
           }),
@@ -92,11 +93,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             trigger: "signal",
             value: gate("file.found", "/archives/locator.beacon"),
             config: {
-              ...term,
-              ...options(term, {
-                os: { startupApp: "files" },
-                terminal: { actorMode: false },
-              }),
+              ...os,
+              ...options(os, { os: { startupApp: "files" } }),
               pinEnabled: false,
             },
           },
@@ -166,7 +164,7 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
         }),
         node(
           "Find sealed volume",
-          scene(base, "terminal", {
+          scene(base, "os", {
             ...id,
             ...options(base, { os: { startupApp: "files" } }),
           }),
@@ -174,18 +172,15 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             trigger: "signal",
             value: gate("file.found", "/archives/sector-07.fragment"),
             config: {
-              ...term,
-              ...options(term, {
-                os: { startupApp: "files" },
-                terminal: { actorMode: false },
-              }),
+              ...os,
+              ...options(os, { os: { startupApp: "files" } }),
               pinEnabled: false,
             },
           },
         ),
         node(
           "Decrypt volume",
-          scene(base, "terminal", {
+          scene(base, "os", {
             ...id,
             ...options(base, { os: { startupApp: "files" } }),
           }),
@@ -193,11 +188,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             trigger: "signal",
             value: gate("file.decrypt", "/archives/sector-07.fragment"),
             config: {
-              ...term,
-              ...options(term, {
-                os: { startupApp: "files" },
-                terminal: { actorMode: false },
-              }),
+              ...os,
+              ...options(os, { os: { startupApp: "files" } }),
               pinEnabled: false,
             },
           },
@@ -324,7 +316,7 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
         }),
         node(
           "OPEN DOSSIER",
-          scene(base, "terminal", {
+          scene(base, "os", {
             ...id,
             ...options(base, { os: { startupApp: "personnel" } }),
           }),
@@ -332,8 +324,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             trigger: "signal",
             value: "dossier.open",
             config: {
-              ...term,
-              ...options(term, { os: { startupApp: "personnel" } }),
+              ...os,
+              ...options(os, { os: { startupApp: "personnel" } }),
               pinEnabled: false,
             },
           },
@@ -349,7 +341,7 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       show: chain("Einrichtungsterminal", [
         node(
           "Find notes",
-          scene(base, "terminal", {
+          scene(base, "os", {
             ...id,
             ...options(base, { os: { startupApp: "files" } }),
           }),
@@ -358,11 +350,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
             trigger: "signal",
             value: gate("file.found", "/workspace/operator.notes"),
             config: {
-              ...term,
-              ...options(term, {
-                os: { startupApp: "files" },
-                terminal: { actorMode: false },
-              }),
+              ...os,
+              ...options(os, { os: { startupApp: "files" } }),
             },
           },
         ),

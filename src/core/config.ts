@@ -2,6 +2,7 @@ import { z } from "zod";
 import { stageFormatIds } from "./stage";
 export const sceneIds = [
   "corporate",
+  "os",
   "terminal",
   "countdown",
   "tracking",
@@ -173,7 +174,7 @@ export const sceneOptionsSchema = z.object({
     .default(() => sceneOptionsDefaults().codeTable),
 });
 const configSchema = z.object({
-  version: z.literal(1),
+  version: z.literal(2),
   palette: paletteSchema.optional(),
   mediaIds: z.array(z.string().max(80)).max(100).default([]),
   pin: z
@@ -266,6 +267,12 @@ const configSchema = z.object({
 function normalizeConfig(input: unknown): unknown {
   if (!input || typeof input !== "object") return input;
   const raw = { ...(input as Record<string, unknown>) };
+  // Config v1: the `terminal` scene was the operating system. Split: v1 `terminal` -> `os`;
+  // the new command-line scene keeps the id `terminal` from v2 on.
+  if (raw.version === 1 || raw.version === undefined) {
+    if (raw.scene === "terminal") raw.scene = "os";
+    raw.version = 2;
+  }
   const options = {
     ...(raw.sceneOptions && typeof raw.sceneOptions === "object"
       ? (raw.sceneOptions as Record<string, unknown>)
@@ -328,13 +335,23 @@ export const scenes: {
     kind: "scene",
   },
   {
-    id: "terminal",
-    name: "Netzwerkterminal",
-    code: "02 / NETWORK",
-    description: "BLACKLINE OS. Archive, Identitäten, Sequenzen.",
+    id: "os",
+    name: "Betriebssystem",
+    code: "02 / SYSTEM",
+    description: "Fenster, Apps, Dateien. Ein Arbeitsplatz.",
     accent: "#f36c75",
     title: "BLACKLINE",
-    subtitle: "NETWORK OPERATIONS / LOCAL SESSION",
+    subtitle: "OPERATING SYSTEM / LOCAL SESSION",
+    kind: "scene",
+  },
+  {
+    id: "terminal",
+    name: "Terminal",
+    code: "02b / SHELL",
+    description: "Kommandozeile mit Ziel.",
+    accent: "#80dce5",
+    title: "SHELL",
+    subtitle: "COMMAND LINE / RELAY 07",
     kind: "scene",
   },
   {
@@ -535,7 +552,7 @@ export function applyTheme(
 export function defaults(scene: SceneId = "corporate"): Config {
   const s = scenes.find((x) => x.id === scene)!;
   return {
-    version: 1,
+    version: 2,
     mediaIds: [],
     pin: "2048",
     pinEnabled: false,

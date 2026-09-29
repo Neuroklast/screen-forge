@@ -47,6 +47,7 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 | Phase work / task order | [docs/plan/README.md](docs/plan/README.md), [docs/plan/09-backlog-foundation-to-catalog.md](docs/plan/09-backlog-foundation-to-catalog.md), [docs/plan/10-backlog-runtime-to-cleanup.md](docs/plan/10-backlog-runtime-to-cleanup.md) |
 | Product behavior / features | [docs/konzept/README.md](docs/konzept/README.md), [docs/konzept/domain/12-gap-analysis.md](docs/konzept/domain/12-gap-analysis.md) |
 | UI / UX work | [docs/konzept/usability/00-principles.md](docs/konzept/usability/00-principles.md), [docs/konzept/usability/06-copy-jargon.md](docs/konzept/usability/06-copy-jargon.md) |
+| Layout / overflow / z-index | [docs/konzept/usability/09-layout-contracts.md](docs/konzept/usability/09-layout-contracts.md) — grid over flex, viewport prison, z registry, truncation, aspect lock |
 | Scenes / blocks / components | [docs/konzept/catalog/](docs/konzept/catalog/19-themes.md) |
 | Training scenarios | [docs/konzept/scenarios/00-realism-and-safety-framework.md](docs/konzept/scenarios/00-realism-and-safety-framework.md) |
 | Data formats / import/export | [docs/konzept/formats/00-format-family.md](docs/konzept/formats/00-format-family.md) |

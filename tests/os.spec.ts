@@ -3,7 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 async function enter(page: Page) {
   await page.goto("/?mode=film");
   await page
-    .getByRole("button", { name: /Netzwerkterminal/ })
+    .getByRole("button", { name: /Betriebssystem/ })
     .first()
     .click();
   await page.getByRole("button", { name: "Pause", exact: true }).click();
@@ -21,7 +21,7 @@ test("filesystem, personnel, 4D projection and real local command parsing", asyn
   await enter(page);
   await app(page, "Filesystem");
   await page.getByRole("button", { name: /sector-07.fragment/ }).click();
-  await expect(page.getByRole("dialog")).toContainText("Recoverable blocks");
+  await expect(page.getByRole("dialog")).toContainText("Recover archive");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await app(page, "Personnel");
