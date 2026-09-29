@@ -81,6 +81,9 @@ export function OperatingSystem({
     ...initialOsState,
     app: config.sceneOptions.os.startupApp,
   });
+  useEffect(() => {
+    playSound("osStartup");
+  }, []);
   const [cracked, setCracked] = useState<string[]>([]);
   const files: VirtualFile[] = [
     ...baseFiles,
@@ -155,9 +158,7 @@ export function OperatingSystem({
   const visualTime = reduced ? 0 : time;
   const open = (app: AppId) => {
     stopLoop("openProfile");
-    if (app === "personnel") playSound("openProfile");
-    else if (app === "files") playSound("openFolder");
-    else playSound("click");
+    playSound("osOpen");
     dispatch({ type: "open", app });
     setFile(null);
     setMenu(false);
@@ -440,7 +441,10 @@ export function OperatingSystem({
               <i />
               <button
                 aria-label="Fenster schließen"
-                onClick={() => open("overview")}
+                onClick={() => {
+                  playSound("osClose");
+                  dispatch({ type: "open", app: "overview" });
+                }}
               >
                 <X size={12} />
               </button>

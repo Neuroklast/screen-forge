@@ -15,6 +15,12 @@ const files = {
   beep: "COUNTDOWN BEEP.wav",
   hack1: "hack 01.wav",
   hack2: "hack 02.wav",
+  osStartup: "os_startup.wav",
+  osOpen: "os_open.wav",
+  osClose: "os_close.wav",
+  osError: "os_error.wav",
+  osNotify: "os_notify.wav",
+  osTick: "os_tick.wav",
 } as const;
 export type SoundId = keyof typeof files;
 let enabled = true;
