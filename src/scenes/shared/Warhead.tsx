@@ -101,6 +101,37 @@ function PhaseTrim({
     </div>
   );
 }
+const DEVICE_PROFILES = {
+  transfer: {
+    family: "TRANSFER CONTAINER",
+    unit: "CARGO SEAL",
+    telemetry: ["SEAL_INTEGRITY", "TEMP_CARGO", "PRESSURE", "TAMPER_BG"],
+    timer: "TIME TO RELEASE",
+  },
+  bomb: {
+    family: "CONTAINMENT ASSEMBLY",
+    unit: "CONTAINMENT FIELD",
+    telemetry: [
+      "B_FIELD_AXIAL",
+      "CRYO_TEMP_LHE",
+      "CHAMBER_VACUUM",
+      "ANNIHILATION_BG",
+    ],
+    timer: "TIME TO MAGNETIC_COLLAPSE",
+  },
+  reactor: {
+    family: "REACTOR CORE",
+    unit: "CORE FLUX",
+    telemetry: ["NEUTRON_FLUX", "COOLANT_TEMP", "PRESSURE_VESSEL", "GAMMA_BG"],
+    timer: "TIME TO SCRAM",
+  },
+  custom: {
+    family: "DEVICE",
+    unit: "UNIT",
+    telemetry: ["CHANNEL_A", "CHANNEL_B", "CHANNEL_C", "CHANNEL_D"],
+    timer: "TIME REMAINING",
+  },
+} as const;
 export function Warhead(props: SceneProps) {
   const { config, time, onPlay, onCue } = props;
   const [diagnostic, setDiagnostic] = useState<number | null>(null),
@@ -194,10 +225,37 @@ export function Warhead(props: SceneProps) {
     if (!state.safe) setHold(null);
   };
   const clock = clockParts(state.left);
+  const countdown = config.sceneOptions.countdown;
+  const profile = DEVICE_PROFILES[countdown.type] ?? DEVICE_PROFILES.bomb;
   const family =
-    config.sceneOptions.countdown.variant === "nuclear"
-      ? "FISSILE ASSEMBLY"
-      : "CONTAINMENT ASSEMBLY";
+    countdown.type === "custom" && countdown.label
+      ? countdown.label.toUpperCase()
+      : countdown.type === "bomb"
+        ? countdown.variant === "nuclear"
+          ? "FISSILE ASSEMBLY"
+          : "CONTAINMENT ASSEMBLY"
+        : profile.family;
+  const unit =
+    countdown.type === "bomb"
+      ? countdown.variant === "nuclear"
+        ? "PAYLOAD INTEGRITY"
+        : "CONTAINMENT FIELD"
+      : profile.unit;
+  const phaseKey = state.safe
+    ? "safe"
+    : state.expired
+      ? "expired"
+      : state.bypassed
+        ? aligned
+          ? "ready"
+          : "align"
+        : bypass !== null
+          ? "bypass"
+          : state.diagnosed
+            ? "diagnosed"
+            : diagnostic !== null
+              ? "diagnose"
+              : "idle";
   return (
     <div
       className={`countdown warhead scene-inner ${state.safe ? "device-safe" : state.expired ? "device-expired" : ""} ${warn === 1 ? "warn-half" : warn === 2 ? "warn-quarter" : warn === 3 ? "warn-ten" : ""}`}
@@ -206,6 +264,10 @@ export function Warhead(props: SceneProps) {
       }
     >
       <SceneHeader config={config} tag={phase} />
+      <div className="warhead-phase" data-phase={phaseKey} role="status">
+        <span>{phase}</span>
+        <small>{unit}</small>
+      </div>
       <div className="warhead-heading">
         <span>
           {family} / {config.identifier}
@@ -214,11 +276,7 @@ export function Warhead(props: SceneProps) {
       </div>
       <div className="warhead-layout">
         <aside className="warhead-core">
-          <div className="micro">
-            {config.sceneOptions.countdown.variant === "nuclear"
-              ? "PAYLOAD INTEGRITY"
-              : "CONTAINMENT FIELD"}
-          </div>
+          <div className="micro">{unit}</div>
           <div className="warhead-emblem">
             <AtomEmblem />
           </div>
@@ -247,15 +305,19 @@ export function Warhead(props: SceneProps) {
             />
           </svg>
           <dl>
-            {[
-              ["B_FIELD_AXIAL", `${tel.bField.toFixed(3)} T`],
-              ["CRYO_TEMP_LHE", `${tel.cryo.toFixed(2)} K`],
-              ["CHAMBER_VACUUM", `${sci(tel.vacuum)} Torr`],
-              ["ANNIHILATION_BG", `${tel.annihil.toFixed(2)} cps`],
-            ].map(([k, v]) => (
+            {profile.telemetry.map((k, i) => (
               <div key={k}>
                 <dt>{k}</dt>
-                <dd>{v}</dd>
+                <dd>
+                  {
+                    [
+                      `${tel.bField.toFixed(3)} T`,
+                      `${tel.cryo.toFixed(2)} K`,
+                      `${sci(tel.vacuum)} Torr`,
+                      `${tel.annihil.toFixed(2)} cps`,
+                    ][i]
+                  }
+                </dd>
               </div>
             ))}
           </dl>
@@ -266,7 +328,7 @@ export function Warhead(props: SceneProps) {
               ? "CONTAINMENT RESTORED"
               : state.expired
                 ? "LOSS OF CONTAINMENT"
-                : "TIME TO MAGNETIC_COLLAPSE"}
+                : profile.timer}
           </div>
           <div className="countdown-digits" aria-label={formatTime(state.left)}>
             <span>{clock.hh}</span>

@@ -15,6 +15,7 @@ Rework every scene and block to the V2 specs: a real operating-system feel (squa
 - Done: V2-19 layout contracts — [../konzept/usability/09-layout-contracts.md](../konzept/usability/09-layout-contracts.md), z-index registry in `src/layout.css`, hidden scrollbars on scene/training surfaces, `npm run check:layout` gate wired into CI (0 errors; warnings list the migration backlog).
 - Done: V2-7 synthetic OS sounds — `scripts/gen-os-sounds.mjs` (`npm run gen:sounds`) writes `sounds/os_*.wav` + `sounds/manifest.json`; startup/open/close wired into the OS scene. V2-6 partial (window close sound; full chrome rework still open).
 - Done: V2-8 terminal goal config — `sceneOptions.terminal.steps`/`goal`/`prompt` (editable in the inspector); the CLI uses configured steps when present. V2-6 further: squared window-bar controls with hover/focus, ellipsized window title, `osNotify` on sequence completion.
+- Done: V2-10 countdown — device profiles (transfer/bomb/reactor/custom with label) drive family, telemetry and timer labels; a phase banner shows the current phase with per-phase accent; the inspector gains type, label and (for bombs) the assembly variant.
 - Open: V2-6 (full OS chrome), V2-9 onwards.
 
 ## Tasks

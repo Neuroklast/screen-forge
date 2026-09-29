@@ -302,3 +302,37 @@
   border-color: var(--sf-color-ff726b);
   color: var(--sf-color-ff726b);
 }
+
+.warhead-phase {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 4px 10px;
+  border-left: 3px solid var(--accent);
+  background: #0b1319;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.warhead-phase small {
+  color: #6b7d86;
+  font-size: 10px;
+}
+.warhead-phase[data-phase="diagnose"],
+.warhead-phase[data-phase="diagnosed"] {
+  border-left-color: #78cce5;
+}
+.warhead-phase[data-phase="bypass"],
+.warhead-phase[data-phase="align"] {
+  border-left-color: #e8b563;
+}
+.warhead-phase[data-phase="ready"],
+.warhead-phase[data-phase="safe"] {
+  border-left-color: #76fa96;
+}
+.warhead-phase[data-phase="expired"] {
+  border-left-color: #f36c75;
+}

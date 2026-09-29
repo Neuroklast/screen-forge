@@ -924,23 +924,59 @@ export default function App() {
                 </>
               )}
               {config.scene === "countdown" && (
-                <label>
-                  Gerätetyp
-                  <select
-                    aria-label="Gerätetyp"
-                    value={config.sceneOptions.countdown.variant}
-                    onChange={(e) => {
-                      reset();
-                      updateSceneOptions("countdown", {
-                        variant:
-                          e.target.value as Config["sceneOptions"]["countdown"]["variant"],
-                      });
-                    }}
-                  >
-                    <option value="antimatter">Containment-Baugruppe</option>
-                    <option value="nuclear">Spaltmaterial-Baugruppe</option>
-                  </select>
-                </label>
+                <>
+                  <label>
+                    Gerätetyp
+                    <select
+                      aria-label="Gerätetyp"
+                      value={config.sceneOptions.countdown.type}
+                      onChange={(e) => {
+                        reset();
+                        updateSceneOptions("countdown", {
+                          type: e.target
+                            .value as Config["sceneOptions"]["countdown"]["type"],
+                        });
+                      }}
+                    >
+                      <option value="transfer">Transfer / Transport</option>
+                      <option value="bomb">Sprengkörper (fiktiv)</option>
+                      <option value="reactor">Reaktor</option>
+                      <option value="custom">Eigenes Gerät</option>
+                    </select>
+                  </label>
+                  <label>
+                    Bezeichnung
+                    <input
+                      value={config.sceneOptions.countdown.label}
+                      maxLength={40}
+                      onChange={(e) =>
+                        updateSceneOptions("countdown", {
+                          label: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                  {config.sceneOptions.countdown.type === "bomb" && (
+                    <label>
+                      Baugruppe
+                      <select
+                        aria-label="Baugruppe"
+                        value={config.sceneOptions.countdown.variant}
+                        onChange={(e) => {
+                          reset();
+                          updateSceneOptions("countdown", {
+                            variant:
+                              e.target
+                                .value as Config["sceneOptions"]["countdown"]["variant"],
+                          });
+                        }}
+                      >
+                        <option value="antimatter">Containment-Baugruppe</option>
+                        <option value="nuclear">Spaltmaterial-Baugruppe</option>
+                      </select>
+                    </label>
+                  )}
+                </>
               )}
               <label>
                 Dauer in Sekunden
