@@ -46,7 +46,7 @@ import { gate } from "../../core/director";
 import { exampleMedia } from "../../core/exampleMedia";
 import { useActorPlayback, TerminalVisual } from "./ActorPlayback";
 import { Changed } from "../shared/Process";
-import { playSound, stopLoop } from "../../core/sound";
+import { playSound, setSoundEnabled, stopLoop } from "../../core/sound";
 const apps: { id: AppId; name: string; icon: typeof Folder; code: string }[] = [
   { id: "overview", name: "Workspace", icon: LayoutDashboard, code: "00" },
   { id: "terminal", name: "Terminal", icon: TerminalSquare, code: "01" },
@@ -85,6 +85,7 @@ export function OperatingSystem({
     playSound("osStartup");
   }, []);
   const [cracked, setCracked] = useState<string[]>([]);
+  const [soundOn, setSoundOn] = useState(true);
   const files: VirtualFile[] = [
     ...baseFiles,
     ...state.history.map((id, i) => ({
@@ -397,6 +398,10 @@ export function OperatingSystem({
         </div>
         {menu && (
         <nav className="os-sidebar">
+          <div className="os-side-head">
+            <strong>{config.title}</strong>
+            <span className="os-kicker">SYSTEM / LOCAL SESSION</span>
+          </div>
           <span className="os-kicker">APPLICATIONS</span>
           {apps.map((a) => (
             <button
@@ -1304,6 +1309,19 @@ export function OperatingSystem({
             );
           })}
         </div>
+        <button
+          className="os-tray-toggle"
+          aria-label={soundOn ? "Ton aus" : "Ton ein"}
+          aria-pressed={soundOn}
+          onClick={() => {
+            const next = !soundOn;
+            setSoundOn(next);
+            setSoundEnabled(next);
+            if (next) playSound("osTick");
+          }}
+        >
+          {soundOn ? "SND ON" : "SND OFF"}
+        </button>
         <span className="os-task-time">
           {formatTime(time)} <small>LOCAL SESSION</small>
         </span>

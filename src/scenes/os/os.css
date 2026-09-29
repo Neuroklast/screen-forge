@@ -1866,3 +1866,32 @@
 .scene-canvas[data-orient="portrait"] .comms-grid {
   grid-template-columns: 1fr;
 }
+
+.os-side-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 0 8px;
+  margin-bottom: 8px;
+  border-bottom: var(--sf-stroke-1px) solid var(--os-line);
+}
+.os-side-head strong {
+  font-size: var(--sf-type-11px, 11px);
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+.os-tray-toggle {
+  min-height: var(--sf-layout-20px);
+  padding: 0 8px;
+  border: var(--sf-stroke-1px) solid var(--os-line);
+  background: transparent;
+  color: var(--os-muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--sf-type-8px, 8px);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+.os-tray-toggle[aria-pressed="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
