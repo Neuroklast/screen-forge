@@ -27,6 +27,7 @@ A fictional maintenance depot reports an unidentified device (`Containment-Baugr
 | CAM-1 | `camera` | player | device bay camera |
 | HQ-1 | `tracking` | hq | cordon zones, positions |
 | HQ-2 | `comms` | hq | command channel |
+| DATA-1 | `data-sheet` | player | schematic + disposal steps to read and relay via comms |
 | MED-1 (optional) | `medical` | player | contingency casualty |
 
 ## Entities

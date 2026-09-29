@@ -18,7 +18,10 @@ function signal(value: string) {
 export function Lock({ config, onCue }: SceneProps) {
   return (
     <div className="block-scene scene-inner">
-      <HudFrame label="KEYPAD" className="block-frame">
+      <HudFrame
+        label={`KEYPAD / ${config.sceneOptions.lock.attempts} VERSUCHE`}
+        className="block-frame"
+      >
       <CodePad
         embedded
         title="KEYPAD"
@@ -310,7 +313,7 @@ export function Comms({ config, time, onPlay }: SceneProps) {
     </div>
   );
 }
-export function Slide({ onCue, onPlay }: SceneProps) {
+export function Slide({ config, onCue, onPlay }: SceneProps) {
   const [granted, setGranted] = useState(false);
   const latch = useLatchSlider({
     granted,
@@ -324,7 +327,10 @@ export function Slide({ onCue, onPlay }: SceneProps) {
   const t = latch.state.progress;
   return (
     <div className="block-scene scene-inner">
-      <HudFrame label="SLIDE" className="block-frame">
+      <HudFrame
+        label={`SLIDE / ${config.sceneOptions.slide.stages} STUFEN`}
+        className="block-frame"
+      >
       <div className="block-body latch-body">
         <dl className="block-dl">
           <div>

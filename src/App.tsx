@@ -978,6 +978,170 @@ export default function App() {
                   )}
                 </>
               )}
+              {config.scene === "tracking" && (
+                <>
+                  <label>
+                    Trackingmodus
+                    <select
+                      aria-label="Trackingmodus"
+                      value={config.sceneOptions.tracking.mode}
+                      onChange={(e) =>
+                        updateSceneOptions("tracking", {
+                          mode: e.target
+                            .value as Config["sceneOptions"]["tracking"]["mode"],
+                        })
+                      }
+                    >
+                      <option value="sensor">Sensor / Aufklärung</option>
+                      <option value="drone">Drohne (taktisch)</option>
+                    </select>
+                  </label>
+                  <label>
+                    Kennung
+                    <input
+                      value={config.sceneOptions.tracking.callsign}
+                      maxLength={24}
+                      onChange={(e) =>
+                        updateSceneOptions("tracking", {
+                          callsign: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </>
+              )}
+              {config.scene === "hologram" && (
+                <>
+                  <label>
+                    Analysemodus
+                    <select
+                      aria-label="Analysemodus"
+                      value={config.sceneOptions.analysis.mode}
+                      onChange={(e) =>
+                        updateSceneOptions("analysis", {
+                          mode: e.target
+                            .value as Config["sceneOptions"]["analysis"]["mode"],
+                        })
+                      }
+                    >
+                      <option value="reconstruct">Rekonstruktion</option>
+                      <option value="decrypt">Entschlüsselung</option>
+                      <option value="data">Datenanalyse</option>
+                    </select>
+                  </label>
+                  <label>
+                    Eingabe (Chiffre)
+                    <input
+                      value={config.sceneOptions.analysis.input}
+                      maxLength={400}
+                      onChange={(e) =>
+                        updateSceneOptions("analysis", { input: e.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Ergebnis (Klartext/Befund)
+                    <input
+                      value={config.sceneOptions.analysis.result}
+                      maxLength={400}
+                      onChange={(e) =>
+                        updateSceneOptions("analysis", { result: e.target.value })
+                      }
+                    />
+                  </label>
+                </>
+              )}
+              {config.scene === "clock" && (
+                <>
+                  <label>
+                    Uhrmodus
+                    <select
+                      aria-label="Uhrmodus"
+                      value={config.sceneOptions.clock.mode}
+                      onChange={(e) =>
+                        updateSceneOptions("clock", {
+                          mode: e.target
+                            .value as Config["sceneOptions"]["clock"]["mode"],
+                        })
+                      }
+                    >
+                      <option value="mission">Missionszeit</option>
+                      <option value="wall">Uhrzeit</option>
+                      <option value="zones">Zonen</option>
+                      <option value="countdown">Countdown</option>
+                      <option value="schedule">Zeitplan</option>
+                    </select>
+                  </label>
+                  <label>
+                    Beschriftung
+                    <input
+                      value={config.sceneOptions.clock.label}
+                      maxLength={40}
+                      onChange={(e) =>
+                        updateSceneOptions("clock", { label: e.target.value })
+                      }
+                    />
+                  </label>
+                </>
+              )}
+              {config.scene === "rotary" && (
+                <label>
+                  Regler
+                  <input
+                    type="number"
+                    min={1}
+                    max={4}
+                    value={config.sceneOptions.rotary.dials}
+                    onChange={(e) =>
+                      updateSceneOptions("rotary", {
+                        dials: Number(e.target.value),
+                      })
+                    }
+                  />
+                </label>
+              )}
+              {config.scene === "code-table" && (
+                <label>
+                  Nachricht (Klartext)
+                  <input
+                    value={config.sceneOptions.codeTable.message}
+                    maxLength={60}
+                    onChange={(e) =>
+                      updateSceneOptions("codeTable", {
+                        message: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+              )}
+              {config.scene === "data-sheet" && (
+                <>
+                  <label>
+                    Titel
+                    <input
+                      value={config.sceneOptions.dataSheet.title}
+                      maxLength={60}
+                      onChange={(e) =>
+                        updateSceneOptions("dataSheet", {
+                          title: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Funkspruch
+                    <input
+                      value={config.sceneOptions.dataSheet.relayText}
+                      maxLength={200}
+                      onChange={(e) =>
+                        updateSceneOptions("dataSheet", {
+                          relayText: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </>
+              )}
               <label>
                 Dauer in Sekunden
                 <input

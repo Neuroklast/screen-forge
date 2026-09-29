@@ -14,6 +14,12 @@ import {
   Medical,
   Slide,
 } from "./blocks/Blocks";
+import {
+  Clock,
+  CodeTable,
+  DataSheet,
+  Rotary,
+} from "./blocks/Instruments";
 
 export type SceneProps = {
   config: Config;
@@ -122,4 +128,8 @@ export const sceneComponents = {
   camera: Camera,
   comms: Comms,
   slide: Slide,
+  clock: Clock,
+  rotary: Rotary,
+  "code-table": CodeTable,
+  "data-sheet": DataSheet,
 };

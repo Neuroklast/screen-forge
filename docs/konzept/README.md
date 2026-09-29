@@ -63,6 +63,7 @@
 | C12b | [catalog/blocks/13-clock.md](catalog/blocks/13-clock.md) | Clock block (new) |
 | C12c | [catalog/blocks/14-rotary.md](catalog/blocks/14-rotary.md) | Rotary block (new) |
 | C12d | [catalog/blocks/15-code-table.md](catalog/blocks/15-code-table.md) | Code table block (new) |
+| C12e | [catalog/blocks/16-data-sheet.md](catalog/blocks/16-data-sheet.md) | Data sheet / schematic viewer (new) |
 | C13 | [catalog/components/13-input.md](catalog/components/13-input.md) | CodePad, StageKeys, GestureSurface |
 | C14 | [catalog/components/14-branding-frames.md](catalog/components/14-branding-frames.md) | BrandMark, HudFrame, SceneHeader |
 | C15 | [catalog/components/15-media-pipeline.md](catalog/components/15-media-pipeline.md) | Media store, example media, limits |

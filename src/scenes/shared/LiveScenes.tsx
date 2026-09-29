@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Fingerprint, ShieldCheck } from "lucide-react";
 import { SceneHeader, type SceneProps, Terrain, Wave } from "../Scenes";
@@ -324,6 +324,31 @@ export function Hologram(props: SceneProps) {
   const model = (config.mediaIds ?? [])
     .map((id) => assets.find((a) => a.id === id))
     .find((a): a is NonNullable<typeof a> => !!a && isModelAsset(a));
+  const analysis = config.sceneOptions.analysis;
+  const cipher = analysis.input || "7F 3A 91 0C 44 D2 1B 6E 51";
+  const plain = analysis.result || "RELAY SESSION RECOVERED";
+  const findings = (
+    analysis.result ||
+    "anomaly in sector 07;clock drift 12 ms;third-party relay detected"
+  )
+    .split(/[;\n]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const revealCount = Math.floor(process.progress * plain.length);
+  const modeTitle =
+    analysis.mode === "decrypt"
+      ? "Cipher"
+      : analysis.mode === "data"
+        ? "Correlation"
+        : "Structural";
+  useEffect(() => {
+    if (process.done)
+      window.dispatchEvent(
+        new CustomEvent("screenforge:input", {
+          detail: { type: "signal", value: "analysis.complete" },
+        }),
+      );
+  }, [process.done]);
   return (
     <div className="hologram scene-inner">
       <SceneHeader
@@ -340,46 +365,99 @@ export function Hologram(props: SceneProps) {
         <aside>
           <div className="micro">OBJECT / 0041</div>
           <h2>
-            Structural
+            {modeTitle}
             <br />
             analysis.
           </h2>
           <p>
-            Perspective reconstruction
+            {analysis.mode === "decrypt"
+              ? "Key schedule derivation"
+              : analysis.mode === "data"
+                ? "Dataset correlation"
+                : "Perspective reconstruction"}
             <br />
-            Seven independent depth slices
+            {analysis.mode === "decrypt"
+              ? "Fictional cipher / no real cryptography"
+              : analysis.mode === "data"
+                ? "Outliers are written to the report"
+                : "Seven independent depth slices"}
           </p>
-          {["Geometry", "Materials", "Integrity"].map((x, i) => (
-            <button
-              key={x}
-              className={`holo-tab ${selection === x ? "selected" : ""}`}
-              onClick={() => {
-                setSelection(x);
-                process.clear();
-              }}
-            >
-              <span>0{i + 1}</span>
-              {x}
-            </button>
-          ))}
+          {analysis.mode === "reconstruct" ? (
+            ["Geometry", "Materials", "Integrity"].map((x, i) => (
+              <button
+                key={x}
+                className={`holo-tab ${selection === x ? "selected" : ""}`}
+                onClick={() => {
+                  setSelection(x);
+                  process.clear();
+                }}
+              >
+                <span>0{i + 1}</span>
+                {x}
+              </button>
+            ))
+          ) : analysis.mode === "decrypt" ? (
+            <div className="holo-cipher">
+              <div className="micro">CIPHERTEXT</div>
+              <pre>{cipher}</pre>
+              <div className="micro">PLAINTEXT</div>
+              <pre className="holo-plain">
+                {plain.slice(0, revealCount) || "—"}
+              </pre>
+            </div>
+          ) : (
+            <ul className="holo-findings">
+              {findings.map((f, i) => {
+                const found =
+                  process.progress > (i + 1) / (findings.length + 1);
+                return (
+                  <li key={f} className={found ? "is-found" : ""}>
+                    {found ? f : "…"}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           <button
             className="scene-button"
             disabled={!!process.job && !process.done}
             onClick={() =>
               process.start(
-                `${selection.toUpperCase()} ANALYSIS`,
-                [
-                  "Calibrate spatial reference",
-                  "Acquire seven depth slices",
-                  "Correlate surface samples",
-                  "Verify structural signature",
-                ],
+                analysis.mode === "decrypt"
+                  ? "DECRYPTION RUN"
+                  : analysis.mode === "data"
+                    ? "DATA CORRELATION"
+                    : `${selection.toUpperCase()} ANALYSIS`,
+                analysis.mode === "decrypt"
+                  ? [
+                      "Normalize cipher blocks",
+                      "Derive key schedule",
+                      "Resolve plaintext stream",
+                      "Verify checksum",
+                    ]
+                  : analysis.mode === "data"
+                    ? [
+                        "Register datasets",
+                        "Align timelines",
+                        "Correlate relationships",
+                        "Isolate outliers",
+                      ]
+                    : [
+                        "Calibrate spatial reference",
+                        "Acquire seven depth slices",
+                        "Correlate surface samples",
+                        "Verify structural signature",
+                      ],
                 16,
-                selection === "Integrity"
-                  ? "98.4% continuity / two inclusions isolated"
-                  : selection === "Materials"
-                    ? "Three composite layers identified"
-                    : "Seven layers reconstructed / mesh verified",
+                analysis.mode === "decrypt"
+                  ? `Plaintext recovered: ${plain}`
+                  : analysis.mode === "data"
+                    ? `${findings.length} findings isolated`
+                    : selection === "Integrity"
+                      ? "98.4% continuity / two inclusions isolated"
+                      : selection === "Materials"
+                        ? "Three composite layers identified"
+                        : "Seven layers reconstructed / mesh verified",
               )
             }
           >
@@ -399,14 +477,14 @@ export function Hologram(props: SceneProps) {
               <SpatialAssembly
                 time={time}
                 progress={process.progress}
-                mode={selection}
+                mode={analysis.mode === "reconstruct" ? selection : modeTitle}
               />
             )}
           </GestureSurface>
 
         </div>
         <aside className="holo-readout">
-          <div className="micro">{selection.toUpperCase()} / LIVE VIEW</div>
+          <div className="micro">{modeTitle.toUpperCase()} / LIVE VIEW</div>
           <h3>
             <Changed
               value={
@@ -416,7 +494,11 @@ export function Hologram(props: SceneProps) {
                     ? process.done
                       ? "Verified"
                       : process.phase
-                    : "Acquiring slices"
+                    : analysis.mode === "decrypt"
+                      ? "Awaiting key"
+                      : analysis.mode === "data"
+                        ? "Awaiting dataset"
+                        : "Acquiring slices"
               }
             />
           </h3>
@@ -425,35 +507,53 @@ export function Hologram(props: SceneProps) {
               value={
                 process.job && !process.done
                   ? String(Math.floor(process.progress * 100))
-                  : selection === "Geometry"
-                    ? "07"
-                    : selection === "Materials"
-                      ? "03"
-                      : "98.4"
+                  : analysis.mode === "decrypt"
+                    ? String(revealCount)
+                    : analysis.mode === "data"
+                      ? String(findings.length)
+                      : selection === "Geometry"
+                        ? "07"
+                        : selection === "Materials"
+                          ? "03"
+                          : "98.4"
               }
             />
             <small>
               {process.job && !process.done
                 ? "SCAN PERCENT"
-                : selection === "Geometry"
-                  ? "LAYERS"
-                  : selection === "Materials"
-                    ? "COMPOSITES"
-                    : "PERCENT"}
+                : analysis.mode === "decrypt"
+                  ? "CHARS"
+                  : analysis.mode === "data"
+                    ? "FINDINGS"
+                    : selection === "Geometry"
+                      ? "LAYERS"
+                      : selection === "Materials"
+                        ? "COMPOSITES"
+                        : "PERCENT"}
             </small>
           </div>
           <Wave seed={config.seed} time={time} />
           <ProcessReadout process={process} />
           {!process.job && (
             <p>
-              Continuous depth acquisition. Start analysis to isolate, correlate
-              and verify the selected channel.
+              {analysis.mode === "decrypt"
+                ? "Fictional cipher. Start the run to derive the key schedule and resolve the stream."
+                : analysis.mode === "data"
+                  ? "Start the run to correlate datasets and isolate outliers."
+                  : "Continuous depth acquisition. Start analysis to isolate, correlate and verify the selected channel."}
             </p>
           )}
         </aside>
       </div>
       <footer className="scene-footer">
-        <span>{config.title} / PERSPECTIVE RECONSTRUCTION</span>
+        <span>
+          {config.title} /{" "}
+          {analysis.mode === "decrypt"
+            ? "CIPHER RECOVERY"
+            : analysis.mode === "data"
+              ? "DATA CORRELATION"
+              : "PERSPECTIVE RECONSTRUCTION"}
+        </span>
         <span>SESSION {formatTime(time)}</span>
       </footer>
     </div>
@@ -461,6 +561,8 @@ export function Hologram(props: SceneProps) {
 }
 export function Tracking(props: SceneProps) {
   const { config, time, onPlay } = props;
+  const tracking = config.sceneOptions.tracking;
+  const drone = tracking.mode === "drone";
   const [target, setTarget] = useState(0),
     [hold, setHold] = useState<number | null>(null),
     [epoch, setEpoch] = useState(0);
@@ -489,7 +591,14 @@ export function Tracking(props: SceneProps) {
   );
   return (
     <div className="tracking scene-inner">
-      <SceneHeader config={config} tag={`AUTONOMOUS SENSOR / ${phase}`} />
+      <SceneHeader
+        config={config}
+        tag={
+          drone
+            ? `DRONE ${tracking.callsign} / ${phase}`
+            : `AUTONOMOUS SENSOR / ${phase}`
+        }
+      />
       <div className="tracking-main">
         <GestureSurface label="Karte verschieben, zoomen und drehen">
           <svg viewBox="0 0 800 500" className="terrain">
@@ -550,11 +659,28 @@ export function Tracking(props: SceneProps) {
             </g>
           </svg>
         </GestureSurface>
+        {drone && (
+          <div className="drone-pov" aria-hidden="true">
+            <i className="drone-horizon" />
+            <i className="drone-cross" />
+          </div>
+        )}
         <div className="map-corner top-left">
-          OPTICAL / CHANNEL 04
-          <br />
-          AUTONOMOUS MULTI-OBJECT TRACKER
-          <br />3 CONTACTS / SECTOR 07
+          {drone ? (
+            <>
+              DRONE {tracking.callsign}
+              <br />
+              TACTICAL TRACKING / NOSE CAMERA
+              <br />3 CONTACTS / SECTOR 07
+            </>
+          ) : (
+            <>
+              OPTICAL / CHANNEL 04
+              <br />
+              AUTONOMOUS MULTI-OBJECT TRACKER
+              <br />3 CONTACTS / SECTOR 07
+            </>
+          )}
         </div>
         <div className="map-corner top-right">
           SENSOR / 60 Hz
@@ -591,6 +717,16 @@ export function Tracking(props: SceneProps) {
               {Math.hypot(point.x - reticle.x, point.y - reticle.y).toFixed(2)}{" "}
               px
             </dd>
+            {drone && (
+              <>
+                <dt>ALTITUDE</dt>
+                <dd>
+                  <Changed value={(120 + Math.sin(t * 0.4) * 8).toFixed(0)} /> m
+                </dd>
+                <dt>WAYPOINTS</dt>
+                <dd>3 / SECTOR 07</dd>
+              </>
+            )}
           </dl>
           <Wave time={t} seed={target + 17} />
         </aside>

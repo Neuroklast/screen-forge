@@ -1,0 +1,239 @@
+.instrument {
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  color: var(--theme-text, #d6e2e5);
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.instrument-frame {
+  width: min(720px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+
+.instrument-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--theme-surface, #0e171f);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.instrument-head b {
+  color: var(--theme-secondary, #8a9aa2);
+  font-size: 11px;
+}
+
+.instrument-foot {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--theme-surface, #0e171f);
+  font-size: 11px;
+  color: var(--theme-secondary, #8a9aa2);
+}
+
+.instrument-rail {
+  height: 6px;
+  border: 1px solid var(--theme-surface, #0e171f);
+}
+
+.instrument-rail i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.clock-digits {
+  font-family: "DigitTech7", "IBM Plex Mono", monospace;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.clock-zones,
+.clock-schedule {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.clock-zones li,
+.clock-schedule li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-left: 2px solid var(--theme-surface, #0e171f);
+}
+
+.clock-schedule li.is-now {
+  border-left-color: var(--accent);
+}
+
+.clock-schedule li.is-past {
+  opacity: 0.5;
+}
+
+.rotary-dials {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.rotary-dial {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--theme-surface, #0e171f);
+}
+
+.rotary-dial.is-aligned {
+  border-color: #76fa96;
+}
+
+.rotary-dial span {
+  font-size: 11px;
+  color: var(--theme-secondary, #8a9aa2);
+}
+
+.rotary-dial b {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+}
+
+.rotary-dial b small {
+  font-size: 10px;
+  color: var(--theme-secondary, #8a9aa2);
+}
+
+.rotary-dial input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.code-cipher {
+  font-size: 20px;
+  letter-spacing: 0.2em;
+  padding: 8px;
+  border: 1px solid var(--theme-surface, #0e171f);
+  color: var(--accent);
+}
+
+.code-table {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  font-size: 11px;
+}
+
+.code-table tbody {
+  display: contents;
+}
+
+.code-table tr {
+  display: contents;
+}
+
+.code-table td {
+  padding: 2px 4px;
+  border: 1px solid var(--theme-surface, #0e171f);
+  text-align: center;
+}
+
+.code-input {
+  display: flex;
+  gap: 8px;
+}
+
+.code-input input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--theme-surface, #0e171f);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.instrument-ok {
+  margin: 0;
+  color: #76fa96;
+}
+
+.sheet-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.sheet-figure {
+  margin: 0;
+  border: 1px solid var(--theme-surface, #0e171f);
+  padding: 8px;
+}
+
+.sheet-figure img,
+.sheet-figure svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  color: var(--theme-text, #d6e2e5);
+}
+
+.sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sheet-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--theme-secondary, #8a9aa2);
+}
+
+.sheet-steps {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.sheet-steps label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sheet-steps li.is-read {
+  color: #76fa96;
+}
+
+.sheet-relay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--theme-surface, #0e171f);
+  font-size: 12px;
+  color: var(--theme-secondary, #8a9aa2);
+}

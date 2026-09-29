@@ -13,6 +13,10 @@ export const sceneIds = [
   "camera",
   "comms",
   "slide",
+  "clock",
+  "rotary",
+  "code-table",
+  "data-sheet",
 ] as const;
 export type SceneId = (typeof sceneIds)[number];
 const overlaySchema = z.object({
@@ -91,7 +95,14 @@ export function sceneOptionsDefaults() {
     slide: { stages: 1 },
     clock: { mode: "mission" as const, analog: false, label: "" },
     rotary: { dials: 3 },
-    codeTable: { groupSize: 4 },
+    codeTable: { groupSize: 4, message: "RELAY" },
+    dataSheet: {
+      title: "SPRENGKÖRPER / DATENBLATT",
+      image: "",
+      lines: [] as string[],
+      steps: [] as string[],
+      relayText: "",
+    },
   };
 }
 export const sceneOptionsSchema = z.object({
@@ -181,8 +192,20 @@ export const sceneOptionsSchema = z.object({
     .object({ dials: z.number().int().min(1).max(4).default(3) })
     .default(() => sceneOptionsDefaults().rotary),
   codeTable: z
-    .object({ groupSize: z.number().int().min(1).max(8).default(4) })
+    .object({
+      groupSize: z.number().int().min(1).max(8).default(4),
+      message: z.string().max(60).default("RELAY"),
+    })
     .default(() => sceneOptionsDefaults().codeTable),
+  dataSheet: z
+    .object({
+      title: z.string().max(60).default("SPRENGKÖRPER / DATENBLATT"),
+      image: z.string().max(200).default(""),
+      lines: z.array(z.string().max(120)).max(24).default([]),
+      steps: z.array(z.string().max(160)).max(24).default([]),
+      relayText: z.string().max(200).default(""),
+    })
+    .default(() => sceneOptionsDefaults().dataSheet),
 });
 const configSchema = z.object({
   version: z.literal(2),
@@ -453,6 +476,46 @@ export const scenes: {
     accent: "#80dce5",
     title: "SLIDE",
     subtitle: "GATE ALIGNMENT",
+    kind: "block",
+  },
+  {
+    id: "clock",
+    name: "Uhr",
+    code: "12 / TIME",
+    description: "Zeit, Zonen, Zeitplan.",
+    accent: "#80dce5",
+    title: "TIME REFERENCE",
+    subtitle: "MISSION / WALL / SCHEDULE",
+    kind: "block",
+  },
+  {
+    id: "rotary",
+    name: "Drehregler",
+    code: "13 / TUNE",
+    description: "Regler auf Zielwerte ausrichten.",
+    accent: "#dfa943",
+    title: "FIELD CONTROL",
+    subtitle: "MANUAL ALIGNMENT",
+    kind: "block",
+  },
+  {
+    id: "code-table",
+    name: "Codetabelle",
+    code: "14 / CODE",
+    description: "Nachricht entschlüsseln und melden.",
+    accent: "#78cce5",
+    title: "CODE TABLE",
+    subtitle: "MESSAGE HANDLING",
+    kind: "block",
+  },
+  {
+    id: "data-sheet",
+    name: "Datenblatt",
+    code: "15 / DATA",
+    description: "Schema und Entschärfungsdaten zum Weitergeben.",
+    accent: "#e8b563",
+    title: "TECHNICAL DATA SHEET",
+    subtitle: "ORDNANCE / FICTIONAL",
     kind: "block",
   },
 ];

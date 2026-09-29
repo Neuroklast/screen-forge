@@ -24,6 +24,10 @@ test("all scenes render and operator controls reset a take", async ({
     "Kamera",
     "Funk",
     "Schieber",
+    "Uhr",
+    "Drehregler",
+    "Codetabelle",
+    "Datenblatt",
   ]) {
     await page
       .getByRole("button", { name: new RegExp(title) })
