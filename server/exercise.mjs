@@ -18,6 +18,7 @@ import {
   logEvent,
   setProp,
 } from "../src/core/training.ts";
+import { PROTOCOL } from "../src/core/protocol.ts";
 
 const hash = (value) =>
   createHash("sha256").update(String(value)).digest("hex");
@@ -38,6 +39,8 @@ const hello = z.object({
   station: z.string().max(40),
   token: z.string().min(1).max(300),
   invite: z.boolean().optional(),
+  protocol: z.number().int().min(1).max(99).optional(),
+  lastServerSeq: z.number().int().min(0).optional(),
 });
 
 export async function startExercise({
@@ -51,9 +54,26 @@ export async function startExercise({
     baseline = new Map(),
     credentials = new Map(),
     invites = new Map(),
-    sockets = new Map();
+    sockets = new Map(),
+    roomSeq = new Map(),
+    roomDedup = new Map();
   let dirty = false,
     writing = Promise.resolve();
+  const nextSeq = (room) => {
+    const value = (roomSeq.get(room) || 0) + 1;
+    roomSeq.set(room, value);
+    return value;
+  };
+  const rememberCommand = (room, eventId, serverSeq) => {
+    if (!eventId) return;
+    let map = roomDedup.get(room);
+    if (!map) {
+      map = new Map();
+      roomDedup.set(room, map);
+    }
+    map.set(eventId, { serverSeq });
+    while (map.size > 500) map.delete(map.keys().next().value);
+  };
   await mkdir(dataDir, { recursive: true, mode: 0o700 });
   try {
     const saved = JSON.parse(
@@ -238,17 +258,23 @@ export async function startExercise({
     }, 15000);
     ws.on("error", () => {});
     ws.on("message", (raw) => {
+      let msg;
       try {
         if (Date.now() - windowStart > 1000) {
           windowStart = Date.now();
           messages = 0;
         }
         if (++messages > 60) throw new Error("Too many requests");
-        const msg = JSON.parse(String(raw));
+        msg = JSON.parse(String(raw));
         let meta = sockets.get(ws);
         if (msg.type === "hello") {
           if (meta) throw new Error("Already authenticated");
           const auth = hello.parse(msg);
+          if (auth.protocol !== undefined && auth.protocol !== PROTOCOL) {
+            send(ws, { type: "error", message: "Protocol version mismatch" });
+            ws.close(4003, "Protocol version mismatch");
+            return;
+          }
           if (["trainer", "safety", "assessor"].includes(auth.role)) {
             if (!equal(auth.token, secret)) {
               send(ws, { type: "error", message: "Trainer key rejected" });
@@ -309,7 +335,14 @@ export async function startExercise({
           }
           clearTimeout(timeout);
           sockets.set(ws, meta);
-          send(ws, { type: "ready", role: meta.role, station: meta.station });
+          send(ws, {
+            type: "ready",
+            role: meta.role,
+            station: meta.station,
+            protocol: PROTOCOL,
+            serverSeq: roomSeq.get(meta.room) || 0,
+            serverNow: Date.now(),
+          });
           broadcast(meta.room);
           return;
         }
@@ -319,6 +352,23 @@ export async function startExercise({
           return;
         }
         const state = rooms.get(meta.room);
+        const eventId =
+          typeof msg.eventId === "string" && msg.eventId.length <= 80
+            ? msg.eventId
+            : "";
+        if (eventId) {
+          const cached = roomDedup.get(meta.room)?.get(eventId);
+          if (cached) {
+            send(ws, {
+              type: "ack",
+              command: msg.type,
+              eventId,
+              serverSeq: cached.serverSeq,
+              result: "duplicate",
+            });
+            return;
+          }
+        }
         if (msg.type === "signal") {
           const st = state.scenario.stations.find((s) => s.id === meta.station);
           const target = [...sockets].find(
@@ -587,19 +637,34 @@ export async function startExercise({
           } else throw new Error("Unknown command");
         }
         dirty = true;
-        send(ws, { type: "ack", command: msg.type });
+        const serverSeq = nextSeq(meta.room);
+        rememberCommand(meta.room, eventId, serverSeq);
+        send(ws, {
+          type: "ack",
+          command: msg.type,
+          eventId: eventId || undefined,
+          serverSeq,
+          result: "applied",
+        });
         broadcast(meta.room);
       } catch (error) {
-        send(ws, {
-          type: "error",
-          message:
-            error instanceof z.ZodError
-              ? error.issues
-                  .map((i) => `${i.path.join(".")}: ${i.message}`)
-                  .slice(0, 3)
-                  .join("; ")
-              : error.message,
-        });
+        const message =
+          error instanceof z.ZodError
+            ? error.issues
+                .map((i) => `${i.path.join(".")}: ${i.message}`)
+                .slice(0, 3)
+                .join("; ")
+            : error.message;
+        send(ws, { type: "error", message });
+        if (typeof msg?.eventId === "string" && msg.eventId) {
+          const m = sockets.get(ws);
+          send(ws, {
+            type: "rejected",
+            eventId: msg.eventId,
+            reason: message,
+            serverSeq: (m && roomSeq.get(m.room)) || 0,
+          });
+        }
       }
     });
     ws.on("close", () => {

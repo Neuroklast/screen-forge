@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { newState, type TrainingState } from "./training";
+import { isCommandType, newEventId, PROTOCOL } from "./protocol";
 import type { Role } from "./session";
 export type Signal = {
   type: "signal";
@@ -41,6 +42,8 @@ export function useExercise(role: Role, room: string, station: string) {
     }
   });
   const [state, setState] = useState<TrainingState>(() => newState(room));
+  const [serverSeq, setServerSeq] = useState(0);
+  const lastSeq = useRef(0);
   const [online, setOnline] = useState(false),
     [authenticated, setAuthenticated] = useState(false);
   const [diagnostic, setDiagnostic] = useState<{
@@ -87,6 +90,8 @@ export function useExercise(role: Role, room: string, station: string) {
             station,
             token: invite.current || token,
             invite: !!invite.current,
+            protocol: PROTOCOL,
+            lastServerSeq: lastSeq.current,
           }),
         );
       sock.onmessage = (e) => {
@@ -108,7 +113,17 @@ export function useExercise(role: Role, room: string, station: string) {
             setOnline(true);
             setError("");
             attempt = 0;
+            lastSeq.current = Number(msg.serverSeq) || 0;
+            setServerSeq(lastSeq.current);
           }
+          if (msg.type === "ack") {
+            const seq = Number(msg.serverSeq) || 0;
+            if (seq > lastSeq.current) {
+              lastSeq.current = seq;
+              setServerSeq(seq);
+            }
+          }
+          if (msg.type === "rejected") setError(msg.reason || "Befehl abgelehnt");
           if (msg.type === "state") {
             setState(msg.state);
             setAuthenticated(true);
@@ -164,7 +179,11 @@ export function useExercise(role: Role, room: string, station: string) {
       setError("Nicht verbunden. Änderung wurde nicht gesendet.");
       return false;
     }
-    ws.current.send(JSON.stringify(msg));
+    const payload =
+      typeof msg.type === "string" && isCommandType(msg.type) && !msg.eventId
+        ? { ...msg, eventId: newEventId() }
+        : msg;
+    ws.current.send(JSON.stringify(payload));
     return true;
   }, []);
   const subscribe = useCallback((fn: (signal: Signal) => void) => {
@@ -197,6 +216,7 @@ export function useExercise(role: Role, room: string, station: string) {
     diagnostic,
     gpsAck,
     savedRevision,
+    serverSeq,
     subscribe,
     role,
     station,

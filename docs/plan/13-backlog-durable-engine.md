@@ -6,9 +6,9 @@
 
 ## Progress
 
-- Done: —
+- Done: E1 protocol v2 (envelope, dedup, ACK/rejected, handshake).
 - Doing: —
-- Open: E1–E17.
+- Open: E2–E17.
 
 ## Wave 1 — Critical
 
