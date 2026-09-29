@@ -973,6 +973,30 @@ export default function App() {
                   />
                 </label>
               )}
+              {config.scene === "terminal" && (
+                <>
+                  <label>
+                    Ziel
+                    <input
+                      value={config.sceneOptions.terminal.goal}
+                      maxLength={60}
+                      onChange={(e) =>
+                        updateSceneOptions("terminal", { goal: e.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Prompt
+                    <input
+                      value={config.sceneOptions.terminal.prompt}
+                      maxLength={40}
+                      onChange={(e) =>
+                        updateSceneOptions("terminal", { prompt: e.target.value })
+                      }
+                    />
+                  </label>
+                </>
+              )}
               {["os", "terminal"].includes(config.scene) && (
                 <>
                   <label className="checkbox-label">

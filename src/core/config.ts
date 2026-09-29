@@ -71,6 +71,7 @@ export function sceneOptionsDefaults() {
       script: "inspect relay --sector 07 --verify",
       commandsUntilSuccess: 4,
       successText: "Zugang überbrückt.",
+      steps: [] as { command: string; outputs: string[]; hint: string }[],
     },
     corporate: { startApp: "overview" as const, sounds: true },
     countdown: {
@@ -111,6 +112,16 @@ export const sceneOptionsSchema = z.object({
       script: z.string().max(300).default(""),
       commandsUntilSuccess: z.number().int().min(1).max(40).default(4),
       successText: z.string().max(200).default("Zugang überbrückt."),
+      steps: z
+        .array(
+          z.object({
+            command: z.string().max(120),
+            outputs: z.array(z.string().max(200)).max(6).default([]),
+            hint: z.string().max(120).default(""),
+          }),
+        )
+        .max(20)
+        .default([]),
     })
     .default(() => sceneOptionsDefaults().terminal),
   corporate: z

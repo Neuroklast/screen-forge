@@ -202,12 +202,14 @@ export function OperatingSystem({
   const closeSequence = () => {
     dispatch({ type: "closeSequence", completed: !!done });
     onCue(done ? "complete" : "idle");
-    if (done)
+    if (done) {
+      playSound("osNotify");
       window.dispatchEvent(
         new CustomEvent("screenforge:input", {
           detail: { type: "signal", value: "sequence.complete" },
         }),
       );
+    }
   };
   const submit = () => {
     if (config.sceneOptions.terminal.actorMode) {

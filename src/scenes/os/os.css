@@ -393,15 +393,27 @@
 .os-window-meta i:first-of-type {
   margin-left: var(--sf-space-15px);
 }
+.os-window-bar > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .os-window-meta > button {
   min-height: var(--sf-layout-18px);
   width: var(--sf-layout-18px);
   padding: 0;
-  border: 0;
+  border: var(--sf-stroke-1px) solid var(--os-line);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--os-muted);
+  cursor: pointer;
+}
+.os-window-meta > button:hover,
+.os-window-meta > button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .os-content {
   padding: var(--sf-space-26px) var(--sf-space-28px) var(--sf-space-21px);

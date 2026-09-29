@@ -46,10 +46,13 @@ function signal(value: string) {
 
 export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
   const options = config.sceneOptions.terminal;
-  const steps = CHAIN.slice(
-    0,
-    Math.max(1, Math.min(options.commandsUntilSuccess, CHAIN.length)),
-  );
+  const chain = options.steps.length ? options.steps : CHAIN;
+  const steps = options.steps.length
+    ? chain
+    : chain.slice(
+        0,
+        Math.max(1, Math.min(options.commandsUntilSuccess, chain.length)),
+      );
   const [log, setLog] = useState<string[]>([
     `${options.prompt} · ${options.goal}`,
     "Type `help` for available commands.",
