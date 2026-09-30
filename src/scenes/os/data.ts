@@ -84,7 +84,7 @@ export const files: VirtualFile[] = [
     size: "26.8 MB",
     classification: "INTERNAL",
     content:
-      "TRANSIT MANIFOLD\nDimensions: 4\nVertices: 16\nEdges: 32\nProjection: 4D > 3D > 2D\n\nInteractive XW and YZ rotation is available in the dimensional viewer.",
+      "TRANSIT MANIFOLD\nDimensions: 4\nVertices: 16\nEdges: 32\nProjection: volume > surface > screen\n\nInteractive XW and YZ rotation is available in the reconstruction viewer.",
   },
   {
     path: "/datasets/correlation.index",

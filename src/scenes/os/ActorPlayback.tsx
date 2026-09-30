@@ -272,7 +272,7 @@ export function TerminalVisual({
         <label>
           Load local images
           <input
-            aria-label="Terminalbilder laden"
+            aria-label="Load terminal images"
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
             multiple

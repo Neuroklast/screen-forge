@@ -2,42 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { StageKeys } from "../../components/StageKeys";
 import { scriptedInput } from "../../core/runtime";
 import { playSound } from "../../core/sound";
+import { terminalScript, terminalScripts } from "../../core/terminalScripts";
 import type { SceneProps } from "../Scenes";
 import "./terminal.css";
 
-type ChainStep = { command: string; outputs: string[]; hint: string };
-
-// Default goal chain: bypass a legacy login. Fictional commands and outputs only.
-const CHAIN: ChainStep[] = [
-  {
-    command: "status",
-    outputs: [
-      "relay-07 · link established",
-      "session: guest / restricted",
-      "auth service: legacy",
-    ],
-    hint: "Start with `status`.",
-  },
-  {
-    command: "scan --local",
-    outputs: ["ports: 3 open", "service: auth v2.1", "note: default token policy"],
-    hint: "Scan the local node: `scan --local`.",
-  },
-  {
-    command: "inspect auth",
-    outputs: [
-      "auth service v2.1",
-      "weakness: default maintenance token",
-      "token id: 07-RELAY",
-    ],
-    hint: "Inspect the auth service.",
-  },
-  {
-    command: "login --token 07-RELAY",
-    outputs: ["token accepted", "elevating session ...", "ACCESS GRANTED"],
-    hint: "Use the maintenance token to log in.",
-  },
-];
+// Fallback chain when no preset and no custom steps are configured.
+const FALLBACK = terminalScripts[0].steps;
 
 function signal(value: string) {
   window.dispatchEvent(
@@ -47,13 +17,15 @@ function signal(value: string) {
 
 export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
   const options = config.sceneOptions.terminal;
-  const chain = options.steps.length ? options.steps : CHAIN;
-  const steps = options.steps.length
-    ? chain
-    : chain.slice(
-        0,
-        Math.max(1, Math.min(options.commandsUntilSuccess, chain.length)),
-      );
+  const preset = terminalScript(options.preset);
+  const chain = options.steps.length ? options.steps : (preset?.steps ?? FALLBACK);
+  const steps =
+    options.steps.length || preset
+      ? chain
+      : chain.slice(
+          0,
+          Math.max(1, Math.min(options.commandsUntilSuccess, chain.length)),
+        );
   const [log, setLog] = useState<string[]>([
     `${options.prompt} · ${options.goal}`,
     "Type `help` for available commands.",
@@ -62,7 +34,13 @@ export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [flash, setFlash] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!flash) return;
+    const id = window.setTimeout(() => setFlash(null), 160);
+    return () => window.clearTimeout(id);
+  }, [flash]);
   const logRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -118,7 +96,7 @@ export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
       <div
         className="terminal-log"
         role="log"
-        aria-label="Terminalausgabe"
+        aria-label="Terminal output"
         ref={logRef}
       >
         {log.map((line, i) => (
@@ -142,6 +120,9 @@ export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
           aria-label="Terminal input"
           value={value}
           onKeyDown={(e) => {
+            if (e.key.length === 1) setFlash(e.key.toUpperCase());
+            else if (e.key === "Backspace" || e.key === "Enter")
+              setFlash(e.key);
             if (!options.actorMode || done) return;
             if (e.key.length === 1 || e.key === "Backspace") {
               e.preventDefault();
@@ -172,7 +153,9 @@ export function Terminal({ config, cue, onCue, onPlay }: SceneProps) {
         )}
       </form>
       <StageKeys
+        active={flash}
         onKey={(key) => {
+          setFlash(key);
           if (key === "Enter") {
             submit(value);
             return;

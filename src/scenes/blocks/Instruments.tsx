@@ -377,7 +377,7 @@ export function DataSheet({ config, cue, onCue }: SceneProps) {
               }}
             >
               <input
-                aria-label="Archivsuche"
+                aria-label="Archive search"
                 value={query}
                 placeholder="SEARCH TERM"
                 onChange={(e) => setQuery(e.target.value)}
@@ -426,7 +426,7 @@ export function DataSheet({ config, cue, onCue }: SceneProps) {
               {options.image ? (
                 <img src={options.image} alt="Schema" />
               ) : (
-                <svg viewBox="0 0 200 140" aria-label="Schema (fiktiv)">
+                <svg viewBox="0 0 200 140" aria-label="Schematic (fictional)">
                   <rect x="20" y="20" width="160" height="100" fill="none" stroke="currentColor" />
                   <circle cx="100" cy="70" r="34" fill="none" stroke="currentColor" />
                   <circle cx="100" cy="70" r="20" fill="none" stroke="var(--accent)" />

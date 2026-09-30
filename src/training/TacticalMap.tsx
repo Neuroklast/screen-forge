@@ -3,7 +3,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useTraining } from "../core/useExercise";
 export function TacticalMap() {
-  const { state } = useTraining(),
+  const { state, serverNow } = useTraining(),
     host = useRef<HTMLDivElement>(null),
     map = useRef<L.Map | null>(null),
     overlay = useRef<L.LayerGroup | null>(null);
@@ -70,7 +70,7 @@ export function TacticalMap() {
       }
       for (const [id, p] of Object.entries(state.positions)) {
         const station = state.scenario.stations.find((s) => s.id === id),
-          age = Math.max(0, Math.floor((Date.now() - p.timestamp) / 1000)),
+          age = Math.max(0, Math.floor((serverNow() - p.received) / 1000)),
           lost = age > 10;
         const label = document.createElement("span");
         label.textContent = `${station?.name || id} · ${lost ? `SIG_LOST ${age}s` : `${Math.round(p.accuracy)} m`}`;

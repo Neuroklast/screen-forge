@@ -10,8 +10,9 @@ The Medical block is a simulated patient monitor: seven vitals, an ECG trace, al
 
 ## Component tree
 
-- `HudFrame` labeled `BIO MONITOR` → alarm-class header: patient id + kind, ECG SVG, 7-vital grid, `MARK TREATED` (`Blocks.tsx:76-139`).
-- Vitals: HR, SPO2, RR, NIBP, ETCO2, TEMP, GCS (`:99-121`).
+- `HudFrame` labeled `BIO MONITOR` → header (patient id + kind), monitor scope (ECG II + SpO2/pleth traces on a themed grid), 3×3 vitals grid with units and trend arrows, status line + `MARK TREATED`.
+- Vitals: HR (bpm), SPO2 (%), RR (/min), NIBP (mmHg), ETCO2 (mmHg), TEMP (°C), GCS, GLU (mmol/L), LAC (mmol/L).
+- Traces: `ecgPath` (accent) and `plethPath` (theme secondary) from `src/core/patient.ts`.
 
 ## Data model
 

@@ -116,8 +116,8 @@ describe("live process and spatial contracts", () => {
     expect(defaults().sceneOptions.terminal.commandsUntilSuccess).toBe(4);
     expect(defaults().workspace).toBe("film");
     expect(
-      keepLook({ ...named, workspace: "training" }, defaults("lock")).workspace,
-    ).toBe("training");
+      keepLook({ ...named, workspace: "rehearsal" }, defaults("lock")).workspace,
+    ).toBe("rehearsal");
     expect(defaults().frame.style).toBe("hud");
     expect(
       keepLook(

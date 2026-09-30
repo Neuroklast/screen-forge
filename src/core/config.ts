@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { stageFormatIds } from "./stage";
+import { stageFormatIds } from "./stage.ts";
 export const sceneIds = [
   "corporate",
   "os",
@@ -67,9 +67,16 @@ export function sceneOptionsDefaults() {
       photoOverlay: 0.3,
       density: "compact" as const,
       sounds: true,
-      login: { enabled: false, user: "operator", pass: "2048" },
+      login: {
+        enabled: false,
+        hackable: false,
+        biometric: false,
+        user: "operator",
+        pass: "2048",
+      },
     },
     terminal: {
+      preset: "",
       goal: "Bypass login",
       prompt: "relay-07",
       actorMode: true,
@@ -125,14 +132,23 @@ export const sceneOptionsSchema = z.object({
       login: z
         .object({
           enabled: z.boolean().default(false),
+          hackable: z.boolean().default(false),
+          biometric: z.boolean().default(false),
           user: z.string().max(40).default("operator"),
           pass: z.string().max(40).default("2048"),
         })
-        .default({ enabled: false, user: "operator", pass: "2048" }),
+        .default({
+          enabled: false,
+          hackable: false,
+          biometric: false,
+          user: "operator",
+          pass: "2048",
+        }),
     })
     .default(() => sceneOptionsDefaults().os),
   terminal: z
     .object({
+      preset: z.string().max(40).default(""),
       goal: z.string().max(60).default("Bypass login"),
       prompt: z.string().max(40).default("relay-07"),
       actorMode: z.boolean().default(true),
@@ -249,6 +265,7 @@ const configSchema = z.object({
   pinEnabled: z.boolean().default(false),
   pinMode: z.enum(["numeric", "alphanumeric"]).default("numeric"),
   pinFake: z.boolean().default(false),
+  pinTitle: z.string().trim().min(1).max(40).default("Maintenance login"),
   sound: z.boolean().default(true),
   font: z
     .enum([
@@ -309,7 +326,7 @@ const configSchema = z.object({
   effects: z.number().min(0).max(1),
   density: z.enum(["focused", "detailed"]),
   format: z.enum(stageFormatIds).default("16-9"),
-  workspace: z.enum(["film", "training"]).default("film"),
+  workspace: z.enum(["film", "rehearsal"]).default("film"),
   instructorPin: z
     .string()
     .regex(/^[A-Za-z0-9]{4,8}$/)
@@ -338,6 +355,9 @@ function normalizeConfig(input: unknown): unknown {
     if (raw.scene === "terminal") raw.scene = "os";
     raw.version = 2;
   }
+  // The studio work mode was named `training`, colliding with the exercise
+  // product mode. It is now `rehearsal`; migrate persisted configs.
+  if (raw.workspace === "training") raw.workspace = "rehearsal";
   const options = {
     ...(raw.sceneOptions && typeof raw.sceneOptions === "object"
       ? (raw.sceneOptions as Record<string, unknown>)
@@ -379,6 +399,69 @@ function normalizeConfig(input: unknown): unknown {
 }
 export const schema = z.preprocess(normalizeConfig, configSchema);
 export type Config = z.infer<typeof schema>;
+
+// Presentation subset a scenario may bind to a station: the look and identity
+// that must reach the field device. Excludes `scene`/`version`/`duration`/
+// `seed`/`workspace`/`exerciseMark` (device decides those) and `mediaIds`/
+// `brand` (uploaded media and logos live in the author's browser only).
+export const scenePresetSchema = configSchema
+  .pick({
+    title: true,
+    subtitle: true,
+    identifier: true,
+    accent: true,
+    company: true,
+    theme: true,
+    palette: true,
+    skin: true,
+    font: true,
+    mood: true,
+    overlays: true,
+    effects: true,
+    brightness: true,
+    tokens: true,
+    sound: true,
+    format: true,
+    frame: true,
+    sceneOptions: true,
+    density: true,
+  })
+  .partial()
+  .extend({ sceneOptions: sceneOptionsSchema.partial().optional() });
+export type ScenePreset = z.infer<typeof scenePresetSchema>;
+
+function mergeSceneOptions(
+  base: Config["sceneOptions"],
+  override?: Partial<Config["sceneOptions"]>,
+): Config["sceneOptions"] {
+  if (!override) return base;
+  const out = { ...base };
+  for (const key of Object.keys(override) as (keyof Config["sceneOptions"])[]) {
+    const patch = override[key];
+    if (patch === undefined) continue;
+    Object.assign(out[key], patch);
+  }
+  return out;
+}
+
+// Builds the device config for a station: scene defaults overlaid with the
+// scenario's presentation preset. Called by StageFrame for every field device.
+export function presentationConfig(
+  scene: SceneId,
+  presentation?: { config?: ScenePreset } | null,
+): Config {
+  const base = defaults(scene);
+  const preset = presentation?.config;
+  if (!preset) return base;
+  return {
+    ...base,
+    ...preset,
+    overlays: { ...base.overlays, ...preset.overlays },
+    sceneOptions: mergeSceneOptions(base.sceneOptions, preset.sceneOptions),
+    frame: { ...base.frame, ...preset.frame },
+    scene,
+  };
+}
 export const scenes: {
   id: SceneId;
   name: string;
@@ -572,6 +655,7 @@ export function identityOf(config: Config): Pick<
   | "pinEnabled"
   | "pinMode"
   | "pinFake"
+  | "pinTitle"
   | "sound"
   | "format"
   | "frame"
@@ -602,6 +686,7 @@ export function identityOf(config: Config): Pick<
     pinEnabled: config.pinEnabled,
     pinMode: config.pinMode,
     pinFake: config.pinFake,
+    pinTitle: config.pinTitle,
     sound: config.sound,
     format: config.format,
     frame: config.frame,
@@ -663,6 +748,7 @@ export function defaults(scene: SceneId = "corporate"): Config {
     pinEnabled: false,
     pinMode: "numeric",
     pinFake: false,
+    pinTitle: "Maintenance login",
     sound: true,
     font: "space",
     tokens: {},

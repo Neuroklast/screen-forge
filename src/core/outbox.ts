@@ -90,10 +90,20 @@ export async function entries(): Promise<OutboxEntry[]> {
 }
 
 // Ordered pending commands to replay on reconnect; never a blind FIFO, the
-// server re-validates each command against the current state.
-export function pending(list: OutboxEntry[]): OutboxEntry[] {
+// server re-validates each command against the current state. Scoped to the
+// active room and device so commands from another session are never replayed.
+export function pending(
+  list: OutboxEntry[],
+  room: string,
+  deviceId: string,
+): OutboxEntry[] {
   return list
-    .filter((e) => e.state === "queued" || e.state === "sent")
+    .filter(
+      (e) =>
+        e.room === room &&
+        e.deviceId === deviceId &&
+        (e.state === "queued" || e.state === "sent"),
+    )
     .sort((a, b) => a.deviceSeq - b.deviceSeq);
 }
 

@@ -8,7 +8,7 @@ import { useMicWaveform } from "./useMicWaveform";
 import { useMedia } from "../../core/media";
 import { exampleCameraFeeds } from "../../core/exampleMedia";
 import { HudFrame } from "../../components/HudFrame";
-import { createPatient, ecgPath, vitalsOf } from "../../core/patient";
+import { createPatient, ecgPath, plethPath, vitalsOf } from "../../core/patient";
 import { useExerciseMaybe } from "../../core/useExercise";
 function signal(value: string) {
   window.dispatchEvent(
@@ -24,7 +24,8 @@ export function Lock({ config, onCue }: SceneProps) {
       >
       <CodePad
         embedded
-        title="KEYPAD"
+        title={config.title}
+        heading={config.pinTitle}
         code={config.pin}
         mode={config.pinMode}
         fake={config.pinFake}
@@ -98,72 +99,102 @@ export function Medical({ config, time, onPlay, onCue }: SceneProps) {
             <span>{patient.name}</span>
             <b>{patient.kind.toUpperCase()}</b>
           </div>
-          <svg className="bio-ecg" viewBox="0 0 320 56" aria-hidden="true">
-            <path d={ecgPath(patient.kind, time, v.hr)} />
-          </svg>
+          <div className="bio-scope">
+            <svg className="bio-trace bio-trace-ecg" viewBox="0 0 320 56" aria-hidden="true">
+              <path d={ecgPath(patient.kind, time, v.hr)} />
+            </svg>
+            <svg className="bio-trace bio-trace-pleth" viewBox="0 0 320 56" aria-hidden="true">
+              <path d={plethPath(time, v.hr, v.spo2)} />
+            </svg>
+            <span className="bio-scope-tag bio-scope-tag-ecg">ECG II</span>
+            <span className="bio-scope-tag bio-scope-tag-pleth">SPO2 / PLETH</span>
+          </div>
           <dl className="bio-grid">
-            <div>
+            <div className="bio-cell">
               <dt>HR</dt>
               <dd>
                 {v.hr}
+                <small>bpm</small>
                 {options.trends && (
                   <em className="bio-trend">{arrow(v.hr, prev.hr)}</em>
                 )}
               </dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>SPO2</dt>
               <dd>
                 {v.spo2}
+                <small>%</small>
                 {options.trends && (
                   <em className="bio-trend">{arrow(v.spo2, prev.spo2)}</em>
                 )}
               </dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>RR</dt>
-              <dd>{v.rr}</dd>
+              <dd>
+                {v.rr}
+                <small>/min</small>
+              </dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>NIBP</dt>
               <dd>
                 {v.sys}/{v.dia}
+                <small>mmHg</small>
               </dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>ETCO2</dt>
-              <dd>{v.etco2}</dd>
+              <dd>
+                {v.etco2}
+                <small>mmHg</small>
+              </dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>TEMP</dt>
-              <dd>{v.temp.toFixed(1)}</dd>
+              <dd>
+                {v.temp.toFixed(1)}
+                <small>°C</small>
+              </dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>GCS</dt>
               <dd>{v.gcs}</dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>GLU</dt>
-              <dd>{glucose}</dd>
+              <dd>
+                {glucose}
+                <small>mmol/L</small>
+              </dd>
             </div>
-            <div>
+            <div className="bio-cell">
               <dt>LAC</dt>
-              <dd>{lactate}</dd>
+              <dd>
+                {lactate}
+                <small>mmol/L</small>
+              </dd>
             </div>
           </dl>
-          <button
-            className="block-hold"
-            disabled={!!ex && (!ex.online || ex.state.frozen)}
-            onPointerDown={() => {
-              if (ex) { ex.send({ type: "intervention", value: "treated" }); return; }
-              onPlay?.();
-              onCue("complete");
-              signal("medical.enable");
-              playSound("prompt");
-            }}
-          >
-            MARK TREATED
-          </button>
+          <div className="bio-foot">
+            <span className={`bio-status ${alarm ? "is-alarm" : ""}`}>
+              {alarm ? "ALARM / REVIEW" : "STABLE"}
+            </span>
+            <button
+              className="block-hold"
+              disabled={!!ex && (!ex.online || ex.state.frozen)}
+              onPointerDown={() => {
+                if (ex) { ex.send({ type: "intervention", value: "treated" }); return; }
+                onPlay?.();
+                onCue("complete");
+                signal("medical.enable");
+                playSound("prompt");
+              }}
+            >
+              MARK TREATED
+            </button>
+          </div>
         </div>
       </HudFrame>
     </div>
@@ -173,8 +204,10 @@ export function Camera({ config, time }: SceneProps) {
   const { assets } = useMedia();
   const [ch, setCh] = useState(0);
   const [live, setLive] = useState(false);
+  const [armed, setArmed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   useEffect(() => {
+    if (!armed) return;
     const el = videoRef.current;
     if (!el || !navigator.mediaDevices?.getUserMedia) return;
     let stream: MediaStream | undefined;
@@ -188,7 +221,7 @@ export function Camera({ config, time }: SceneProps) {
       })
       .catch(() => setLive(false));
     return () => stream?.getTracks().forEach((t) => t.stop());
-  }, []);
+  }, [armed]);
   const selected = (config.mediaIds ?? [])
     .map((id) => assets.find((a) => a.id === id))
     .filter((a): a is NonNullable<typeof a> => !!a);
@@ -206,6 +239,7 @@ export function Camera({ config, time }: SceneProps) {
             className={ch === i ? "on" : ""}
             onClick={() => {
               setCh(i);
+              if (i === 0) setArmed(true);
               playSound("click");
               signal("camera.select");
             }}
@@ -217,7 +251,15 @@ export function Camera({ config, time }: SceneProps) {
             )}
             <span>
               CAM 0{i + 1}
-              <small>{i === 0 && live ? "LIVE" : (time * (i + 3)).toFixed(1)}</small>
+              <small>
+                {i === 0
+                  ? live
+                    ? "LIVE"
+                    : armed
+                      ? "SYNC"
+                      : "ARM"
+                  : (time * (i + 3)).toFixed(1)}
+              </small>
             </span>
           </button>
         ))}

@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { deleteMedia, saveMedia, seedExampleMedia, useMedia } from "../core/media";
+import {
+  deleteMedia,
+  isModelAsset,
+  saveMedia,
+  seedExampleMedia,
+  useMedia,
+} from "../core/media";
 import { exampleMedia } from "../core/exampleMedia";
 import type { Config } from "../core/config";
-import { isModelAsset } from "../scenes/shared/ModelViewport";
 import { t } from "../i18n";
 export function MediaManager({
   config,
@@ -99,13 +104,13 @@ export function MediaManager({
           <input
             aria-label={t("media.uploadAria")}
             type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif,.glb,.gltf,model/gltf-binary,model/gltf+json"
+            accept="image/png,image/jpeg,image/webp,image/gif,.glb,model/gltf-binary"
             multiple
             onChange={async (e) => {
               const files = Array.from(e.target.files ?? []);
               try {
                 for (const file of files) {
-                  const model = /\.(glb|gltf)$/i.test(file.name);
+                  const model = /\.glb$/i.test(file.name);
                   if (
                     file.size > 12_000_000 ||
                     !(/^image\/(png|jpeg|webp|gif)$/.test(file.type) || model)

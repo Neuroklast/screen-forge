@@ -13,10 +13,12 @@ const entry = (
   eventId: string,
   deviceSeq: number,
   state: OutboxEntry["state"],
+  room = "room",
+  deviceId = "d1",
 ): OutboxEntry => ({
   eventId,
-  room: "room",
-  deviceId: "d1",
+  room,
+  deviceId,
   deviceSeq,
   message: { type: "message", eventId },
   state,
@@ -32,7 +34,26 @@ describe("outbox", () => {
       entry("a", 1, "queued"),
       entry("c", 3, "acked"),
     ];
-    expect(pending(list).map((e) => e.eventId)).toEqual(["a", "b"]);
+    expect(pending(list, "room", "d1").map((e) => e.eventId)).toEqual([
+      "a",
+      "b",
+    ]);
+  });
+
+  it("never replays commands from another room", () => {
+    const list = [
+      entry("a", 1, "queued", "room-a", "d1"),
+      entry("b", 2, "queued", "room-b", "d1"),
+    ];
+    expect(pending(list, "room-a", "d1").map((e) => e.eventId)).toEqual(["a"]);
+  });
+
+  it("never replays commands from another device", () => {
+    const list = [
+      entry("a", 1, "queued", "room", "d1"),
+      entry("b", 2, "queued", "room", "d2"),
+    ];
+    expect(pending(list, "room", "d1").map((e) => e.eventId)).toEqual(["a"]);
   });
 
   it("persists state transitions", async () => {

@@ -2,15 +2,11 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { playSound } from "../core/sound";
 const numeric = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", "enter"];
-const alpha = [
-  ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
-  ..."0123456789".split(""),
-  "clear",
-  "enter",
-];
+const qwerty = ["1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 export function CodePad({
   code,
   title,
+  heading,
   onUnlock,
   mode = "numeric",
   fake = false,
@@ -18,6 +14,7 @@ export function CodePad({
 }: {
   code: string;
   title: string;
+  heading: string;
   onUnlock: () => void;
   mode?: "numeric" | "alphanumeric";
   fake?: boolean;
@@ -26,7 +23,6 @@ export function CodePad({
   const [value, setValue] = useState(""),
     [denied, setDenied] = useState(0),
     [pad, setPad] = useState(mode);
-  const keys = pad === "numeric" ? numeric : alpha;
   const enter = (key: string) => {
     if (key === "clear") {
       playSound("click");
@@ -79,12 +75,12 @@ export function CodePad({
         className={`codepad ${pad === "alphanumeric" ? "is-alpha" : ""}`}
         role="dialog"
         aria-modal="true"
-        aria-label="Zugangscode"
+        aria-label={heading}
       >
         <span className="micro">
           {title} / {fake ? "LOCAL OVERRIDE" : "ACCESS CONTROL"}
         </span>
-        <h2>{fake ? "Maintenance login" : "Authorization required"}</h2>
+        <h2>{heading}</h2>
         <div className="codepad-modes">
           <button
             className={pad === "numeric" ? "active" : ""}
@@ -107,13 +103,35 @@ export function CodePad({
         >
           {value || "— — — —"}
         </motion.div>
-        <div className={`codepad-grid ${pad === "alphanumeric" ? "alpha" : ""}`}>
-          {keys.map((k) => (
-            <button key={k} onClick={() => enter(k)}>
-              {k.toUpperCase()}
-            </button>
-          ))}
-        </div>
+        {pad === "numeric" ? (
+          <div className="codepad-grid">
+            {numeric.map((k) => (
+              <button key={k} onClick={() => enter(k)}>
+                {k.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="codepad-grid alpha">
+            {qwerty.map((row) => (
+              <div className="codepad-row" key={row}>
+                {row.split("").map((k) => (
+                  <button key={k} onClick={() => enter(k)}>
+                    {k}
+                  </button>
+                ))}
+              </div>
+            ))}
+            <div className="codepad-row">
+              <button className="wide" onClick={() => enter("clear")}>
+                CLEAR
+              </button>
+              <button className="wide" onClick={() => enter("enter")}>
+                ENTER
+              </button>
+            </div>
+          </div>
+        )}
         <p role="status">
           {denied
             ? "SIGNATURE MISMATCH / RETRY"

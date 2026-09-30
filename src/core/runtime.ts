@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import type { TrainingState } from "./training.ts";
 export type Cue = "idle" | "active" | "warning" | "complete";
+
+// A block is complete once the server has recorded a completion signal for the
+// station: a module event, a reported intervention, or an access grant. Used to
+// rebuild the visual cue after a remount/reconnect instead of trusting local UI.
+export function authoritativeCue(state: TrainingState, station: string): Cue {
+  const done =
+    (state.moduleEvents?.[station]?.length ?? 0) > 0 ||
+    (state.interventions?.[station]?.length ?? 0) > 0 ||
+    state.props?.[station] === true;
+  return done ? "complete" : "idle";
+}
 export function countdown(duration: number, elapsed: number) {
   return Math.max(0, duration - elapsed);
 }

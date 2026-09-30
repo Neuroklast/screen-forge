@@ -183,7 +183,7 @@
 .bio-monitor {
   display: flex;
   flex-direction: column;
-  gap: var(--sf-space-10px);
+  gap: var(--sf-space-8px);
   flex: 1;
   min-height: 0;
   padding: var(--sf-space-8px);
@@ -194,33 +194,106 @@
   font-size: var(--sf-type-10px);
   letter-spacing: 0.08em;
 }
-.bio-ecg {
-  width: 100%;
-  height: var(--sf-layout-56px);
+.bio-scope {
+  position: relative;
+  flex: 1;
+  min-height: var(--sf-layout-120px);
+  border: var(--sf-stroke-1px) solid color-mix(in srgb, var(--theme-text) 18%, transparent);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--theme-secondary) 16%, transparent) 0 var(--sf-layout-1px),
+      transparent var(--sf-layout-1px) var(--sf-layout-14px)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--theme-secondary) 16%, transparent) 0 var(--sf-layout-1px),
+      transparent var(--sf-layout-1px) var(--sf-layout-14px)
+    );
+  overflow: hidden;
 }
-.bio-ecg path {
+.bio-trace {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+}
+.bio-trace path {
   fill: none;
-  stroke: var(--accent);
   stroke-width: 1.4;
+}
+.bio-trace-ecg {
+  top: 0;
+}
+.bio-trace-ecg path {
+  stroke: var(--accent);
+}
+.bio-trace-pleth {
+  bottom: 0;
+}
+.bio-trace-pleth path {
+  stroke: var(--theme-secondary);
+}
+.bio-scope-tag {
+  position: absolute;
+  font-size: var(--sf-type-6px);
+  letter-spacing: 0.14em;
+  opacity: var(--sf-opacity-0-6);
+}
+.bio-scope-tag-ecg {
+  top: var(--sf-space-4px);
+  left: var(--sf-space-6px);
+  color: var(--accent);
+}
+.bio-scope-tag-pleth {
+  bottom: var(--sf-space-4px);
+  left: var(--sf-space-6px);
 }
 .bio-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sf-space-8px);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sf-space-6px);
   margin: 0;
+}
+.bio-cell {
+  border: var(--sf-stroke-1px) solid color-mix(in srgb, var(--theme-text) 12%, transparent);
+  padding: var(--sf-space-5px) var(--sf-space-6px);
 }
 .bio-grid dt {
   font-size: var(--sf-type-8px);
   opacity: 0.6;
 }
 .bio-grid dd {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sf-space-4px);
   margin: 0;
-  font-size: var(--sf-type-22px);
+  font-size: var(--sf-type-20px);
   font-family: "DigitTech7", "IBM Plex Mono", monospace;
   letter-spacing: 0;
 }
+.bio-grid dd small {
+  font-size: var(--sf-type-7px);
+  opacity: var(--sf-opacity-0-5);
+  letter-spacing: 0.04em;
+}
 .bio-monitor.alarm .bio-grid dd {
   color: var(--accent);
+}
+.bio-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sf-space-10px);
+}
+.bio-status {
+  font-size: var(--sf-type-9px);
+  letter-spacing: 0.14em;
+  opacity: var(--sf-opacity-0-6);
+}
+.bio-status.is-alarm {
+  color: var(--sf-color-ff726b);
+  opacity: 1;
 }
 .block-cams video,
 .block-cams img {

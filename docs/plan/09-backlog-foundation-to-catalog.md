@@ -14,6 +14,8 @@
 
 - Done: B1 shell, B2 palette, B3 board, B4 inspector, B5 mouse drag & drop, B7 linter ([../../src/builder/MissionBuilder.tsx](../../src/builder/MissionBuilder.tsx), [../../src/core/missionLint.ts](../../src/core/missionLint.ts)), B8 defaults, B9 entities/bindings, B10 undo/redo, B11 save via the existing revision flow, B12 integration, B13 e2e ([../../tests/builder.spec.ts](../../tests/builder.spec.ts)).
 - Partial: B6 — keyboard/click alternative works; touch long-press drag is not implemented (tap + inspector covers touch).
+- Hardened: B7 linter is now enforced as the server-side `play` gate; the wizard player/inject steps no longer assume array positions or a medical meaning (`server/exercise.mjs`, `src/training/ScenarioWizard.tsx`).
+- Consolidated: C5/C6 — the former `src/core/missions.ts` catalog merged into the single `missionTemplates` registry in `src/core/templates.ts`; the wizard and gallery now read the same catalog.
 - Deviation: the classic editor stays as a secondary tab for map tiles, routes and the action editor until Phase 3 completes.
 
 ### Phase 3 — Catalog

@@ -168,6 +168,14 @@ body,
   color: var(--sf-color-d6edb6);
   border-color: var(--sf-color-a4bc88);
 }
+.config-tabs-group {
+  grid-column: 1 / -1;
+  font-size: var(--sf-type-8px);
+  letter-spacing: var(--sf-type-1-4px);
+  text-transform: uppercase;
+  opacity: var(--sf-opacity-0-5);
+  margin-top: var(--sf-space-4px);
+}
 .config-body {
   flex: 1;
   min-height: 0;
@@ -192,7 +200,8 @@ body,
 .config-effects [data-panel="effects"],
 .config-playback [data-panel="playback"],
 .config-media [data-panel="media"],
-.config-tokens [data-panel="tokens"] {
+.config-tokens [data-panel="tokens"],
+.config-element [data-panel="element"] {
   display: block;
 }
 .config-menu section {
@@ -545,7 +554,13 @@ body,
   margin-top: var(--sf-space-20px);
 }
 .codepad-grid.alpha {
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-space-5px);
+}
+.codepad-row {
+  display: flex;
+  justify-content: center;
   gap: var(--sf-space-5px);
 }
 .codepad-grid button {
@@ -558,6 +573,11 @@ body,
 .codepad-grid.alpha button {
   height: var(--sf-layout-36px);
   font-size: var(--sf-type-12px);
+  flex: 0 0 var(--sf-layout-44px);
+}
+.codepad-row button.wide {
+  flex: 0 0 auto;
+  padding: 0 var(--sf-space-20px);
 }
 .codepad p {
   font-size: var(--sf-type-9px);

@@ -24,7 +24,7 @@
 
 ## Show templates (8)
 
-`Ortungsbake aktivieren`, `Sprengkopf-Wartung`, `Archiv-Extraktion`, `Service-Image laden`, `Gegenmaßnahme`, `Türverriegelung`, `Medizinischer Notfall`, `Einrichtungsterminal` (`showTemplates.ts:52-272`).
+`Activate Locator Beacon`, `Warhead Maintenance`, `Archive Extraction`, `Load Service Image`, `Countermeasure`, `Door Lockdown`, `Medical Emergency`, `Facility Terminal` (`showTemplates.ts`).
 
 ## Target state (Soll)
 

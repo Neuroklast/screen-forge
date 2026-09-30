@@ -19,7 +19,7 @@ The corporate system is the light "company intranet" surface: a believable insti
 | Area | Elements | Code |
 | --- | --- | --- |
 | Header | `SceneHeader`: brand mark, title, subtitle, identifier, status dot | `LiveScenes.tsx:56-65` |
-| Left nav | 4 tabs: `Overview`, `Personnel`, `Archive`, `Diagnostics`; fingerprint seal `"Clearance level 04"` | `:67-93` |
+| Left nav | 4 tabs: `Overview`, `Personnel`, `Archive`, `Diagnostics`; hold-to-scan fingerprint gate (`HOLD TO SCAN` → `IDENTITY VERIFIED`) | `LiveScenes.tsx` |
 | Main | facility heading (`Changed` animation), `ShieldCheck` | `:95-112` |
 | Overview | 3 metrics (status/sessions/integrity), environmental `Wave`, live temperature, access-control panel, `ProcessReadout`, activity log | `:120-240` |
 | Personnel/Archive | search input, directory list, `ProcessReadout`, verified record `<dl>`, `Close record` | `:242-306` |
@@ -30,11 +30,12 @@ The corporate system is the light "company intranet" surface: a believable insti
 | Element | Behavior | Code |
 | --- | --- | --- |
 | Nav tabs | switch view; clears record/query/process | `:70-83` |
+| Fingerprint seal | hold 1.5 s to verify identity; Personnel/Archive records stay locked (`LOCKED ↗`) until verified | `LiveScenes.tsx` |
 | `Review access` | runs `"ACCESS POLICY AUDIT"`, 9 s / 3 phases; outcome depends on `cue === "warning"` | `:41-53, :180-203` |
 | `Run diagnostics` | runs `"SYSTEM SELF-TEST"`, 12 s / 4 phases; report `D-204` | `:184-199` |
 | `Acknowledge exception` | visible only when process done and cue `warning`; resets cue to idle | `:204-214` |
-| Search input | filters local personnel/archive arrays | `:243-248` |
-| Record buttons | `openRecord` → `"RECORD RETRIEVAL"`, 6 s / 3 phases | `:28-40, :255-265` |
+| Search input | filters local personnel/archive arrays; hidden while a record is open (prevents the record being clipped) | `LiveScenes.tsx` |
+| Record buttons | `openRecord` → `"RECORD RETRIEVAL"`, 6 s / 3 phases; disabled until the fingerprint is verified | `LiveScenes.tsx` |
 | `Close record` | clears record + process | `:295-303` |
 
 ## Data, config, signals
@@ -72,4 +73,5 @@ The corporate system is the light "company intranet" surface: a believable insti
 - [ ] Given film mode, `Review access` completes in 9 s and shows the warning-dependent result.
 - [ ] Given training mode with released dossiers, the personnel tab shows only released persons.
 - [ ] Given the EXERCISE watermark is enabled, it is visible on every corporate view.
+- [ ] Given the fingerprint has not been scanned, records show `LOCKED` and cannot be opened.
 - [ ] Given a company identity applied, title/subtitle/identifier/mark change without changing the scene.

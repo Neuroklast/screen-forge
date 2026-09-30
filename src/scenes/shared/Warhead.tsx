@@ -373,94 +373,98 @@ export function Warhead(props: SceneProps) {
         </main>
         <aside className="warhead-controls">
           <div className="micro">SERVICE ACCESS / MAINTENANCE MODE</div>
-          <section>
-            <h3>01 / Channel diagnostics</h3>
-            <button
-              className="scene-button"
-              disabled={diagnostic !== null || state.expired}
-              onClick={() => {
-                playSound("prompt");
-                setDiagnostic(time);
-                onPlay?.();
-              }}
-            >
-              RUN_CHANNEL_DIAGNOSTICS
-            </button>
-            <div className="process-rail">
-              <i style={{ width: `${diagnosticProgress * 100}%` }} />
-            </div>
-            <small>
-              {state.diagnosed
-                ? "SIGNATURE VERIFIED"
-                : diagnostic === null
-                  ? "CONTROL CHANNEL SEALED"
-                  : `${Math.floor(diagnosticProgress * 100)}% / CHANNEL SCAN`}
-            </small>
-          </section>
-          <section>
-            <h3>02 / Maintenance shunt</h3>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                stageShunt();
-              }}
-            >
-              <input
-                aria-label="Diagnostic checksum"
-                disabled={!state.diagnosed || bypass !== null || state.expired}
-                value={input}
-                placeholder="ENTER 16-BIT DIAGNOSTIC CHECKSUM"
-                onChange={(e) =>
-                  setInput(command.slice(0, e.target.value.length))
-                }
-                onKeyDown={(e) => {
-                  if (e.key.length === 1 || e.key === "Backspace") {
-                    e.preventDefault();
-                    if (e.key.length === 1) playSound("type");
-                    setInput((v) => scriptedInput(command, v, e.key));
-                  }
-                }}
-              />
+          <div className="warhead-control-scroll">
+            <section>
+              <h3>01 / Channel diagnostics</h3>
               <button
                 className="scene-button"
-                disabled={!input || bypass !== null || state.expired}
+                disabled={diagnostic !== null || state.expired}
+                onClick={() => {
+                  playSound("prompt");
+                  setDiagnostic(time);
+                  onPlay?.();
+                }}
               >
-                INITIATE_MAINTENANCE_SHUNT
+                RUN_CHANNEL_DIAGNOSTICS
               </button>
-            </form>
-            <div className="process-rail">
-              <i style={{ width: `${bypassProgress * 100}%` }} />
-            </div>
-            <small>
-              {state.bypassed
-                ? "LOCAL_ADMIN_PRIVILEGES_FORCED"
-                : bypass === null
-                  ? "DIAGNOSTIC SIGNATURE REQUIRED"
-                  : `${Math.floor(bypassProgress * 100)}% / KERNEL_HANDOVER`}
-            </small>
-          </section>
-          <section>
-            <h3>03 / Align reference field</h3>
-            <div className="phase-trim-row">
-              {channels.map((value, i) => (
-                <PhaseTrim
-                  key={i}
-                  label={`Phase ${["A", "B", "C"][i]}`}
-                  value={value}
-                  target={targets[i]}
+              <div className="process-rail">
+                <i style={{ width: `${diagnosticProgress * 100}%` }} />
+              </div>
+              <small>
+                {state.diagnosed
+                  ? "SIGNATURE VERIFIED"
+                  : diagnostic === null
+                    ? "CONTROL CHANNEL SEALED"
+                    : `${Math.floor(diagnosticProgress * 100)}% / CHANNEL SCAN`}
+              </small>
+            </section>
+            <section>
+              <h3>02 / Maintenance shunt</h3>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  stageShunt();
+                }}
+              >
+                <input
+                  aria-label="Diagnostic checksum"
                   disabled={
-                    !state.bypassed ||
-                    state.expired ||
-                    state.safe ||
-                    hold !== null
+                    !state.diagnosed || bypass !== null || state.expired
                   }
-                  onChange={(n) =>
-                    setChannels((v) => v.map((x, j) => (j === i ? n : x)))
+                  value={input}
+                  placeholder="ENTER 16-BIT DIAGNOSTIC CHECKSUM"
+                  onChange={(e) =>
+                    setInput(command.slice(0, e.target.value.length))
                   }
+                  onKeyDown={(e) => {
+                    if (e.key.length === 1 || e.key === "Backspace") {
+                      e.preventDefault();
+                      if (e.key.length === 1) playSound("type");
+                      setInput((v) => scriptedInput(command, v, e.key));
+                    }
+                  }}
                 />
-              ))}
-            </div>
-          </section>
+                <button
+                  className="scene-button"
+                  disabled={!input || bypass !== null || state.expired}
+                >
+                  INITIATE_MAINTENANCE_SHUNT
+                </button>
+              </form>
+              <div className="process-rail">
+                <i style={{ width: `${bypassProgress * 100}%` }} />
+              </div>
+              <small>
+                {state.bypassed
+                  ? "LOCAL_ADMIN_PRIVILEGES_FORCED"
+                  : bypass === null
+                    ? "DIAGNOSTIC SIGNATURE REQUIRED"
+                    : `${Math.floor(bypassProgress * 100)}% / KERNEL_HANDOVER`}
+              </small>
+            </section>
+            <section>
+              <h3>03 / Align reference field</h3>
+              <div className="phase-trim-row">
+                {channels.map((value, i) => (
+                  <PhaseTrim
+                    key={i}
+                    label={`Phase ${["A", "B", "C"][i]}`}
+                    value={value}
+                    target={targets[i]}
+                    disabled={
+                      !state.bypassed ||
+                      state.expired ||
+                      state.safe ||
+                      hold !== null
+                    }
+                    onChange={(n) =>
+                      setChannels((v) => v.map((x, j) => (j === i ? n : x)))
+                    }
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
           <button
             className="neutralize-button"
             disabled={

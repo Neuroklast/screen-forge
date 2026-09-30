@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { clockParts, countdown, formatTime, noise } from "./runtime";
+import { authoritativeCue, clockParts, countdown, formatTime, noise } from "./runtime";
 import { contrastRatio, onAccent } from "./contrast";
 import { defaults, schema, sceneIds } from "./config";
+import { newState } from "./training";
 describe("scene time", () => {
   it("clamps a completed countdown and handles hours", () => {
     expect(countdown(60, 61)).toBe(0);
@@ -20,6 +21,22 @@ describe("scene time", () => {
       expect(noise(i, 1)).toBeGreaterThanOrEqual(0);
       expect(noise(i, 1)).toBeLessThan(1);
     }
+  });
+});
+describe("authoritative cue", () => {
+  it("rebuilds block completion from recorded server signals", () => {
+    const idle = newState("room");
+    expect(authoritativeCue(idle, "term")).toBe("idle");
+    const events = newState("room");
+    events.moduleEvents["term"] = ["shell.success"];
+    expect(authoritativeCue(events, "term")).toBe("complete");
+    expect(authoritativeCue(events, "other")).toBe("idle");
+    const grant = newState("room");
+    grant.props["lock-1"] = true;
+    expect(authoritativeCue(grant, "lock-1")).toBe("complete");
+    const medical = newState("room");
+    medical.interventions["med-1"] = ["treated"];
+    expect(authoritativeCue(medical, "med-1")).toBe("complete");
   });
 });
 describe("preset import boundary", () => {

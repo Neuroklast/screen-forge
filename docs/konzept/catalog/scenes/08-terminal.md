@@ -29,16 +29,23 @@ The terminal is its own scene: a command line that **has a goal**. Instead of fr
 
 | Concept | Meaning |
 | --- | --- |
-| Goal | Named objective shown in the header, e.g. `"Login überbrücken"` |
+| Goal | Named objective shown in the header, e.g. `"Bypass login"` |
 | Steps | Ordered `{ command, outputs[], hint? }` — the exact command advances the chain |
 | Wrong input | Typed error + hint, no progress; optional attempt counter |
 | Completion | Final step prints the success text, sets the cue to `complete`, emits `terminal.bypass` |
-| Progress | Step indicator (`Schritt 2/4`) and a progress rail |
+| Progress | Step indicator (`Step 2/4`) and a progress rail |
+
+## Hack sequences (built-in library)
+
+- `src/core/terminalScripts.ts` ships several fictional command chains, each with its own goal, prompt, steps and success text: `Relay auth bypass`, `Camera loop injection`, `Door controller override`, `Archive extraction`, `Sensor telemetry spoof`, `Firmware rollback`.
+- All hostnames, tokens and outputs are invented; there is no real infrastructure or procedure.
+- The inspector `Hack sequence` select applies a chain (writes `preset` + `goal` + `prompt` + `successText` + `steps`); `Custom command chain` keeps the edited values.
 
 ## Config (`sceneOptions.terminal`)
 
 | Option | Meaning |
 | --- | --- |
+| `preset` | Selected built-in hack sequence id (`""` = custom) |
 | `goal` | Goal label shown in the header |
 | `prompt` | Prompt label (host/user) |
 | `steps` | Command chain: command, output lines, optional hint |

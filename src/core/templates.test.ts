@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { missionTemplates } from "./templates";
+import { buildMission, missionTemplates } from "./templates";
 import { scenarioSchema } from "./training";
 import { lintMission } from "./missionLint";
+
+const MEL_TEMPLATES = [
+  "relay-recovery",
+  "secure-transfer",
+  "distributed-command",
+];
 
 describe("mission templates", () => {
   it("all templates validate and have unique ids", () => {
@@ -21,5 +27,23 @@ describe("mission templates", () => {
         `${t.id}: ${errors.map((e) => e.message).join("; ")}`,
       ).toEqual([]);
     }
+  });
+
+  it("gives every mission-library MEL entry a purpose and expected outcome", () => {
+    for (const t of missionTemplates) {
+      if (!MEL_TEMPLATES.includes(t.id)) continue;
+      for (const inject of t.scenario.injects) {
+        expect(inject.purpose.length, t.id).toBeGreaterThan(0);
+        expect(inject.expectedOutcome.length, t.id).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("builds a deep copy and rejects unknown ids", () => {
+    const mission = buildMission("distributed-command");
+    const found = missionTemplates.find((t) => t.id === "distributed-command");
+    expect(mission.name).toBe(found?.name);
+    expect(mission).not.toBe(found?.scenario);
+    expect(() => buildMission("nope")).toThrow(/Unknown/);
   });
 });

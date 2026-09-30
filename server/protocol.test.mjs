@@ -86,11 +86,16 @@ test("protocol v2: handshake, idempotent commands and rejection", async () => {
     assert.ok(cfgAck.serverSeq > 0);
 
     c.send({ type: "transport", command: "play", eventId: "play-1" });
-    await c.next((m) => m.type === "ack" && m.eventId === "play-1");
+    const playAck = await c.next(
+      (m) => m.type === "ack" && m.eventId === "play-1",
+    );
 
     c.send({ type: "message", to: "all", text: "dup", eventId: "msg-1" });
     const first = await c.next((m) => m.type === "ack" && m.eventId === "msg-1");
     assert.equal(first.result, "applied");
+    // The ACK mirrors the journal position: one event advances the sequence by
+    // exactly one, with no synthetic gap from the acknowledgement itself.
+    assert.equal(first.serverSeq, playAck.serverSeq + 1);
     c.send({ type: "message", to: "all", text: "dup", eventId: "msg-1" });
     const second = await c.next((m) => m.type === "ack" && m.eventId === "msg-1");
     assert.equal(second.result, "duplicate");

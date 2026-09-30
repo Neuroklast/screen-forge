@@ -83,16 +83,16 @@ export function useExercise(role: Role, room: string, station: string) {
     [key],
   );
   const flushOutbox = useCallback(async () => {
-    const list = outbox.pending(await outbox.entries());
+    const list = outbox.pending(await outbox.entries(), room, device.current);
     for (const entry of list) {
       if (ws.current?.readyState !== WebSocket.OPEN) break;
       ws.current.send(JSON.stringify(entry.message));
       await outbox.update(entry.eventId, "sent");
     }
     const rest = await outbox.entries();
-    setPendingCount(outbox.pending(rest).length);
+    setPendingCount(outbox.pending(rest, room, device.current).length);
     for (const id of outbox.pruneAcked(rest)) await outbox.remove(id);
-  }, []);
+  }, [room]);
   useEffect(() => {
     if (role === "film" || (!token && !invite.current)) return;
     let disposed = false,

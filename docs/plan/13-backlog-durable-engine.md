@@ -7,6 +7,8 @@
 ## Progress
 
 - Done: E1–E8; E9 timeline/replay + MEL panel & CSV in the trainer UI; E10 task-block registry + builder palette group; E11 wizard mission-library picker; E12 mission templates; E13 profiles; E14 doctrine packs; E15 symbology; E16 map adapter (spike pending hardware).
+- Hardened: E5 outbox replay is scoped to the active `room`/`deviceId`; E8 linter is enforced as the server-side `play` gate (`src/core/outbox.ts`, `server/exercise.mjs`, tests).
+- Hardened: E1 ACKs mirror the journal position (no synthetic `serverSeq` gap); E12 template registries unified in `src/core/templates.ts` (`server/exercise.mjs`, `src/core/templates.ts`).
 - Doing: —
 - Open: E10 full builder generation from the registry (only a palette group is wired), E17 optional graph (deferred).
 

@@ -37,7 +37,8 @@
 
 ## CI gates
 
-- Existing: `npm ci` → `npm test` → `npm run build` → `npx playwright install` → `npm run test:e2e`.
+- Existing: `npm ci` → `npm test` → `npm run build` → `npm run check:i18n` → `npm run check:layout` → `npx playwright install` → `npm run test:e2e`.
+- `npm test` runs Vitest over `src/core` and `src/map` (the map adapter tests are part of the gate), then the Node server lifecycle tests.
 - Add when ready: a docs link/budget check for `docs/` (≤150 lines per file, links resolve), and a guard that `secret data/` is not tracked.
 - CI MUST NOT be fixed by disabling a check.
 

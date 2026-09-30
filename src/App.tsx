@@ -33,6 +33,7 @@ import { TokenEditor } from "./components/TokenEditor";
 import { CodePad } from "./components/CodePad";
 import { MediaManager } from "./components/MediaManager";
 import { SequenceEditor } from "./components/SequenceEditor";
+import { terminalScript, terminalScripts } from "./core/terminalScripts";
 import {
   failStep,
   loadShow,
@@ -51,6 +52,17 @@ import { DisplayOverlays } from "./scenes/os/Overlays";
 import { sceneComponents } from "./scenes/Scenes";
 import { stageFormats, stageOf, stageOrient, stageRecipe } from "./core/stage";
 import { onAccent } from "./core/contrast";
+const ELEMENT_SCENES: SceneId[] = [
+  "countdown",
+  "tracking",
+  "hologram",
+  "clock",
+  "rotary",
+  "code-table",
+  "data-sheet",
+  "os",
+  "terminal",
+];
 export default function App() {
   const [config, setConfig] = useState<Config>(loadConfig),
     [cue, setCue] = useState<Cue>("idle"),
@@ -74,7 +86,7 @@ export default function App() {
     typeof location !== "undefined" &&
     new URLSearchParams(location.search).has("kiosk");
   const clock = useSceneClock();
-  const training = config.workspace === "training";
+  const rehearsal = config.workspace === "rehearsal";
   const applyStep = (step: Step) => {
     setUnlocked(false);
     setConfig((c) => ({
@@ -93,7 +105,7 @@ export default function App() {
     clock.setPlaying(true);
   };
   const noteTake = (kind: TakeEvent["kind"], gate: string) => {
-    if (!training) return;
+    if (!rehearsal) return;
     setTakeLog((log) =>
       appendTake(log, { at: clock.elapsed, kind, gate }),
     );
@@ -135,7 +147,7 @@ export default function App() {
     const step = show.steps.find((s) => s.id === running);
     if (step && triggerMatches(step, clock.elapsed)) advanceShow();
     if (
-      training &&
+      rehearsal &&
       step &&
       step.timeout > 0 &&
       clock.elapsed >= step.timeout &&
@@ -149,7 +161,7 @@ export default function App() {
         clock.setPlaying(false);
       }
     }
-  }, [clock.elapsed, clock.playing, running, show, training]);
+  }, [clock.elapsed, clock.playing, running, show, rehearsal]);
   useEffect(() => {
     const input = (e: Event) => {
       const detail = (e as CustomEvent<{ type: string; value: string }>).detail;
@@ -342,15 +354,15 @@ export default function App() {
               {t("studio.film")}
             </button>
             <button
-              className={training ? "active" : ""}
-              onClick={() => update("workspace", "training")}
+              className={rehearsal ? "active" : ""}
+              onClick={() => update("workspace", "rehearsal")}
             >
               {t("studio.training")}
             </button>
           </nav>
           <div className="project-label">
             <span className="tiny-dot" />
-            {training ? "TRAINING" : "FILM / TV"}{" "}
+            {rehearsal ? "TRAINING" : "FILM / TV"}{" "}
             <span className="version">V.01</span>
           </div>
           <button className="primary-button" onClick={fullscreen}>
@@ -482,6 +494,7 @@ export default function App() {
                   <CodePad
                     key={take}
                     title={config.title}
+                    heading={config.pinTitle}
                     code={config.pin}
                     mode={config.pinMode}
                     fake={config.pinFake}
@@ -489,7 +502,7 @@ export default function App() {
                   />
                 )}
                 <DisplayOverlays config={config} time={clock.elapsed} />
-                {training && config.exerciseMark && (
+                {rehearsal && config.exerciseMark && (
                   <div className="exercise-mark">UNCLASSIFIED // EXERCISE</div>
                 )}
               </div>
@@ -597,15 +610,18 @@ export default function App() {
             </button>
           </header>
           <nav className="config-tabs" role="tablist">
+            <span className="config-tabs-group">
+              {t("studio.groupGeneral")}
+            </span>
             {[
               ["content", t("studio.tab.content")],
               ["systems", t("studio.tab.systems")],
               ["design", t("studio.tab.design")],
               ["themes", t("studio.tab.themes")],
               ["effects", t("studio.tab.effects")],
-              ["playback", t("studio.tab.playback")],
-              ["media", t("studio.tab.media")],
               ["tokens", t("studio.tab.tokens")],
+              ["media", t("studio.tab.media")],
+              ["playback", t("studio.tab.playback")],
             ].map(([id, label]) => (
               <button
                 role="tab"
@@ -616,6 +632,16 @@ export default function App() {
                 {label}
               </button>
             ))}
+            <span className="config-tabs-group">
+              {t("studio.groupElement")}
+            </span>
+            <button
+              role="tab"
+              aria-selected={configTab === "element"}
+              onClick={() => setConfigTab("element")}
+            >
+              {t("studio.tab.element")}
+            </button>
           </nav>
           <div className="config-body">
             <div data-panel="systems">
@@ -874,6 +900,20 @@ export default function App() {
                 {t("studio.pinFake")}
               </label>
               <label>
+                {t("studio.pinTitle")}
+                <input
+                  aria-label={t("studio.pinTitleAria")}
+                  maxLength={40}
+                  defaultValue={config.pinTitle}
+                  key={config.pinTitle}
+                  onBlur={(e) => {
+                    const v = e.target.value.trim();
+                    if (v) update("pinTitle", v);
+                    else e.target.value = config.pinTitle;
+                  }}
+                />
+              </label>
+              <label>
                 <input
                   type="checkbox"
                   checked={config.sound}
@@ -887,7 +927,7 @@ export default function App() {
               <div className="inspector-section-title">
                 <span>03</span> {t("studio.sectionFlow")}
               </div>
-              {training && (
+              {rehearsal && (
                 <>
                   <label className="checkbox-label">
                     <input
@@ -923,6 +963,12 @@ export default function App() {
                     {t("studio.takeLogExport", { count: takeLog.length })}
                   </button>
                 </>
+              )}
+              <p className="inspector-hint">{t("studio.pauseHint")}</p>
+            </section>
+            <section data-panel="element">
+              {!ELEMENT_SCENES.includes(config.scene) && (
+                <p className="inspector-hint">{t("studio.elementNone")}</p>
               )}
               {config.scene === "countdown" && (
                 <>
@@ -1207,6 +1253,36 @@ export default function App() {
                     />{" "}
                     {t("studio.loginScreen")}
                   </label>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={config.sceneOptions.os.login.biometric}
+                      onChange={(e) =>
+                        updateSceneOptions("os", {
+                          login: {
+                            ...config.sceneOptions.os.login,
+                            biometric: e.target.checked,
+                          },
+                        })
+                      }
+                    />{" "}
+                    {t("studio.loginBiometric")}
+                  </label>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={config.sceneOptions.os.login.hackable}
+                      onChange={(e) =>
+                        updateSceneOptions("os", {
+                          login: {
+                            ...config.sceneOptions.os.login,
+                            hackable: e.target.checked,
+                          },
+                        })
+                      }
+                    />{" "}
+                    {t("studio.loginHackable")}
+                  </label>
                   <label>
                     {t("studio.user")}
                     <input
@@ -1258,6 +1334,37 @@ export default function App() {
               )}
               {config.scene === "terminal" && (
                 <>
+                  <label>
+                    {t("studio.terminalPreset")}
+                    <select
+                      aria-label={t("studio.terminalPreset")}
+                      value={config.sceneOptions.terminal.preset}
+                      onChange={(e) => {
+                        const preset = terminalScript(e.target.value);
+                        updateSceneOptions(
+                          "terminal",
+                          preset
+                            ? {
+                                preset: preset.id,
+                                goal: preset.goal,
+                                prompt: preset.prompt,
+                                successText: preset.successText,
+                                steps: preset.steps,
+                              }
+                            : { preset: "" },
+                        );
+                      }}
+                    >
+                      <option value="">
+                        {t("studio.terminalPresetCustom")}
+                      </option>
+                      {terminalScripts.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                   <label>
                     {t("studio.goal")}
                     <input
@@ -1323,9 +1430,6 @@ export default function App() {
                   </label>
                 </>
               )}
-              <p className="inspector-hint">
-                {t("studio.pauseHint")}
-              </p>
             </section>
             <div data-panel="tokens">
               <TokenEditor config={config} onChange={setConfig} />

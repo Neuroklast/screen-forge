@@ -1,11 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-export function isModelAsset(asset: { type: string; name: string }) {
-  return (
-    /\.(glb|gltf)$/i.test(asset.name) || /gltf|model\//i.test(asset.type)
-  );
-}
 export function ModelViewport({
   time,
   url,

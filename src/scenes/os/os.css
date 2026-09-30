@@ -4,7 +4,7 @@
   --os-panel: var(--theme-surface);
   --os-line: color-mix(in srgb, var(--theme-text) 28%, var(--theme-bg));
   --os-cyan: var(--theme-secondary);
-  --os-muted: color-mix(in srgb, var(--theme-text) 62%, var(--theme-bg));
+  --os-muted: color-mix(in srgb, var(--theme-text) 74%, var(--theme-bg));
   --os-text: var(--theme-text);
   --os-yellow: var(--accent);
   background: var(--os-bg);
@@ -91,10 +91,12 @@
   color: var(--os-text);
   background: var(--os-panel);
 }
-.stage-keys button:active {
+.stage-keys button:active,
+.stage-keys button.is-active {
   transform: scale(0.97);
   border-color: var(--accent);
   color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--os-panel));
 }
 .os-kicker {
   font-size: var(--sf-type-8px);
@@ -225,8 +227,8 @@
   gap: var(--sf-space-8px);
   padding: var(--sf-space-16px);
   background:
-    radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 42%),
-    linear-gradient(180deg, color-mix(in srgb, var(--os-bg) 70%, var(--accent)), var(--os-bg));
+    radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--theme-secondary) 12%, transparent), transparent 42%),
+    linear-gradient(180deg, var(--os-panel), var(--os-bg));
 }
 .os-desk-icon {
   width: var(--sf-layout-78px);
@@ -829,11 +831,11 @@
   border: var(--sf-stroke-1px) solid var(--os-line);
   padding: var(--sf-space-17px);
   margin-bottom: var(--sf-space-13px);
-  background: var(--sf-color-101921);
+  background: var(--os-panel);
 }
 .os-personnel-layout > nav > button.active {
   border-left: var(--sf-stroke-3px) solid var(--accent);
-  background: var(--sf-color-15212a);
+  background: color-mix(in srgb, var(--os-panel) 88%, var(--accent));
   padding-left: var(--sf-space-15px);
 }
 .os-personnel-layout > nav > button span {

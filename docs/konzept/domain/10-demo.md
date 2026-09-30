@@ -17,7 +17,7 @@ Demo mode showcases ScreenForge in 5 minutes without setup: trade shows, onboard
 
 | Stop | Shows | Content |
 | --- | --- | --- |
-| 1 | Film surfaces | One show with 3 takes (e.g. `"Ortungsbake aktivieren"`) |
+| 1 | Film surfaces | One show with 3 takes (e.g. `"Activate Locator Beacon"`) |
 | 2 | Exercise build | `eod-disposal` mission opened in the builder (sandbox) |
 | 3 | Field device | Ordnance console + terminal task, simulated locally |
 | 4 | HQ view | Map, patient, camera placeholder, objectives |

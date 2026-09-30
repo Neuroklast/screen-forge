@@ -1,8 +1,22 @@
 import { useState } from "react";
-import { scenarioSchema, template, type Scenario } from "../core/training";
+import {
+  scenarioSchema,
+  stationSchema,
+  template,
+  type Scenario,
+} from "../core/training";
 import { defaultDossiers } from "../core/dossiers";
-import { buildMission, missionTemplates } from "../core/missions";
+import { missionTemplates } from "../core/templates";
 import { t } from "../i18n";
+
+// Ids already offered as one-tap starters above; keep the library list distinct.
+const QUICK_IDS = new Set([
+  "search-rescue",
+  "medical-emergency",
+  "milsim-skirmish",
+  "film-playback",
+]);
+
 export function ScenarioWizard({
   onSave,
   onClose,
@@ -12,6 +26,7 @@ export function ScenarioWizard({
 }) {
   const [step, setStep] = useState(0),
     [draft, setDraft] = useState(() => template("sar")),
+    [injectId, setInjectId] = useState(""),
     [error, setError] = useState("");
   const questions = [
     t("wizard.q1"),
@@ -22,6 +37,8 @@ export function ScenarioWizard({
   ];
   const update = (patch: Partial<Scenario>) =>
     setDraft((s) => ({ ...s, ...patch }));
+  const inject =
+    draft.injects.find((r) => r.id === injectId) ?? draft.injects[0];
   const choose = (kind: Parameters<typeof template>[0]) => {
     const s = template(kind);
     s.dossiers = defaultDossiers().map((d) => ({ ...d, released: false }));
@@ -70,19 +87,21 @@ export function ScenarioWizard({
           </div>
           <p className="eyebrow">{t("wizard.library")}</p>
           <div className="template-grid">
-            {missionTemplates.map((tpl) => (
-              <button
-                key={tpl.id}
-                onClick={() => {
-                  setDraft(buildMission(tpl.id));
-                  setError("");
-                  setStep(1);
-                }}
-              >
-                <strong>{tpl.name}</strong>
-                <span>{tpl.category}</span>
-              </button>
-            ))}
+            {missionTemplates
+              .filter((tpl) => !QUICK_IDS.has(tpl.id))
+              .map((tpl) => (
+                <button
+                  key={tpl.id}
+                  onClick={() => {
+                    setDraft(structuredClone(tpl.scenario));
+                    setError("");
+                    setStep(1);
+                  }}
+                >
+                  <strong>{tpl.name}</strong>
+                  <span>{tpl.category}</span>
+                </button>
+              ))}
           </div>
         </>
       )}
@@ -145,21 +164,15 @@ export function ScenarioWizard({
           </div>
           <button
             onClick={() => {
-              const source =
-                draft.stations.find((s) => s.player) ?? draft.stations[0];
-              if (!source) return;
               const id = `player-${Date.now().toString(36)}`;
-              update({
-                stations: [
-                  ...draft.stations,
-                  {
-                    ...source,
-                    id,
-                    player: true,
-                    name: `Player ${draft.stations.filter((s) => s.player).length + 1}`,
-                  },
-                ],
+              const station = stationSchema.parse({
+                id,
+                name: `Player ${draft.stations.filter((s) => s.player).length + 1}`,
+                role: "element",
+                module: "tracking",
+                player: true,
               });
+              update({ stations: [...draft.stations, station] });
             }}
           >
             {t("wizard.addPlayer")}
@@ -169,36 +182,59 @@ export function ScenarioWizard({
       {step === 3 && (
         <>
           <p>{t("wizard.flowNote")}</p>
-          <label>
-            {t("wizard.injectAt")}
-            <input
-              type="number"
-              min="0"
-              max="86400"
-              value={draft.injects[0]?.at ?? 180}
-              onChange={(e) =>
-                update({
-                  injects: draft.injects.map((r, i) =>
-                    i === 0 ? { ...r, at: Number(e.target.value) } : r,
-                  ),
-                })
-              }
-            />
-          </label>
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={draft.injects[0]?.enabled ?? false}
-              onChange={(e) =>
-                update({
-                  injects: draft.injects.map((r, i) =>
-                    i === 0 ? { ...r, enabled: e.target.checked } : r,
-                  ),
-                })
-              }
-            />
-            {t("wizard.injectToggle")}
-          </label>
+          {inject ? (
+            <>
+              <label>
+                {t("wizard.injectPick")}
+                <select
+                  value={inject.id}
+                  onChange={(e) => setInjectId(e.target.value)}
+                >
+                  {draft.injects.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                {t("wizard.injectAt")}
+                <input
+                  type="number"
+                  min="0"
+                  max="86400"
+                  value={inject.at}
+                  onChange={(e) =>
+                    update({
+                      injects: draft.injects.map((r) =>
+                        r.id === inject.id
+                          ? { ...r, at: Number(e.target.value) }
+                          : r,
+                      ),
+                    })
+                  }
+                />
+              </label>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={inject.enabled}
+                  onChange={(e) =>
+                    update({
+                      injects: draft.injects.map((r) =>
+                        r.id === inject.id
+                          ? { ...r, enabled: e.target.checked }
+                          : r,
+                      ),
+                    })
+                  }
+                />
+                {t("wizard.injectToggle")}
+              </label>
+            </>
+          ) : (
+            <p>{t("wizard.noInjects")}</p>
+          )}
           <p>{t("wizard.terminalNote")}</p>
         </>
       )}
@@ -213,10 +249,12 @@ export function ScenarioWizard({
               <b>{draft.stations.length}</b>
               <span>{t("wizard.devices")}</span>
             </div>
-            <div>
-              <b>{draft.patients.length}</b>
-              <span>{t("wizard.patients")}</span>
-            </div>
+            {draft.patients.length > 0 && (
+              <div>
+                <b>{draft.patients.length}</b>
+                <span>{t("wizard.patients")}</span>
+              </div>
+            )}
             <div>
               <b>{draft.injects.filter((r) => r.enabled).length}</b>
               <span>{t("wizard.events")}</span>

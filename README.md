@@ -53,7 +53,7 @@ Karte und Hologramm: ein Finger oder linke Maustaste verschiebt, zwei Finger zoo
 
 ## Presets
 
-JSON-Export und validierter Import. Version 1, höchstens 100 KB. Importierte Texte werden als Text gerendert, nicht als HTML. Eine fehlerhafte Datei verändert die laufende Konfiguration nicht. Beispielpresets liegen in `presets/`.
+JSON-Export und validierter Import. Version 2, höchstens 400 KB. Importierte Texte werden als Text gerendert, nicht als HTML. Eine fehlerhafte Datei verändert die laufende Konfiguration nicht. Beispielpresets liegen in `presets/`.
 
 ## Entwicklung
 
@@ -86,13 +86,13 @@ Unter Windows startet `start-vite.bat` die Installation und den Vite-Server. `pu
 - `src/core/config.ts`: Szenenkatalog, Voreinstellungen, Zod-Schema und Export.
 - `src/core/runtime.ts`: gemeinsame monotone Szenenuhr und deterministische Daten.
 - `src/components/GestureSurface.tsx`: Pointer Events, Pan, Pinch, Rotation und Abbruchbehandlung.
-- `src/scenes/Scenes.tsx`: fünf originale Szenen mit lokalen Zuständen.
+- `src/scenes/Scenes.tsx`: sechs Szenen und zehn Interaktionsblöcke mit lokalen Zuständen.
 - `src/styles.css`: Studiooberfläche, Familiengestaltung und gemeinsame Designtokens.
 - `docs/ART_DIRECTION.md`: Regeln für zusätzliche Szenen.
 
 ## Stand und Grenzen
 
-Version 0.1 ist ein funktionsfähiger Grundstock. Noch nicht enthalten: Ereignisaufnahme und -wiedergabe, ferngesteuerte zweite Ausgabe, Videoexport, frei platzierbare Panels, externe Medienverwaltung, frei konfigurierbare Ablaufsequenzen, Electron und Handtracking. Die Regieknöpfe setzen den aktuellen Zustand, sie schreiben noch kein Ereignisprotokoll.
+Version 0.1 ist ein funktionsfähiger Grundstock. Enthalten sind das Film-Studio (Szenen, Medienverwaltung, Sequenzen, Themes) und die vernetzte Training-/Übungs-Runtime mit Rollen (Trainer/EXCON, HQ, Element/Player, Sicherheit, Beobachter), Mission Builder, Geräteprovisionierung per QR, Ereignis-Journal mit Wiedergabe sowie MEL-Zeitstrahl. Noch nicht enthalten: Videoexport, ferngesteuerte zweite Ausgabe, Electron und Handtracking.
 
 Zeitabhängige Daten sind deterministisch. Die kurze Motion-Konturanimation beim Start einer Hologrammanalyse ist eine unmittelbare Interaktionsanimation und läuft unabhängig von der Szenenuhr. Für einen späteren framegenauen Videoexport muss sie an die Szenenzeit gebunden werden.
 
@@ -119,4 +119,4 @@ Die Daten bleiben lokal und fiktiv. Der Fingerprint-Sensor ist eine Halteinterak
 
 Vorschau: [Workspace](docs/previews/os-desktop.png), [Dateisystem](docs/previews/os-files.png), [Personalakte](docs/previews/os-personnel.png), [4D-Projektion](docs/previews/os-dimension.png), [Analyse](docs/previews/os-sequence.png), [Sperrbildschirm](docs/previews/os-lock.png), [Warnzustand](docs/previews/os-warning.png).
 
-Validierung: TypeScript, Produktionsbuild, 9 Unit-Tests und 9 Browser-Tests. Geprüft werden unter anderem Phasengrenzen, Vor-/Zurückspulen, Pause, Reset, lokale Befehle und der abgebrochene bzw. erfolgreiche Entsperrvorgang.
+Validierung: TypeScript, Produktionsbuild, 100 Unit-Tests, 4 Server-Tests und 24 Browser-Tests (Playwright). Geprüft werden unter anderem Szenen, Phasengrenzen, Vor-/Zurückspulen, Pause, Reset, lokale Befehle, Übungsphasen, Rollenprojektion und der abgebrochene bzw. erfolgreiche Entsperrvorgang.

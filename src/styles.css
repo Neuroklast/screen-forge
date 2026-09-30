@@ -627,8 +627,22 @@ h1 {
   border-bottom-color: var(--accent);
 }
 .corp-seal {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
   margin-top: var(--sf-space-72px);
   opacity: var(--sf-opacity-0-65);
+  transition: opacity 0.2s ease;
+}
+.corp-seal.is-verified {
+  opacity: 1;
+}
+.corp-seal:disabled {
+  cursor: default;
 }
 .corp-seal .micro {
   font-size: var(--sf-type-8px);
@@ -729,6 +743,10 @@ h1 {
 .directory > button span {
   font-size: var(--sf-type-9px);
   opacity: var(--sf-opacity-0-5);
+}
+.directory > button:disabled {
+  opacity: var(--sf-opacity-0-4);
+  cursor: not-allowed;
 }
 .directory p {
   font-size: var(--sf-type-11px);

@@ -1,33 +1,46 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
-  defaults,
+  presentationConfig,
   scenePalette,
   type Config,
   type SceneId,
 } from "../core/config";
+import type { TrainingStation } from "../core/training";
 import { sceneComponents } from "../scenes/Scenes";
 import { DisplayOverlays } from "../scenes/os/Overlays";
-import { useSceneClock, type Cue } from "../core/runtime";
+import { authoritativeCue, useSceneClock, type Cue } from "../core/runtime";
 import { stageOf, stageOrient, stageRecipe } from "../core/stage";
 import { useExerciseMaybe } from "../core/useExercise";
 import { onAccent } from "../core/contrast";
 export function StageFrame({
   scene,
   mark,
+  presentation,
+  station,
 }: {
   scene: SceneId;
   mark?: boolean;
+  presentation?: TrainingStation["presentation"];
+  station?: string;
 }) {
+  const ex = useExerciseMaybe();
   const [config] = useState<Config>(() => ({
-    ...defaults(scene),
-    workspace: "training",
+    ...presentationConfig(scene, presentation),
+    workspace: "rehearsal",
     exerciseMark: !!mark,
     scene,
   }));
-  const [cue, setCue] = useState<Cue>("idle");
+  const [cue, setCue] = useState<Cue>(() =>
+    ex && station ? authoritativeCue(ex.state, station) : "idle",
+  );
   const clock = useSceneClock();
-  const ex = useExerciseMaybe();
   const time = ex ? ex.state.clock : clock.elapsed;
+  // Server-recorded completion outranks transient local UI state, so a remount
+  // or reconnect never re-opens an already completed task.
+  const effectiveCue: Cue =
+    ex && station && authoritativeCue(ex.state, station) === "complete"
+      ? "complete"
+      : cue;
   const stage = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 1280, height: 720 });
   useEffect(() => {
@@ -56,7 +69,7 @@ export function StageFrame({
         className={`scene-canvas family-${scene} mood-${config.mood} density-${config.density}`}
         data-orient={stageOrient(config.format)}
         data-recipe={stageRecipe(config.format)}
-        data-workspace="training"
+        data-workspace="rehearsal"
         style={
           {
             width: fmt.width,
@@ -77,7 +90,7 @@ export function StageFrame({
         <Scene
           config={config}
           time={time}
-          cue={cue}
+          cue={effectiveCue}
           onCue={setCue}
           onPlay={() => clock.setPlaying(true)}
         />

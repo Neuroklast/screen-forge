@@ -51,7 +51,9 @@ Semantics: client at-least-once, server idempotent consumption, domain exactly-o
 
 ## ACK protocol (server → client)
 
-- `ack { eventId, serverSeq, result }` for accepted commands.
+- `ack { eventId, serverSeq, result }` for accepted commands. `serverSeq` mirrors the current
+  journal position; an acknowledgement never consumes a new event sequence number, so `serverSeq`
+  stays gap-free for replay and resume.
 - `rejected { eventId, reason, serverSeq }` when preconditions fail (stale revision, phase,
   capability, expired domain state).
 - A rejected/superseded outbox entry is surfaced to the user, never silently dropped.

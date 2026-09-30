@@ -60,6 +60,17 @@ test("corporate records require retrieval and diagnostics return results", async
     .locator(".corp-nav")
     .getByRole("button", { name: /Personnel/ })
     .click();
+  const seal = page.getByRole("button", { name: "Hold to scan fingerprint" });
+  await seal.scrollIntoViewIfNeeded();
+  const box = await seal.boundingBox();
+  if (box) {
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await expect(
+      page.getByRole("button", { name: "Identity verified" }),
+    ).toBeVisible({ timeout: 6000 });
+    await page.mouse.up();
+  }
   await page.getByRole("button", { name: /Dr. Mara Vale/ }).click();
   await expect(page.locator(".corp-record")).toHaveCount(0);
   await expect(page.getByLabel("Process status")).toHaveAttribute(

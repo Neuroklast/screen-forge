@@ -7,14 +7,21 @@ import { formatTime } from "../../core/runtime";
 import { Changed, ProcessReadout, useProcess } from "./Process";
 import { SpatialAssembly } from "./SpatialAssembly";
 import { trackPoint, trackTelemetry } from "./spatial";
-import { useMedia } from "../../core/media";
-import { isModelAsset, ModelViewport } from "./ModelViewport";
+import { isModelAsset, useMedia } from "../../core/media";
+import { ModelViewport } from "./ModelViewport";
 export function Corporate(props: SceneProps) {
-  const { config, time, cue, onCue } = props;
+  const { config, time, cue, onCue, onPlay } = props;
   const [tab, setTab] = useState("Overview"),
     [query, setQuery] = useState(""),
-    [record, setRecord] = useState<string | null>(null);
+    [record, setRecord] = useState<string | null>(null),
+    [scan, setScan] = useState<number | null>(null),
+    [verified, setVerified] = useState(false);
   const process = useProcess(props);
+  const scanProgress =
+    scan === null ? (verified ? 1 : 0) : Math.min(1, (time - scan) / 1.5);
+  useEffect(() => {
+    if (scanProgress >= 1 && !verified) setVerified(true);
+  }, [scanProgress, verified]);
   const personnel = [
     "Dr. Mara Vale / Research director",
     "Elias Ward / Systems operator",
@@ -81,15 +88,37 @@ export function Corporate(props: SceneProps) {
               {s}
             </button>
           ))}
-          <div className="corp-seal">
+          <button
+            type="button"
+            className={`corp-seal ${verified ? "is-verified" : ""}`}
+            aria-label={
+              verified ? "Identity verified" : "Hold to scan fingerprint"
+            }
+            disabled={verified}
+            onPointerDown={(e) => {
+              if (verified) return;
+              e.currentTarget.setPointerCapture(e.pointerId);
+              setScan(time);
+              onPlay?.();
+            }}
+            onPointerUp={() => setScan(null)}
+            onPointerCancel={() => setScan(null)}
+            onLostPointerCapture={() => setScan(null)}
+          >
             <Fingerprint size={48} strokeWidth={0.7} />
-            <div className="micro">IDENTITY VERIFIED</div>
+            <div className="micro">
+              {verified
+                ? "IDENTITY VERIFIED"
+                : scan === null
+                  ? "HOLD TO SCAN"
+                  : `SCANNING ${Math.round(scanProgress * 100)}%`}
+            </div>
             <span>
-              Research operator
+              {verified ? "Research operator" : "Fingerprint required"}
               <br />
               Clearance level 04
             </span>
-          </div>
+          </button>
         </nav>
         <main className="corp-main">
           <div className="corp-window-bar">
@@ -250,29 +279,40 @@ export function Corporate(props: SceneProps) {
                 </>
               ) : (
                 <div className="directory">
-                  <input
-                    aria-label="Verzeichnis durchsuchen"
-                    placeholder="Search records…"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                  {(!record || !process.job) &&
-                    (tab === "Personnel" ? personnel : archive)
-                      .filter((x) =>
-                        x.toLowerCase().includes(query.toLowerCase()),
-                      )
-                      .map((x, i) => (
-                        <motion.button
-                          key={x}
-                          initial={{ opacity: 0, x: 15 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.07 }}
-                          onClick={() => openRecord(x)}
-                        >
-                          {x}
-                          <span>OPEN RECORD ↗</span>
-                        </motion.button>
-                      ))}
+                  {(!record || !process.job) && (
+                    <>
+                      <input
+                        aria-label="Search directory"
+                        placeholder="Search records…"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                      />
+                      {(tab === "Personnel" ? personnel : archive)
+                        .filter((x) =>
+                          x.toLowerCase().includes(query.toLowerCase()),
+                        )
+                        .map((x, i) => (
+                          <motion.button
+                            key={x}
+                            initial={{ opacity: 0, x: 15 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.07 }}
+                            disabled={!verified}
+                            onClick={() => openRecord(x)}
+                          >
+                            {x}
+                            <span>
+                              {verified ? "OPEN RECORD ↗" : "LOCKED ↗"}
+                            </span>
+                          </motion.button>
+                        ))}
+                      {!verified && (
+                        <p className="micro">
+                          Hold the fingerprint scanner to unlock records.
+                        </p>
+                      )}
+                    </>
+                  )}
                   <ProcessReadout process={process} />
                   {record && process.done && (
                     <motion.article
@@ -384,13 +424,13 @@ export function Hologram(props: SceneProps) {
               ? "Key schedule derivation"
               : analysis.mode === "data"
                 ? "Dataset correlation"
-                : "Perspective reconstruction"}
+                : "Multi-slice tomographic reconstruction"}
             <br />
             {analysis.mode === "decrypt"
               ? "Fictional cipher / no real cryptography"
               : analysis.mode === "data"
                 ? "Outliers are written to the report"
-                : "Seven independent depth slices"}
+                : "7 depth slices / 0.42 m spacing"}
           </p>
           {analysis.mode === "reconstruct" ? (
             ["Geometry", "Materials", "Integrity"].map((x, i) => (
@@ -453,9 +493,9 @@ export function Hologram(props: SceneProps) {
                         "Isolate outliers",
                       ]
                     : [
-                        "Calibrate spatial reference",
-                        "Acquire seven depth slices",
-                        "Correlate surface samples",
+                        "Lock reference frame",
+                        "Acquire 7 depth slices",
+                        "Correlate surface returns",
                         "Verify structural signature",
                       ],
                 16,

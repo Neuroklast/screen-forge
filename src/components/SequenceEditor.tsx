@@ -366,7 +366,7 @@ export function SequenceEditor({
                   />
                 </label>
               )}
-              {config.workspace === "training" && (
+              {config.workspace === "rehearsal" && (
                 <>
                   <label>
                     {t("sequence.timeout")}

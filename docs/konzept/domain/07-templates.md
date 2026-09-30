@@ -37,7 +37,7 @@ Templates are pre-composed mission skeletons shown in a gallery. They MUST be fu
 | `data-exfiltration` | `"Datenübernahme"` | Steal data from opposing team | 5 | payload, keycard, dossiers | 20–30 min |
 | `beacon-activation` | `"Bake aktivieren"` | Reach and hold a beacon | 4 | beacon, 2 zones | 15–25 min |
 | `search-rescue` | `"Search & Rescue"` | Find, stabilize, evacuate | 5 | 1 patient, zone | 20–40 min |
-| `medical-emergency` | `"Medizinischer Notfall"` | Patient-only response drill | 3 | 1–2 patients | 10–20 min |
+| `medical-emergency` | `"Medical Emergency"` | Patient-only response drill | 3 | 1–2 patients | 10–20 min |
 | `access-lockdown` | `"Zugang & Verriegelung"` | Doors, codes, lockdown | 4 | keycard, 2 zones | 15–20 min |
 | `milsim-skirmish` | `"MILSIM-Gefecht"` | Two teams, capture point | 4 | teams, 1 zone | 15–30 min |
 | `film-playback` | `"Film-Aufzeichnung"` | Film/TV show rehearsal | n stage | none | show length |
@@ -75,7 +75,7 @@ Templates are pre-composed mission skeletons shown in a gallery. They MUST be fu
 - Injects: deterioration at T+180 unless `treated`; optional second casualty reveal.
 - Objectives: locate → report → stabilize → evacuate.
 
-### medical-emergency — `"Medizinischer Notfall"`
+### medical-emergency — `"Medical Emergency"`
 
 - Stations: `medical`, `hq`, `terminal` (records), optional `camera`.
 - Entities: 1–2 patients with different kinds (e.g. `trauma`, `desat`).
@@ -99,7 +99,7 @@ Templates are pre-composed mission skeletons shown in a gallery. They MUST be fu
 
 ### film-playback — `"Film-Aufzeichnung"`
 
-- Uses existing show templates (e.g. `"Ortungsbake aktivieren"`, `"Archiv-Extraktion"`, `"Sprengkopf-Wartung"`).
+- Uses existing show templates (e.g. `"Activate Locator Beacon"`, `"Archive Extraction"`, `"Warhead Maintenance"`).
 - No server, no entities; stations are stage outputs; rehearsal take log enabled.
 
 ## Wizard mapping (guided)
@@ -108,7 +108,7 @@ Templates are pre-composed mission skeletons shown in a gallery. They MUST be fu
 2. **Gelände:** map center/zoom, `LIVE`/`PLAYBACK`.
 3. **Geräte:** template stations, rename/add/remove; add-player shortcut.
 4. **Entitäten:** optional patient/prop add buttons with defaults; skip allowed.
-5. **Ablauf:** first injects (time/enabled), objective names.
+5. **Ablauf:** pick an inject by name, set its time/enabled; objective names. The step never assumes a fixed array position or a medical meaning.
 6. **Prüfen & Start:** linter summary, `"Einsatz anlegen"` creates a paused mission.
 
 - Advanced builder MUST be reachable from any wizard step via `"Im Expertenmodus öffnen"` without losing input.

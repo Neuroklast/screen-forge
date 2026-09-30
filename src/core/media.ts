@@ -9,6 +9,11 @@ export type MediaAsset = {
   blob: Blob;
 };
 export type MediaView = Omit<MediaAsset, "blob"> & { url: string };
+// Only self-contained binary glTF (`.glb`) is supported: the media store keeps
+// one file per asset, so a `.gltf` with external `.bin`/textures cannot resolve.
+export function isModelAsset(asset: { type: string; name: string }): boolean {
+  return /\.glb$/i.test(asset.name) || /gltf-binary/i.test(asset.type);
+}
 const DB = "screenforge-media-v1";
 function database(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {

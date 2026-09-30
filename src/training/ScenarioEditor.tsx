@@ -8,6 +8,7 @@ import {
   type Scenario,
   type Action,
 } from "../core/training";
+import { PresentationFields } from "./PresentationFields";
 import { t } from "../i18n";
 const uid = (prefix: string) => `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 export function ScenarioEditor({
@@ -185,6 +186,16 @@ export function ScenarioEditor({
                   </label>
                 </>
               )}
+              <PresentationFields
+                station={st}
+                onChange={(presentation) =>
+                  patch({
+                    stations: draft.stations.map((s) =>
+                      s.id === st.id ? { ...s, presentation } : s,
+                    ),
+                  })
+                }
+              />
               <button
                 onClick={() =>
                   patch({

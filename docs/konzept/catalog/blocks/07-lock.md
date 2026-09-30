@@ -11,7 +11,7 @@ The Lock block is a standalone access keypad: a small framed surface that gates 
 ## Component tree
 
 - `HudFrame` labeled `KEYPAD` (`data-frame` hud/plate/none aware) → embedded `CodePad` (`Blocks.tsx:21-33`).
-- `CodePad` modes: numeric (`1-9, clear, 0, enter`) and alphanumeric (A–Z, 0–9, clear, enter) (`CodePad.tsx:4-10`).
+- `CodePad` modes: numeric (`1-9, clear, 0, enter`) and alphanumeric (QWERTY rows + clear/enter) (`CodePad.tsx`).
 - Mode switch buttons inside the pad; keyboard listener supports digits/letters/Enter/Backspace (`:59-75`).
 
 ## Behavior
@@ -35,6 +35,7 @@ The Lock block is a standalone access keypad: a small framed surface that gates 
 | `pin` | expected code (4–8 alphanumeric) | `2048` |
 | `pinMode` | `numeric` or `alphanumeric` pad | `numeric` |
 | `pinFake` | staging mode: any valid-length code unlocks | `false` |
+| `pinTitle` | dialog heading shown on the pad (SSOT) | `Maintenance login` |
 
 ## Target state (Soll)
 

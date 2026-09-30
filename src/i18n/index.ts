@@ -1,5 +1,5 @@
-import { de } from "./de";
-import { en } from "./en";
+import { de } from "./de.ts";
+import { en } from "./en.ts";
 
 export type Locale = "de" | "en";
 export type Params = Record<string, string | number>;
@@ -21,6 +21,16 @@ function initialLocale(): Locale {
 
 let current: Locale = initialLocale();
 
+// Keep the document language in sync with the active locale so assistive tech
+// and translation tools see the right language.
+function applyDocumentLang(): void {
+  try {
+    document.documentElement.lang = current;
+  } catch {
+    /* no DOM / Node */
+  }
+}
+
 export function getLocale(): Locale {
   return current;
 }
@@ -33,8 +43,11 @@ export function setLocale(locale: Locale): void {
   } catch {
     /* noop */
   }
+  applyDocumentLang();
   for (const fn of listeners) fn();
 }
+
+applyDocumentLang();
 
 export function subscribeLocale(fn: () => void): () => void {
   listeners.add(fn);

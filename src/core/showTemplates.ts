@@ -69,8 +69,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
   const corp = scene(base, "corporate", id);
   return [
     {
-      name: "Ortungsbake aktivieren",
-      show: chain("Ortungsbake", [
+      name: "Activate Locator Beacon",
+      show: chain("Locator Beacon", [
         node("TRANSPONDER ID", term, {
           cue: "idle",
           trigger: "pin",
@@ -129,8 +129,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       ]),
     },
     {
-      name: "Sprengkopf-Wartung",
-      show: chain("Sprengkopf-Wartung", [
+      name: "Warhead Maintenance",
+      show: chain("Warhead Maintenance", [
         node("KEYPAD", scene(base, "lock", { ...id, pin, pinMode: "numeric" }), {
           cue: "idle",
           trigger: "signal",
@@ -149,8 +149,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       ]),
     },
     {
-      name: "Archiv-Extraktion",
-      show: chain("Archiv-Extraktion", [
+      name: "Archive Extraction",
+      show: chain("Archive Extraction", [
         node("BREAK SEAL", term, {
           cue: "idle",
           trigger: "pin",
@@ -197,8 +197,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       ]),
     },
     {
-      name: "Service-Image laden",
-      show: chain("Service-Image", [
+      name: "Load Service Image",
+      show: chain("Service Image", [
         node("IMAGE CHECKSUM", term, {
           cue: "idle",
           trigger: "pin",
@@ -307,8 +307,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       ]),
     },
     {
-      name: "Medizinischer Notfall",
-      show: chain("Medizinischer Notfall", [
+      name: "Medical Emergency",
+      show: chain("Medical Emergency", [
         node("ENABLE PROTOCOL", corp, {
           cue: "warning",
           trigger: "key",
@@ -337,8 +337,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       ]),
     },
     {
-      name: "Einrichtungsterminal",
-      show: chain("Einrichtungsterminal", [
+      name: "Facility Terminal",
+      show: chain("Facility Terminal", [
         node(
           "Find notes",
           scene(base, "os", {
@@ -383,12 +383,12 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
   ];
 }
 export const showTemplateLabels = [
-  "Ortungsbake aktivieren",
-  "Sprengkopf-Wartung",
-  "Archiv-Extraktion",
-  "Service-Image laden",
+  "Activate Locator Beacon",
+  "Warhead Maintenance",
+  "Archive Extraction",
+  "Load Service Image",
   "Countermeasure",
   "Door Lockdown",
-  "Medizinischer Notfall",
-  "Einrichtungsterminal",
+  "Medical Emergency",
+  "Facility Terminal",
 ] as const;

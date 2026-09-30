@@ -16,7 +16,7 @@
   letter-spacing: 0.04em;
 }
 .warhead-heading {
-  margin: var(--sf-space-8px) 0;
+  margin: var(--sf-space-4px) 0;
 }
 .warhead-layout {
   display: grid;
@@ -151,20 +151,27 @@
   padding: var(--sf-space-4px) 0;
 }
 .warhead-controls {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  font-size: var(--sf-type-8px);
+}
+.warhead-control-scroll {
   display: flex;
   flex-direction: column;
-  font-size: var(--sf-type-8px);
+  min-height: 0;
+  overflow-y: auto;
 }
 .warhead-controls > .micro {
   white-space: nowrap;
   letter-spacing: var(--sf-type-0-5px);
 }
 .warhead-controls h3 {
-  margin: var(--sf-space-4px) 0;
+  margin: var(--sf-space-2px) 0;
   font-size: var(--sf-type-10px);
 }
 .warhead-controls section {
-  padding: var(--sf-space-4px) 0;
+  padding: var(--sf-space-2px) 0;
   flex-shrink: 0;
 }
 .warhead-controls .scene-button,
@@ -175,8 +182,8 @@
 .phase-trim-row {
   display: flex;
   flex-direction: column;
-  gap: var(--sf-space-10px);
-  margin-top: var(--sf-space-8px);
+  gap: var(--sf-space-6px);
+  margin-top: var(--sf-space-6px);
 }
 .phase-trim-head {
   display: flex;
@@ -199,7 +206,7 @@
 .phase-bar {
   display: flex;
   gap: var(--sf-layout-2px);
-  height: var(--sf-layout-28px);
+  height: var(--sf-layout-22px);
   position: relative;
   touch-action: none;
   padding: var(--sf-space-4px) 0;
@@ -227,7 +234,7 @@
 }
 .neutralize-button {
   flex-shrink: 0;
-  margin-top: auto;
+  margin-top: var(--sf-space-6px);
   min-height: var(--sf-layout-44px);
 }
 .arming-rail {

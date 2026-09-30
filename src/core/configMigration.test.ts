@@ -28,4 +28,9 @@ describe("config migration to sceneOptions", () => {
     expect(parsed.sceneOptions.terminal.commandsUntilSuccess).toBe(4);
     expect(parsed.sceneOptions.countdown.type).toBe("bomb");
   });
+
+  it("renames the legacy studio workspace value training to rehearsal", () => {
+    const parsed = schema.parse({ ...defaults(), workspace: "training" });
+    expect(parsed.workspace).toBe("rehearsal");
+  });
 });

@@ -56,6 +56,45 @@ function client(port) {
 }
 const type = (t) => (m) => m.type === t;
 
+test("play is rejected while the mission linter reports blocking errors", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "screenforge-"));
+  let app;
+  const clients = [];
+  try {
+    app = await startExercise({ port: 0, secret: "test-secret", dataDir: dir });
+    const c = client(app.port);
+    clients.push(c);
+    await c.ready;
+    c.send({
+      type: "hello",
+      role: "trainer",
+      room: "room",
+      station: "",
+      token: "test-secret",
+    });
+    const initial = (await c.next(type("state"))).state;
+    const scenario = structuredClone(initial.scenario);
+    scenario.stations = [];
+    scenario.injects = [];
+    c.send({ type: "configure", revision: 0, scenario });
+    await c.next(type("saved"));
+    c.send({ type: "transport", command: "play", eventId: "play-empty" });
+    assert.match((await c.next(type("error"))).message, /blocking error/);
+    assert.match(
+      (
+        await c.next(
+          (m) => m.type === "rejected" && m.eventId === "play-empty",
+        )
+      ).reason,
+      /blocking error/,
+    );
+  } finally {
+    for (const cl of clients) cl.ws.terminate();
+    await app?.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("authenticated multi-device lifecycle, validation, diagnostics, revocation and restart", async () => {
   const dir = await mkdtemp(join(tmpdir(), "screenforge-"));
   let app;
@@ -99,6 +138,11 @@ test("authenticated multi-device lifecycle, validation, diagnostics, revocation 
     const scenario = structuredClone(initial.scenario);
     scenario.map.tiles = "";
     scenario.stations.find((s) => s.id === "prop-1").code = "482916";
+    scenario.stations.find((s) => s.id === "prop-1").presentation = {
+      scene: "corporate",
+      config: { title: "RELAY 07" },
+      revision: 3,
+    };
     scenario.dossiers = [
       {
         id: "intel",
@@ -142,6 +186,12 @@ test("authenticated multi-device lifecycle, validation, diagnostics, revocation 
       prop.state.scenario.stations.find((s) => s.id === "prop-1").code,
       "",
     );
+    assert.equal(
+      prop.state.scenario.stations.find((s) => s.id === "prop-1").presentation
+        .config.title,
+      "RELAY 07",
+    );
+    assert.deepEqual(prop.state.moduleEvents, { "prop-1": [] });
     assert.equal(hq.state.scenario.dossiers.length, 0);
     hq.c.send({ type: "transport", command: "play" });
     assert.match((await hq.c.next(type("error"))).message, /permission/);

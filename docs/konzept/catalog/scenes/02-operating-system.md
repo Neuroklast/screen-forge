@@ -29,10 +29,12 @@
 - Windows: focus ring (1 px accent), inactive dimming, drag by title bar, no resize in v2.
 - Taskbar: start button, pinned apps, open windows, system tray (clock, phase, connection).
 
-## Login mask
+## Access gate
 
-- Optional sign-in gate before the desktop: `sceneOptions.os.login { enabled, user, pass }` (default off).
-- Fields `User` / `Password`, `Sign in`; wrong credentials play `osError` and show `Access denied`; success plays `osStartup`.
+- Optional gate before the desktop: `sceneOptions.os.login { enabled, hackable, biometric, user, pass }` (default off).
+- `biometric: true` shows the fingerprint/alignment LockScreen instead of the credential form.
+- `hackable: true` adds a terminal bypass: the gate unlocks on the `terminal.bypass` / `shell.success` signal and the login form exposes a "Bypass via terminal" control.
+- Credential fields `User` / `Password`, `Sign in`; wrong credentials play `osError` and show `Access denied`; success plays `osStartup`.
 - Pairs with the terminal goal (bypass login): enable it for scenes where the challenge is to get past the gate.
 
 ## Apps
@@ -70,6 +72,7 @@
 | `density` | `compact` / `roomy` |
 | `startupApp` | app opened on scene start |
 | `sounds` | on/off per sound group |
+| `login` | access gate: `enabled`, `hackable`, `biometric`, `user`, `pass` |
 
 ## Target state (Soll)
 

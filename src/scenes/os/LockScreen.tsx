@@ -129,7 +129,7 @@ export function LockScreen({
         ) : (
           <div className="os-contact">
             <button
-              aria-label="Fingerabdruck scannen"
+              aria-label="Scan fingerprint"
               onPointerDown={(e) => {
                 e.currentTarget.setPointerCapture(e.pointerId);
                 start();

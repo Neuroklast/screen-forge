@@ -6,7 +6,8 @@
 ## CodePad
 
 - Purpose: modal or embedded access-code dialog; used globally (`App.tsx:470`) and inside the Lock block (`Blocks.tsx:22`).
-- Props: `code`, `title`, `onUnlock()`, `mode` (`numeric` default), `fake`, `embedded`.
+- Props: `code`, `title`, `heading` (SSOT dialog heading, e.g. `Maintenance login`), `onUnlock()`, `mode` (`numeric` default), `fake`, `embedded`.
+- Alphanumeric pad is **QWERTY** (`1234567890` / `QWERTYUIOP` / `ASDFGHJKL` / `ZXCVBNM` + `CLEAR`/`ENTER`), not alphabetical.
 - State: `value`, `denied` counter (drives shake), `pad` mode (switchable at runtime).
 - Behavior:
   - Key press appends (max 8), `type` sound; `clear` resets with `click`; mount plays `prompt`.
@@ -20,8 +21,9 @@
 ## StageKeys
 
 - Purpose: on-screen keyboard for the terminal scene (actor typing on touch stages).
-- Props: `onKey(key)`, `disabled?`.
+- Props: `onKey(key)`, `disabled?`, `active?` (key currently shown as pressed).
 - Layout: rows `1234567890`, `QWERTYUIOP`, `ASDFGHJKL`, `ZXCVBNM-.`; extras `SPC`, `DEL` (Backspace), `RET` (Enter).
+- Feedback: the key matching `active` renders with the pressed style (`is-active`), so on-screen and physical typing light the same key that appears in the console.
 - Soll: German QWERTZ layout option, key repeat on hold, aria-labels per key (currently only a group label).
 
 ## GestureSurface

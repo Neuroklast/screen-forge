@@ -421,7 +421,7 @@ export const sequences: Sequence[] = [
   {
     id: "reconstruct",
     name: "Dimensional reconstruction",
-    subtitle: "Four-dimensional projection and manifold analysis",
+    subtitle: "Volume reconstruction and manifold analysis",
     code: "DIM / 04",
     phases: [
       {

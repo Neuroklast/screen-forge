@@ -241,8 +241,8 @@
   right: var(--sf-layout-18px);
   top: var(--sf-layout-92px);
   width: var(--sf-layout-164px);
-  background: var(--sf-color-07120de6);
-  border: var(--sf-stroke-1px) solid var(--sf-color-9ad9c044);
+  background: color-mix(in srgb, var(--theme-surface) 92%, transparent);
+  border: var(--sf-stroke-1px) solid color-mix(in srgb, var(--theme-secondary) 30%, transparent);
   padding: var(--sf-space-14px);
   pointer-events: none;
   font:
@@ -280,6 +280,21 @@
 .tracking-main .terrain {
   height: 100%;
   width: 100%;
+}
+.tracking-main .terrain .terrain-ground {
+  fill: var(--theme-surface);
+}
+.tracking-main .terrain .terrain-contour {
+  stroke: var(--theme-secondary);
+}
+.tracking-main .terrain .terrain-river {
+  stroke: color-mix(in srgb, var(--theme-secondary) 42%, var(--theme-bg));
+}
+.tracking-main .terrain .terrain-river-line {
+  stroke: var(--theme-secondary);
+}
+.tracking-main .terrain .terrain-debris {
+  fill: var(--theme-secondary);
 }
 .track-history {
   fill: none;

@@ -131,3 +131,20 @@ export function ecgPath(kind: PatientKind, time: number, hr = kind === "tachy" ?
   }
   return pts.join(" ");
 }
+export function plethPath(time: number, hr: number, spo2: number) {
+  const pts: string[] = [];
+  const amp = Math.max(2, (spo2 - 60) / 6);
+  for (let i = 0; i < 80; i++) {
+    const x = i * 4;
+    const phase = (((time - (80 - i) * 0.025) * hr) / 60 % 1 + 1) % 1;
+    let y = 28;
+    if (hr > 0) {
+      if (phase < 0.15) y = 28 - Math.sin((phase / 0.15) * Math.PI) * amp * 2;
+      else if (phase < 0.35)
+        y = 28 + Math.sin(((phase - 0.15) / 0.2) * Math.PI) * amp * 0.5;
+      else y = 28 + Math.sin(phase * 9) * 1.2;
+    }
+    pts.push(`${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`);
+  }
+  return pts.join(" ");
+}

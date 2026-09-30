@@ -15,7 +15,7 @@ async function app(page: Page, name: string) {
 async function seek(page: Page, time: number) {
   await page.getByLabel("Szenenzeit", { exact: true }).fill(String(time));
 }
-test("filesystem, personnel, 4D projection and real local command parsing", async ({
+test("filesystem, personnel, reconstruction and real local command parsing", async ({
   page,
 }) => {
   await enter(page);
@@ -29,11 +29,11 @@ test("filesystem, personnel, 4D projection and real local command parsing", asyn
   await expect(page.locator(".os-personnel-record")).toContainText(
     "Relay operations",
   );
-  await app(page, "4D projection");
+  await app(page, "Reconstruction");
   await page.getByRole("slider", { name: "XW Rotation" }).fill("2");
   await expect(page.locator(".os-hypercube line")).toHaveCount(32);
   await app(page, "Terminal");
-  await configuration(page, "Eingaben");
+  await configuration(page, "Element");
   await page.getByLabel("Vorbereitetes Tippen").uncheck();
   await closeConfiguration(page);
   await page
@@ -68,18 +68,18 @@ test("long operation seeks both directions, pauses and resets deterministically"
   await expect(page.locator(".os-sequence")).toHaveCount(0);
   await expect(page.locator(".os-task-time")).toContainText("00:00:00");
 });
-test("three slider gates, cancelled scan, successful scan and boot handover", async ({
+test("three slider gates, cancelled scan, successful scan and workspace return", async ({
   page,
 }) => {
   await enter(page);
-  await page.getByRole("button", { name: "Sitzung sperren" }).click();
+  await page.getByRole("button", { name: "Lock session" }).click();
   const slider = page.getByLabel("Align access");
   for (let i = 0; i < 3; i++) {
     await slider.focus();
     await slider.press("End");
   }
-  await expect(page.getByLabel("Fingerabdruck scannen")).toBeVisible();
-  const sensor = page.getByLabel("Fingerabdruck scannen");
+  await expect(page.getByLabel("Scan fingerprint")).toBeVisible();
+  const sensor = page.getByLabel("Scan fingerprint");
   await sensor.focus();
   await page.keyboard.down(" ");
   await page.waitForTimeout(200);
@@ -91,13 +91,14 @@ test("three slider gates, cancelled scan, successful scan and boot handover", as
     timeout: 6000,
   });
   await page.keyboard.up(" ");
-  await expect(page.locator(".os-sequence h2")).toHaveText("Cold start");
+  await expect(page.locator(".os-desktop")).toBeVisible();
+  await expect(page.locator(".os-sequence")).toHaveCount(0);
 });
 test("stage return button does not intercept OS lock button", async ({
   page,
 }) => {
   await enter(page);
   await page.getByRole("button", { name: "Nur Ausgabe" }).click();
-  await page.getByRole("button", { name: "Sitzung sperren" }).click();
+  await page.getByRole("button", { name: "Lock session" }).click();
   await expect(page.locator(".os-lock-screen")).toBeVisible();
 });

@@ -53,7 +53,7 @@ const apps: { id: AppId; name: string; icon: typeof Folder; code: string }[] = [
   { id: "files", name: "Filesystem", icon: Folder, code: "02" },
   { id: "personnel", name: "Personnel", icon: Users, code: "03" },
   { id: "clusters", name: "Data clusters", icon: Network, code: "04" },
-  { id: "dimension", name: "4D projection", icon: Box, code: "05" },
+  { id: "dimension", name: "Reconstruction", icon: Box, code: "05" },
   { id: "messages", name: "Messages", icon: FileText, code: "07" },
   { id: "sequences", name: "Sequences", icon: Layers, code: "06" },
 ];
@@ -91,6 +91,21 @@ export function OperatingSystem({
   const [loginUser, setLoginUser] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [loginError, setLoginError] = useState(false);
+  useEffect(() => {
+    if (!login.enabled || !login.hackable || loggedIn) return;
+    const onSignal = (e: Event) => {
+      const detail = (e as CustomEvent<{ type: string; value: string }>).detail;
+      if (
+        detail?.type === "signal" &&
+        (detail.value === "terminal.bypass" || detail.value === "shell.success")
+      ) {
+        playSound("osStartup");
+        setLoggedIn(true);
+      }
+    };
+    window.addEventListener("screenforge:input", onSignal);
+    return () => window.removeEventListener("screenforge:input", onSignal);
+  }, [login.enabled, login.hackable, loggedIn]);
   const files: VirtualFile[] = [
     ...baseFiles,
     ...state.history.map((id, i) => ({
@@ -124,7 +139,13 @@ export function OperatingSystem({
     [rotate, setRotate] = useState(true),
     [frozenTime, setFrozenTime] = useState(0),
     [rotationOffset, setRotationOffset] = useState(0),
-    [menu, setMenu] = useState(false);
+    [menu, setMenu] = useState(false),
+    [flash, setFlash] = useState<string | null>(null);
+  useEffect(() => {
+    if (!flash) return;
+    const id = window.setTimeout(() => setFlash(null), 160);
+    return () => window.clearTimeout(id);
+  }, [flash]);
   const actor = useActorPlayback(
     time,
     onPlay,
@@ -138,6 +159,7 @@ export function OperatingSystem({
   const consoleRef = useRef<HTMLDivElement>(null);
   const displayedLines = config.sceneOptions.terminal.actorMode ? actor.lines : terminalLines;
   const typeKey = (key: string) => {
+    setFlash(key);
     if (key === "Enter") {
       submit();
       return;
@@ -332,46 +354,75 @@ export function OperatingSystem({
   if (!loggedIn)
     return (
       <div className="os-login scene-inner">
-        <form
-          className="os-login-mask"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (
-              loginUser.trim().toLowerCase() === login.user.toLowerCase() &&
-              loginPass === login.pass
-            ) {
+        {login.biometric ? (
+          <LockScreen
+            time={time}
+            title={config.title}
+            onPlay={play}
+            onUnlock={() => {
               playSound("osStartup");
               setLoggedIn(true);
-              setLoginError(false);
-            } else {
-              playSound("osError");
-              setLoginError(true);
-            }
-          }}
-        >
-          <strong>{config.title}</strong>
-          <span className="os-kicker">SIGN IN / LOCAL SESSION</span>
-          <label>
-            User
-            <input
-              aria-label="User"
-              value={loginUser}
-              autoComplete="off"
-              onChange={(e) => setLoginUser(e.target.value)}
-            />
-          </label>
-          <label>
-            Password
-            <input
-              aria-label="Password"
-              type="password"
-              value={loginPass}
-              onChange={(e) => setLoginPass(e.target.value)}
-            />
-          </label>
-          <button type="submit">Sign in</button>
-          {loginError && <p role="alert">Access denied. Check credentials.</p>}
-        </form>
+            }}
+          />
+        ) : (
+          <form
+            className="os-login-mask"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (
+                loginUser.trim().toLowerCase() === login.user.toLowerCase() &&
+                loginPass === login.pass
+              ) {
+                playSound("osStartup");
+                setLoggedIn(true);
+                setLoginError(false);
+              } else {
+                playSound("osError");
+                setLoginError(true);
+              }
+            }}
+          >
+            <strong>{config.title}</strong>
+            <span className="os-kicker">SIGN IN / LOCAL SESSION</span>
+            <label>
+              User
+              <input
+                aria-label="User"
+                value={loginUser}
+                autoComplete="off"
+                onChange={(e) => setLoginUser(e.target.value)}
+              />
+            </label>
+            <label>
+              Password
+              <input
+                aria-label="Password"
+                type="password"
+                value={loginPass}
+                onChange={(e) => setLoginPass(e.target.value)}
+              />
+            </label>
+            <button type="submit">Sign in</button>
+            {login.hackable && (
+              <button
+                type="button"
+                className="os-bypass"
+                onClick={() => {
+                  playSound("hack1");
+                  window.dispatchEvent(
+                    new CustomEvent("screenforge:input", {
+                      detail: { type: "signal", value: "terminal.bypass" },
+                    }),
+                  );
+                  setLoggedIn(true);
+                }}
+              >
+                Bypass via terminal
+              </button>
+            )}
+            {loginError && <p role="alert">Access denied. Check credentials.</p>}
+          </form>
+        )}
       </div>
     );
   const className = `cyber-os scene-inner ${cue === "warning" ? "os-warning" : ""}`;
@@ -400,7 +451,7 @@ export function OperatingSystem({
         </div>
         <button
           className="os-lock-button"
-          aria-label="Sitzung sperren"
+          aria-label="Lock session"
           onClick={() => dispatch({ type: "lock" })}
         >
           <LockKeyhole size={15} />
@@ -667,7 +718,7 @@ export function OperatingSystem({
                         className="console-lines os-console-lines"
                         ref={consoleRef}
                         role="log"
-                        aria-label="Terminalausgabe"
+                        aria-label="Terminal output"
                       >
                         {displayedLines.map((line, i) => (
                           <motion.div
@@ -711,6 +762,13 @@ export function OperatingSystem({
                             )
                           }
                           onKeyDown={(e) => {
+                            if (e.key.length === 1)
+                              setFlash(e.key.toUpperCase());
+                            else if (
+                              e.key === "Backspace" ||
+                              e.key === "Enter"
+                            )
+                              setFlash(e.key);
                             if (
                               config.sceneOptions.terminal.actorMode &&
                               (e.key.length === 1 || e.key === "Backspace")
@@ -781,7 +839,11 @@ export function OperatingSystem({
                         />
                         <button aria-label="Run command">↵</button>
                       </form>
-                      <StageKeys onKey={typeKey} disabled={actor.busy} />
+                      <StageKeys
+                        onKey={typeKey}
+                        disabled={actor.busy}
+                        active={flash}
+                      />
                       <div className="os-between">
                         <span>
                           {config.sceneOptions.terminal.actorMode
@@ -836,7 +898,7 @@ export function OperatingSystem({
                       <label className="os-search">
                         <Search size={13} />
                         <input
-                          aria-label="Dateien suchen"
+                          aria-label="Search files"
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
                           placeholder="Filter local records"
@@ -1165,7 +1227,7 @@ export function OperatingSystem({
                     <div className="os-section-head">
                       <div>
                         <span className="os-kicker">
-                          FOUR-DIMENSIONAL DATA / XW + YZ PLANES
+                          VOLUME DATA / XW + YZ PLANES
                         </span>
                         <h2>Dimensional reconstruction.</h2>
                       </div>
@@ -1177,7 +1239,7 @@ export function OperatingSystem({
                       </button>
                     </div>
                     <div className="os-dimension-layout">
-                      <GestureSurface label="Move and zoom the 4D projection">
+                      <GestureSurface label="Move and zoom the reconstruction">
                         <Hypercube
                           time={
                             rotate
@@ -1189,7 +1251,7 @@ export function OperatingSystem({
                         />
                       </GestureSurface>
                       <aside>
-                        <span className="os-kicker">PROJECTION PARAMETERS</span>
+                        <span className="os-kicker">RECONSTRUCTION PARAMETERS</span>
                         <label>
                           XW rotation{" "}
                           <output>
@@ -1482,10 +1544,7 @@ export function OperatingSystem({
             time={time}
             title={config.title}
             onPlay={play}
-            onUnlock={() => {
-              dispatch({ type: "unlock" });
-              run("boot");
-            }}
+            onUnlock={() => dispatch({ type: "unlock" })}
           />
         )}
       </AnimatePresence>

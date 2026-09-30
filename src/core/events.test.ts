@@ -17,6 +17,21 @@ describe("domain events", () => {
     expect(domainEventSchema.safeParse({ type: "nope" }).success).toBe(false);
   });
 
+  it("records module events per station for authoritative replay", () => {
+    const s = newState("room", scenario);
+    applyEvent(s, {
+      type: "module.event",
+      station: "files-1",
+      value: "shell.success",
+    });
+    applyEvent(s, {
+      type: "module.event",
+      station: "files-1",
+      value: "shell.success",
+    });
+    expect(s.moduleEvents["files-1"]).toEqual(["shell.success"]);
+  });
+
   it("replays the same event log to identical state", () => {
     const events: DomainEvent[] = [
       { type: "scenario.saved", scenario },

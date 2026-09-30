@@ -77,37 +77,37 @@ export function SceneHeader({ config, tag }: { config: Config; tag: string }) {
 export function Terrain() {
   return (
     <>
-      <rect width="800" height="500" fill="#15201f" />
+      <rect className="terrain-ground" width="800" height="500" />
       {Array.from({ length: 22 }, (_, i) => (
         <path
           key={i}
+          className="terrain-contour"
           d={`M-50 ${i * 28} Q160 ${i * 28 - 110} 350 ${i * 28 + 5} T850 ${i * 28 - 80}`}
           fill="none"
-          stroke="#466058"
           strokeWidth={i % 4 === 0 ? 2 : 1}
           opacity=".55"
         />
       ))}
       <path
+        className="terrain-river"
         d="M520 -20 Q320 140 510 260T430 520"
         fill="none"
-        stroke="#223b39"
         strokeWidth="70"
       />
       <path
+        className="terrain-river-line"
         d="M520 -20 Q320 140 510 260T430 520"
         fill="none"
-        stroke="#66867b"
         strokeWidth="1"
       />
       {Array.from({ length: 30 }, (_, i) => (
         <rect
           key={i}
+          className="terrain-debris"
           x={70 + noise(i, 3) * 580}
           y={30 + noise(i, 6) * 400}
           width={10 + noise(i, 5) * 35}
           height={7 + noise(i, 9) * 20}
-          fill="#829082"
           opacity=".28"
           transform={`rotate(-12 ${70 + noise(i, 3) * 580} ${30 + noise(i, 6) * 400})`}
         />

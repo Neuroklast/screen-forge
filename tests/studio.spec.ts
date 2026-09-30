@@ -67,6 +67,32 @@ test("warhead controls, tty and arming rail do not overlap", async ({
       bar!.x + bar!.width <= controls!.x + controls!.width + 1,
   ).toBe(true);
 });
+test("countdown primary action can never be displaced from the panel", async ({
+  page,
+}) => {
+  await page.goto("/?mode=film");
+  await page
+    .getByRole("button", { name: /Countdown/ })
+    .first()
+    .click();
+  const controls = await page.locator(".warhead-controls").boundingBox();
+  const action = await page.locator(".neutralize-button").boundingBox();
+  const stage = await page.locator(".scene-inner").boundingBox();
+  expect(controls).toBeTruthy();
+  expect(action).toBeTruthy();
+  expect(stage).toBeTruthy();
+  expect(action!.y).toBeGreaterThanOrEqual(controls!.y - 1);
+  expect(action!.y + action!.height).toBeLessThanOrEqual(
+    controls!.y + controls!.height + 1,
+  );
+  expect(action!.y + action!.height).toBeLessThanOrEqual(
+    stage!.y + stage!.height + 1,
+  );
+  const overflow = await page
+    .locator(".warhead-control-scroll")
+    .evaluate((el) => el.scrollHeight - el.clientHeight);
+  expect(overflow).toBeLessThanOrEqual(1);
+});
 test("prepared input, preset export, stage escape and persistence", async ({
   page,
 }) => {
@@ -108,7 +134,7 @@ test("countdown stops at zero and reset restores original time", async ({
     .getByRole("button", { name: /Countdown/ })
     .first()
     .click();
-  await configuration(page, "Eingaben");
+  await configuration(page, "Element");
   await page.getByLabel("Dauer in Sekunden").fill("1");
   await closeConfiguration(page);
   await page.getByRole("button", { name: "Abspielen", exact: true }).click();
