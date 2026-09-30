@@ -7,6 +7,7 @@
   --train-accent: #86d9c1;
   background: var(--train-bg);
   color: var(--train-text);
+  height: 100dvh;
   min-height: 100dvh;
   padding: 24px;
   font:
@@ -14,6 +15,8 @@
     system-ui,
     sans-serif;
   overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .training-app * {
   box-sizing: border-box;

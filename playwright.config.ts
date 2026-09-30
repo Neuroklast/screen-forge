@@ -1,4 +1,7 @@
 import { defineConfig } from "@playwright/test";
+// Each run gets a fresh exercise data dir: the server persists rooms, and a
+// fixed dir accumulates across runs until the room limit (100) is hit.
+const exerciseDataDir = `.exercise-data/browser-tests-${Date.now().toString(36)}`;
 export default defineConfig({
   testDir: "./tests",
   use: {
@@ -21,6 +24,6 @@ export default defineConfig({
     command: "npm run dev",
     url: "http://127.0.0.1:5173",
     reuseExistingServer: !process.env.CI,
-  }, { command: "node server/exercise.mjs", url: "http://127.0.0.1:8787/health", reuseExistingServer: false, env: { EXERCISE_ADMIN_KEY: "browser-test-key", EXERCISE_DATA_DIR: ".exercise-data/browser-tests" } }],
+  }, { command: "node server/exercise.mjs", url: "http://127.0.0.1:8787/health", reuseExistingServer: false, env: { EXERCISE_ADMIN_KEY: "browser-test-key", EXERCISE_DATA_DIR: exerciseDataDir } }],
   reporter: "list",
 });

@@ -85,3 +85,16 @@ test('dossiers synchronize and trainer patient changes reach the assigned monito
     await expect(hq.device.getByRole('heading',{name:'Test Person'})).toBeVisible();
   } finally { await medic.ctx.close(); await hq.ctx.close(); }
 });
+test('field terminal controls stay reachable on a small screen', async ({page,browser}) => {
+  await login(page);
+  const {ctx,device} = await assign(page,browser,'Sequence terminal');
+  try {
+    await device.setViewportSize({width:390,height:844});
+    await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
+    await device.getByRole('button',{name:'ISOLATION',exact:true}).click();
+    const submit = device.getByRole('button',{name:'Submit isolation request'});
+    await submit.scrollIntoViewIfNeeded();
+    await expect(submit).toBeInViewport();
+    await expect(device.getByRole('button',{name:'STATUS',exact:true})).toBeInViewport();
+  } finally { await ctx.close(); }
+});

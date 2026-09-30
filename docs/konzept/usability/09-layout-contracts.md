@@ -11,6 +11,7 @@ FUI surfaces are not web pages. Content MUST NOT reflow, push or escape the stag
 - Children use `width/height: 100%` of their assigned cell; they NEVER force the parent to grow.
 - No visible scrollbars on any scene or block surface. Scrollable data (logs, lists) hides the scrollbar (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`) and auto-scrolls to the newest entry.
 - The studio stage scales a fixed format canvas (default 1280×720); scenes MUST render inside it and never overflow.
+- `#root` is a non-scrolling viewport (`height: 100%; overflow: hidden`). Training/control chrome (`.training-app`) is NOT a fixed stage and MUST be its own scroll container (`height: 100dvh; overflow: auto`); otherwise content below the fold is clipped and unreachable (the countdown isolation button was lost this way).
 
 ## 2. Bento grid (placement)
 
