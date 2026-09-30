@@ -15,7 +15,6 @@ const PENDING = new Set([
   "src/App.tsx",
   "src/builder/MissionBuilder.tsx",
   "src/components/SequenceEditor.tsx",
-  "src/components/SystemProfiles.tsx",
   "src/scenes/os/OperatingSystem.tsx",
   "src/training/Dossiers.tsx",
   "src/training/ScenarioEditor.tsx",

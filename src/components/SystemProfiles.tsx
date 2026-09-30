@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { applyIdentity, schema, type Config } from "../core/config";
+import { t } from "../i18n";
 const companies: {
   name: string;
   identity: Pick<Config, "title" | "subtitle" | "identifier"> & {
@@ -170,18 +171,18 @@ export function SystemProfiles({
     try {
       localStorage.setItem("screenforge.systems.v1", JSON.stringify(next));
       setProfiles(next);
-      setStatus("Systemprofil gespeichert.");
+      setStatus(t("system.saved"));
     } catch {
-      setStatus("Speicher voll. Preset als JSON exportieren.");
+      setStatus(t("system.saveFailed"));
     }
   };
   return (
     <details className="theme-editor system-profiles" open>
-      <summary>Firmen & Systeme</summary>
+      <summary>{t("system.title")}</summary>
       <label>
-        Systemvorlage
+        {t("system.template")}
           <select
-            aria-label="Systemvorlage"
+            aria-label={t("system.template")}
             value={companyIndex >= 0 ? String(companyIndex) : ""}
             onChange={(e) => {
               const i = Number(e.target.value);
@@ -193,28 +194,28 @@ export function SystemProfiles({
                   }),
                 );
                 setName(companies[i].name);
-                setStatus("Firma gesetzt. Farben bleiben beim Theme.");
+                setStatus(t("system.companySet"));
                 return;
               }
             const p = profiles[i - companies.length];
             if (p) {
               onLoad({ ...p.config, company: p.name });
               setName(p.name);
-              setStatus("System geladen.");
+              setStatus(t("system.loaded"));
             }
           }}
         >
           <option value="" disabled>
-            Firma wählen…
+            {t("system.choose")}
           </option>
-          <optgroup label="Firmen">
+          <optgroup label={t("system.companies")}>
             {companies.map((p, i) => (
               <option key={p.name} value={i}>
                 {p.name}
               </option>
             ))}
           </optgroup>
-          <optgroup label="Eigene Systeme">
+          <optgroup label={t("system.custom")}>
             {profiles.map((p, i) => (
               <option key={p.name} value={i + companies.length}>
                 {p.name}
@@ -224,9 +225,9 @@ export function SystemProfiles({
         </select>
       </label>
       <label>
-        Oberflächenstil
+        {t("system.skin")}
         <select
-          aria-label="Oberflächenstil"
+          aria-label={t("system.skin")}
           value={config.skin}
           onChange={(e) =>
             onChange({ ...config, skin: e.target.value as Config["skin"] })
@@ -237,9 +238,9 @@ export function SystemProfiles({
         </select>
       </label>
       <label>
-        Eigenes Logo
+        {t("system.logo")}
         <input
-          aria-label="Firmenlogo hochladen"
+          aria-label={t("system.logoAria")}
           type="file"
           accept="image/png,image/jpeg,image/webp"
           onChange={async (e) => {
@@ -249,7 +250,7 @@ export function SystemProfiles({
               file.size > 8_000_000 ||
               !/^image\/(png|jpeg|webp)$/.test(file.type)
             ) {
-              setStatus("PNG, JPEG oder WebP bis 8 MB verwenden.");
+              setStatus(t("system.invalidImage"));
               return;
             }
             try {
@@ -271,9 +272,9 @@ export function SystemProfiles({
                 ...config,
                 brand: { mark: config.brand?.mark ?? "default", logo },
               });
-              setStatus("Logo geladen. Zum Wiederverwenden System speichern.");
+              setStatus(t("system.logoLoaded"));
             } catch {
-              setStatus("Logo konnte nicht gelesen werden.");
+              setStatus(t("system.logoFailed"));
             }
           }}
         />
@@ -287,13 +288,13 @@ export function SystemProfiles({
             })
           }
         >
-          Logo entfernen
+          {t("system.removeLogo")}
         </button>
       )}
       <label>
-        Profilname
+        {t("system.profileName")}
         <input
-          aria-label="Systemprofilname"
+          aria-label={t("system.profileAria")}
           value={name}
           maxLength={40}
           onChange={(e) => setName(e.target.value)}
@@ -311,19 +312,16 @@ export function SystemProfiles({
             )
           }
         >
-          System speichern
+          {t("system.save")}
         </button>
         <button
           disabled={!profiles.some((p) => p.name === name)}
           onClick={() => persist(profiles.filter((p) => p.name !== name))}
         >
-          Löschen
+          {t("common.delete")}
         </button>
       </div>
-      <p role="status">
-        {status ||
-          "Firma setzt nur Name und Zeichen. Farben über Themes."}
-      </p>
+      <p role="status">{status || t("system.note")}</p>
     </details>
   );
 }
