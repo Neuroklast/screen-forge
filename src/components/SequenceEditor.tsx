@@ -2,6 +2,7 @@ import { useState } from "react";
 import { scenes, defaults, type Config } from "../core/config";
 import { newStep, showSchema, type Show, type Step } from "../core/director";
 import { showTemplateLabels, showTemplates } from "../core/showTemplates";
+import { t } from "../i18n";
 export function SequenceEditor({
   show,
   onChange,
@@ -60,7 +61,7 @@ export function SequenceEditor({
     <section className="sequence-editor">
       <header>
         <input
-          aria-label="Ablaufname"
+          aria-label={t("sequence.name")}
           value={show.name}
           onChange={(e) => onChange({ ...show, name: e.target.value })}
         />
@@ -68,16 +69,16 @@ export function SequenceEditor({
           onClick={running ? onStop : onStart}
           disabled={!show.steps.length}
         >
-          {running ? "Ablauf stoppen" : "Ablauf starten"}
+          {running ? t("sequence.stop") : t("sequence.start")}
         </button>
         <button disabled={!running} onClick={onAdvance}>
-          Nächster Cue
+          {t("sequence.nextCue")}
         </button>
-        <button onClick={exportShow}>Ablauf exportieren</button>
+        <button onClick={exportShow}>{t("sequence.export")}</button>
         <label className="show-import">
-          Import
+          {t("sequence.import")}
           <input
-            aria-label="Ablauf importieren"
+            aria-label={t("sequence.importAria")}
             type="file"
             accept=".json"
             onChange={async (e) => {
@@ -89,11 +90,9 @@ export function SequenceEditor({
                 onChange(loaded);
                 setSelected(loaded.steps[0]?.id ?? "");
                 setPage(0);
-                setStatus("Ablauf geladen.");
+                setStatus(t("sequence.loaded"));
               } catch {
-                setStatus(
-                  "Ungültiger Ablauf. Bestehender Ablauf bleibt erhalten.",
-                );
+                setStatus(t("sequence.invalid"));
               }
             }}
           />
@@ -101,22 +100,22 @@ export function SequenceEditor({
       </header>
       <div className="sequence-palette">
         <label>
-          Ablaufvorlage
+          {t("sequence.template")}
           <select
-            aria-label="Ablaufvorlage"
+            aria-label={t("sequence.template")}
             defaultValue=""
             onChange={(e) => {
-              const t = showTemplates(config)[Number(e.target.value)];
-              if (!t) return;
-              onChange(t.show);
-              setSelected(t.show.steps[0]?.id ?? "");
+              const tpl = showTemplates(config)[Number(e.target.value)];
+              if (!tpl) return;
+              onChange(tpl.show);
+              setSelected(tpl.show.steps[0]?.id ?? "");
               setPage(0);
-              setStatus(`${t.name} geladen.`);
+              setStatus(t("sequence.templateLoaded", { name: tpl.name }));
               e.target.value = "";
             }}
           >
             <option value="" disabled>
-              Vorlage wählen…
+              {t("sequence.chooseTemplate")}
             </option>
             {showTemplateLabels.map((name, i) => (
               <option key={name} value={i}>
@@ -125,7 +124,7 @@ export function SequenceEditor({
             ))}
           </select>
         </label>
-        <span>Szenen</span>
+        <span>{t("sequence.scenes")}</span>
         {scenes
           .filter((s) => s.kind === "scene")
           .map((s) => (
@@ -140,7 +139,7 @@ export function SequenceEditor({
               + {s.name}
             </button>
           ))}
-        <span>Bausteine</span>
+        <span>{t("sequence.blocks")}</span>
         {scenes
           .filter((s) => s.kind === "block")
           .map((s) => (
@@ -155,7 +154,7 @@ export function SequenceEditor({
               + {s.name}
             </button>
           ))}
-        <button onClick={() => add(config)}>+ Aktuelle Konfiguration</button>
+        <button onClick={() => add(config)}>{t("sequence.currentConfig")}</button>
       </div>
       <div className="sequence-body">
         <div className="sequence-chain">
@@ -213,16 +212,16 @@ export function SequenceEditor({
               <div className="sequence-link">
                 →{" "}
                 {s.next === "end"
-                  ? "ENDE"
+                  ? t("sequence.end")
                   : s.next
                     ? show.steps.find((n) => n.id === s.next)?.name
-                    : "Nächster Knoten"}
+                    : t("sequence.nextNode")}
               </div>
             </article>
           ))}
           <div className="sequence-page">
             <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-              Zurück
+              {t("common.back")}
             </button>
             <span>
               {page + 1}/{Math.max(1, Math.ceil(show.steps.length / 5))}
@@ -231,7 +230,7 @@ export function SequenceEditor({
               disabled={(page + 1) * 5 >= show.steps.length}
               onClick={() => setPage((p) => p + 1)}
             >
-              Weiter
+              {t("common.next")}
             </button>
           </div>
         </div>
@@ -239,14 +238,14 @@ export function SequenceEditor({
           {item ? (
             <>
               <label>
-                Knotenname
+                {t("sequence.nodeName")}
                 <input
                   value={item.name}
                   onChange={(e) => set({ name: e.target.value })}
                 />
               </label>
               <label>
-                Szene
+                {t("sequence.scene")}
                 <select
                   value={item.config.scene}
                   onChange={(e) =>
@@ -273,9 +272,9 @@ export function SequenceEditor({
               </label>
               {item.config.scene === "terminal" && (
                 <label>
-                  OS-App
+                  {t("sequence.osApp")}
                   <select
-                    aria-label="OS-App"
+                    aria-label={t("sequence.osApp")}
                     value={item.config.sceneOptions.os.startupApp}
                     onChange={(e) =>
                       set({
@@ -312,9 +311,9 @@ export function SequenceEditor({
                 </label>
               )}
               <label>
-                Weiter bei
+                {t("sequence.continueAt")}
                 <select
-                  aria-label="Knoten-Auslöser"
+                  aria-label={t("sequence.triggerAria")}
                   value={item.trigger}
                   onChange={(e) =>
                     set({
@@ -324,17 +323,17 @@ export function SequenceEditor({
                     })
                   }
                 >
-                  <option value="time">Zeit</option>
-                  <option value="key">Taste</option>
-                  <option value="pin">Zugangscode</option>
-                  <option value="signal">Szenensignal</option>
+                  <option value="time">{t("sequence.triggerTime")}</option>
+                  <option value="key">{t("sequence.triggerKey")}</option>
+                  <option value="pin">{t("sequence.triggerPin")}</option>
+                  <option value="signal">{t("sequence.triggerSignal")}</option>
                 </select>
               </label>
               {item.trigger === "time" ? (
                 <label>
-                  Sekunden
+                  {t("sequence.seconds")}
                   <input
-                    aria-label="Knoten-Dauer"
+                    aria-label={t("sequence.durationAria")}
                     type="number"
                     min=".1"
                     value={item.duration}
@@ -345,9 +344,9 @@ export function SequenceEditor({
                 </label>
               ) : (
                 <label>
-                  Erwartete Eingabe
+                  {t("sequence.expectedInput")}
                   <input
-                    aria-label="Knoten-Eingabe"
+                    aria-label={t("sequence.inputAria")}
                     value={item.value}
                     onChange={(e) =>
                       set({
@@ -370,9 +369,9 @@ export function SequenceEditor({
               {config.workspace === "training" && (
                 <>
                   <label>
-                    Timeout Sekunden
+                    {t("sequence.timeout")}
                     <input
-                      aria-label="Timeout"
+                      aria-label={t("sequence.timeoutAria")}
                       type="number"
                       min={0}
                       value={item.timeout}
@@ -382,14 +381,14 @@ export function SequenceEditor({
                     />
                   </label>
                   <label>
-                    Bei Fehler / Timeout
+                    {t("sequence.onFail")}
                     <select
-                      aria-label="Fehlerknoten"
+                      aria-label={t("sequence.onFailAria")}
                       value={item.onFail}
                       onChange={(e) => set({ onFail: e.target.value })}
                     >
-                      <option value="">Ablauf beenden</option>
-                      <option value="end">Ablauf beenden</option>
+                      <option value="">{t("sequence.endSequence")}</option>
+                      <option value="end">{t("sequence.endSequence")}</option>
                       {show.steps
                         .filter((s) => s.id !== item.id)
                         .map((s) => (
@@ -402,14 +401,14 @@ export function SequenceEditor({
                 </>
               )}
               <label>
-                Verknüpfung
+                {t("sequence.link")}
                 <select
-                  aria-label="Nächster Knoten"
+                  aria-label={t("sequence.nextAria")}
                   value={item.next}
                   onChange={(e) => set({ next: e.target.value })}
                 >
-                  <option value="">Nächster Knoten in Reihenfolge</option>
-                  <option value="end">Ablauf beenden</option>
+                  <option value="">{t("sequence.nextInOrder")}</option>
+                  <option value="end">{t("sequence.endSequence")}</option>
                   {show.steps
                     .filter((s) => s.id !== item.id)
                     .map((s) => (
@@ -420,7 +419,7 @@ export function SequenceEditor({
                 </select>
               </label>
               <button onClick={() => set({ config: structuredClone(config) })}>
-                Aktuelle Gestaltung übernehmen
+                {t("sequence.applyCurrent")}
               </button>
               <button
                 onClick={() => {
@@ -435,18 +434,15 @@ export function SequenceEditor({
                   setSelected("");
                 }}
               >
-                Knoten entfernen
+                {t("sequence.removeNode")}
               </button>
             </>
           ) : (
-            <p>Knoten auswählen oder hinzufügen.</p>
+            <p>{t("sequence.selectNode")}</p>
           )}
         </div>
       </div>
-      <footer>
-        {status ||
-          "Ziehen zum Anordnen. Pfeiltasten-Buttons für Touch und Tastatur. Änderungen werden lokal gespeichert."}
-      </footer>
+      <footer>{status || t("sequence.footer")}</footer>
     </section>
   );
 }
