@@ -38,24 +38,24 @@ const BLOCK_MODULE: Record<string, ModuleId> = {
 };
 
 const MODULE_LABELS: Record<ModuleId, string> = {
-  medical: "Medizin",
-  camera: "Kamera",
-  tracking: "Karte",
-  os: "Betriebssystem",
-  terminal: "Terminal",
-  countdown: "Zeitgeber",
-  access: "Zugang",
-  comms: "Funk",
-  corporate: "Konzernsystem",
-  hologram: "Projektion",
-  lock: "Verriegelung",
-  slide: "Schieber",
-  ordnance: "Sprengkörper",
-  beacon: "Bake",
-  clock: "Uhr",
-  rotary: "Drehregler",
-  "code-table": "Codetabelle",
-  "data-sheet": "Datenblatt",
+  medical: "module.medical",
+  camera: "module.camera",
+  tracking: "module.tracking",
+  os: "module.os",
+  terminal: "module.terminal",
+  countdown: "module.countdown",
+  access: "module.access",
+  comms: "module.comms",
+  corporate: "module.corporate",
+  hologram: "module.hologram",
+  lock: "module.lock",
+  slide: "module.slide",
+  ordnance: "module.ordnance",
+  beacon: "module.beacon",
+  clock: "module.clock",
+  rotary: "module.rotary",
+  "code-table": "module.codeTable",
+  "data-sheet": "module.dataSheet",
 };
 const FIELD_MODULES: ModuleId[] = [
   "tracking",
@@ -76,13 +76,13 @@ const FIELD_MODULES: ModuleId[] = [
 const SYSTEM_MODULES: ModuleId[] = ["os", "corporate", "hologram", "slide"];
 
 const ENTITY_LABELS: { collection: Collection; label: string }[] = [
-  { collection: "patients", label: "Patient" },
-  { collection: "props", label: "Requisite" },
-  { collection: "dossiers", label: "Akte" },
-  { collection: "zones", label: "Zone" },
-  { collection: "objectives", label: "Einsatzziel" },
-  { collection: "teams", label: "Team" },
-  { collection: "actors", label: "Darsteller" },
+  { collection: "patients", label: "entity.patients" },
+  { collection: "props", label: "entity.props" },
+  { collection: "dossiers", label: "entity.dossiers" },
+  { collection: "zones", label: "entity.zones" },
+  { collection: "objectives", label: "entity.objectives" },
+  { collection: "teams", label: "entity.teams" },
+  { collection: "actors", label: "entity.actors" },
 ];
 
 export function MissionBuilder({
@@ -124,7 +124,7 @@ export function MissionBuilder({
   const addStation = (module: ModuleId) => {
     const station = stationSchema.parse({
       id: uid("station"),
-      name: MODULE_LABELS[module],
+      name: t(MODULE_LABELS[module]),
       role: module === "tracking" && draft.stations.length === 0 ? "hq" : "element",
       module,
     });
@@ -159,9 +159,9 @@ export function MissionBuilder({
   const addInject = () => {
     const inject = injectSchema.parse({
       id: uid("inject"),
-      name: "Ereignis",
+      name: t("builder.event"),
       trigger: "timer",
-      actions: [{ type: "message", text: "Status prüfen" }],
+      actions: [{ type: "message", text: t("builder.checkStatus") }],
     });
     commit({ ...draft, injects: [...draft.injects, inject] });
     setSelected({ collection: "injects", id: inject.id });
@@ -235,23 +235,23 @@ export function MissionBuilder({
         }
       }}
     >
-      <aside className="builder-palette" aria-label="Palette">
+      <aside className="builder-palette" aria-label={t("builder.palette")}>
         <div className="builder-palette-head">
-          <strong>Palette</strong>
+          <strong>{t("builder.palette")}</strong>
           <div className="builder-undo">
-            <button onClick={undo} disabled={!history.length || readOnly} title="Rückgängig (Strg+Z)">
+            <button onClick={undo} disabled={!history.length || readOnly} title={t("builder.undo")}>
               ↶
             </button>
-            <button onClick={redo} disabled={!future.length || readOnly} title="Wiederholen (Strg+Y)">
+            <button onClick={redo} disabled={!future.length || readOnly} title={t("builder.redo")}>
               ↷
             </button>
           </div>
         </div>
         <PaletteGroup
-          title="Module"
+          title={t("builder.modules")}
           items={[...FIELD_MODULES, ...SYSTEM_MODULES].map((m) => ({
             key: m,
-            label: MODULE_LABELS[m],
+            label: t(MODULE_LABELS[m]),
             onAdd: () => addStation(m),
             drag: { source: "palette", kind: "module", module: m } as Drag,
           }))}
@@ -259,7 +259,7 @@ export function MissionBuilder({
           readOnly={readOnly}
         />
         <PaletteGroup
-          title="Bausteine"
+          title={t("builder.blocks")}
           items={taskBlocks().map((b) => ({
             key: `block-${b.type}`,
             label: b.type,
@@ -270,10 +270,10 @@ export function MissionBuilder({
           readOnly={readOnly}
         />
         <PaletteGroup
-          title="Entitäten"
+          title={t("builder.entities")}
           items={ENTITY_LABELS.map((e) => ({
             key: e.collection,
-            label: e.label,
+            label: t(e.label),
             onAdd: () => addEntity(e.collection),
             drag: { source: "palette", kind: "entity", collection: e.collection } as Drag,
           }))}
@@ -281,8 +281,8 @@ export function MissionBuilder({
           readOnly={readOnly}
         />
         <PaletteGroup
-          title="Ereignisse"
-          items={[{ key: "inject", label: "Ereignis", onAdd: addInject, drag: null }]}
+          title={t("builder.events")}
+          items={[{ key: "inject", label: t("builder.event"), onAdd: addInject, drag: null }]}
           setDrag={setDrag}
           readOnly={readOnly}
         />
@@ -296,19 +296,20 @@ export function MissionBuilder({
         <div className="builder-board-head">
           <input
             className="builder-name"
-            aria-label="Einsatzname"
+            aria-label={t("builder.name")}
             value={draft.name}
             disabled={readOnly}
             onChange={(e) => commit({ ...draft, name: e.target.value })}
           />
           <span className="builder-count">
-            {draft.stations.length} Geräte · {draft.injects.length} Ereignisse
+            {t("builder.count", {
+              stations: draft.stations.length,
+              injects: draft.injects.length,
+            })}
           </span>
         </div>
         {draft.stations.length === 0 && (
-          <p className="builder-empty">
-            Noch keine Geräte. Ein Modul aus der Palette ziehen oder anklicken.
-          </p>
+          <p className="builder-empty">{t("builder.empty")}</p>
         )}
         <div className="builder-cards">
           {draft.stations.map((st) => (
@@ -348,20 +349,20 @@ export function MissionBuilder({
                   <span className="builder-bind">Requisite: {st.bindings.prop}</span>
                 )}
                 {!st.bindings.patient && !st.bindings.prop && (
-                  <span className="builder-bind is-empty">keine Bindung</span>
+                  <span className="builder-bind is-empty">{t("builder.noBinding")}</span>
                 )}
               </div>
             </article>
           ))}
         </div>
 
-        <div className="builder-chips" aria-label="Entitäten">
+        <div className="builder-chips" aria-label={t("builder.entities")}>
           {ENTITY_LABELS.map(({ collection, label }) => {
             const rows = entityRows(draft, collection);
             if (!rows.length) return null;
             return (
               <div key={collection} className="builder-chip-group">
-                <span className="builder-chip-label">{label}</span>
+                <span className="builder-chip-label">{t(label)}</span>
                 {rows.map((row) => (
                   <button
                     key={row.id}
@@ -380,11 +381,11 @@ export function MissionBuilder({
         </div>
       </div>
 
-      <aside className="builder-inspector" aria-label="Inspektor">
-        <div className="builder-linter" aria-label="Prüfen">
-          <span className="sev-error">{counts.error} Fehler</span>
-          <span className="sev-warning">{counts.warning} Warnungen</span>
-          <span className="sev-info">{counts.info} Hinweise</span>
+      <aside className="builder-inspector" aria-label={t("builder.inspector")}>
+        <div className="builder-linter" aria-label={t("builder.check")}>
+          <span className="sev-error">{t("builder.errors", { count: counts.error })}</span>
+          <span className="sev-warning">{t("builder.warnings", { count: counts.warning })}</span>
+          <span className="sev-info">{t("builder.infos", { count: counts.info })}</span>
         </div>
         <ul className="builder-findings">
           {findings.map((f) => (
@@ -394,7 +395,7 @@ export function MissionBuilder({
               </button>
             </li>
           ))}
-          {!findings.length && <li className="is-ok">Keine Befunde.</li>}
+          {!findings.length && <li className="is-ok">{t("builder.noFindings")}</li>}
         </ul>
         <div className="builder-fields">
           {selectedStation ? (
@@ -416,9 +417,7 @@ export function MissionBuilder({
               commit={commit}
             />
           ) : (
-            <p className="builder-hint">
-              Gerät oder Entität auswählen, um Eigenschaften zu bearbeiten.
-            </p>
+            <p className="builder-hint">{t("builder.hint")}</p>
           )}
         </div>
       </aside>
@@ -490,7 +489,7 @@ function StationInspector({
         <input value={station.name} disabled={readOnly} onChange={(e) => onPatch({ name: e.target.value })} />
       </label>
       <label>
-        Rolle
+        {t("builder.role")}
         <select
           value={station.role}
           disabled={readOnly}
@@ -499,12 +498,12 @@ function StationInspector({
             onPatch({ role, module: role === "hq" ? "tracking" : station.module });
           }}
         >
-          <option value="element">Feldgerät</option>
-          <option value="hq">Einsatzleitung</option>
+          <option value="element">{t("builder.fieldDevice")}</option>
+          <option value="hq">{t("builder.excon")}</option>
         </select>
       </label>
       <label>
-        Modul
+        {t("builder.module")}
         <select
           value={station.module}
           disabled={readOnly}
@@ -512,7 +511,7 @@ function StationInspector({
         >
           {modules.map((m) => (
             <option key={m} value={m}>
-              {MODULE_LABELS[m]}
+              {t(MODULE_LABELS[m])}
             </option>
           ))}
         </select>
@@ -546,7 +545,7 @@ function StationInspector({
               onPatch({ bindings: { ...station.bindings, prop: e.target.value } })
             }
           >
-            <option value="">— keine —</option>
+            <option value="">{t("builder.noneOption")}</option>
             {draft.props.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -588,7 +587,7 @@ function StationInspector({
         </>
       )}
       <button className="danger" onClick={onRemove} disabled={readOnly}>
-        Gerät entfernen
+        {t("builder.removeDevice")}
       </button>
     </>
   );
@@ -617,7 +616,7 @@ function EntityInspector({
 
   const rows = draft[collection as keyof Scenario] as unknown as Record<string, unknown>[];
   const row = rows.find((r) => r.id === id);
-  if (!row) return <p className="builder-hint">Eintrag nicht gefunden.</p>;
+  if (!row) return <p className="builder-hint">{t("builder.entryMissing")}</p>;
   void onChange;
 
   return (
