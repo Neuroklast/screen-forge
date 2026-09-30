@@ -15,6 +15,8 @@ import {
 } from "../core/training";
 import { findingCounts, lintMission, type Collection } from "../core/missionLint";
 import { taskBlocks } from "../core/taskBlocks";
+import { ordnanceTypes } from "../core/ordnance";
+import { t } from "../i18n";
 import "./builder.css";
 
 type ModuleId = (typeof modules)[number];
@@ -641,14 +643,33 @@ function EntityInspector({
         </>
       )}
       {collection === "props" && (
-        <label>
-          Art
-          <select value={String(row.kind)} disabled={readOnly} onChange={(e) => edit(row, "kind", e.target.value)}>
-            {["ordnance", "beacon", "payload", "keycard", "custom"].map((k) => (
-              <option key={k}>{k}</option>
-            ))}
-          </select>
-        </label>
+        <>
+          <label>
+            Art
+            <select value={String(row.kind)} disabled={readOnly} onChange={(e) => edit(row, "kind", e.target.value)}>
+              {["ordnance", "beacon", "payload", "keycard", "custom"].map((k) => (
+                <option key={k}>{k}</option>
+              ))}
+            </select>
+          </label>
+          {String(row.kind) === "ordnance" && (
+            <label>
+              {t("ordnance.type")}
+              <select
+                value={String(row.ordnanceId ?? "")}
+                disabled={readOnly}
+                onChange={(e) => edit(row, "ordnanceId", e.target.value)}
+              >
+                <option value="">—</option>
+                {[...ordnanceTypes(), ...draft.ordnanceTypes].map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.designation}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </>
       )}
       {collection === "zones" && (
         <>

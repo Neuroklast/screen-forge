@@ -8,6 +8,7 @@ import { DeviceTools } from "../training/DeviceTools";
 import { DossierCards } from "../training/Dossiers";
 import { TrainingTerminal } from "../training/TrainingTerminal";
 import { OrdnanceConsole } from "../training/OrdnanceConsole";
+import { OrdnanceDatasheet } from "../training/OrdnanceDatasheet";
 import { BeaconControl } from "../training/BeaconControl";
 import "../training/roles.css";
 export function ElementView({ station }: { station: string }) {
@@ -74,6 +75,14 @@ export function ElementView({ station }: { station: string }) {
         <TrainingTerminal station={row} />
       ) : row.module === "ordnance" ? (
         <OrdnanceConsole station={row} />
+      ) : row.module === "data-sheet" && row.bindings.prop ? (
+        <OrdnanceDatasheet
+          ordnanceId={
+            ex.state.scenario.props.find((p) => p.id === row.bindings.prop)
+              ?.ordnanceId || ""
+          }
+          custom={ex.state.scenario.ordnanceTypes}
+        />
       ) : row.module === "beacon" ? (
         <BeaconControl station={row} />
       ) : (

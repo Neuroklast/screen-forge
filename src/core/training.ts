@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ordnanceTypeSchema } from "./ordnance.ts";
 
 // Shared by the browser and Node 24. No browser-only imports in this module.
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,40}$/);
@@ -135,6 +136,7 @@ export const propSchema = z.object({
   states: z.array(z.string().max(40)).min(1).max(20).default(["off", "on"]),
   initial: z.string().max(40).default("off"),
   visible: z.boolean().default(true),
+  ordnanceId: z.string().max(40).default(""),
 });
 export const teamSchema = z.object({
   id,
@@ -247,6 +249,7 @@ const scenarioV2Schema = z
     zones: z.array(zoneSchema).max(40).default([]),
     injects: z.array(injectSchema).max(100).default([]),
     objectives: z.array(objectiveSchema).max(40).default([]),
+    ordnanceTypes: z.array(ordnanceTypeSchema).max(40).default([]),
   })
   .superRefine((s, ctx) => {
     const issue = (message: string) =>
@@ -261,6 +264,7 @@ const scenarioV2Schema = z
       s.zones,
       s.injects,
       s.objectives,
+      s.ordnanceTypes,
     ])
       if (new Set(rows.map((x) => x.id)).size !== rows.length)
         issue("IDs must be unique within each collection");

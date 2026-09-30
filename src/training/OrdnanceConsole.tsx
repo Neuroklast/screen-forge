@@ -1,16 +1,32 @@
 import { useState } from "react";
 import type { TrainingStation } from "../core/training";
 import { useTraining } from "../core/useExercise";
+import { resolveOrdnanceType } from "../core/ordnance";
 import "./device.css";
 
-const STAGES = ["Inspect casing", "Read diagnostics", "Set bypass", "Disarm"];
+// Element content is English by contract. The stage list and failure modes come
+// from the mission's ordnance catalogue entry, so the console stays in sync with
+// the data sheet.
+const FALLBACK_STAGES = [
+  "Inspect casing",
+  "Read diagnostics",
+  "Set bypass",
+  "Disarm",
+];
 
 export function OrdnanceConsole({ station }: { station: TrainingStation }) {
   const ex = useTraining();
   const propId = station.bindings.prop;
   const prop = ex.state.scenario.props.find((p) => p.id === propId);
   const state = ex.state.propStates[propId] ?? prop?.initial ?? "armed";
+  const entry = resolveOrdnanceType(
+    prop?.ordnanceId || "",
+    ex.state.scenario.ordnanceTypes,
+  );
+  const stages = entry?.stages ?? FALLBACK_STAGES;
   const [step, setStep] = useState(0);
+  const [methodId, setMethodId] = useState(entry?.methods[0]?.id ?? "");
+  const method = entry?.methods.find((m) => m.id === methodId);
   const locked = !ex.online || ex.state.frozen || state === "disarmed";
 
   const run = (index: number) => {
@@ -24,8 +40,8 @@ export function OrdnanceConsole({ station }: { station: TrainingStation }) {
     ex.send({ type: "module-event", value: "ordnance.stage" });
     const next = step + 1;
     setStep(next);
-    if (next === 3) ex.send({ type: "prop", state: "bypassed" });
-    if (next >= STAGES.length) {
+    if (next === stages.length - 1) ex.send({ type: "prop", state: "bypassed" });
+    if (next >= stages.length) {
       ex.send({ type: "prop", state: "disarmed" });
       ex.send({ type: "module-event", value: "ordnance.disarmed" });
     }
@@ -37,23 +53,66 @@ export function OrdnanceConsole({ station }: { station: TrainingStation }) {
         <h2>{station.name}</h2>
         <span className={`device-state is-${state}`}>{state}</span>
       </header>
+      {entry && (
+        <p className="device-note">
+          {entry.designation} · {entry.category}
+        </p>
+      )}
       <p className="device-note">
         Fictional maintenance console. Run the stages in order.
       </p>
+      {entry && entry.methods.length > 1 && (
+        <label className="device-note">
+          Method
+          <select
+            value={methodId}
+            onChange={(e) => setMethodId(e.target.value)}
+            disabled={locked}
+          >
+            {entry.methods.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <ol className="device-stages">
-        {STAGES.map((label, i) => (
-          <li key={label} className={i < step ? "done" : i === step ? "active" : ""}>
+        {stages.map((label, i) => (
+          <li
+            key={label}
+            className={i < step ? "done" : i === step ? "active" : ""}
+          >
             <button onClick={() => run(i)} disabled={locked}>
               {i + 1}. {label}
             </button>
           </li>
         ))}
       </ol>
+      {method && (
+        <ul className="device-steps">
+          {method.steps.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
+        </ul>
+      )}
       {state === "tampered" && (
         <p className="device-alert">Tampered. Stages reset.</p>
       )}
       {state === "disarmed" && (
         <p className="device-ok">Disarmed. Document the task.</p>
+      )}
+      {entry && entry.failures.length > 0 && (
+        <details className="device-failures">
+          <summary>Failure modes</summary>
+          <ul>
+            {entry.failures.map((f) => (
+              <li key={f.id}>
+                <b>{f.name}</b> — {f.trigger} ({f.outcome})
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
       <small>{prop?.name || "No ordnance bound"}</small>
     </section>
