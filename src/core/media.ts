@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { exampleMedia } from "./exampleMedia";
+import { t } from "../i18n";
 export type MediaAsset = {
   id: string;
   name: string;
@@ -105,7 +106,7 @@ export function useMedia() {
         setAssets(next);
         setError("");
       } catch {
-        setError("Lokaler Medienspeicher nicht verfügbar.");
+        setError(t("app.localMediaUnavailable"));
       }
     };
     void refresh();

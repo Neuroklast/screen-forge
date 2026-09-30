@@ -14,6 +14,7 @@ import { isCommandType, newEventId, PROTOCOL } from "./protocol";
 import { ServerClock } from "./clock";
 import { TelemetryStore } from "./telemetry";
 import * as outbox from "./outbox";
+import { t } from "../i18n";
 import type { Role } from "./session";
 export type Signal = {
   type: "signal";
@@ -156,7 +157,7 @@ export function useExercise(role: Role, room: string, station: string) {
               setServerSeq(seq);
             }
           }
-          if (msg.type === "rejected") setError(msg.reason || "Befehl abgelehnt");
+          if (msg.type === "rejected") setError(msg.reason || t("app.commandRejected"));
           if (msg.type === "resumed") {
             const seq = Number(msg.serverSeq) || 0;
             if (seq > lastSeq.current) {
@@ -213,7 +214,7 @@ export function useExercise(role: Role, room: string, station: string) {
           if (msg.type === "invitation") setInvitation(msg);
           if (msg.type === "signal") listeners.current.forEach((fn) => fn(msg));
         } catch {
-          setError("Ungültige Serverantwort");
+          setError(t("app.invalidResponse"));
         }
       };
       sock.onclose = (e) => {
@@ -225,7 +226,7 @@ export function useExercise(role: Role, room: string, station: string) {
             (current) =>
               current ||
               e.reason ||
-              "Zugang abgelaufen. Neuen QR-Code anfordern.",
+              t("app.sessionExpired"),
           );
           return;
         }
@@ -233,7 +234,7 @@ export function useExercise(role: Role, room: string, station: string) {
       };
       sock.onerror = () => {
         if (!disposed)
-          setError("Server nicht erreichbar. Verbindung wird erneut versucht.");
+          setError(t("app.serverUnreachable"));
       };
     };
     connect();
@@ -251,7 +252,7 @@ export function useExercise(role: Role, room: string, station: string) {
         typeof msg.type === "string" && isCommandType(msg.type);
       if (!isCommand) {
         if (ws.current?.readyState !== WebSocket.OPEN) {
-          setError("Nicht verbunden. Änderung wurde nicht gesendet.");
+          setError(t("app.notConnected"));
           return false;
         }
         ws.current.send(JSON.stringify(msg));

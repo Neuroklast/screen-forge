@@ -1,5 +1,6 @@
 import type { Scenario } from "./training";
 import { lintGraph } from "./graph";
+import { t } from "../i18n";
 
 export type Severity = "error" | "warning" | "info";
 export type Collection =
@@ -37,7 +38,7 @@ export function lintMission(s: Scenario): Finding[] {
     out.push({ id, severity: "info", message, path: { collection, id: target } });
 
   if (s.stations.length < 1)
-    error("stations-min", "Mindestens ein Gerät erforderlich.", "stations");
+    error("stations-min", t("lint.stationsMin"), "stations");
 
   const codes = new Map<string, number>();
   for (const st of s.stations) {
@@ -48,14 +49,14 @@ export function lintMission(s: Scenario): Finding[] {
     )
       error(
         `med-${st.id}`,
-        `Modul Medizin benötigt einen Patienten (${st.name}).`,
+        t("lint.medPatient", { name: st.name }),
         "stations",
         st.id,
       );
     if (st.role === "hq" && st.module !== "tracking")
       error(
         `hq-${st.id}`,
-        `Einsatzleitung benötigt das Modul Karte (${st.name}).`,
+        t("lint.hqTracking", { name: st.name }),
         "stations",
         st.id,
       );
@@ -65,41 +66,41 @@ export function lintMission(s: Scenario): Finding[] {
     )
       error(
         `patient-${st.id}`,
-        `Unbekannter Patient an ${st.name}.`,
+        t("lint.unknownPatient", { name: st.name }),
         "stations",
         st.id,
       );
     if (st.bindings.prop && !s.props.some((p) => p.id === st.bindings.prop))
       error(
         `prop-${st.id}`,
-        `Unbekannte Requisite an ${st.name}.`,
+        t("lint.unknownProp", { name: st.name }),
         "stations",
         st.id,
       );
     if (CODE_MODULES.includes(st.module) && !st.code)
       error(
         `code-${st.id}`,
-        `Terminal benötigt einen Zugangscode (${st.name}).`,
+        t("lint.codeRequired", { name: st.name }),
         "stations",
         st.id,
       );
   }
   for (const [code, count] of codes)
     if (count > 1)
-      warn("code-dup", `Zugangscode ${code} wird mehrfach verwendet.`, "stations");
+      warn("code-dup", t("lint.codeDup", { code }), "stations");
 
   if (s.objectives.length === 0)
-    warn("no-objective", "Kein Einsatzziel definiert.", "objectives");
+    warn("no-objective", t("lint.noObjective"), "objectives");
 
   for (const p of s.patients)
     if (!s.stations.some((st) => st.bindings.patient === p.id))
-      info(`unused-patient-${p.id}`, `Patient ohne Gerät: ${p.name}.`, "patients", p.id);
+      info(`unused-patient-${p.id}`, t("lint.unusedPatient", { name: p.name }), "patients", p.id);
   for (const p of s.props)
     if (!s.stations.some((st) => st.bindings.prop === p.id))
-      info(`unused-prop-${p.id}`, `Requisite ohne Gerät: ${p.name}.`, "props", p.id);
+      info(`unused-prop-${p.id}`, t("lint.unusedProp", { name: p.name }), "props", p.id);
   for (const r of s.injects)
     if (!r.enabled)
-      info(`inject-off-${r.id}`, `Ereignis deaktiviert: ${r.name}.`, "injects", r.id);
+      info(`inject-off-${r.id}`, t("lint.injectOff", { name: r.name }), "injects", r.id);
 
   out.push(...lintGraph(s));
   return out;

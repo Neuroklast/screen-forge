@@ -1,5 +1,6 @@
 import type { Finding } from "./missionLint";
 import type { Scenario } from "./training";
+import { t } from "../i18n";
 
 const EXTERNAL_TRIGGERS = ["zone", "prop", "signal"];
 
@@ -49,19 +50,19 @@ export function lintGraph(s: Scenario): Finding[] {
   const ids = new Set(s.injects.map((r) => r.id));
   for (const r of s.injects) {
     if (r.escalation && !ids.has(r.escalation))
-      error(`graph-escalation-${r.id}`, `Folgeeintrag fehlt für ${r.name}.`, r.id);
+      error(`graph-escalation-${r.id}`, t("graph.escalation", { name: r.name }), r.id);
     if (!r.purpose)
-      warn(`graph-purpose-${r.id}`, `Ereignis ohne Zweck: ${r.name}.`, r.id);
+      warn(`graph-purpose-${r.id}`, t("graph.purpose", { name: r.name }), r.id);
     if (r.expectedOutcome.length === 0)
       warn(
         `graph-outcome-${r.id}`,
-        `Kein erwartetes Ergebnis: ${r.name}.`,
+        t("graph.outcome", { name: r.name }),
         r.id,
       );
     if (EXTERNAL_TRIGGERS.includes(r.trigger) && !r.fallback)
       warn(
         `graph-fallback-${r.id}`,
-        `Kein Fallback bei externer Zustellung: ${r.name}.`,
+        t("graph.fallback", { name: r.name }),
         r.id,
       );
   }
@@ -76,13 +77,13 @@ export function lintGraph(s: Scenario): Finding[] {
     const r = s.injects.find((x) => x.id === id);
     if (!r) continue;
     if (!r.repeatable)
-      error(`graph-cycle-${id}`, `Zyklus ohne Wiederholungsregel: ${r.name}.`, id);
+      error(`graph-cycle-${id}`, t("graph.cycle", { name: r.name }), id);
     else if (r.maxIterations <= 1)
-      error(`graph-cycle-cap-${id}`, `Wiederholung ohne Obergrenze: ${r.name}.`, id);
+      error(`graph-cycle-cap-${id}`, t("graph.cycleCap", { name: r.name }), id);
     else if (!r.exitCondition)
       warn(
         `graph-cycle-exit-${id}`,
-        `Wiederholung ohne Endbedingung: ${r.name}.`,
+        t("graph.cycleExit", { name: r.name }),
         id,
       );
   }

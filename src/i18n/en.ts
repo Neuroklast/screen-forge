@@ -143,4 +143,31 @@ export const en: Record<string, string> = {
   "patient.range":
     "Values out of range or diastolic pressure greater than systolic pressure.",
   "patient.triage": "Triage",
+
+  "app.notConnected": "Not connected. Change was not sent.",
+  "app.invalidResponse": "Invalid server response",
+  "app.commandRejected": "Command rejected",
+  "app.sessionExpired": "Access expired. Request a new QR code.",
+  "app.serverUnreachable": "Server unreachable. Retrying connection.",
+  "app.localMediaUnavailable": "Local media store unavailable.",
+
+  "lint.stationsMin": "At least one device is required.",
+  "lint.medPatient": "Medical module needs a patient ({name}).",
+  "lint.hqTracking": "HQ needs the map module ({name}).",
+  "lint.unknownPatient": "Unknown patient at {name}.",
+  "lint.unknownProp": "Unknown prop at {name}.",
+  "lint.codeRequired": "Terminal needs an access code ({name}).",
+  "lint.codeDup": "Access code {code} is used more than once.",
+  "lint.noObjective": "No objective defined.",
+  "lint.unusedPatient": "Patient without device: {name}.",
+  "lint.unusedProp": "Prop without device: {name}.",
+  "lint.injectOff": "Event disabled: {name}.",
+
+  "graph.escalation": "Follow-up entry missing for {name}.",
+  "graph.purpose": "Event without purpose: {name}.",
+  "graph.outcome": "No expected outcome: {name}.",
+  "graph.fallback": "No fallback for external delivery: {name}.",
+  "graph.cycle": "Cycle without a repeat rule: {name}.",
+  "graph.cycleCap": "Repeat without a cap: {name}.",
+  "graph.cycleExit": "Repeat without an exit condition: {name}.",
 };

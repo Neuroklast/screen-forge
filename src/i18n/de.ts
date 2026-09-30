@@ -145,4 +145,32 @@ export const de: Record<string, string> = {
   "patient.range":
     "Werte außerhalb des Bereichs oder diastolischer Druck größer als systolischer Druck.",
   "patient.triage": "Triage",
+
+  "app.notConnected": "Nicht verbunden. Änderung wurde nicht gesendet.",
+  "app.invalidResponse": "Ungültige Serverantwort",
+  "app.commandRejected": "Befehl abgelehnt",
+  "app.sessionExpired": "Zugang abgelaufen. Neuen QR-Code anfordern.",
+  "app.serverUnreachable":
+    "Server nicht erreichbar. Verbindung wird erneut versucht.",
+  "app.localMediaUnavailable": "Lokaler Medienspeicher nicht verfügbar.",
+
+  "lint.stationsMin": "Mindestens ein Gerät erforderlich.",
+  "lint.medPatient": "Modul Medizin benötigt einen Patienten ({name}).",
+  "lint.hqTracking": "Einsatzleitung benötigt das Modul Karte ({name}).",
+  "lint.unknownPatient": "Unbekannter Patient an {name}.",
+  "lint.unknownProp": "Unbekannte Requisite an {name}.",
+  "lint.codeRequired": "Terminal benötigt einen Zugangscode ({name}).",
+  "lint.codeDup": "Zugangscode {code} wird mehrfach verwendet.",
+  "lint.noObjective": "Kein Einsatzziel definiert.",
+  "lint.unusedPatient": "Patient ohne Gerät: {name}.",
+  "lint.unusedProp": "Requisite ohne Gerät: {name}.",
+  "lint.injectOff": "Ereignis deaktiviert: {name}.",
+
+  "graph.escalation": "Folgeeintrag fehlt für {name}.",
+  "graph.purpose": "Ereignis ohne Zweck: {name}.",
+  "graph.outcome": "Kein erwartetes Ergebnis: {name}.",
+  "graph.fallback": "Kein Fallback bei externer Zustellung: {name}.",
+  "graph.cycle": "Zyklus ohne Wiederholungsregel: {name}.",
+  "graph.cycleCap": "Wiederholung ohne Obergrenze: {name}.",
+  "graph.cycleExit": "Wiederholung ohne Endbedingung: {name}.",
 };
