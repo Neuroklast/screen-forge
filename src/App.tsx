@@ -28,6 +28,7 @@ import {
 } from "./core/config";
 import { formatTime, useSceneClock, type Cue } from "./core/runtime";
 import { setSoundEnabled } from "./core/sound";
+import { t } from "./i18n";
 import { TokenEditor } from "./components/TokenEditor";
 import { CodePad } from "./components/CodePad";
 import { MediaManager } from "./components/MediaManager";
@@ -123,7 +124,7 @@ export default function App() {
     try {
       localStorage.setItem("screenforge.show.v1", JSON.stringify(show));
     } catch {
-      setNotice("Ablauf konnte nicht gespeichert werden. Bitte exportieren.");
+      setNotice(t("studio.sequenceSaveFailed"));
     }
   }, [show]);
   useEffect(() => {
@@ -209,7 +210,7 @@ export default function App() {
     try {
       localStorage.setItem("screenforge.config.v1", JSON.stringify(config));
     } catch {
-      setNotice("Lokales Speichern nicht verfügbar. Bitte Preset exportieren.");
+      setNotice(t("studio.localSaveUnavailable"));
     }
     setSoundEnabled(config.sound);
   }, [config]);
@@ -264,7 +265,7 @@ export default function App() {
       await document.documentElement.requestFullscreen();
     } catch {
       setNotice(
-        "Bühnenmodus aktiv. Browser-Vollbild bei Bedarf mit F11 starten.",
+        t("studio.stageModeActive"),
       );
     }
   };
@@ -276,14 +277,14 @@ export default function App() {
   const importPreset = async (file?: File) => {
     if (!file) return;
     try {
-      if (file.size > 400000) throw new Error("Datei zu groß");
+      if (file.size > 400000) throw new Error(t("studio.fileTooBig"));
       const next = schema.parse(JSON.parse(await file.text()));
       reset();
       setConfig(next);
-      setNotice("Preset geladen.");
+      setNotice(t("studio.presetLoaded"));
     } catch {
       setNotice(
-        "Ungültiges Preset. Erwartet wird eine ScreenForge JSON-Datei, Version 1.",
+        t("studio.invalidPreset"),
       );
     }
     if (upload.current) upload.current.value = "";
@@ -317,34 +318,34 @@ export default function App() {
               className={directorTab === "monitor" ? "active" : ""}
               onClick={() => setDirectorTab("monitor")}
             >
-              Regie
+              {t("studio.direction")}
             </button>
             <button
               className={directorTab === "sequence" ? "active" : ""}
               onClick={() => setDirectorTab("sequence")}
             >
-              Ablaufeditor
+              {t("studio.sequenceEditor")}
             </button>
             <button
-              aria-label="Konfiguration öffnen"
+              aria-label={t("studio.openConfig")}
               onClick={() => setSettings((v) => !v)}
             >
-              Konfiguration
+              {t("studio.configuration")}
             </button>
           </nav>
-          <a className="training-entry" href="/?role=trainer">Übungsleitung</a>
-          <nav className="workspace-switch" aria-label="Arbeitsmodus">
+          <a className="training-entry" href="/?role=trainer">{t("studio.exerciseControl")}</a>
+          <nav className="workspace-switch" aria-label={t("studio.workMode")}>
             <button
               className={config.workspace === "film" ? "active" : ""}
               onClick={() => update("workspace", "film")}
             >
-              Film
+              {t("studio.film")}
             </button>
             <button
               className={training ? "active" : ""}
               onClick={() => update("workspace", "training")}
             >
-              Training
+              {t("studio.training")}
             </button>
           </nav>
           <div className="project-label">
@@ -353,11 +354,11 @@ export default function App() {
             <span className="version">V.01</span>
           </div>
           <button className="primary-button" onClick={fullscreen}>
-            <Monitor size={15} /> Bühne starten <ArrowUpRight size={15} />
+            <Monitor size={15} /> {t("studio.startStage")} <ArrowUpRight size={15} />
           </button>
         </header>
-        <nav className="director-scenes" aria-label="Szenen">
-          <em>Szenen</em>
+        <nav className="director-scenes" aria-label={t("studio.scenes")}>
+          <em>{t("studio.scenes")}</em>
           {scenes
             .filter((s) => s.kind === "scene")
             .map((scene) => (
@@ -369,7 +370,7 @@ export default function App() {
                 {scene.name}
               </button>
             ))}
-          <em>Bausteine</em>
+          <em>{t("studio.blocks")}</em>
           {scenes
             .filter((s) => s.kind === "block")
             .map((scene) => (
@@ -381,12 +382,12 @@ export default function App() {
                 {scene.name}
               </button>
             ))}
-          <span>{running ? "ABLAUF AKTIV" : "MANUELLE REGIE"}</span>
+          <span>{running ? t("studio.sequenceActive") : t("studio.manualDirection")}</span>
           <button
             onClick={() => setUnlocked(false)}
             disabled={!config.pinEnabled}
           >
-            Zugang sperren
+            {t("studio.lockAccess")}
           </button>
         </nav>
         <main className="workspace">
@@ -397,7 +398,7 @@ export default function App() {
             </div>
             <button
               className={`icon-button ${settings ? "selected" : ""}`}
-              aria-label="Design-Einstellungen"
+              aria-label={t("studio.designSettings")}
               onClick={() => setSettings((p) => !p)}
             >
               <SlidersHorizontal size={18} />
@@ -412,7 +413,7 @@ export default function App() {
               <span>
                 LIVE PREVIEW / {stageFmt.width} × {stageFmt.height}
               </span>
-              <button onClick={fullscreen} aria-label="Vollbild">
+              <button onClick={fullscreen} aria-label={t("studio.fullscreen")}>
                 <Maximize size={14} />
               </button>
             </div>
@@ -521,14 +522,14 @@ export default function App() {
             <div className="playback">
               <button
                 className="play-button"
-                aria-label={clock.playing ? "Pause" : "Abspielen"}
+                aria-label={clock.playing ? t("studio.pause") : t("studio.play")}
                 onClick={() => clock.setPlaying((p) => !p)}
               >
                 {clock.playing ? <Pause size={18} /> : <Play size={18} />}
               </button>
               <button
                 className="icon-button"
-                aria-label="Take zurücksetzen"
+                aria-label={t("studio.resetTake")}
                 onClick={reset}
               >
                 <RotateCcw size={17} />
@@ -546,7 +547,7 @@ export default function App() {
                     className={cue === c ? "current" : ""}
                     onClick={() => setCue(c)}
                   >
-                    {["Ruhe", "Aktion", "Warnung", "Abschluss"][i]}
+                    {[t("studio.cue.idle"), t("studio.cue.active"), t("studio.cue.warning"), t("studio.cue.complete")][i]}
                   </button>
                 ),
               )}
@@ -555,13 +556,13 @@ export default function App() {
               className="text-button clean-trigger"
               onClick={() => setClean(true)}
             >
-              Nur Ausgabe <ArrowUpRight size={14} />
+              {t("studio.outputOnly")} <ArrowUpRight size={14} />
             </button>
           </div>
           <div className="timeline">
             <span>00:00</span>
             <input
-              aria-label="Szenenzeit"
+              aria-label={t("studio.sceneTime")}
               type="range"
               min="0"
               max={timelineMax}
@@ -575,21 +576,21 @@ export default function App() {
             <span>
               <Check size={13} />{" "}
               {config.scene === "hologram" || config.scene === "tracking"
-                ? "Ziehen, Pinch und Rotation auf der Grafik aktiv."
-                : "Interaktive Elemente reagieren direkt auf Berührung."}
+                ? t("studio.noteGesture")
+                : t("studio.noteTouch")}
             </span>
-            <span>SPACE Play / Pause · R Reset · H Ausgabe</span>
+            <span>{t("studio.shortcuts")}</span>
           </div>
         </main>
         <aside
           className={`inspector config-menu config-${configTab}`}
           hidden={!settings || clean}
-          aria-label="Konfiguration"
+          aria-label={t("studio.configuration")}
         >
           <header className="config-header">
-            <strong>Konfiguration</strong>
+            <strong>{t("studio.configuration")}</strong>
             <button
-              aria-label="Konfiguration schließen"
+              aria-label={t("studio.closeConfig")}
               onClick={() => setSettings(false)}
             >
               ×
@@ -597,14 +598,14 @@ export default function App() {
           </header>
           <nav className="config-tabs" role="tablist">
             {[
-              ["content", "Inhalt"],
-              ["systems", "Firmen"],
-              ["design", "Gestaltung"],
-              ["themes", "Themes"],
-              ["effects", "Effekte"],
-              ["playback", "Eingaben"],
-              ["media", "Medien"],
-              ["tokens", "Tokens"],
+              ["content", t("studio.tab.content")],
+              ["systems", t("studio.tab.systems")],
+              ["design", t("studio.tab.design")],
+              ["themes", t("studio.tab.themes")],
+              ["effects", t("studio.tab.effects")],
+              ["playback", t("studio.tab.playback")],
+              ["media", t("studio.tab.media")],
+              ["tokens", t("studio.tab.tokens")],
             ].map(([id, label]) => (
               <button
                 role="tab"
@@ -630,10 +631,10 @@ export default function App() {
             </div>
             <section data-panel="content">
               <div className="inspector-section-title">
-                <span>01</span> Inhalt
+                <span>01</span> {t("studio.sectionContent")}
               </div>
               <label>
-                Titel
+                {t("studio.title")}
                 <input
                   value={config.title}
                   onBlur={() => {
@@ -644,7 +645,7 @@ export default function App() {
                 />
               </label>
               <label>
-                Unterzeile
+                {t("studio.subtitle")}
                 <input
                   value={config.subtitle}
                   maxLength={70}
@@ -652,7 +653,7 @@ export default function App() {
                 />
               </label>
               <label>
-                Gerätekennung
+                {t("studio.identifier")}
                 <input
                   value={config.identifier}
                   maxLength={24}
@@ -662,9 +663,9 @@ export default function App() {
             </section>
             <section data-panel="design">
               <label>
-                Schrift
+                {t("studio.font")}
                 <select
-                  aria-label="Schrift"
+                  aria-label={t("studio.font")}
                   value={config.font}
                   onChange={(e) =>
                     update("font", e.target.value as Config["font"])
@@ -687,27 +688,27 @@ export default function App() {
                 </select>
               </label>
               <div className="inspector-section-title">
-                <span>02</span> Bildsprache
+                <span>02</span> {t("studio.imageLanguage")}
               </div>
               <label>
-                Stimmung
+                {t("studio.mood")}
                 <select
                   value={config.mood}
                   onChange={(e) =>
                     update("mood", e.target.value as Config["mood"])
                   }
                 >
-                  <option value="clinical">Klinisch / Präzise</option>
-                  <option value="tense">Bedrohlich / Kontrastreich</option>
-                  <option value="damaged">Beschädigt / Signalstörung</option>
+                  <option value="clinical">{t("studio.mood.clinical")}</option>
+                  <option value="tense">{t("studio.mood.tense")}</option>
+                  <option value="damaged">{t("studio.mood.damaged")}</option>
                 </select>
               </label>
               <label className="color-label">
-                Akzentfarbe{" "}
+                {t("studio.accent")}{" "}
                 <div>
                   <span>{config.accent.toUpperCase()}</span>
                   <input
-                    aria-label="Akzentfarbe"
+                    aria-label={t("studio.accent")}
                     type="color"
                     value={config.accent}
                     onChange={(e) => update("accent", e.target.value)}
@@ -715,9 +716,9 @@ export default function App() {
                 </div>
               </label>
               <label>
-                Bühnenformat
+                {t("studio.stageFormat")}
                 <select
-                  aria-label="Bühnenformat"
+                  aria-label={t("studio.stageFormat")}
                   value={config.format}
                   onChange={(e) =>
                     update("format", e.target.value as Config["format"])
@@ -731,9 +732,9 @@ export default function App() {
                 </select>
               </label>
               <label>
-                Elementrahmen
+                {t("studio.elementFrame")}
                 <select
-                  aria-label="Elementrahmen"
+                  aria-label={t("studio.elementFrame")}
                   value={config.frame.style}
                   onChange={(e) =>
                     update("frame", {
@@ -742,25 +743,25 @@ export default function App() {
                     })
                   }
                 >
-                  <option value="hud">HUD</option>
-                  <option value="plate">Platte</option>
-                  <option value="none">Ohne</option>
+                  <option value="hud">{t("studio.frame.hud")}</option>
+                  <option value="plate">{t("studio.frame.plate")}</option>
+                  <option value="none">{t("studio.frame.none")}</option>
                 </select>
               </label>
               <label>
-                Informationsdichte
+                {t("studio.density")}
                 <select
                   value={config.density}
                   onChange={(e) =>
                     update("density", e.target.value as Config["density"])
                   }
                 >
-                  <option value="detailed">Detailliert</option>
-                  <option value="focused">Fokussiert</option>
+                  <option value="detailed">{t("studio.density.detailed")}</option>
+                  <option value="focused">{t("studio.density.focused")}</option>
                 </select>
               </label>
               <label>
-                Effektstärke{" "}
+                {t("studio.effectStrength")}{" "}
                 <output>{Math.round(config.effects * 100)}%</output>
                 <input
                   type="range"
@@ -772,7 +773,7 @@ export default function App() {
                 />
               </label>
               <label>
-                Displayhelligkeit{" "}
+                {t("studio.displayBrightness")}{" "}
                 <output>{Math.round(config.brightness * 100)}%</output>
                 <input
                   type="range"
@@ -788,7 +789,7 @@ export default function App() {
               <ThemeEditor config={config} onChange={setConfig} />
             </div>
             <details data-panel="effects" className="overlay-settings" open>
-              <summary>Display-Overlays</summary>
+              <summary>{t("studio.displayOverlays")}</summary>
               {Object.entries(config.overlays).map(([key, value]) => (
                 <label key={key}>
                   {
@@ -796,11 +797,11 @@ export default function App() {
                       {
                         scanlines: "Scanlines",
                         glow: "CRT Glow",
-                        grid: "Technikraster",
-                        grain: "Tech Noise / Körnung",
+                        grid: t("studio.overlay.technoGrid"),
+                        grain: t("studio.overlay.grain"),
                         vignette: "Vignette",
-                        glitch: "Signalstörungen",
-                        chromatic: "Chromatische Kanten",
+                        glitch: t("studio.overlay.glitch"),
+                        chromatic: t("studio.overlay.chromatic"),
                       } as Record<string, string>
                     )[key]
                   }
@@ -829,25 +830,25 @@ export default function App() {
                   checked={config.pinEnabled}
                   onChange={(e) => update("pinEnabled", e.target.checked)}
                 />{" "}
-                Code-Tastenfeld aktivieren
+                {t("studio.pinEnabled")}
               </label>
               <label>
-                Tastenfeld
+                {t("studio.pinField")}
                 <select
-                  aria-label="Tastenfeldmodus"
+                  aria-label={t("studio.pinFieldAria")}
                   value={config.pinMode}
                   onChange={(e) =>
                     update("pinMode", e.target.value as Config["pinMode"])
                   }
                 >
-                  <option value="numeric">Numerisch</option>
-                  <option value="alphanumeric">Alphanumerisch</option>
+                  <option value="numeric">{t("studio.pin.numeric")}</option>
+                  <option value="alphanumeric">{t("studio.pin.alphanumeric")}</option>
                 </select>
               </label>
               <label>
-                Zugangscode
+                {t("studio.pinCode")}
                 <input
-                  aria-label="Zugangscode konfigurieren"
+                  aria-label={t("studio.pinCodeAria")}
                   inputMode={
                     config.pinMode === "numeric" ? "numeric" : "text"
                   }
@@ -870,7 +871,7 @@ export default function App() {
                   checked={config.pinFake}
                   onChange={(e) => update("pinFake", e.target.checked)}
                 />{" "}
-                Inszenierung (jeder 4–8-stellige Code)
+                {t("studio.pinFake")}
               </label>
               <label>
                 <input
@@ -881,10 +882,10 @@ export default function App() {
                     setSoundEnabled(e.target.checked);
                   }}
                 />{" "}
-                Szenen-Sounds
+                {t("studio.sound")}
               </label>
               <div className="inspector-section-title">
-                <span>03</span> Ablauf
+                <span>03</span> {t("studio.sectionFlow")}
               </div>
               {training && (
                 <>
@@ -896,12 +897,12 @@ export default function App() {
                         update("exerciseMark", e.target.checked)
                       }
                     />{" "}
-                    EXERCISE-Kennung auf der Bühne
+                    {t("studio.exerciseMark")}
                   </label>
                   <label>
-                    Instructor-PIN
+                    {t("studio.instructorPin")}
                     <input
-                      aria-label="Instructor-PIN"
+                      aria-label={t("studio.instructorPin")}
                       defaultValue={config.instructorPin}
                       maxLength={8}
                       onBlur={(e) => {
@@ -912,23 +913,23 @@ export default function App() {
                     />
                   </label>
                   <p className="inspector-hint">
-                    Kiosk: gleiche URL mit ?kiosk=1. Studio nur mit Instructor-PIN.
+                    {t("studio.kioskHint")}
                   </p>
                   <button
                     type="button"
                     onClick={() => downloadTakeLog(show.name, takeLog)}
                     disabled={!takeLog.length}
                   >
-                    Take-Log exportieren ({takeLog.length})
+                    {t("studio.takeLogExport", { count: takeLog.length })}
                   </button>
                 </>
               )}
               {config.scene === "countdown" && (
                 <>
                   <label>
-                    Gerätetyp
+                    {t("studio.deviceType")}
                     <select
-                      aria-label="Gerätetyp"
+                      aria-label={t("studio.deviceType")}
                       value={config.sceneOptions.countdown.type}
                       onChange={(e) => {
                         reset();
@@ -938,14 +939,14 @@ export default function App() {
                         });
                       }}
                     >
-                      <option value="transfer">Transfer / Transport</option>
-                      <option value="bomb">Sprengkörper (fiktiv)</option>
-                      <option value="reactor">Reaktor</option>
-                      <option value="custom">Eigenes Gerät</option>
+                      <option value="transfer">{t("studio.countdown.transfer")}</option>
+                      <option value="bomb">{t("studio.countdown.bomb")}</option>
+                      <option value="reactor">{t("studio.countdown.reactor")}</option>
+                      <option value="custom">{t("studio.countdown.custom")}</option>
                     </select>
                   </label>
                   <label>
-                    Bezeichnung
+                    {t("studio.designation")}
                     <input
                       value={config.sceneOptions.countdown.label}
                       maxLength={40}
@@ -958,9 +959,9 @@ export default function App() {
                   </label>
                   {config.sceneOptions.countdown.type === "bomb" && (
                     <label>
-                      Baugruppe
+                      {t("studio.assembly")}
                       <select
-                        aria-label="Baugruppe"
+                        aria-label={t("studio.assembly")}
                         value={config.sceneOptions.countdown.variant}
                         onChange={(e) => {
                           reset();
@@ -971,8 +972,8 @@ export default function App() {
                           });
                         }}
                       >
-                        <option value="antimatter">Containment-Baugruppe</option>
-                        <option value="nuclear">Spaltmaterial-Baugruppe</option>
+                        <option value="antimatter">{t("studio.assembly.containment")}</option>
+                        <option value="nuclear">{t("studio.assembly.nuclear")}</option>
                       </select>
                     </label>
                   )}
@@ -981,9 +982,9 @@ export default function App() {
               {config.scene === "tracking" && (
                 <>
                   <label>
-                    Trackingmodus
+                    {t("studio.trackingMode")}
                     <select
-                      aria-label="Trackingmodus"
+                      aria-label={t("studio.trackingMode")}
                       value={config.sceneOptions.tracking.mode}
                       onChange={(e) =>
                         updateSceneOptions("tracking", {
@@ -992,12 +993,12 @@ export default function App() {
                         })
                       }
                     >
-                      <option value="sensor">Sensor / Aufklärung</option>
-                      <option value="drone">Drohne (taktisch)</option>
+                      <option value="sensor">{t("studio.tracking.sensor")}</option>
+                      <option value="drone">{t("studio.tracking.drone")}</option>
                     </select>
                   </label>
                   <label>
-                    Kennung
+                    {t("studio.callsign")}
                     <input
                       value={config.sceneOptions.tracking.callsign}
                       maxLength={24}
@@ -1013,9 +1014,9 @@ export default function App() {
               {config.scene === "hologram" && (
                 <>
                   <label>
-                    Analysemodus
+                    {t("studio.analysisMode")}
                     <select
-                      aria-label="Analysemodus"
+                      aria-label={t("studio.analysisMode")}
                       value={config.sceneOptions.analysis.mode}
                       onChange={(e) =>
                         updateSceneOptions("analysis", {
@@ -1024,13 +1025,13 @@ export default function App() {
                         })
                       }
                     >
-                      <option value="reconstruct">Rekonstruktion</option>
-                      <option value="decrypt">Entschlüsselung</option>
-                      <option value="data">Datenanalyse</option>
+                      <option value="reconstruct">{t("studio.analysis.reconstruct")}</option>
+                      <option value="decrypt">{t("studio.analysis.decrypt")}</option>
+                      <option value="data">{t("studio.analysis.data")}</option>
                     </select>
                   </label>
                   <label>
-                    Eingabe (Chiffre)
+                    {t("studio.cipherInput")}
                     <input
                       value={config.sceneOptions.analysis.input}
                       maxLength={400}
@@ -1040,7 +1041,7 @@ export default function App() {
                     />
                   </label>
                   <label>
-                    Ergebnis (Klartext/Befund)
+                    {t("studio.plainResult")}
                     <input
                       value={config.sceneOptions.analysis.result}
                       maxLength={400}
@@ -1054,9 +1055,9 @@ export default function App() {
               {config.scene === "clock" && (
                 <>
                   <label>
-                    Uhrmodus
+                    {t("studio.clockMode")}
                     <select
-                      aria-label="Uhrmodus"
+                      aria-label={t("studio.clockMode")}
                       value={config.sceneOptions.clock.mode}
                       onChange={(e) =>
                         updateSceneOptions("clock", {
@@ -1065,15 +1066,15 @@ export default function App() {
                         })
                       }
                     >
-                      <option value="mission">Missionszeit</option>
-                      <option value="wall">Uhrzeit</option>
-                      <option value="zones">Zonen</option>
-                      <option value="countdown">Countdown</option>
-                      <option value="schedule">Zeitplan</option>
+                      <option value="mission">{t("studio.clock.mission")}</option>
+                      <option value="wall">{t("studio.clock.wall")}</option>
+                      <option value="zones">{t("studio.clock.zones")}</option>
+                      <option value="countdown">{t("studio.clock.countdown")}</option>
+                      <option value="schedule">{t("studio.clock.schedule")}</option>
                     </select>
                   </label>
                   <label>
-                    Beschriftung
+                    {t("studio.label")}
                     <input
                       value={config.sceneOptions.clock.label}
                       maxLength={40}
@@ -1086,7 +1087,7 @@ export default function App() {
               )}
               {config.scene === "rotary" && (
                 <label>
-                  Regler
+                  {t("studio.dials")}
                   <input
                     type="number"
                     min={1}
@@ -1102,7 +1103,7 @@ export default function App() {
               )}
               {config.scene === "code-table" && (
                 <label>
-                  Nachricht (Klartext)
+                  {t("studio.plainMessage")}
                   <input
                     value={config.sceneOptions.codeTable.message}
                     maxLength={60}
@@ -1117,9 +1118,9 @@ export default function App() {
               {config.scene === "data-sheet" && (
                 <>
                   <label>
-                    Hürde
+                    {t("studio.hurdle")}
                     <select
-                      aria-label="Hürde"
+                      aria-label={t("studio.hurdle")}
                       value={config.sceneOptions.dataSheet.subject}
                       onChange={(e) =>
                         updateSceneOptions("dataSheet", {
@@ -1128,14 +1129,14 @@ export default function App() {
                         })
                       }
                     >
-                      <option value="countdown">Countdown / Sprengkörper</option>
-                      <option value="terminal">Terminal / Hacken</option>
-                      <option value="access">Zugang / Verriegelung</option>
-                      <option value="custom">Eigenes</option>
+                      <option value="countdown">{t("studio.hurdle.countdown")}</option>
+                      <option value="terminal">{t("studio.hurdle.terminal")}</option>
+                      <option value="access">{t("studio.hurdle.access")}</option>
+                      <option value="custom">{t("studio.hurdle.custom")}</option>
                     </select>
                   </label>
                   <label>
-                    Suchbegriffe (Komma)
+                    {t("studio.searchTerms")}
                     <input
                       value={config.sceneOptions.dataSheet.search.join(", ")}
                       maxLength={120}
@@ -1150,7 +1151,7 @@ export default function App() {
                     />
                   </label>
                   <label>
-                    Titel
+                    {t("studio.title")}
                     <input
                       value={config.sceneOptions.dataSheet.title}
                       maxLength={60}
@@ -1162,7 +1163,7 @@ export default function App() {
                     />
                   </label>
                   <label>
-                    Funkspruch
+                    {t("studio.relayText")}
                     <input
                       value={config.sceneOptions.dataSheet.relayText}
                       maxLength={200}
@@ -1176,7 +1177,7 @@ export default function App() {
                 </>
               )}
               <label>
-                Dauer in Sekunden
+                {t("studio.durationSeconds")}
                 <input
                   type="number"
                   min={1}
@@ -1204,10 +1205,10 @@ export default function App() {
                         })
                       }
                     />{" "}
-                    Anmeldemaske
+                    {t("studio.loginScreen")}
                   </label>
                   <label>
-                    Benutzer
+                    {t("studio.user")}
                     <input
                       value={config.sceneOptions.os.login.user}
                       maxLength={40}
@@ -1222,7 +1223,7 @@ export default function App() {
                     />
                   </label>
                   <label>
-                    Kennwort
+                    {t("studio.password")}
                     <input
                       value={config.sceneOptions.os.login.pass}
                       maxLength={40}
@@ -1240,10 +1241,10 @@ export default function App() {
               )}
               {config.scene === "os" && (
                 <label>
-                  Sequenzdauer{" "}
+                  {t("studio.sequenceDuration")}{" "}
                   <output>×{config.sceneOptions.os.sequenceScale}</output>
                   <input
-                    aria-label="Sequenzdauer"
+                    aria-label={t("studio.sequenceDuration")}
                     type="range"
                     min=".25"
                     max="4"
@@ -1258,7 +1259,7 @@ export default function App() {
               {config.scene === "terminal" && (
                 <>
                   <label>
-                    Ziel
+                    {t("studio.goal")}
                     <input
                       value={config.sceneOptions.terminal.goal}
                       maxLength={60}
@@ -1268,7 +1269,7 @@ export default function App() {
                     />
                   </label>
                   <label>
-                    Prompt
+                    {t("studio.prompt")}
                     <input
                       value={config.sceneOptions.terminal.prompt}
                       maxLength={40}
@@ -1291,12 +1292,12 @@ export default function App() {
                         })
                       }
                     />{" "}
-                    Vorbereitetes Tippen
+                    {t("studio.actorMode")}
                   </label>
                   <label>
-                    Befehle bis Erfolg
+                    {t("studio.commandsUntilSuccess")}
                     <input
-                      aria-label="Befehle bis Erfolg"
+                      aria-label={t("studio.commandsUntilSuccess")}
                       type="number"
                       min={1}
                       max={40}
@@ -1311,7 +1312,7 @@ export default function App() {
                     />
                   </label>
                   <label>
-                    Vorbereiteter Befehl
+                    {t("studio.preparedCommand")}
                     <textarea
                       value={config.sceneOptions.terminal.script}
                       maxLength={300}
@@ -1323,8 +1324,7 @@ export default function App() {
                 </>
               )}
               <p className="inspector-hint">
-                Zeit und Anzeigen bleiben beim Pausieren stehen. Reset setzt den
-                gesamten Take zurück.
+                {t("studio.pauseHint")}
               </p>
             </section>
             <div data-panel="tokens">
@@ -1337,11 +1337,11 @@ export default function App() {
           <div className="preset-actions">
             <button onClick={() => downloadPreset(config)}>
               <Download size={14} />
-              Exportieren
+              {t("studio.export")}
             </button>
             <button onClick={() => upload.current?.click()}>
               <Upload size={14} />
-              Importieren
+              {t("studio.import")}
             </button>
             <input
               ref={upload}
@@ -1363,7 +1363,7 @@ export default function App() {
                 clock.setPlaying(config.scene !== "countdown");
               }}
             >
-              Originaldesign wiederherstellen
+              {t("studio.resetDesign")}
             </button>
           </div>
         </aside>
@@ -1380,7 +1380,7 @@ export default function App() {
               }}
             >
               <input
-                aria-label="Instructor-PIN"
+                aria-label={t("studio.instructorPin")}
                 value={kioskPin}
                 maxLength={8}
                 placeholder="PIN"
@@ -1391,9 +1391,9 @@ export default function App() {
             <button
               className="exit-stage"
               onClick={exitClean}
-              aria-label="Bühne verlassen"
+              aria-label={t("studio.leaveStage")}
             >
-              <X size={16} /> Studio
+              <X size={16} /> {t("studio.studio")}
             </button>
           ))}
         <AnimatePresence>
@@ -1408,7 +1408,7 @@ export default function App() {
               <AlertTriangle size={16} />
               {notice}
               <button
-                aria-label="Hinweis schließen"
+                aria-label={t("studio.closeNotice")}
                 onClick={() => setNotice("")}
               >
                 <X size={16} />

@@ -29,3 +29,4 @@
 | 2026-09 | Tooling | Node's type-stripping runs the server against `.ts` sources, so any shared module the server imports must use explicit `.ts` extensions on its own relative imports (`./training.ts`), or `node --test` fails with `ERR_MODULE_NOT_FOUND`. | high |
 | 2026-09 | Runtime | Restart safety comes from a snapshot plus an append-only event journal, not from the full-state broadcast; keep telemetry out of the journal and replay only records newer than the snapshot's `serverSeq`. | med |
 | 2026-09 | Data | Additive Zod fields with `.default()` keep mission `version: 2` backward compatible; MEL v2 shipped without a version bump because every new field is optional. | med |
+| 2026-09 | i18n | Externalise German chrome into `src/i18n` (`de`/`en`) and enforce it with a guard (`check:i18n`) plus a shrinking PENDING list; element content stays English. A regex-only guard misses umlaut-free German (e.g. `Schrift`), so review the file, not just the linter. | high |
