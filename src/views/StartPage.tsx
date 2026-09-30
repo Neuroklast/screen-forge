@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { sessionFromSearch, type Depth } from "../core/session";
+import { t } from "../i18n";
 import "./startpage.css";
 
 const depthKey = "screenforge.depth.v1";
@@ -89,10 +90,10 @@ export function StartPage() {
 
   const serverLabel =
     server === "checking"
-      ? "Prüfe Server…"
+      ? t("start.checking")
       : server === "online"
-        ? "Server erreichbar"
-        : "Offline";
+        ? t("start.online")
+        : t("start.offline");
 
   const resumeHref = (target: Resume) =>
     target.mode === "film"
@@ -113,73 +114,69 @@ export function StartPage() {
 
       {session.demo && (
         <p className="startpage-notice" role="status">
-          Der Demo-Modus wird in Phase 6 ergänzt. Wähle bis dahin Film &amp; TV
-          oder Training.
+          {t("start.demoNotice")}
         </p>
       )}
 
       <section className="startpage-intro">
-        <h1>Modus wählen</h1>
-        <p>
-          Fiktive Systemoberflächen für Produktion und Training. Alle Systeme
-          sind Fiktion.
-        </p>
+        <h1>{t("start.chooseMode")}</h1>
+        <p>{t("start.intro")}</p>
       </section>
 
-      <section className="mode-cards" aria-label="Modi">
+      <section className="mode-cards" aria-label={t("start.modes")}>
         <button
           className="mode-card"
           onClick={() => open("/?mode=film", "film")}
         >
           <span className="mode-code">01</span>
-          <strong>Film &amp; TV</strong>
-          <span>Szenen, Abläufe und Bühnenausgabe</span>
-          <span className="mode-action">Öffnen</span>
+          <strong>{t("start.film")}</strong>
+          <span>{t("start.filmDesc")}</span>
+          <span className="mode-action">{t("start.open")}</span>
         </button>
         <button
           className="mode-card"
           onClick={() => open("/?mode=training", "training")}
         >
           <span className="mode-code">02</span>
-          <strong>Training</strong>
-          <span>Einsätze, Geräte und Übungsleitung</span>
-          <span className="mode-action">Öffnen</span>
+          <strong>{t("start.training")}</strong>
+          <span>{t("start.trainingDesc")}</span>
+          <span className="mode-action">{t("start.open")}</span>
         </button>
         <button className="mode-card is-disabled" disabled aria-disabled="true">
           <span className="mode-code">03</span>
-          <strong>Demo</strong>
-          <span>Offline-Vorführung in fünf Minuten</span>
-          <span className="mode-action">In Vorbereitung</span>
+          <strong>{t("start.demo")}</strong>
+          <span>{t("start.demoDesc")}</span>
+          <span className="mode-action">{t("start.demoSoon")}</span>
         </button>
       </section>
 
       {resume && (
-        <section className="startpage-row" aria-label="Fortsetzen">
-          <span className="startpage-row-label">Zuletzt</span>
+        <section className="startpage-row" aria-label={t("start.resume")}>
+          <span className="startpage-row-label">{t("start.last")}</span>
           <button
             className="text-link"
             onClick={() => open(resumeHref(resume), resume.mode, resume.room)}
           >
             {resume.mode === "film"
-              ? "Film & TV fortsetzen"
-              : `Training fortsetzen${resume.room ? ` · ${resume.room}` : ""}`}
+              ? t("start.resumeFilm")
+              : `${t("start.resumeTraining")}${resume.room ? ` · ${resume.room}` : ""}`}
           </button>
         </section>
       )}
 
-      <section className="startpage-row" aria-label="Direkt">
-        <span className="startpage-row-label">Direkt</span>
+      <section className="startpage-row" aria-label={t("start.direct")}>
+        <span className="startpage-row-label">{t("start.direct")}</span>
         <button
           className="text-link"
           onClick={() => open("/?role=player", "training")}
         >
-          Gerät verbinden
+          {t("start.connectDevice")}
         </button>
         <button
           className="text-link"
           onClick={() => open("/?role=excon", "training")}
         >
-          Übungsleitung
+          {t("start.excon")}
         </button>
         <button
           className="text-link"
@@ -191,38 +188,38 @@ export function StartPage() {
           className="text-link"
           onClick={() => open("/?role=safety", "training")}
         >
-          Sicherheit
+          {t("start.safety")}
         </button>
         <button
           className="text-link"
           onClick={() => open("/?role=assessor", "training")}
         >
-          Beobachter
+          {t("start.assessor")}
         </button>
       </section>
 
-      <section className="startpage-row" aria-label="Tiefe">
-        <span className="startpage-row-label">Tiefe</span>
-        <div className="depth-toggle" role="group" aria-label="Bedientiefe">
+      <section className="startpage-row" aria-label={t("start.depth")}>
+        <span className="startpage-row-label">{t("start.depth")}</span>
+        <div className="depth-toggle" role="group" aria-label={t("start.depthGroup")}>
           <button
             className={depth === "guided" ? "active" : ""}
             aria-pressed={depth === "guided"}
             onClick={() => setDepth("guided")}
           >
-            Geführt
+            {t("start.guided")}
           </button>
           <button
             className={depth === "advanced" ? "active" : ""}
             aria-pressed={depth === "advanced"}
             onClick={() => setDepth("advanced")}
           >
-            Experte
+            {t("start.expert")}
           </button>
         </div>
       </section>
 
       <footer className="startpage-footer">
-        <span>Fiktive Systeme. Keine realen Daten, keine Waffentechnik.</span>
+        <span>{t("start.footer")}</span>
         <span>ScreenForge V.01</span>
       </footer>
     </main>

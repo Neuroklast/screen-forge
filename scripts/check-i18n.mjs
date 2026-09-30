@@ -16,10 +16,8 @@ const PENDING = new Set([
   "src/builder/MissionBuilder.tsx",
   "src/components/SequenceEditor.tsx",
   "src/scenes/os/OperatingSystem.tsx",
-  "src/training/Dossiers.tsx",
   "src/training/ScenarioEditor.tsx",
   "src/training/ScenarioWizard.tsx",
-  "src/views/StartPage.tsx",
   "src/views/TrainerView.tsx",
 ]);
 

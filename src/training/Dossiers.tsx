@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { exampleMedia } from "../core/exampleMedia";
 import type { TrainingDossier } from "../core/training";
+import { t } from "../i18n";
 export function DossierCards({ dossiers }: { dossiers: TrainingDossier[] }) {
   const [selected, setSelected] = useState("");
   const d = dossiers.find((d) => d.id === selected) || dossiers[0];
@@ -58,7 +59,7 @@ async function photoData(file: File) {
     !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
     file.size > 10000000
   )
-    throw new Error("Bitte JPG, PNG oder WebP bis 10 MB wählen.");
+    throw new Error(t("dossier.photoError"));
   const bitmap = await createImageBitmap(file);
   const canvas = document.createElement("canvas"),
     ratio = Math.min(1, 480 / Math.max(bitmap.width, bitmap.height));
@@ -68,6 +69,15 @@ async function photoData(file: File) {
   bitmap.close();
   return canvas.toDataURL("image/jpeg", 0.78);
 }
+const FIELD_LABEL: Record<string, string> = {
+  name: "dossier.name",
+  role: "dossier.role",
+  blood: "dossier.blood",
+  allergies: "dossier.allergies",
+  clearance: "dossier.clearance",
+  status: "dossier.status",
+  facility: "dossier.facility",
+};
 export function DossierEditor({
   dossiers,
   onChange,
@@ -84,7 +94,7 @@ export function DossierEditor({
     );
   return (
     <section className="panel">
-      <h2>Akten bearbeiten</h2>
+      <h2>{t("dossier.edit")}</h2>
       <div className="tab-bar">
         {dossiers.map((row) => (
           <button key={row.id} onClick={() => setId(row.id)}>
@@ -98,7 +108,7 @@ export function DossierEditor({
               ...dossiers,
               {
                 id,
-                name: "Neue Person",
+                name: t("dossier.newPerson"),
                 role: "",
                 blood: "",
                 allergies: "",
@@ -114,7 +124,7 @@ export function DossierEditor({
             setId(id);
           }}
         >
-          Neue Akte
+          {t("dossier.new")}
         </button>
       </div>
       {d && (
@@ -132,17 +142,7 @@ export function DossierEditor({
               ] as const
             ).map((k) => (
               <label key={k}>
-                {
-                  {
-                    name: "Name",
-                    role: "Rolle",
-                    blood: "Blutgruppe",
-                    allergies: "Allergien",
-                    clearance: "Freigabestufe",
-                    status: "Status",
-                    facility: "Standort",
-                  }[k]
-                }
+                {t(FIELD_LABEL[k])}
                 <input
                   value={d[k]}
                   onChange={(e) => update({ [k]: e.target.value })}
@@ -150,26 +150,26 @@ export function DossierEditor({
               </label>
             ))}
             <label>
-              Notizen
+              {t("dossier.notes")}
               <textarea
                 value={d.notes}
                 onChange={(e) => update({ notes: e.target.value })}
               />
             </label>
             <label>
-              Verlauf, ein Eintrag pro Zeile
+              {t("dossier.history")}
               <textarea
                 value={d.events.join("\n")}
                 onChange={(e) => update({ events: e.target.value.split("\n") })}
               />
             </label>
             <label>
-              Beispielporträt
+              {t("dossier.examplePortrait")}
               <select
                 value={d.photo.startsWith("/media/") ? d.photo : ""}
                 onChange={(e) => update({ photo: e.target.value })}
               >
-                <option value="">Kein Beispiel / eigenes Foto</option>
+                <option value="">{t("dossier.noExample")}</option>
                 {exampleMedia
                   .filter((m) => m.folder.includes("portraits"))
                   .map((m) => (
@@ -180,7 +180,7 @@ export function DossierEditor({
               </select>
             </label>
             <label>
-              Foto hochladen
+              {t("dossier.uploadPhoto")}
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -206,20 +206,20 @@ export function DossierEditor({
                 checked={d.released}
                 onChange={(e) => update({ released: e.target.checked })}
               />
-              Zu Beginn freigegeben
+              {t("dossier.released")}
             </label>
           </div>
           {d.photo && (
             <img
               className="portrait-preview"
               src={d.photo}
-              alt="Porträtvorschau"
+              alt={t("dossier.portraitAlt")}
             />
           )}
           <button
             onClick={() => onChange(dossiers.filter((row) => row.id !== d.id))}
           >
-            Akte löschen
+            {t("dossier.delete")}
           </button>
         </>
       )}
