@@ -236,8 +236,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       ]),
     },
     {
-      name: "Gegenmaßnahme",
-      show: chain("Gegenmaßnahme", [
+      name: "Countermeasure",
+      show: chain("Countermeasure", [
         node(
           "ISOLATE SESSION",
           scene(base, "terminal", {
@@ -287,8 +287,8 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
       ]),
     },
     {
-      name: "Türverriegelung",
-      show: chain("Türverriegelung", [
+      name: "Door Lockdown",
+      show: chain("Door Lockdown", [
         node("Diagnostic key", term, {
           cue: "idle",
           trigger: "pin",
@@ -387,8 +387,8 @@ export const showTemplateLabels = [
   "Sprengkopf-Wartung",
   "Archiv-Extraktion",
   "Service-Image laden",
-  "Gegenmaßnahme",
-  "Türverriegelung",
+  "Countermeasure",
+  "Door Lockdown",
   "Medizinischer Notfall",
   "Einrichtungsterminal",
 ] as const;
