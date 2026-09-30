@@ -46,7 +46,7 @@ export const missionTemplates: MissionTemplate[] = [
     category: "starter",
     difficulty: 1,
     durationMin: 0,
-    scenario: build("Blank Mission", {}),
+    scenario: build("Blank Mission", { type: "custom" }),
   },
   {
     id: "eod-disposal",
@@ -56,6 +56,7 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 3,
     durationMin: 25,
     scenario: build("Ordnance Disposal", {
+      type: "disposal",
       stations: [
         { id: "hq", name: "Command", role: "hq", module: "tracking" },
         {
@@ -105,6 +106,7 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 3,
     durationMin: 25,
     scenario: build("Data Exfiltration", {
+      type: "field",
       stations: [
         { id: "hq", name: "Command", role: "hq", module: "tracking" },
         { id: "term-1", name: "Target System", role: "element", module: "terminal" },
@@ -148,6 +150,7 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 2,
     durationMin: 20,
     scenario: build("Beacon Activation", {
+      type: "field",
       stations: [
         { id: "hq", name: "Command", role: "hq", module: "tracking" },
         {
@@ -195,6 +198,7 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 1,
     durationMin: 15,
     scenario: build("Medical Emergency", {
+      type: "medical",
       stations: [
         { id: "hq", name: "Command", role: "hq", module: "tracking" },
         {
@@ -218,6 +222,7 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 2,
     durationMin: 15,
     scenario: build("Access & Lockdown", {
+      type: "field",
       stations: [
         { id: "hq", name: "Command", role: "hq", module: "tracking" },
         { id: "acc-1", name: "Access", role: "element", module: "access" },
@@ -239,6 +244,7 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 2,
     durationMin: 20,
     scenario: build("MILSIM Skirmish", {
+      type: "field",
       stations: [
         { id: "hq", name: "Command", role: "hq", module: "tracking" },
         { id: "alpha-1", name: "Alpha 01", role: "element", module: "tracking", player: true, team: "ALPHA", route },
@@ -261,6 +267,7 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 1,
     durationMin: 10,
     scenario: build("Film Playback", {
+      type: "film",
       mode: "PLAYBACK",
       stations: [
         { id: "stage-1", name: "Stage 01", role: "element", module: "intranet" },
@@ -280,6 +287,7 @@ export const missionTemplates: MissionTemplate[] = [
       version: 2,
       name: "Relay Recovery",
       mode: "LIVE",
+      type: "field",
       seed: 3117,
       map,
       stations: [
@@ -357,6 +365,7 @@ export const missionTemplates: MissionTemplate[] = [
       version: 2,
       name: "Device Link & Diagnostics",
       mode: "LIVE",
+      type: "field",
       seed: 1337,
       map,
       stations: [
@@ -483,6 +492,7 @@ export const missionTemplates: MissionTemplate[] = [
       version: 2,
       name: "Secure Data Transfer",
       mode: "PLAYBACK",
+      type: "film",
       seed: 7,
       map,
       stations: [
@@ -538,6 +548,8 @@ export const missionTemplates: MissionTemplate[] = [
       version: 2,
       name: "Distributed Command Incident",
       mode: "LIVE",
+      type: "field",
+      capabilities: { patients: true },
       seed: 4096,
       map,
       stations: [

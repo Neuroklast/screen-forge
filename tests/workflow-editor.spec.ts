@@ -1,23 +1,23 @@
 import { test, expect } from "@playwright/test";
 
-test("choice tasks expose dynamic ports", async ({ page }) => {
+async function login(page: import("@playwright/test").Page) {
   await page.goto(
-    `/?role=trainer&room=choice-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    `/?role=trainer&room=flow-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
   );
   await page.getByLabel("Trainer-Schlüssel").fill("browser-test-key");
   await page.getByRole("button", { name: "Verbinden" }).click();
-  await page
-    .getByRole("button", { name: "Szenario bearbeiten", exact: true })
-    .click();
-  await page.getByRole("tab", { name: "Ablauf" }).click();
-  await page
-    .getByRole("button", { name: "Ablauf anlegen", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Ablauf", exact: true }).click();
+}
 
-  await page.getByRole("button", { name: "Aufgabe", exact: true }).click();
+test("choice tasks expose dynamic ports", async ({ page }) => {
+  await login(page);
+  await page
+    .getByRole("button", { name: "+ Ablauf anlegen", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Aktion", exact: true }).click();
   await page
     .getByRole("combobox", { name: "Aufgabe", exact: true })
-    .selectOption("choice");
+    .selectOption({ label: "Auswahl" });
   await page
     .getByRole("combobox", { name: "a", exact: true })
     .selectOption({ index: 1 });
@@ -33,25 +33,16 @@ test("choice tasks expose dynamic ports", async ({ page }) => {
   await expect(page.locator(".wf-findings")).toContainText("Keine Befunde.");
 });
 
-test("workflow editor creates, connects and lints a flow", async ({ page }) => {
-  await page.goto(
-    `/?role=trainer&room=flow-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-  );
-  await page.getByLabel("Trainer-Schlüssel").fill("browser-test-key");
-  await page.getByRole("button", { name: "Verbinden" }).click();
-  await page
-    .getByRole("button", { name: "Szenario bearbeiten", exact: true })
-    .click();
-
-  await page.getByRole("tab", { name: "Ablauf" }).click();
+test("flow workspace creates, connects and lints a flow", async ({ page }) => {
+  await login(page);
   await expect(page.getByText("Kein Ablauf vorhanden.")).toBeVisible();
   await page
-    .getByRole("button", { name: "Ablauf anlegen", exact: true })
+    .getByRole("button", { name: "+ Ablauf anlegen", exact: true })
     .click();
   await expect(page.locator(".wf-node")).toHaveCount(2);
 
-  // Add a task node; the editor selects it.
-  await page.getByRole("button", { name: "Aufgabe", exact: true }).click();
+  // Add an action node; the editor selects it.
+  await page.getByRole("button", { name: "Aktion", exact: true }).click();
   await expect(page.locator(".wf-node")).toHaveCount(3);
   await page
     .getByRole("combobox", { name: "success", exact: true })
@@ -67,9 +58,11 @@ test("workflow editor creates, connects and lints a flow", async ({ page }) => {
     .selectOption({ index: 2 });
   await expect(page.locator(".wf-findings")).toContainText("Keine Befunde.");
 
-  // Counters bring their own variable.
+  // Counters bring their own variable; the raw panel exposes it.
+  await page.getByText("Weitere Bausteine").click();
   await page.getByRole("button", { name: "Zähler erhöhen" }).click();
-  await expect(page.locator(".wf-variable")).toHaveCount(1);
+  await page.getByText("Rohdaten", { exact: true }).click();
+  await expect(page.getByText(/count-/).first()).toBeVisible();
 
   await page.getByRole("button", { name: "Szenario speichern", exact: true }).click();
   await expect(page.locator('.notice[role="status"]')).toContainText(
@@ -78,34 +71,19 @@ test("workflow editor creates, connects and lints a flow", async ({ page }) => {
 });
 
 test("migrated widget tasks are editable in the graph", async ({ page }) => {
-  await page.goto(
-    `/?role=trainer&room=widget-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-  );
-  await page.getByLabel("Trainer-Schlüssel").fill("browser-test-key");
-  await page.getByRole("button", { name: "Verbinden" }).click();
+  await login(page);
   await page
-    .getByRole("button", { name: "Szenario bearbeiten", exact: true })
+    .getByRole("button", { name: "+ Ablauf anlegen", exact: true })
     .click();
-  await page.getByRole("tab", { name: "Ablauf" }).click();
-  await page
-    .getByRole("button", { name: "Ablauf anlegen", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Aufgabe", exact: true }).click();
-  await page
-    .getByRole("combobox", { name: "Aufgabe", exact: true })
-    .selectOption("dial");
+  await page.getByRole("button", { name: "Aktion", exact: true }).click();
+  const task = page.getByRole("combobox", { name: "Aufgabe", exact: true });
+  await task.selectOption({ label: "Drehregler" });
   await expect(page.getByRole("spinbutton", { name: "Regler" })).toBeVisible();
   await expect(page.getByRole("spinbutton", { name: "Referenz" })).toBeVisible();
-  await page
-    .getByRole("combobox", { name: "Aufgabe", exact: true })
-    .selectOption("code-table");
+  await task.selectOption({ label: "Codetabelle" });
   await expect(page.getByRole("textbox", { name: "Klartext" })).toBeVisible();
-  await page
-    .getByRole("combobox", { name: "Aufgabe", exact: true })
-    .selectOption("timer");
+  await task.selectOption({ label: "Zeitgeber" });
   await expect(page.getByRole("spinbutton", { name: "Dauer" })).toBeVisible();
-  await page
-    .getByRole("combobox", { name: "Aufgabe", exact: true })
-    .selectOption("datasheet");
+  await task.selectOption({ label: "Datenblatt" });
   await expect(page.getByRole("textbox", { name: "Thema" })).toBeVisible();
 });

@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { ordnanceTypeSchema } from "./ordnance.ts";
 import {
+  inferScenarioType,
+  isScenarioType,
+  scenarioTypes,
+  type CapabilityOverrides,
+} from "./capabilities.ts";
+import {
   activeTaskOf,
   advanceWorkflow,
   evaluateWorkflow,
@@ -270,9 +276,25 @@ export const injectSchema = z.object({
   maxIterations: z.number().int().min(1).max(50).default(1),
   exitCondition: z.string().max(120).default(""),
 });
+export const capabilityOverridesSchema = z
+  .object({
+    participants: z.boolean().optional(),
+    teams: z.boolean().optional(),
+    actors: z.boolean().optional(),
+    patients: z.boolean().optional(),
+    props: z.boolean().optional(),
+    zones: z.boolean().optional(),
+    dossiers: z.boolean().optional(),
+    devices: z.boolean().optional(),
+    workflows: z.boolean().optional(),
+    objectives: z.boolean().optional(),
+  })
+  .default({});
 const scenarioV2Schema = z
   .object({
     version: z.literal(2),
+    type: z.enum(scenarioTypes).default("custom"),
+    capabilities: capabilityOverridesSchema,
     name: label,
     mode: z.enum(["LIVE", "PLAYBACK"]),
     seed: finite.int().min(1).max(2147483647),
@@ -320,11 +342,8 @@ const scenarioV2Schema = z
       if (new Set(rows.map((x) => x.id)).size !== rows.length)
         issue("IDs must be unique within each collection");
     for (const st of s.stations) {
-      if (
-        st.module === "medical" &&
-        !s.patients.some((p) => p.id === st.bindings.patient)
-      )
-        issue(`Patient missing for ${st.name}`);
+      // Missing patients/props are linter findings (review/start gate), not
+      // schema errors: a draft may be incomplete while it is built.
       if (
         st.bindings.patient &&
         !s.patients.some((p) => p.id === st.bindings.patient)
@@ -485,6 +504,9 @@ function normalizeScenario(input: unknown): unknown {
     injects,
   };
   delete next.rules;
+  // Scenarios saved before `type` existed get a best-effort type; it is
+  // persisted on the next save so the type stays stable afterwards.
+  if (!isScenarioType(next.type)) next.type = inferScenarioType(next);
   return next;
 }
 export const scenarioSchema = z.preprocess(normalizeScenario, scenarioV2Schema);
@@ -567,6 +589,11 @@ export function template(
       airsoft: "Airsoft field exercise",
     }[kind],
     mode: kind === "film" ? "PLAYBACK" : "LIVE",
+    type: { sar: "field", medical: "medical", film: "film", airsoft: "field" }[
+      kind
+    ],
+    // Search & rescue carries a casualty even though `field` hides patients.
+    capabilities: kind === "sar" ? { patients: true } : {},
     seed: 2048,
     map: {
       lat: 51.23,

@@ -14,6 +14,7 @@ Templates are pre-composed mission skeletons shown in a gallery. They MUST be fu
 | `id` | string | Stable slug (`eod-disposal`) |
 | `name` / `nameDe` | string | Display name EN / DE |
 | `summary` | string | One sentence for the gallery card |
+| `type` | scenario type | `disposal` / `medical` / `film` / `field` / `custom`; sets the capability preset of the loaded mission ([15-scenario-capabilities.md](15-scenario-capabilities.md)) |
 | `modes` | `film` / `training` | Where it can be loaded |
 | `difficulty` | 1–3 | Guided suitability |
 | `durationMin` | number | Typical exercise length |

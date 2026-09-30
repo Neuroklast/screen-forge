@@ -27,32 +27,34 @@ Vorlagen                         [Suche…]   Filter: [Training ▾] [Dauer ▾]
 
 ## Wizard steps
 
+Capability-driven since the preparation refactor ([11-preparation-ia.md](11-preparation-ia.md)); the type decides which blocks appear ([../domain/15-scenario-capabilities.md](../domain/15-scenario-capabilities.md)).
+
 | # | Step | Content | Defaults | Skip |
 | --- | --- | --- | --- | --- |
-| 1 | `"Zweck"` | Gallery + selection | last used filter | no |
-| 2 | `"Gelände"` | Map center/zoom, `LIVE`/`PLAYBACK` | template value; offline grid if no tiles | yes (uses template) |
-| 3 | `"Geräte"` | Template stations; rename, add, remove; `"Spieler hinzufügen"` | template stations | no (≥1 at end) |
-| 4 | `"Entitäten"` | Optional patient/prop add buttons; dossier note | none pre-added beyond template story | yes |
-| 5 | `"Ablauf"` | First injects: time + one action; objective names | template injects | yes |
-| 6 | `"Prüfen & Start"` | Linter summary, mission name, `"Einsatz anlegen"` | name = template name + date | no |
+| 1 | `"Zweck"` | Scenario type, template library, mission name | last used type | no |
+| 2 | `"Teilnehmer"` | Capability-driven people blocks: `"Teilnehmer hinzufügen"`, `"Team hinzufügen"`, `"Darsteller hinzufügen"`, `"Patient hinzufügen"` | none | yes |
+| 3 | `"Geräte"` | Human device presets; ordnance/beacon consoles provision their prop, medical devices provision a patient | none | no (≥1 at end) |
+| 4 | `"Ablauf"` | Optional simple starter flow (`Start → Meldung → Ende`) | none | yes |
+| 5 | `"Prüfen"` | Linter summary, mission name, `"Szenario anlegen"` | name from type/template | no |
 
-- Steps are tabs; free navigation back/forward; progress shown as `3/6`.
-- Validation is inline and non-blocking until step 6 (`"Weiter"` allowed with warnings, blocked by errors only where needed: step 3 empty).
-- Every step shows a persistent `"Im Expertenmodus öffnen"` link; it opens the builder with current input, no data loss.
+- Steps are tabs; free navigation back/forward; progress shown as `3/5`.
+- Validation is inline and non-blocking until step 5 (`"Weiter"` allowed with warnings, blocked by errors only where needed: step 3 empty).
+- Every step shows a persistent `"Im Expertenmodus öffnen"` link; it opens the expert canvas with current input, no data loss.
+- The wizard never asks for modules, station roles, bindings, ids or inject structures; `"Spieler hinzufügen"` is forbidden copy.
 
 ## Step UX details
 
-- **Gelände:** drag map to center; `"Mein Standort"`; `PLAYBACK` hides GPS-only fields; tiles optional (`"Offline-Raster"` default).
-- **Geräte:** station rows with module chip, name field, remove icon; `"Gerät hinzufügen"` opens module picker (grouped field/system); counts shown `"4 Geräte"`.
-- **Entitäten:** cards `"Patient hinzufügen"`, `"Sprengkörper hinzufügen"`, `"Bake hinzufügen"`, `"Akte hinzufügen"`; each creates a default and opens a one-line editor; `"Keine Entitäten nötig"` is a valid explicit state.
-- **Ablauf:** list of injects as rows (`"bei 03:00 → Patient verschlechtert sich"`); add via 3 presets (`"Zeit"`, `"Zone"`, `"Manuell"`); advanced editing deferred to builder.
-- **Prüfen:** shows errors (red), warnings (yellow), infos (gray) with links to the offending step/item; `"Einsatz anlegen"` disabled while errors exist.
+- **Zweck:** type buttons (`"Sprengkörper entschärfen"`, `"Medizin"`, `"Film"`, `"Feldübung"`, `"Frei"`) plus the full template library; selecting a type resets the draft to that type's capabilities, selecting a template loads it into the draft.
+- **Teilnehmer:** only the blocks the type enables; adding people creates default entities that stay editable later.
+- **Geräte:** preset picker (`"Feldgerät (GPS)"`, `"Funkgerät"`, `"Medizingerät"`, `"Kamera"`, `"Terminal"`, `"Sprengkörper-Konsole"`, `"Bake"`, …) and a rename list; the capability matrix hides impossible presets (no medical device without patients, no ordnance console without props).
+- **Ablauf:** one optional starter flow; events and deeper logic are authored later in the `"Ablauf"` section.
+- **Prüfen:** shows errors (red), warnings (yellow), infos (gray) with links to the offending section; `"Szenario anlegen"` is blocked only by schema errors.
 
 ## After creation
 
-- Mission opens in the **Devices tab** of Exercise Control with a readiness checklist.
-- Success banner: `"Einsatz angelegt — jetzt Geräte verbinden."` with primary `"Gerät verbinden"`.
-- Guided users stay in guided depth: builder hidden behind `"Bearbeiten (Experte)"`.
+- The preparation shell opens on `"Geräte"` with a readiness checklist in `"Prüfen"`.
+- Success banner: `"Szenario gespeichert."`; provisioning continues in `"Geräte"`.
+- The wizard closes; the shell is the editor.
 
 ## Running a guided exercise
 

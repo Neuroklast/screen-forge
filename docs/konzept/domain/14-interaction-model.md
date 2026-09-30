@@ -68,6 +68,11 @@ Edge     { id, source, output, target }
 | Owner | EXCON / world | player interaction |
 | Coupling | events only | events only |
 
+## UI layer (preparation)
+
+- The preparation `"Ablauf"` workspace is one visual workspace: workflow nodes form the connected logic graph; timed/zone/manual events live on a timeline and show the workflow they start (derived from prop actions, never stored).
+- The palette speaks human concepts (`"Start"`, `"Aktion"`, `"Entscheidung"`, `"Auf Ereignis warten"`, `"Meldung"`, `"Zustand ändern"`, `"Ziel abschließen"`, `"Ende"`) and maps them onto the technical node/task types. The inject/workflow split is architecture, not user vocabulary; the raw list stays under `"Rohdaten"` for experts ([../usability/11-preparation-ia.md](../usability/11-preparation-ia.md)).
+
 ## Redaction
 
 - Workflow definitions MAY contain secrets (expected values, hidden branches). Non-EXCON clients receive only what the active task needs; secret variable values are NEVER projected.

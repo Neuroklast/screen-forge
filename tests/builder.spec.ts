@@ -1,12 +1,13 @@
 import { test, expect } from "@playwright/test";
 
-test("builder adds a device and shows the linter", async ({ page }) => {
+test("legacy canvas adds a device and shows the linter", async ({ page }) => {
   await page.goto(`/?role=trainer&room=builder-${Date.now()}`);
   await page.getByLabel("Trainer-Schlüssel").fill("browser-test-key");
   await page.getByRole("button", { name: "Verbinden" }).click();
   await page
-    .getByRole("button", { name: "Szenario bearbeiten", exact: true })
+    .getByRole("button", { name: "Szenario", exact: true })
     .click();
+  await page.getByText("Expertenmodus (Legacy)").click();
 
   const cards = page.locator(".builder-card");
   const before = await cards.count();

@@ -21,14 +21,15 @@ test("workflow pilot links, challenges the code and shows diagnostics", async ({
     .click();
   await page
     .getByRole("button", { name: "Device Link & Diagnostics", exact: false })
+    .first()
     .click();
   await page.getByLabel("Szenarioname", { exact: true }).fill("Link test");
-  for (let i = 0; i < 3; i++)
+  for (let i = 0; i < 4; i++)
     await page.getByRole("button", { name: "Weiter", exact: true }).click();
   await page.getByRole("button", { name: "Szenario anlegen" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Link test");
 
-  await page.getByRole("button", { name: "Geräte vorbereiten", exact: true }).click();
+  await page.getByRole("button", { name: "Geräte", exact: true }).click();
   const card = page
     .locator(".device-card")
     .filter({ has: page.getByRole("heading", { name: "Device Console", exact: true }) });

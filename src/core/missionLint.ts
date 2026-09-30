@@ -1,4 +1,5 @@
 import type { Scenario } from "./training.ts";
+import { scenarioCapabilities } from "./capabilities.ts";
 import { lintGraph } from "./graph.ts";
 import { t } from "../i18n/index.ts";
 
@@ -103,7 +104,56 @@ export function lintMission(s: Scenario): Finding[] {
     if (!r.enabled)
       info(`inject-off-${r.id}`, t("lint.injectOff", { name: r.name }), "injects", r.id);
 
+  out.push(...lintCapabilities(s));
   out.push(...lintGraph(s));
+  return out;
+}
+
+// Capability-driven rules: the scenario type selects the intended domain, so
+// content that contradicts it (or lacks its required counterpart) blocks the
+// start. Messages stay in normal language for the review screen.
+const PERSONAL_MODULES = ["tracking", "medical"];
+
+function lintCapabilities(s: Scenario): Finding[] {
+  const out: Finding[] = [];
+  const error = (
+    id: string,
+    message: string,
+    collection: Collection,
+    target?: string,
+  ) => out.push({ id, severity: "error", message, path: { collection, id: target } });
+  const capabilities = scenarioCapabilities(s);
+
+  if (!capabilities.patients && s.patients.length > 0)
+    error("cap-patients-off", t("lint.capPatientsOff"), "patients");
+
+  if (s.type === "medical") {
+    const treatsPatients =
+      s.stations.some((st) => st.module === "medical") ||
+      s.workflows.some((w) =>
+        w.nodes.some((n) => n.type === "task" && n.task === "medical"),
+      ) ||
+      s.injects.some((r) => r.actions.some((a) => a.type === "patient"));
+    if (treatsPatients && s.patients.length === 0)
+      error("cap-medical-patient", t("lint.capMedicalPatient"), "patients");
+  }
+
+  // Personal field devices need an owner or a scenario task; fixed equipment
+  // (consoles, cameras, props) is the responsibility itself.
+  for (const st of s.stations) {
+    if (st.role !== "element" || !PERSONAL_MODULES.includes(st.module)) continue;
+    const bound =
+      !!st.bindings.patient || !!st.bindings.prop || !!st.bindings.objective;
+    const owned =
+      st.player || bound || s.teams.some((team) => team.id === st.team);
+    if (!owned)
+      error(
+        `cap-device-${st.id}`,
+        t("lint.capDeviceOwner", { name: st.name }),
+        "stations",
+        st.id,
+      );
+  }
   return out;
 }
 

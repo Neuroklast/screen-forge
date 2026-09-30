@@ -29,6 +29,7 @@
 | 12 | [domain/12-gap-analysis.md](domain/12-gap-analysis.md) | Planning implementation work |
 | 13 | [domain/13-field-client.md](domain/13-field-client.md) | Field shell, background location, offline maps |
 | 14 | [domain/14-interaction-model.md](domain/14-interaction-model.md) | Tasks, workflows, surfaces, interaction runtime |
+| 15 | [domain/15-scenario-capabilities.md](domain/15-scenario-capabilities.md) | Scenario type, capability matrix, capability validation |
 
 ## Usability concept
 
@@ -45,6 +46,7 @@
 | U8 | [usability/08-flows.md](usability/08-flows.md) | End-to-end journeys per mode |
 | U9 | [usability/09-layout-contracts.md](usability/09-layout-contracts.md) | Any scene/block layout: grid, overflow, z-index, truncation, scaling |
 | U10 | [usability/10-experience-profiles.md](usability/10-experience-profiles.md) | Easy/Advanced/Professional density, provenance, degradation |
+| U11 | [usability/11-preparation-ia.md](usability/11-preparation-ia.md) | Preparation navigation (six sections), flow workspace, legacy expert mode |
 
 ## Catalog (scenes, components, assets)
 

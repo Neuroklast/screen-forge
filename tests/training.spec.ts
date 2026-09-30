@@ -8,7 +8,7 @@ async function login(page: Page) {
   await expect(page.getByRole('heading',{name:'Was möchtest du als Nächstes tun?'})).toBeVisible();
 }
 async function assign(page: Page, browser: Browser, name: string) {
-  await page.getByRole('button',{name:'Geräte vorbereiten',exact:true}).click();
+  await page.getByRole('button',{name:'Geräte',exact:true}).click();
   const card = page.locator('.device-card').filter({has: page.getByRole('heading',{name,exact:true})});
   await card.getByRole('button',{name:'QR-Code anzeigen'}).click();
   await expect(page.locator('.qr-panel h3')).toHaveText(name);
@@ -17,14 +17,17 @@ async function assign(page: Page, browser: Browser, name: string) {
   await expect(device.locator('.field-status, .hq-view')).toBeVisible();
   return {ctx,device,url:url!};
 }
+async function guidedFromTemplate(page: Page, template: string, name: string) {
+  await page.getByRole('button',{name:'Neues Szenario erstellen',exact:false}).click();
+  await page.getByRole('button',{name:template,exact:false}).first().click();
+  await page.getByLabel('Szenarioname',{exact:true}).fill(name);
+  for (let i=0;i<4;i++) await page.getByRole('button',{name:'Weiter',exact:true}).click();
+  await page.getByRole('button',{name:'Szenario anlegen'}).click();
+  await expect(page.getByRole('heading',{level:1})).toHaveText(name);
+}
 test('guided setup, one-time QR, diagnostic code, pause/reset and mobile layout', async ({page,browser}) => {
   await login(page);
-  await page.getByRole('button',{name:'Neues Szenario erstellen',exact:false}).click();
-  await page.getByRole('button',{name:'Film playback',exact:false}).click();
-  await page.getByLabel('Szenarioname',{exact:true}).fill('Film test');
-  for (let i=0;i<3;i++) await page.getByRole('button',{name:'Weiter',exact:true}).click();
-  await page.getByRole('button',{name:'Szenario anlegen'}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Film test');
+  await guidedFromTemplate(page,'Search & Rescue','Guided test');
   const {ctx,device,url} = await assign(page,browser,'Sequence terminal');
   try {
     await expect(device.getByText('STANDBY',{exact:true})).toBeVisible();
@@ -60,40 +63,36 @@ test('MEL timeline shows planned, rescheduled and actual entries with CSV export
 });
 test('mission library template loads into the wizard', async ({page}) => {
   await login(page);
-  await page.getByRole('button',{name:'Neues Szenario erstellen',exact:false}).click();
-  await page.getByRole('button',{name:'Relay Recovery',exact:false}).click();
-  await page.getByLabel('Szenarioname',{exact:true}).fill('Relay test');
-  for (let i=0;i<3;i++) await page.getByRole('button',{name:'Weiter',exact:true}).click();
-  await page.getByRole('button',{name:'Szenario anlegen'}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Relay test');
+  await guidedFromTemplate(page,'Relay Recovery','Relay test');
 });
 test('dossiers synchronize and trainer patient changes reach the assigned monitor', async ({page,browser}) => {
   await login(page);
   const medic = await assign(page,browser,'Medic 01');
   const hq = await assign(page,browser,'Headquarters');
   try {
-    await page.getByRole('button',{name:'Live-Steuerung',exact:true}).click();
+    await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
     await page.getByRole('button',{name:'arrest',exact:true}).click();
     await expect(medic.device.locator('.bio-id b')).toHaveText('ARREST');
     await expect(hq.device.locator('.hq-patient-card')).toContainText('HR 0');
-    await page.getByRole('button',{name:'Personalakten',exact:true}).click();
-    await page.getByRole('button',{name:'Neue Akte',exact:true}).click();
-    await page.getByLabel('Name',{exact:true}).fill('Test Person');
-    await page.getByLabel('Notizen').fill('Only after release');
+    await page.getByRole('button',{name:'Pausieren',exact:true}).click();
+    await page.getByRole('button',{name:'Teilnehmer',exact:true}).click();
+    const dossiers = page.locator('.prepare-block').filter({has: page.getByRole('heading',{name:'Akten'})});
+    await dossiers.getByRole('button',{name:'Neue Akte',exact:true}).click();
+    await dossiers.getByLabel('Name',{exact:true}).fill('Test Person');
+    await dossiers.getByLabel('Notizen').fill('Only after release');
     await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();
     await expect(page.locator('.notice[role="status"]')).toContainText('Szenario gespeichert');
     await expect(hq.device.getByText('Test Person',{exact:true})).toHaveCount(0);
-    await page.getByRole('button',{name:'Live-Steuerung',exact:true}).click();
+    await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
     await page.getByRole('button',{name:'Test Person freigeben'}).click();
     await expect(hq.device.getByRole('heading',{name:'Test Person'})).toBeVisible();
   } finally { await medic.ctx.close(); await hq.ctx.close(); }
 });
 test('station presentation is pushed to the assigned field device', async ({page,browser}) => {
   await login(page);
-  await page.getByRole('button',{name:'Szenario bearbeiten',exact:true}).click();
-  const card = page.locator('.builder-card').filter({hasText:'Intelligence'});
-  await card.click();
-  await page.getByLabel('Titel',{exact:true}).fill('RELAY-07');
+  await page.getByRole('button',{name:'Geräte',exact:true}).click();
+  const card = page.locator('.prepare-device').filter({hasText:'Intelligence'});
+  await card.getByLabel('Titel',{exact:true}).fill('RELAY-07');
   await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();
   await expect(page.locator('.notice[role="status"]')).toContainText('Szenario gespeichert');
   const {ctx,device} = await assign(page,browser,'Intelligence');
@@ -132,15 +131,15 @@ test('field terminal controls stay reachable on a small screen', async ({page,br
 });
 test('preparation surfaces hide while the exercise runs', async ({page}) => {
   await login(page);
-  await expect(page.getByRole('button',{name:'Geräte vorbereiten',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Geräte',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
   await expect(page.getByRole('button',{name:'Live-Steuerung',exact:true})).toBeVisible();
-  await expect(page.getByRole('button',{name:'Szenario bearbeiten',exact:true})).toHaveCount(0);
-  await expect(page.getByRole('button',{name:'Personalakten',exact:true})).toHaveCount(0);
-  await expect(page.getByRole('button',{name:'Geführte Einrichtung',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Szenario',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Teilnehmer',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Ablauf',exact:true})).toHaveCount(0);
   await expect(page.getByRole('heading',{name:'Verdeckte Ereignisse'})).toBeVisible();
   await page.getByRole('button',{name:'Pausieren',exact:true}).click();
-  await expect(page.getByRole('button',{name:'Szenario bearbeiten',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Szenario',exact:true})).toBeVisible();
 });
 test('field surface is a fixed viewport without a document scroll', async ({page,browser}) => {
   await login(page);
@@ -158,12 +157,7 @@ test('field surface is a fixed viewport without a document scroll', async ({page
 });
 test('instrument module renders as a native field surface, not a scaled stage', async ({page,browser}) => {
   await login(page);
-  await page.getByRole('button',{name:'Neues Szenario erstellen',exact:false}).click();
-  await page.getByRole('button',{name:'Ordnance Disposal',exact:false}).click();
-  await page.getByLabel('Szenarioname',{exact:true}).fill('Instrument test');
-  for (let i=0;i<3;i++) await page.getByRole('button',{name:'Weiter',exact:true}).click();
-  await page.getByRole('button',{name:'Szenario anlegen'}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Instrument test');
+  await guidedFromTemplate(page,'Ordnance Disposal','Instrument test');
   const {ctx,device} = await assign(page,browser,'Data Sheet');
   try {
     await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();

@@ -145,6 +145,49 @@ describe("workflow graph linter", () => {
     });
     expect(workflowFindings([workflow])).toEqual([]);
   });
+
+  it("flags a branch that never reaches a terminal node", () => {
+    const workflow = baseWorkflow({
+      nodes: [
+        { id: "start", type: "start" },
+        { id: "task", type: "task", task: "confirm", config: {} },
+      ],
+      edges: [
+        { id: "e1", source: "start", output: "out", target: "task" },
+        { id: "e2", source: "task", output: "success", target: "task" },
+        { id: "e3", source: "task", output: "failure", target: "task" },
+      ],
+    });
+    expect(
+      workflowFindings([workflow]).some((f) =>
+        f.id.startsWith("graph-wf-terminal-wf-1-task"),
+      ),
+    ).toBe(true);
+  });
+
+  it("accepts a workflow whose branches all reach an end", () => {
+    const workflow = baseWorkflow({
+      nodes: [
+        { id: "start", type: "start" },
+        {
+          id: "check",
+          type: "condition",
+          variable: "n",
+          operator: ">=",
+          value: 1,
+        },
+        { id: "end", type: "end", outcome: "success" },
+        { id: "fail", type: "end", outcome: "failure" },
+      ],
+      edges: [
+        { id: "e1", source: "start", output: "out", target: "check" },
+        { id: "e2", source: "check", output: "true", target: "end" },
+        { id: "e3", source: "check", output: "false", target: "fail" },
+      ],
+      variables: [{ id: "n", kind: "number", initial: 0 }],
+    });
+    expect(workflowFindings([workflow])).toEqual([]);
+  });
 });
 
 describe("graph linter", () => {

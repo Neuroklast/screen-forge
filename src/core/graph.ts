@@ -64,7 +64,7 @@ function lintWorkflow(workflow: Workflow): Finding[] {
       if (!outputs.get(node.id)?.has(port))
         error(
           `graph-wf-exit-${workflow.id}-${node.id}-${port}`,
-          t("graph.wfExit", { name }),
+          t("graph.wfExit", { name, port }),
         );
   }
   const reachable = new Set<string>();
@@ -81,6 +81,35 @@ function lintWorkflow(workflow: Workflow): Finding[] {
         `graph-wf-unreachable-${workflow.id}-${node.id}`,
         t("graph.wfUnreachable", { name: node.name || node.id }),
       );
+  // Every reachable node must have a terminal path: reverse reachability from
+  // the end nodes. A branch that only leads back into itself is an error even
+  // when every port is connected.
+  const reverse = new Map<string, string[]>();
+  for (const edge of workflow.edges)
+    reverse.set(edge.target, [
+      ...(reverse.get(edge.target) ?? []),
+      edge.source,
+    ]);
+  const canReachEnd = new Set(
+    workflow.nodes.filter((node) => node.type === "end").map((node) => node.id),
+  );
+  const walk = [...canReachEnd];
+  while (walk.length) {
+    const nodeId = walk.pop();
+    if (!nodeId) continue;
+    for (const previous of reverse.get(nodeId) ?? [])
+      if (!canReachEnd.has(previous)) {
+        canReachEnd.add(previous);
+        walk.push(previous);
+      }
+  }
+  for (const node of workflow.nodes) {
+    if (!reachable.has(node.id) || canReachEnd.has(node.id)) continue;
+    error(
+      `graph-wf-terminal-${workflow.id}-${node.id}`,
+      t("graph.wfNoTerminal", { name: node.name || node.id }),
+    );
+  }
   if (!workflowSettles(workflow))
     error(
       `graph-wf-loop-${workflow.id}`,

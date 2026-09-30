@@ -5,7 +5,13 @@
 
 ## Purpose
 
-The builder composes a **mission** ("Einsatz") from devices, entities, and injects by **drag & drop**. It replaces the form-first editor as the primary authoring surface. Templates are optional starting points, never cages.
+The builder composes a **mission** ("Einsatz") from devices, entities, and injects. The primary authoring surface is the fixed six-section preparation shell ([../usability/11-preparation-ia.md](../usability/11-preparation-ia.md)); the drag & drop canvas described below survives only as `"Expertenmodus (Legacy)"` under Szenario and gets no further UX investment. Templates are optional starting points, never cages.
+
+## Sections and capabilities
+
+- Preparation is organized as Übersicht, Szenario, Teilnehmer, Geräte, Ablauf, Prüfen; no entity or implementation concept gets its own navigation item.
+- The scenario `type` selects which domain blocks appear; overrides switch a hidden block back on ([15-scenario-capabilities.md](15-scenario-capabilities.md)).
+- `"Ablauf"` is the primary logic editor: workflow graph plus event timeline; the raw MEL list and workflow variables live in collapsed `"Rohdaten"` for experts.
 
 ## Model in one sentence
 
@@ -75,6 +81,10 @@ Severities: `error` blocks start, `warning` recommends, `info` explains.
 | Inject without purpose | warning | `"Ereignis ohne Zweck."` |
 | Inject without expected outcome | warning | `"Kein erwartetes Ergebnis."` |
 | Missing fallback (external delivery) | warning | `"Kein Fallback bei externer Zustellung."` |
+| Patients present while the type hides them | error | `"Dieses Szenario sieht keine Patienten vor. …"` |
+| Medical treatment without a patient | error | `"Dieses medizinische Szenario behandelt Patienten, hat aber keinen. …"` |
+| Personal field device without owner | error | `"Gerät {name} ist keinem Teilnehmer, Team oder Auftrag zugeordnet."` |
+| Workflow node without a terminal path | error | `"Von {name} führt kein Weg zum Abschluss."` |
 
 - Inject classes (Information, Communications, Resource, Human, Environment, Authority, Safety, Evaluation) group the palette.
 - A cycle is allowed only when explicitly repeatable (`repeatable: true`, `maxIterations`, `exitCondition`); otherwise it is an error ([../control/01-inject-orchestration.md](../control/01-inject-orchestration.md)).
@@ -106,6 +116,7 @@ Severities: `error` blocks start, `warning` recommends, `info` explains.
 ## Acceptance criteria
 
 - [ ] Given an empty mission, when a user drags `Terminal` onto the board, then one station exists with a neutral default and no entities created.
+- [ ] Given a disposal mission, then Teilnehmer/Geräte show no patient controls unless the capability is enabled.
 - [ ] Given a mission with 0 patients, when no medical module is used, then `"Prüfen"` reports no error.
 - [ ] Given a medical station and no patient, when the user clicks the linter error, then the station is selected and `"Patient anlegen"` is offered.
 - [ ] Given a running exercise, when the builder is opened, then it is read-only with `"Übung läuft"` and no save action.

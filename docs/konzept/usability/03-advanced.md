@@ -7,6 +7,10 @@
 
 Expert mode exposes the full model: all modules, entities, bindings, injects, map, and precise values. It is fast for repeat users and never breaks guided data.
 
+## Preparation shell
+
+Preparation uses the fixed six-section navigation ([11-preparation-ia.md](11-preparation-ia.md)): `"Übersicht"`, `"Szenario"`, `"Teilnehmer"`, `"Geräte"`, `"Ablauf"`, `"Prüfen"`. The legacy three-pane canvas below is reachable only under Szenario → `"Expertenmodus (Legacy)"`; it is a compatibility surface, not the primary editor. New capability work happens in the six sections and in the `"Ablauf"` workspace (workflow graph plus event timeline).
+
 ## Layout (EXCON builder)
 
 ```text

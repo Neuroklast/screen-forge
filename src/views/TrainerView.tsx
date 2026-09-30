@@ -1,22 +1,37 @@
 import { useEffect, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
 import { useTraining } from "../core/useExercise";
 import { scenarioSchema, dueAt, type Scenario } from "../core/training";
+import { scenarioCapabilities } from "../core/capabilities";
 import { stationUrl } from "../core/session";
 import { ScenarioWizard } from "../training/ScenarioWizard";
-import { ScenarioEditor } from "../training/ScenarioEditor";
-import { MissionBuilder } from "../builder/MissionBuilder";
-import { DossierEditor } from "../training/Dossiers";
-import { TacticalMap } from "../training/TacticalMap";
-import { PatientControl } from "../training/PatientControl";
 import { TemplateGallery } from "../training/TemplateGallery";
 import { MelTimeline } from "../training/MelTimeline";
-import { briefingFilename, missionBriefing } from "../core/briefing";
+import { PatientControl } from "../training/PatientControl";
+import { OverviewSection } from "../training/prepare/OverviewSection";
+import { ScenarioSection } from "../training/prepare/ScenarioSection";
+import { ParticipantsSection } from "../training/prepare/ParticipantsSection";
+import { DevicesSection } from "../training/prepare/DevicesSection";
+import { FlowSection } from "../training/prepare/FlowSection";
+import { ReviewSection } from "../training/prepare/ReviewSection";
 import { t } from "../i18n";
 import "../training/roles.css";
+import "../training/prepare/prepare.css";
+
+// The preparation navigation is fixed: Overview, Scenario, Participants,
+// Devices, Flow, Review. No domain entity, implementation concept or output
+// format gets its own top-level item.
+const PREP_TABS = [
+  ["overview", "prep.tab.overview"],
+  ["scenario", "prep.tab.scenario"],
+  ["participants", "prep.tab.participants"],
+  ["devices", "prep.tab.devices"],
+  ["flow", "prep.tab.flow"],
+  ["review", "prep.tab.review"],
+] as const;
+
 export function TrainerView({ room }: { room: string }) {
   const ex = useTraining(),
-    [tab, setTab] = useState("home"),
+    [tab, setTab] = useState<string>("overview"),
     [wizard, setWizard] = useState(false),
     [draft, setDraft] = useState<Scenario>(() =>
       structuredClone(ex.state.scenario),
@@ -25,7 +40,6 @@ export function TrainerView({ room }: { room: string }) {
     [revision, setRevision] = useState(ex.state.revision),
     [message, setMessage] = useState(""),
     [publicOrigin, setPublicOrigin] = useState(location.origin),
-    [editorMode, setEditorMode] = useState<"builder" | "classic">("builder"),
     [gallery, setGallery] = useState(false),
     [msgTo, setMsgTo] = useState("all"),
     [msgText, setMsgText] = useState("");
@@ -39,9 +53,6 @@ export function TrainerView({ room }: { room: string }) {
     setDraft(s);
     setDirty(true);
   };
-  const briefingText = missionBriefing(draft, {
-    date: `${new Date().toISOString().slice(0, 16).replace("T", " ")}Z`,
-  });
   const save = (s = draft) => {
     const result = scenarioSchema.safeParse(s);
     if (!result.success) {
@@ -54,15 +65,16 @@ export function TrainerView({ room }: { room: string }) {
     }
     return false;
   };
-  const exportJson = (value: unknown, filename: string) => {
-    const url = URL.createObjectURL(
-      new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const importScenario = async (file: File) => {
+    try {
+      if (file.size > 10000000) throw new Error(t("trainer.fileTooBig"));
+      change(scenarioSchema.parse(JSON.parse(await file.text())));
+      setTab("scenario");
+    } catch (e) {
+      setMessage(
+        t("trainer.importFailed", { message: (e as Error).message }),
+      );
+    }
   };
   useEffect(() => {
     if (ex.savedRevision >= 0) {
@@ -75,6 +87,7 @@ export function TrainerView({ room }: { room: string }) {
   const live = ex.state.phase === "running";
   useEffect(() => {
     if (live && tab !== "live") setTab("live");
+    if (!live && tab === "live") setTab("overview");
   }, [live, tab]);
   const connected = Object.values(ex.state.presence).filter(
     (p) => p.online,
@@ -83,6 +96,7 @@ export function TrainerView({ room }: { room: string }) {
     .filter((r) => r.enabled && !ex.state.fired.includes(r.id))
     .map((r) => ({ inject: r, at: dueAt(r, ex.state.scenario.seed) }))
     .sort((a, b) => a.at - b.at)[0];
+  const caps = scenarioCapabilities(draft);
   let invitationUrl = "";
   try {
     const origin = new URL(publicOrigin);
@@ -98,6 +112,92 @@ export function TrainerView({ room }: { room: string }) {
   } catch {
     /* validation below */
   }
+  const section = (id: string) => {
+    switch (id) {
+      case "overview":
+        return (
+          <OverviewSection
+            draft={draft}
+            change={change}
+            readOnly={!ex.state.frozen}
+            caps={caps}
+            connected={connected}
+            onGuided={() => {
+              if (ex.state.frozen) setWizard(true);
+              else setMessage(t("trainer.pauseFirst"));
+            }}
+            onGallery={() => setGallery(true)}
+            onImport={(file) => void importScenario(file)}
+            onGo={setTab}
+          />
+        );
+      case "scenario":
+        return (
+          <ScenarioSection
+            draft={draft}
+            change={change}
+            readOnly={!ex.state.frozen}
+            caps={caps}
+          />
+        );
+      case "participants":
+        return (
+          <ParticipantsSection
+            draft={draft}
+            change={change}
+            readOnly={!ex.state.frozen}
+            caps={caps}
+          />
+        );
+      case "devices":
+        return (
+          <DevicesSection
+            draft={draft}
+            change={change}
+            readOnly={!ex.state.frozen}
+            caps={caps}
+            presence={ex.state.presence}
+            online={ex.online}
+            invitation={ex.invitation}
+            onProvision={(station) => ex.send({ type: "provision", station })}
+            onRevoke={(station) => ex.send({ type: "revoke", station })}
+            publicOrigin={publicOrigin}
+            setPublicOrigin={setPublicOrigin}
+            invitationUrl={invitationUrl}
+            onNotice={setMessage}
+          />
+        );
+      case "flow":
+        return (
+          <FlowSection
+            draft={draft}
+            change={change}
+            readOnly={!ex.state.frozen}
+            caps={caps}
+          />
+        );
+      case "review":
+        return (
+          <ReviewSection
+            draft={draft}
+            change={change}
+            readOnly={!ex.state.frozen}
+            caps={caps}
+            online={ex.online}
+            frozen={ex.state.frozen}
+            dirty={dirty}
+            onStart={() => {
+              ex.send({ type: "transport", command: "play" });
+              setTab("live");
+            }}
+            onGo={setTab}
+            onNotice={setMessage}
+          />
+        );
+      default:
+        return null;
+    }
+  };
   return (
     <main className="training-app">
       {ex.state.phase === "aborted" && (
@@ -139,11 +239,7 @@ export function TrainerView({ room }: { room: string }) {
         <button
           disabled={!ex.online}
           onClick={() => {
-            if (
-              confirm(
-                t("trainer.resetConfirm"),
-              )
-            )
+            if (confirm(t("trainer.resetConfirm")))
               ex.send({ type: "transport", command: "reset" });
           }}
         >
@@ -158,34 +254,18 @@ export function TrainerView({ room }: { room: string }) {
         </button>
       </header>
       <nav className="training-nav">
-        {[
-          ["home", t("trainer.tab.home")],
-          ["devices", t("trainer.tab.devices")],
-          ["live", t("trainer.tab.live")],
-          ["editor", t("trainer.tab.editor")],
-          ["briefing", t("trainer.tab.briefing")],
-          ["dossiers", t("trainer.tab.dossiers")],
-        ]
-          .filter(([id]) => !live || id === "live")
-          .map(([id, name]) => (
-            <button
-              key={id}
-              className={tab === id ? "active" : ""}
-              onClick={() => setTab(id)}
-            >
-              {name}
-            </button>
-          ))}
-        {!live && (
+        {(live
+          ? ([["live", "trainer.tab.live"]] as const)
+          : PREP_TABS
+        ).map(([id, label]) => (
           <button
-            onClick={() => {
-              if (ex.state.frozen) setWizard(true);
-              else setMessage(t("trainer.pauseFirst"));
-            }}
+            key={id}
+            className={tab === id ? "active" : ""}
+            onClick={() => setTab(id)}
           >
-            {t("trainer.guided")}
+            {t(label)}
           </button>
-        )}
+        ))}
       </nav>
       {message && (
         <p className="notice" role="status">
@@ -225,245 +305,16 @@ export function TrainerView({ room }: { room: string }) {
         />
       ) : (
         <>
-          {tab === "home" && (
-            <>
-              <section className="panel welcome">
-                <span className="eyebrow">{t("trainer.home.eyebrow")}</span>
-                <h2>{t("trainer.home.title")}</h2>
-                <div className="template-grid">
-                  <button
-                    onClick={() => setWizard(true)}
-                    disabled={!ex.state.frozen}
-                  >
-                    <strong>{t("trainer.home.newScenario")}</strong>
-                    <span>{t("trainer.home.newScenarioDesc")}</span>
-                  </button>
-                  <button onClick={() => setGallery(true)} disabled={!ex.state.frozen}>
-                    <strong>{t("trainer.home.loadTemplate")}</strong>
-                    <span>{t("trainer.home.loadTemplateDesc")}</span>
-                  </button>
-                  <button onClick={() => setTab("briefing")}>
-                    <strong>{t("trainer.home.briefing")}</strong>
-                    <span>{t("trainer.home.briefingDesc")}</span>
-                  </button>
-                  <button onClick={() => setTab("devices")}>
-                    <strong>{t("trainer.home.prepared")}</strong>
-                    <span>{t("trainer.home.preparedDesc")}</span>
-                  </button>
-                  <label className="import-card">
-                    <strong>{t("trainer.home.import")}</strong>
-                    <span>{t("trainer.home.importDesc")}</span>
-                    <input
-                      type="file"
-                      accept=".json,application/json"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        try {
-                          if (file.size > 10000000)
-                            throw new Error(t("trainer.fileTooBig"));
-                          change(
-                            scenarioSchema.parse(JSON.parse(await file.text())),
-                          );
-                          setTab("editor");
-                        } catch (e) {
-                          setMessage(
-                            t("trainer.importFailed", {
-                              message: (e as Error).message,
-                            }),
-                          );
-                        }
-                        e.target.value = "";
-                      }}
-                    />
-                  </label>
-                </div>
-              </section>
-              {gallery && (
-                <TemplateGallery
-                  onClose={() => setGallery(false)}
-                  onSelect={(s) => {
-                    change(s);
-                    setGallery(false);
-                    setTab("editor");
-                  }}
-                />
-              )}
-              <div className="summary-grid">
-                <div>
-                  <b>
-                    {connected} / {ex.state.scenario.stations.length}
-                  </b>
-                  <span>{t("trainer.devicesConnected")}</span>
-                </div>
-                <div>
-                  <b>{ex.state.scenario.mode}</b>
-                  <span>{t("trainer.dataSource")}</span>
-                </div>
-                <div>
-                  <b>
-                    {ex.state.completed.length} /{" "}
-                    {ex.state.scenario.objectives.length}
-                  </b>
-                  <span>{t("trainer.objectivesDone")}</span>
-                </div>
-              </div>
-              <div className="training-columns">
-                <TacticalMap />
-                <section className="panel">
-                  <h2>{t("trainer.log")}</h2>
-                  <ol className="event-log">
-                    {ex.state.log
-                      .slice(-30)
-                      .reverse()
-                      .map((e, i) => (
-                        <li key={i}>
-                          <time>{e.at.toFixed(1)}s</time>
-                          {e.message}
-                        </li>
-                      ))}
-                  </ol>
-                  <button
-                    onClick={() =>
-                      exportJson(
-                        { scenario: ex.state.scenario.name, log: ex.state.log },
-                        "screenforge-debrief.json",
-                      )
-                    }
-                  >
-                    {t("trainer.exportLog")}
-                  </button>
-                  <button
-                    onClick={() => {
-                      const rows = [
-                        ["time", "message"],
-                        ...ex.state.log.map((e) => [
-                          e.at.toFixed(1),
-                          e.message.replace(/"/g, '""'),
-                        ]),
-                      ];
-                      const csv = rows
-                        .map((r) => r.map((c) => `"${c}"`).join(","))
-                        .join("\n");
-                      const url = URL.createObjectURL(
-                        new Blob([csv], { type: "text/csv" }),
-                      );
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "screenforge-debrief.csv";
-                      a.click();
-                      setTimeout(() => URL.revokeObjectURL(url), 1000);
-                    }}
-                  >
-                    {t("trainer.exportCsv")}
-                  </button>
-                </section>
-              </div>
-            </>
-          )}
-          {tab === "devices" && (
-            <section className="panel">
-              <h2>{t("trainer.prepare")}</h2>
-              <p>{t("trainer.qrNote")}</p>
-              <label>
-                {t("trainer.address")}
-                <input
-                  value={publicOrigin}
-                  onChange={(e) => setPublicOrigin(e.target.value)}
-                />
-              </label>
-              <p className="muted">{t("trainer.httpsNote")}</p>
-              <div className="device-grid">
-                {ex.state.scenario.stations.map((s) => (
-                  <article key={s.id} className="device-card">
-                    <span className="eyebrow">
-                      {s.role} / {s.module}
-                    </span>
-                    <h3>{s.name}</h3>
-                    <p>
-                      {ex.state.presence[s.id]?.online
-                        ? t("trainer.connected")
-                        : t("trainer.notConnected")}{" "}
-                      · {s.team}
-                    </p>
-                    <small>
-                      {s.bindings.patient
-                        ? `${t("trainer.dataSource")}: ${s.bindings.patient}`
-                        : s.id}
-                    </small>
-                    <div className="button-row">
-                      <button
-                        disabled={!ex.online}
-                        onClick={() =>
-                          ex.send({ type: "provision", station: s.id })
-                        }
-                      >
-                        {t("trainer.showQr")}
-                      </button>
-                      <button
-                        disabled={!ex.online}
-                        onClick={() =>
-                          ex.send({ type: "revoke", station: s.id })
-                        }
-                      >
-                        {t("trainer.revoke")}
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              {ex.invitation && invitationUrl && (
-                <section className="qr-panel" aria-label={t("trainer.assignment")}>
-                  <h3>
-                    {
-                      ex.state.scenario.stations.find(
-                        (s) => s.id === ex.invitation?.station,
-                      )?.name
-                    }
-                  </h3>
-                  <QRCodeSVG
-                    value={invitationUrl}
-                    size={240}
-                    marginSize={4}
-                    level="M"
-                  />
-                  <p>
-                    {t("trainer.validUntil")}{" "}
-                    {new Date(ex.invitation.expires).toLocaleTimeString()}
-                  </p>
-                  <a href={invitationUrl} target="_blank" rel="noreferrer">
-                    {t("trainer.openLink")}
-                  </a>
-                  <button
-                    onClick={() =>
-                      void navigator.clipboard
-                        .writeText(invitationUrl)
-                        .then(() => setMessage(t("trainer.linkCopied")))
-                        .catch(() => setMessage(invitationUrl))
-                    }
-                  >
-                    {t("trainer.copyLink")}
-                  </button>
-                </section>
-              )}
-              <h3>{t("trainer.readiness")}</h3>
-              <ul>
-                <li>{t("trainer.ready1")}</li>
-                <li>{t("trainer.ready2")}</li>
-                <li>{t("trainer.ready3")}</li>
-                <li>{t("trainer.ready4")}</li>
-              </ul>
-              <button
-                className="primary"
-                disabled={!ex.online || dirty || !ex.state.frozen}
-                onClick={() => {
-                  ex.send({ type: "transport", command: "play" });
-                  setTab("live");
-                }}
-              >
-                {t("trainer.start")}
-              </button>
-            </section>
+          {section(tab)}
+          {gallery && (
+            <TemplateGallery
+              onClose={() => setGallery(false)}
+              onSelect={(s) => {
+                change(s);
+                setGallery(false);
+                setTab("scenario");
+              }}
+            />
           )}
           {tab === "live" && (
             <>
@@ -490,7 +341,10 @@ export function TrainerView({ room }: { room: string }) {
                             ? t("trainer.processed")
                             : r.trigger === "timer"
                               ? t("trainer.at", {
-                                  seconds: dueAt(r, ex.state.scenario.seed).toFixed(0),
+                                  seconds: dueAt(
+                                    r,
+                                    ex.state.scenario.seed,
+                                  ).toFixed(0),
                                 })
                               : r.trigger === "manual"
                                 ? t("trainer.manual")
@@ -626,9 +480,7 @@ export function TrainerView({ room }: { room: string }) {
                   <button
                     disabled={!ex.online || !msgText.trim()}
                     onClick={() => {
-                      if (
-                        ex.send({ type: "message", to: msgTo, text: msgText })
-                      )
+                      if (ex.send({ type: "message", to: msgTo, text: msgText }))
                         setMsgText("");
                     }}
                   >
@@ -648,99 +500,6 @@ export function TrainerView({ room }: { room: string }) {
                 </ul>
               </section>
             </>
-          )}
-          {tab === "editor" && (
-            <>
-              <section className="panel form-grid">
-                <label>
-                  {t("trainer.scenarioName")}
-                  <input
-                    value={draft.name}
-                    onChange={(e) => change({ ...draft, name: e.target.value })}
-                  />
-                </label>
-                <label>
-                  {t("trainer.dataSourceLabel")}
-                  <select
-                    value={draft.mode}
-                    onChange={(e) =>
-                      change({
-                        ...draft,
-                        mode: e.target.value as Scenario["mode"],
-                      })
-                    }
-                  >
-                    <option>LIVE</option>
-                    <option>PLAYBACK</option>
-                  </select>
-                </label>
-                <button
-                  onClick={() => exportJson(draft, "screenforge-scenario.json")}
-                >
-                  {t("trainer.exportTemplate")}
-                </button>
-              </section>
-              <div className="editor-mode">
-                <button
-                  className={editorMode === "builder" ? "active" : ""}
-                  onClick={() => setEditorMode("builder")}
-                >
-                  {t("trainer.builder")}
-                </button>
-                <button
-                  className={editorMode === "classic" ? "active" : ""}
-                  onClick={() => setEditorMode("classic")}
-                >
-                  {t("trainer.classic")}
-                </button>
-              </div>
-              {editorMode === "builder" ? (
-                <MissionBuilder
-                  draft={draft}
-                  change={change}
-                  readOnly={!ex.state.frozen}
-                />
-              ) : (
-                <ScenarioEditor draft={draft} change={change} />
-              )}
-            </>
-          )}
-          {tab === "briefing" && (
-            <section className="panel">
-              <div className="button-row">
-                <button
-                  onClick={() => {
-                    void navigator.clipboard
-                      ?.writeText(briefingText)
-                      .then(() => setMessage(t("trainer.briefingCopied")))
-                      .catch(() => setMessage(t("trainer.copyFailed")));
-                  }}
-                >
-                  {t("trainer.copy")}
-                </button>
-                <button
-                  onClick={() => {
-                    const url = URL.createObjectURL(
-                      new Blob([briefingText], { type: "text/plain" }),
-                    );
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = briefingFilename(draft);
-                    a.click();
-                    setTimeout(() => URL.revokeObjectURL(url), 1000);
-                  }}
-                >
-                  {t("trainer.asFile")}
-                </button>
-              </div>
-              <pre className="briefing-text">{briefingText}</pre>
-            </section>
-          )}
-          {tab === "dossiers" && (
-            <DossierEditor
-              dossiers={draft.dossiers}
-              onChange={(dossiers) => change({ ...draft, dossiers })}
-            />
           )}
         </>
       )}

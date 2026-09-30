@@ -18,6 +18,8 @@
 | `name` | string | yes | display name |
 | `source` | string? | no | template id for traceability |
 | `mode` | `LIVE` / `PLAYBACK` | yes | data source |
+| `type` | `disposal` / `medical` / `film` / `field` / `custom` | yes | scenario type; inferred on first parse for old files, then stable ([../domain/15-scenario-capabilities.md](../domain/15-scenario-capabilities.md)) |
+| `capabilities` | object | no | overrides of the type preset, e.g. `{"patients": true}` for a disposal exercise with a contingency casualty |
 | `seed` | number | yes | determinism |
 | `map` | object | yes | `{lat, lng, zoom, tiles?, attribution?}`; empty tiles = offline grid |
 | `briefing` | string? | no | markdown, shown on HQ/briefing |
@@ -74,6 +76,7 @@
   "id": "eod-demo",
   "name": "Sprengkörper entschärfen",
   "mode": "LIVE",
+  "type": "disposal",
   "seed": 2048,
   "map": { "lat": 51.23, "lng": 6.78, "zoom": 15, "tiles": "" },
   "stations": [

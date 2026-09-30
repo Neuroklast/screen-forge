@@ -9,6 +9,7 @@ import {
   type WorkflowVariable,
 } from "./workflow.ts";
 import type { Finding } from "./missionLint.ts";
+import type { Scenario } from "./training.ts";
 
 // Pure editing helpers for the graph editor. They return new workflows; the
 // editor commits them like any other mission edit (undo/redo, revision, gate).
@@ -43,6 +44,136 @@ export const workflowNodeLabels: Record<WorkflowNodeType, string> = {
   "set-prop-state": "node.setPropState",
   "complete-objective": "node.completeObjective",
 };
+
+// Human node concepts of the flow workspace. Technical node/task types stay
+// the storage format; the palette and inspector speak these concepts.
+export const flowNodeKinds = [
+  "start",
+  "action",
+  "decision",
+  "wait",
+  "message",
+  "state",
+  "objective",
+  "end",
+] as const;
+export type FlowNodeKind = (typeof flowNodeKinds)[number];
+
+export const flowNodeLabels: Record<FlowNodeKind, string> = {
+  start: "flow.node.start",
+  action: "flow.node.action",
+  decision: "flow.node.decision",
+  wait: "flow.node.wait",
+  message: "flow.node.message",
+  state: "flow.node.state",
+  objective: "flow.node.objective",
+  end: "flow.node.end",
+};
+
+// Human labels for the task registry entries (the "action" node's variants).
+export const taskTypeLabels: Record<string, string> = {
+  "code-entry": "task.codeEntry",
+  confirm: "task.confirm",
+  choice: "task.choice",
+  "wait-for-event": "task.waitForEvent",
+  connect: "task.connect",
+  report: "task.report",
+  inspect: "task.inspect",
+  transfer: "task.transfer",
+  dial: "task.dial",
+  "code-table": "task.codeTable",
+  datasheet: "task.datasheet",
+  timer: "task.timer",
+  countdown: "task.countdown",
+  "message-viewer": "task.messageViewer",
+  "file-browser": "task.fileBrowser",
+  hacking: "task.hacking",
+  medical: "task.medical",
+  camera: "task.camera",
+  tracking: "task.tracking",
+};
+
+export function taskTypeLabel(task: string): string {
+  return taskTypeLabels[task] ?? task;
+}
+
+export function flowKindOfNode(node: WorkflowNode): FlowNodeKind | "advanced" {
+  switch (node.type) {
+    case "start":
+      return "start";
+    case "end":
+      return "end";
+    case "condition":
+      return "decision";
+    case "set-variable":
+      return "state";
+    case "complete-objective":
+      return "objective";
+    case "task":
+      if (node.task === "wait-for-event" || node.task === "connect")
+        return "wait";
+      if (node.task === "message-viewer") return "message";
+      return "action";
+    default:
+      return "advanced";
+  }
+}
+
+export function createNodeOfKind(
+  workflow: Workflow,
+  kind: FlowNodeKind,
+  options: {
+    taskType?: string;
+    position?: { x: number; y: number };
+  } = {},
+): { workflow: Workflow; nodeId: string } {
+  switch (kind) {
+    case "start":
+      return addNodeOfType(workflow, "start", options);
+    case "end":
+      return addNodeOfType(workflow, "end", options);
+    case "action":
+      return addNodeOfType(workflow, "task", {
+        ...options,
+        taskType: options.taskType ?? "confirm",
+      });
+    case "decision":
+      return addNodeOfType(workflow, "condition", options);
+    case "wait":
+      return addNodeOfType(workflow, "task", {
+        ...options,
+        taskType: "wait-for-event",
+      });
+    case "message":
+      return addNodeOfType(workflow, "task", {
+        ...options,
+        taskType: "message-viewer",
+      });
+    case "state":
+      return addNodeOfType(workflow, "set-variable", options);
+    case "objective":
+      return addNodeOfType(workflow, "complete-objective", options);
+  }
+}
+
+// Events that visibly start a workflow: an inject action that sets a prop
+// state matches the workflow's prop trigger. Derived, never stored.
+export type FlowLink = { inject: string; workflow: string };
+
+export function flowLinks(scenario: Scenario): FlowLink[] {
+  const links: FlowLink[] = [];
+  for (const inject of scenario.injects)
+    for (const action of inject.actions)
+      if (action.type === "prop")
+        for (const workflow of scenario.workflows)
+          if (
+            workflow.trigger.type === "prop" &&
+            workflow.trigger.prop === action.target &&
+            workflow.trigger.to === action.state
+          )
+            links.push({ inject: inject.id, workflow: workflow.id });
+  return links;
+}
 
 export const workflowSurfaces = [
   "console",
@@ -440,6 +571,7 @@ export function nodeFindingIds(
       finding.path.id === workflowId &&
       (finding.id.startsWith(`graph-wf-exit-${workflowId}-${nodeId}-`) ||
         finding.id.startsWith(`graph-wf-unreachable-${workflowId}-${nodeId}`) ||
+        finding.id.startsWith(`graph-wf-terminal-${workflowId}-${nodeId}`) ||
         finding.id.startsWith(`graph-wf-task-${workflowId}-${nodeId}`)),
   );
 }

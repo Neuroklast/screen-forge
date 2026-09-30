@@ -133,7 +133,7 @@ test("authenticated multi-device lifecycle, validation, diagnostics, revocation 
     });
     assert.match(
       (await trainer.next(type("error"))).message,
-      /Patient missing/,
+      /Unknown patient/,
     );
     const scenario = structuredClone(initial.scenario);
     scenario.map.tiles = "";

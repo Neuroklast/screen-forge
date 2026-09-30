@@ -4,8 +4,12 @@ import {
   addNodeOfType,
   addVariable,
   autoLayout,
+  createNodeOfKind,
   createWorkflow,
   edgeForOutput,
+  flowKindOfNode,
+  flowLinks,
+  flowNodeKinds,
   newVariable,
   nodeFindingIds,
   nodeSummary,
@@ -16,6 +20,7 @@ import {
   replaceVariable,
   setNodePosition,
   setOutputTarget,
+  taskTypeLabel,
   workflowNodeTypes,
 } from "./workflowEdit";
 import { workflowSchema } from "./workflow";
@@ -161,5 +166,82 @@ describe("workflow editor helpers", () => {
     expect(exit).toBeDefined();
     expect(nodeFindingIds(findings, "wf-1", nodeId)).toContain(exit);
     expect(nodeFindingIds(findings, "wf-1", "start")).toEqual([]);
+  });
+});
+
+describe("flow workspace node concepts", () => {
+  it("creates every human node kind without breaking the schema", () => {
+    for (const kind of flowNodeKinds) {
+      const { workflow, nodeId } = createNodeOfKind(
+        createWorkflow("wf-1"),
+        kind,
+      );
+      expect(workflow.nodes.some((n) => n.id === nodeId), kind).toBe(true);
+      expect(workflowSchema.safeParse(workflow).success, kind).toBe(true);
+    }
+  });
+
+  it("maps technical nodes back to human kinds", () => {
+    const kinds = flowNodeKinds.map((kind) => {
+      const { workflow, nodeId } = createNodeOfKind(createWorkflow("wf-1"), kind);
+      const node = workflow.nodes.find((n) => n.id === nodeId)!;
+      return flowKindOfNode(node);
+    });
+    expect(kinds).toEqual([...flowNodeKinds]);
+    const { workflow, nodeId } = addNodeOfType(createWorkflow("wf-1"), "delay");
+    const node = workflow.nodes.find((n) => n.id === nodeId)!;
+    expect(flowKindOfNode(node)).toBe("advanced");
+  });
+
+  it("labels every registered task type in human language", () => {
+    for (const block of taskBlocks()) {
+      expect(taskTypeLabel(block.type)).not.toBe(block.type);
+      expect(taskTypeLabel(block.type)).toMatch(/^task\./);
+    }
+  });
+
+  it("derives event links from prop actions to workflow triggers", () => {
+    const scenario = scenarioSchema.parse({
+      version: 2,
+      name: "Links",
+      mode: "LIVE",
+      seed: 1,
+      map: { lat: 0, lng: 0, zoom: 5, tiles: "", attribution: "" },
+      stations: [{ id: "hq", name: "HQ", role: "hq", module: "tracking" }],
+      props: [
+        { id: "device", kind: "custom", name: "Device", states: ["off", "on"] },
+      ],
+      workflows: [
+        {
+          ...createWorkflow("wf-1"),
+          trigger: { type: "prop", prop: "device", to: "on" },
+        },
+      ],
+      injects: [
+        {
+          id: "inj-1",
+          name: "Start",
+          trigger: "timer",
+          at: 10,
+          actions: [{ type: "prop", target: "device", state: "on" }],
+        },
+      ],
+    });
+    expect(flowLinks(scenario)).toEqual([
+      { inject: "inj-1", workflow: "wf-1" },
+    ]);
+    const unrelated = scenarioSchema.parse({
+      ...scenario,
+      injects: [
+        {
+          id: "inj-2",
+          name: "Other",
+          trigger: "timer",
+          at: 10,
+          actions: [{ type: "prop", target: "device", state: "off" }],
+        },
+      ],
+    });
+    expect(flowLinks(unrelated)).toEqual([]);
   });
 });

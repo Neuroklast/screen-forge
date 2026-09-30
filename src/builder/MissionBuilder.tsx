@@ -98,10 +98,14 @@ export function MissionBuilder({
   draft,
   change,
   readOnly = false,
+  showFlow = true,
 }: {
   draft: Scenario;
   change: (s: Scenario) => void;
   readOnly?: boolean;
+  // The preparation flow workspace owns the graph; the legacy canvas only
+  // exposes the plan view there.
+  showFlow?: boolean;
 }) {
   const [selected, setSelected] = useState<Selection>(null);
   const [history, setHistory] = useState<Scenario[]>([]);
@@ -245,29 +249,31 @@ export function MissionBuilder({
         }
       }}
     >
-      <div
-        className="builder-views"
-        role="tablist"
-        aria-label={t("builder.views")}
-      >
-        <button
-          role="tab"
-          aria-selected={view === "plan"}
-          className={view === "plan" ? "active" : ""}
-          onClick={() => setView("plan")}
+      {showFlow && (
+        <div
+          className="builder-views"
+          role="tablist"
+          aria-label={t("builder.views")}
         >
-          {t("builder.viewPlan")}
-        </button>
-        <button
-          role="tab"
-          aria-selected={view === "flow"}
-          className={view === "flow" ? "active" : ""}
-          onClick={() => setView("flow")}
-        >
-          {t("builder.viewFlow")}
-        </button>
-      </div>
-      {view === "flow" ? (
+          <button
+            role="tab"
+            aria-selected={view === "plan"}
+            className={view === "plan" ? "active" : ""}
+            onClick={() => setView("plan")}
+          >
+            {t("builder.viewPlan")}
+          </button>
+          <button
+            role="tab"
+            aria-selected={view === "flow"}
+            className={view === "flow" ? "active" : ""}
+            onClick={() => setView("flow")}
+          >
+            {t("builder.viewFlow")}
+          </button>
+        </div>
+      )}
+      {showFlow && view === "flow" ? (
         <Suspense
           fallback={<p className="builder-hint">{t("builder.loading")}</p>}
         >
