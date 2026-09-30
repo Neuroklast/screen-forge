@@ -55,6 +55,15 @@ test('MEL timeline shows planned, rescheduled and actual entries with CSV export
   await expect(page.locator('.mel-timeline')).toContainText('Verschoben');
   await expect(page.getByRole('button',{name:'MEL exportieren (CSV)'})).toBeVisible();
 });
+test('mission library template loads into the wizard', async ({page}) => {
+  await login(page);
+  await page.getByRole('button',{name:'Neues Szenario erstellen',exact:false}).click();
+  await page.getByRole('button',{name:'Relay Recovery',exact:false}).click();
+  await page.getByLabel('Szenarioname',{exact:true}).fill('Relay test');
+  for (let i=0;i<3;i++) await page.getByRole('button',{name:'Weiter',exact:true}).click();
+  await page.getByRole('button',{name:'Szenario anlegen'}).click();
+  await expect(page.getByRole('heading',{level:1})).toHaveText('Relay test');
+});
 test('dossiers synchronize and trainer patient changes reach the assigned monitor', async ({page,browser}) => {
   await login(page);
   const medic = await assign(page,browser,'Medic 01');

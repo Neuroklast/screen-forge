@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { scenarioSchema, template, type Scenario } from "../core/training";
 import { defaultDossiers } from "../core/dossiers";
+import { buildMission, missionTemplates } from "../core/missions";
 export function ScenarioWizard({
   onSave,
   onClose,
@@ -51,23 +52,41 @@ export function ScenarioWizard({
         ))}
       </ol>
       {step === 0 && (
-        <div className="template-grid">
-          {(["sar", "medical", "airsoft", "film"] as const).map((kind) => (
-            <button key={kind} onClick={() => choose(kind)}>
-              <strong>{template(kind).name}</strong>
-              <span>
-                {
+        <>
+          <div className="template-grid">
+            {(["sar", "medical", "airsoft", "film"] as const).map((kind) => (
+              <button key={kind} onClick={() => choose(kind)}>
+                <strong>{template(kind).name}</strong>
+                <span>
                   {
-                    sar: "Suche, Lagekarte, Akten und Patientenversorgung",
-                    medical: "Patientenmonitor und verdeckte Zustandswechsel",
-                    airsoft: "Freiwilliges GPS, Teams und Aufgaben im Gelände",
-                    film: "Wiederholbarer Ablauf mit simulierten Positionen",
-                  }[kind]
-                }
-              </span>
-            </button>
-          ))}
-        </div>
+                    {
+                      sar: "Suche, Lagekarte, Akten und Patientenversorgung",
+                      medical: "Patientenmonitor und verdeckte Zustandswechsel",
+                      airsoft: "Freiwilliges GPS, Teams und Aufgaben im Gelände",
+                      film: "Wiederholbarer Ablauf mit simulierten Positionen",
+                    }[kind]
+                  }
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="eyebrow">Szenariobibliothek</p>
+          <div className="template-grid">
+            {missionTemplates.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setDraft(buildMission(t.id));
+                  setError("");
+                  setStep(1);
+                }}
+              >
+                <strong>{t.name}</strong>
+                <span>{t.category}</span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
       {step === 1 && (
         <div className="form-grid">
@@ -137,13 +156,17 @@ export function ScenarioWizard({
           </div>
           <button
             onClick={() => {
+              const source =
+                draft.stations.find((s) => s.player) ?? draft.stations[0];
+              if (!source) return;
               const id = `player-${Date.now().toString(36)}`;
               update({
                 stations: [
                   ...draft.stations,
                   {
-                    ...draft.stations.find((s) => s.player)!,
+                    ...source,
                     id,
+                    player: true,
                     name: `Player ${draft.stations.filter((s) => s.player).length + 1}`,
                   },
                 ],
