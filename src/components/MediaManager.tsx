@@ -3,6 +3,7 @@ import { deleteMedia, saveMedia, seedExampleMedia, useMedia } from "../core/medi
 import { exampleMedia } from "../core/exampleMedia";
 import type { Config } from "../core/config";
 import { isModelAsset } from "../scenes/shared/ModelViewport";
+import { t } from "../i18n";
 export function MediaManager({
   config,
   onChange,
@@ -11,13 +12,22 @@ export function MediaManager({
   onChange: (c: Config) => void;
 }) {
   const { assets, error } = useMedia();
-  const [savedFolders,setSavedFolders]=useState<string[]>(()=>{try{const value=JSON.parse(localStorage.getItem('screenforge.folders.v1')||'["/"]');return Array.isArray(value)?value.filter(v=>typeof v==='string'&&v.startsWith('/')):['/'];}catch{return ['/'];}});
+  const [savedFolders, setSavedFolders] = useState<string[]>(() => {
+    try {
+      const value = JSON.parse(localStorage.getItem("screenforge.folders.v1") || '["/"]');
+      return Array.isArray(value)
+        ? value.filter((v) => typeof v === "string" && v.startsWith("/"))
+        : ["/"];
+    } catch {
+      return ["/"];
+    }
+  });
   const [folder, setFolder] = useState("/"),
     [newFolder, setNewFolder] = useState(""),
     [status, setStatus] = useState(""),
     [page, setPage] = useState(0);
   const folders = Array.from(
-    new Set(["/", ...savedFolders,...assets.map((a) => a.folder), folder]),
+    new Set(["/", ...savedFolders, ...assets.map((a) => a.folder), folder]),
   );
   const visible = assets.filter((a) => a.folder === folder);
   const selected = config.mediaIds ?? [];
@@ -39,7 +49,7 @@ export function MediaManager({
       </nav>
       <div className="media-tools">
         <input
-          aria-label="Neuer Medienordner"
+          aria-label={t("media.newFolder")}
           placeholder="/corporation/portraits"
           value={newFolder}
           onChange={(e) => setNewFolder(e.target.value)}
@@ -48,46 +58,46 @@ export function MediaManager({
           onClick={() => {
             const path = "/" + newFolder.split("/").filter(Boolean).join("/");
             if (path.length > 100) return;
-            const next=Array.from(new Set([...savedFolders,path]));
-            try{localStorage.setItem('screenforge.folders.v1',JSON.stringify(next));setSavedFolders(next);}catch{setStatus('Ordner konnte nicht gespeichert werden.');return;}
+            const next = Array.from(new Set([...savedFolders, path]));
+            try {
+              localStorage.setItem("screenforge.folders.v1", JSON.stringify(next));
+              setSavedFolders(next);
+            } catch {
+              setStatus(t("media.folderError"));
+              return;
+            }
             setFolder(path);
             setNewFolder("");
             setPage(0);
           }}
         >
-          Ordner öffnen / erstellen
+          {t("media.openFolder")}
         </button>
         <button
           onClick={async () => {
             try {
               await seedExampleMedia();
               const next = Array.from(
-                new Set([
-                  ...savedFolders,
-                  ...exampleMedia.map((a) => a.folder),
-                ]),
+                new Set([...savedFolders, ...exampleMedia.map((a) => a.folder)]),
               );
               try {
-                localStorage.setItem(
-                  "screenforge.folders.v1",
-                  JSON.stringify(next),
-                );
+                localStorage.setItem("screenforge.folders.v1", JSON.stringify(next));
                 setSavedFolders(next);
               } catch {
                 /* folders stay session-only */
               }
-              setStatus("Beispielmedien geladen.");
+              setStatus(t("media.examplesLoaded"));
             } catch {
-              setStatus("Beispielmedien konnten nicht geladen werden.");
+              setStatus(t("media.examplesFailed"));
             }
           }}
         >
-          Beispiele laden
+          {t("media.loadExamples")}
         </button>
         <label>
-          Bilder hochladen
+          {t("media.upload")}
           <input
-            aria-label="Medien hochladen"
+            aria-label={t("media.uploadAria")}
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif,.glb,.gltf,model/gltf-binary,model/gltf+json"
             multiple
@@ -98,14 +108,9 @@ export function MediaManager({
                   const model = /\.(glb|gltf)$/i.test(file.name);
                   if (
                     file.size > 12_000_000 ||
-                    !(
-                      /^image\/(png|jpeg|webp|gif)$/.test(file.type) ||
-                      model
-                    )
+                    !(/^image\/(png|jpeg|webp|gif)$/.test(file.type) || model)
                   )
-                    throw Error(
-                      "PNG, JPEG, WebP, GIF oder GLB/GLTF bis 12 MB verwenden.",
-                    );
+                    throw Error(t("media.invalidFile"));
                   await saveMedia({
                     id: crypto.randomUUID(),
                     name: file.name,
@@ -114,10 +119,10 @@ export function MediaManager({
                     blob: file,
                   });
                 }
-                setStatus(`${files.length} Dateien gespeichert.`);
+                setStatus(t("media.saved", { count: files.length }));
               } catch (e) {
                 setStatus(
-                  e instanceof Error ? e.message : "Upload fehlgeschlagen.",
+                  e instanceof Error ? e.message : t("media.uploadFailed"),
                 );
               }
             }}
@@ -135,7 +140,7 @@ export function MediaManager({
               <img src={a.url} alt={a.name} />
             )}
             <input
-              aria-label={`Dateiname ${a.name}`}
+              aria-label={t("media.fileName", { name: a.name })}
               defaultValue={a.name}
               onBlur={async (e) => {
                 if (!e.target.value.trim()) return;
@@ -148,7 +153,7 @@ export function MediaManager({
               }}
             />
             <select
-              aria-label={`Ordner ${a.name}`}
+              aria-label={t("media.folderFor", { name: a.name })}
               value={a.folder}
               onChange={async (e) => {
                 const rows = await import("../core/media").then((m) =>
@@ -173,7 +178,9 @@ export function MediaManager({
                 })
               }
             >
-              {selected.includes(a.id) ? "In Bildfolge" : "Zur Bildfolge"}
+              {selected.includes(a.id)
+                ? t("media.inSequence")
+                : t("media.toSequence")}
             </button>
             <button
               onClick={async () => {
@@ -184,14 +191,14 @@ export function MediaManager({
                 });
               }}
             >
-              Löschen
+              {t("common.delete")}
             </button>
           </article>
         ))}
       </div>
       <div className="media-pagination">
         <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-          Zurück
+          {t("common.back")}
         </button>
         <span>
           {page + 1} / {Math.max(1, Math.ceil(visible.length / 6))}
@@ -200,14 +207,10 @@ export function MediaManager({
           disabled={(page + 1) * 6 >= visible.length}
           onClick={() => setPage((p) => p + 1)}
         >
-          Weiter
+          {t("common.next")}
         </button>
       </div>
-      <p>
-        {status ||
-          error ||
-          `${selected.length} Medien in der Bildfolge. GLB/GLTF erscheinen im Analysetisch.`}
-      </p>
+      <p>{status || error || t("media.summary", { count: selected.length })}</p>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import tokens from "../core/design-tokens.json";
 import type { Config } from "../core/config";
+import { t } from "../i18n";
 export function TokenEditor({
   config,
   onChange,
@@ -11,15 +12,15 @@ export function TokenEditor({
   const [query, setQuery] = useState(""),
     [page, setPage] = useState(0),
     [error, setError] = useState("");
-  const entries = Object.entries(tokens).filter(([key, t]) =>
-    (key + " " + t.uses.join(" ")).toLowerCase().includes(query.toLowerCase()),
+  const entries = Object.entries(tokens).filter(([key, token]) =>
+    (key + " " + token.uses.join(" ")).toLowerCase().includes(query.toLowerCase()),
   );
   return (
     <div className="token-editor">
       <label>
-        Designwerte durchsuchen
+        {t("tokens.search")}
         <input
-          aria-label="Designwerte suchen"
+          aria-label={t("tokens.searchAria")}
           placeholder="color, padding, countdown, font…"
           value={query}
           onChange={(e) => {
@@ -29,29 +30,29 @@ export function TokenEditor({
         />
       </label>
       <div className="token-list">
-        {entries.slice(page * 8, page * 8 + 8).map(([key, t]) => (
+        {entries.slice(page * 8, page * 8 + 8).map(([key, token]) => (
           <label key={key}>
-            <span title={t.uses.join("\n")}>{key.replace("--sf-", "")}</span>
+            <span title={token.uses.join("\n")}>{key.replace("--sf-", "")}</span>
             <input
               aria-label={key}
-              defaultValue={config.tokens[key] ?? t.value}
+              defaultValue={config.tokens[key] ?? token.value}
               onBlur={(e) => {
                 const value = e.target.value.trim();
                 if (
                   !/^[#a-zA-Z0-9.,% ()+\/-]+$/.test(value) ||
                   !CSS.supports(
-                    t.kind === "color"
+                    token.kind === "color"
                       ? "color"
-                      : t.kind === "opacity"
+                      : token.kind === "opacity"
                         ? "opacity"
-                        : t.kind === "font-weight"
+                        : token.kind === "font-weight"
                           ? "font-weight"
                           : "width",
                     value,
                   )
                 ) {
-                  setError("Ungültiger Designwert.");
-                  e.target.value = config.tokens[key] ?? t.value;
+                  setError(t("tokens.invalid"));
+                  e.target.value = config.tokens[key] ?? token.value;
                   return;
                 }
                 onChange({
@@ -66,7 +67,7 @@ export function TokenEditor({
       </div>
       <div className="media-pagination">
         <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-          Zurück
+          {t("common.back")}
         </button>
         <span>
           {page + 1}/{Math.max(1, Math.ceil(entries.length / 8))}
@@ -75,16 +76,13 @@ export function TokenEditor({
           disabled={(page + 1) * 8 >= entries.length}
           onClick={() => setPage((p) => p + 1)}
         >
-          Weiter
+          {t("common.next")}
         </button>
       </div>
       <button onClick={() => onChange({ ...config, tokens: {} })}>
-        Designwerte zurücksetzen
+        {t("tokens.reset")}
       </button>
-      <p>
-        {error ||
-          `${entries.length} zentrale Designwerte. Änderungen werden mit dem Systemprofil gespeichert.`}
-      </p>
+      <p>{error || t("tokens.summary", { count: entries.length })}</p>
     </div>
   );
 }

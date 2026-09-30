@@ -14,12 +14,8 @@ const GERMAN =
 const PENDING = new Set([
   "src/App.tsx",
   "src/builder/MissionBuilder.tsx",
-  "src/components/MediaManager.tsx",
   "src/components/SequenceEditor.tsx",
-  "src/components/StageKeys.tsx",
   "src/components/SystemProfiles.tsx",
-  "src/components/ThemeEditor.tsx",
-  "src/components/TokenEditor.tsx",
   "src/scenes/os/OperatingSystem.tsx",
   "src/training/Dossiers.tsx",
   "src/training/ScenarioEditor.tsx",

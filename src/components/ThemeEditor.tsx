@@ -6,6 +6,7 @@ import {
   scenePalette,
   type Config,
 } from "../core/config";
+import { t } from "../i18n";
 const themeSchema = z.object({
   tokens: z.record(z.string(), z.string()).default({}),
   font: z
@@ -50,6 +51,12 @@ const colors = [
   ["Desert telemetry", "#15120b", "#282216", "#e4d7b6", "#b6a77e", "#e8b563"],
 ];
 const flat = new Set(["Carbon red", "Carbon white", "Phosphor"]);
+const PALETTE_LABEL: Record<string, string> = {
+  background: "theme.background",
+  surface: "theme.surface",
+  text: "theme.text",
+  secondary: "theme.secondary",
+};
 export function ThemeEditor({
   config,
   onChange,
@@ -103,58 +110,58 @@ export function ThemeEditor({
   );
   const palette = config.palette ?? scenePalette(config.scene);
   const themes = [...presets, ...custom];
-  const themeIndex = themes.findIndex((t) => t.name === config.theme);
+  const themeIndex = themes.findIndex((entry) => entry.name === config.theme);
   const persist = (next: Theme[]) => {
     try {
       localStorage.setItem("screenforge.themes.v1", JSON.stringify(next));
       setCustom(next);
-      setStatus("Theme gespeichert.");
+      setStatus(t("theme.saved"));
     } catch {
-      setStatus("Speichern fehlgeschlagen. Preset als JSON exportieren.");
+      setStatus(t("theme.saveFailed"));
     }
   };
   return (
     <details className="theme-editor" open>
-      <summary>Farbthemes</summary>
+      <summary>{t("theme.title")}</summary>
       <label>
-        Theme auswählen
+        {t("theme.select")}
         <select
-          aria-label="Farbtheme"
+          aria-label={t("theme.aria")}
           value={themeIndex >= 0 ? String(themeIndex) : ""}
           onChange={(e) => {
-            const t = themes[Number(e.target.value)];
-            if (t) {
+            const picked = themes[Number(e.target.value)];
+            if (picked) {
               onChange(
                 applyTheme(config, {
-                  theme: t.name,
-                  palette: t.palette,
-                  accent: t.accent,
-                  mood: t.mood,
-                  effects: t.effects,
-                  overlays: t.overlays,
-                  font: t.font,
-                  tokens: t.tokens,
+                  theme: picked.name,
+                  palette: picked.palette,
+                  accent: picked.accent,
+                  mood: picked.mood,
+                  effects: picked.effects,
+                  overlays: picked.overlays,
+                  font: picked.font,
+                  tokens: picked.tokens,
                 }),
               );
-              setName(t.name);
-              setStatus("Theme geladen. Firma bleibt.");
+              setName(picked.name);
+              setStatus(t("theme.loaded"));
             }
           }}
         >
           <option value="" disabled>
-            Theme wählen…
+            {t("theme.choose")}
           </option>
-          <optgroup label="Studio themes">
-            {presets.map((t, i) => (
-              <option key={t.name} value={i}>
-                {t.name}
+          <optgroup label={t("theme.studio")}>
+            {presets.map((entry, i) => (
+              <option key={entry.name} value={i}>
+                {entry.name}
               </option>
             ))}
           </optgroup>
-          <optgroup label="Eigene Themes">
-            {custom.map((t, i) => (
-              <option key={t.name} value={i + presets.length}>
-                {t.name}
+          <optgroup label={t("theme.custom")}>
+            {custom.map((entry, i) => (
+              <option key={entry.name} value={i + presets.length}>
+                {entry.name}
               </option>
             ))}
           </optgroup>
@@ -162,14 +169,7 @@ export function ThemeEditor({
       </label>
       {Object.entries(palette).map(([key, value]) => (
         <label className="color-label" key={key}>
-          {
-            {
-              background: "Hintergrund",
-              surface: "Flächen",
-              text: "Schrift",
-              secondary: "Sekundärfarbe",
-            }[key]
-          }
+          {PALETTE_LABEL[key] ? t(PALETTE_LABEL[key]) : key}
           <input
             aria-label={`Theme ${key}`}
             type="color"
@@ -184,9 +184,9 @@ export function ThemeEditor({
         </label>
       ))}
       <label>
-        Theme-Name
+        {t("theme.name")}
         <input
-          aria-label="Theme-Name"
+          aria-label={t("theme.name")}
           value={name}
           maxLength={40}
           onChange={(e) => setName(e.target.value)}
@@ -196,7 +196,7 @@ export function ThemeEditor({
         <button
           disabled={!name.trim()}
           onClick={() => {
-            const t = {
+            const draft: Theme = {
               name: name.trim(),
               tokens: config.tokens,
               font: config.font,
@@ -206,22 +206,21 @@ export function ThemeEditor({
               effects: config.effects,
               overlays: config.overlays,
             };
-            persist([...custom.filter((x) => x.name !== t.name), t].slice(-40));
+            persist(
+              [...custom.filter((x) => x.name !== draft.name), draft].slice(-40),
+            );
           }}
         >
-          Theme speichern
+          {t("theme.save")}
         </button>
         <button
           disabled={!custom.some((x) => x.name === name)}
           onClick={() => persist(custom.filter((x) => x.name !== name))}
         >
-          Löschen
+          {t("common.delete")}
         </button>
       </div>
-      <p role="status">
-        {status ||
-          "Themes setzen nur Farbe. Firma bleibt unter Firmen."}
-      </p>
+      <p role="status">{status || t("theme.note")}</p>
     </details>
   );
 }

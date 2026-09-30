@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 export function StageKeys({
   onKey,
   disabled,
@@ -7,7 +9,7 @@ export function StageKeys({
 }) {
   const rows = ["1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM-."];
   return (
-    <div className="stage-keys" aria-label="Bühnen-Tastatur">
+    <div className="stage-keys" aria-label={t("studio.stageKeyboard")}>
       {rows.map((row) => (
         <div key={row}>
           {[...row].map((k) => (
