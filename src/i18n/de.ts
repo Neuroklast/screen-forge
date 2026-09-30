@@ -289,4 +289,45 @@ export const de: Record<string, string> = {
   "dossier.delete": "Akte löschen",
   "dossier.photoError": "Bitte JPG, PNG oder WebP bis 10 MB wählen.",
   "dossier.portraitAlt": "Porträtvorschau",
+
+  "wizard.aria": "Geführte Szenarioeinrichtung",
+  "wizard.eyebrow": "GEFÜHRTE EINRICHTUNG · {step} / 5",
+  "wizard.q1": "Was möchtest du durchführen?",
+  "wizard.q2": "Wo findet das Szenario statt?",
+  "wizard.q3": "Welche Geräte und Teilnehmer brauchst du?",
+  "wizard.q4": "Was soll währenddessen passieren?",
+  "wizard.q5": "Ist alles bereit?",
+  "wizard.step.purpose": "Zweck",
+  "wizard.step.ground": "Gelände",
+  "wizard.step.devices": "Geräte",
+  "wizard.step.flow": "Ablauf",
+  "wizard.step.start": "Start",
+  "wizard.tpl.sar": "Suche, Lagekarte, Akten und Patientenversorgung",
+  "wizard.tpl.medical": "Patientenmonitor und verdeckte Zustandswechsel",
+  "wizard.tpl.airsoft": "Freiwilliges GPS, Teams und Aufgaben im Gelände",
+  "wizard.tpl.film": "Wiederholbarer Ablauf mit simulierten Positionen",
+  "wizard.library": "Szenariobibliothek",
+  "wizard.name": "Szenarioname",
+  "wizard.source": "Datenquelle",
+  "wizard.lat": "Breitengrad",
+  "wizard.lng": "Längengrad",
+  "wizard.zoom": "Kartenzoom",
+  "wizard.sourceNote":
+    "LIVE verwendet freigegebene GPS-Daten und Online-Karten. PLAYBACK bewegt die vorbereiteten Routen ohne Standortfreigabe oder Kartenabruf. Die Zielzone lässt sich anschließend im Editor anpassen.",
+  "wizard.devicesNote":
+    "Eine Station entspricht einem Gerät. Mehrere Monitore können denselben Patienten zeigen. Namen und Teamzugehörigkeit helfen bei der Ausgabe der Geräte.",
+  "wizard.addPlayer": "Spieler hinzufügen",
+  "wizard.flowNote":
+    "Der Trainer kann jederzeit pausieren oder Werte ändern. Verdeckte Ereignisse sind nur hier sichtbar.",
+  "wizard.injectAt": "Patientenzustand nach wie vielen Sekunden ändern?",
+  "wizard.injectToggle":
+    "Zustandswechsel aktivieren, sofern noch keine Behandlung gemeldet wurde",
+  "wizard.terminalNote":
+    "Terminalaufgabe: aktiven Shunt-Code im Diagnosebericht erkennen und im Freigabefeld eingeben. Alle Gerätedaten sind fiktiv. Weitere Auslöser und Folgeaktionen ergänzt du danach im Ablaufeditor.",
+  "wizard.devices": "Geräte",
+  "wizard.patients": "Patienten",
+  "wizard.events": "Ereignisse",
+  "wizard.summaryNote":
+    "Nach dem Anlegen bleibt das Szenario pausiert. Im nächsten Schritt weist du Geräte per QR-Code zu und prüfst ihre Verbindung. Erst „Übung starten“ setzt die gemeinsame Uhr in Gang.",
+  "wizard.create": "Szenario anlegen",
 };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { scenarioSchema, template, type Scenario } from "../core/training";
 import { defaultDossiers } from "../core/dossiers";
 import { buildMission, missionTemplates } from "../core/missions";
+import { t } from "../i18n";
 export function ScenarioWizard({
   onSave,
   onClose,
@@ -13,11 +14,11 @@ export function ScenarioWizard({
     [draft, setDraft] = useState(() => template("sar")),
     [error, setError] = useState("");
   const questions = [
-    "Was möchtest du durchführen?",
-    "Wo findet das Szenario statt?",
-    "Welche Geräte und Teilnehmer brauchst du?",
-    "Was soll währenddessen passieren?",
-    "Ist alles bereit?",
+    t("wizard.q1"),
+    t("wizard.q2"),
+    t("wizard.q3"),
+    t("wizard.q4"),
+    t("wizard.q5"),
   ];
   const update = (patch: Partial<Scenario>) =>
     setDraft((s) => ({ ...s, ...patch }));
@@ -38,16 +39,22 @@ export function ScenarioWizard({
     else setStep(step + 1);
   };
   return (
-    <section className="wizard panel" aria-label="Geführte Szenarioeinrichtung">
+    <section className="wizard panel" aria-label={t("wizard.aria")}>
       <div className="section-heading">
-        <span className="eyebrow">GEFÜHRTE EINRICHTUNG · {step + 1} / 5</span>
-        <button onClick={onClose}>Schließen</button>
+        <span className="eyebrow">{t("wizard.eyebrow", { step: step + 1 })}</span>
+        <button onClick={onClose}>{t("common.close")}</button>
       </div>
       <h2>{questions[step]}</h2>
       <ol className="wizard-steps">
-        {["Zweck", "Gelände", "Geräte", "Ablauf", "Start"].map((name, i) => (
-          <li key={name} className={i === step ? "active" : ""}>
-            {i + 1}. {name}
+        {[
+          "wizard.step.purpose",
+          "wizard.step.ground",
+          "wizard.step.devices",
+          "wizard.step.flow",
+          "wizard.step.start",
+        ].map((key, i) => (
+          <li key={key} className={i === step ? "active" : ""}>
+            {i + 1}. {t(key)}
           </li>
         ))}
       </ol>
@@ -57,32 +64,23 @@ export function ScenarioWizard({
             {(["sar", "medical", "airsoft", "film"] as const).map((kind) => (
               <button key={kind} onClick={() => choose(kind)}>
                 <strong>{template(kind).name}</strong>
-                <span>
-                  {
-                    {
-                      sar: "Suche, Lagekarte, Akten und Patientenversorgung",
-                      medical: "Patientenmonitor und verdeckte Zustandswechsel",
-                      airsoft: "Freiwilliges GPS, Teams und Aufgaben im Gelände",
-                      film: "Wiederholbarer Ablauf mit simulierten Positionen",
-                    }[kind]
-                  }
-                </span>
+                <span>{t(`wizard.tpl.${kind}`)}</span>
               </button>
             ))}
           </div>
-          <p className="eyebrow">Szenariobibliothek</p>
+          <p className="eyebrow">{t("wizard.library")}</p>
           <div className="template-grid">
-            {missionTemplates.map((t) => (
+            {missionTemplates.map((tpl) => (
               <button
-                key={t.id}
+                key={tpl.id}
                 onClick={() => {
-                  setDraft(buildMission(t.id));
+                  setDraft(buildMission(tpl.id));
                   setError("");
                   setStep(1);
                 }}
               >
-                <strong>{t.name}</strong>
-                <span>{t.category}</span>
+                <strong>{tpl.name}</strong>
+                <span>{tpl.category}</span>
               </button>
             ))}
           </div>
@@ -91,14 +89,14 @@ export function ScenarioWizard({
       {step === 1 && (
         <div className="form-grid">
           <label>
-            Szenarioname
+            {t("wizard.name")}
             <input
               value={draft.name}
               onChange={(e) => update({ name: e.target.value })}
             />
           </label>
           <label>
-            Datenquelle
+            {t("wizard.source")}
             <select
               value={draft.mode}
               onChange={(e) =>
@@ -111,7 +109,7 @@ export function ScenarioWizard({
           </label>
           {(["lat", "lng", "zoom"] as const).map((k) => (
             <label key={k}>
-              {{ lat: "Breitengrad", lng: "Längengrad", zoom: "Kartenzoom" }[k]}
+              {t(`wizard.${k}`)}
               <input
                 type="number"
                 step="any"
@@ -122,21 +120,12 @@ export function ScenarioWizard({
               />
             </label>
           ))}
-          <p>
-            LIVE verwendet freigegebene GPS-Daten und Online-Karten. PLAYBACK
-            bewegt die vorbereiteten Routen ohne Standortfreigabe oder
-            Kartenabruf. Die Zielzone lässt sich anschließend im Editor
-            anpassen.
-          </p>
+          <p>{t("wizard.sourceNote")}</p>
         </div>
       )}
       {step === 2 && (
         <>
-          <p>
-            Eine Station entspricht einem Gerät. Mehrere Monitore können
-            denselben Patienten zeigen. Namen und Teamzugehörigkeit helfen bei
-            der Ausgabe der Geräte.
-          </p>
+          <p>{t("wizard.devicesNote")}</p>
           <div className="form-grid">
             {draft.stations.map((st) => (
               <label key={st.id}>
@@ -173,18 +162,15 @@ export function ScenarioWizard({
               });
             }}
           >
-            Spieler hinzufügen
+            {t("wizard.addPlayer")}
           </button>
         </>
       )}
       {step === 3 && (
         <>
-          <p>
-            Der Trainer kann jederzeit pausieren oder Werte ändern. Verdeckte
-            Ereignisse sind nur hier sichtbar.
-          </p>
+          <p>{t("wizard.flowNote")}</p>
           <label>
-            Patientenzustand nach wie vielen Sekunden ändern?
+            {t("wizard.injectAt")}
             <input
               type="number"
               min="0"
@@ -211,14 +197,9 @@ export function ScenarioWizard({
                 })
               }
             />
-            Zustandswechsel aktivieren, sofern noch keine Behandlung gemeldet
-            wurde
+            {t("wizard.injectToggle")}
           </label>
-          <p>
-            Terminalaufgabe: aktiven Shunt-Code im Diagnosebericht erkennen und
-            im Freigabefeld eingeben. Alle Gerätedaten sind fiktiv. Weitere
-            Auslöser und Folgeaktionen ergänzt du danach im Ablaufeditor.
-          </p>
+          <p>{t("wizard.terminalNote")}</p>
         </>
       )}
       {step === 4 && (
@@ -230,30 +211,28 @@ export function ScenarioWizard({
             </div>
             <div>
               <b>{draft.stations.length}</b>
-              <span>Geräte</span>
+              <span>{t("wizard.devices")}</span>
             </div>
             <div>
               <b>{draft.patients.length}</b>
-              <span>Patienten</span>
+              <span>{t("wizard.patients")}</span>
             </div>
             <div>
               <b>{draft.injects.filter((r) => r.enabled).length}</b>
-              <span>Ereignisse</span>
+              <span>{t("wizard.events")}</span>
             </div>
           </div>
-          <p>
-            Nach dem Anlegen bleibt das Szenario pausiert. Im nächsten Schritt
-            weist du Geräte per QR-Code zu und prüfst ihre Verbindung. Erst
-            „Übung starten“ setzt die gemeinsame Uhr in Gang.
-          </p>
+          <p>{t("wizard.summaryNote")}</p>
         </>
       )}
       {error && <p role="alert">{error}</p>}
       <div className="button-row">
-        {step > 0 && <button onClick={() => setStep(step - 1)}>Zurück</button>}
+        {step > 0 && (
+          <button onClick={() => setStep(step - 1)}>{t("common.back")}</button>
+        )}
         {step > 0 && (
           <button className="primary" onClick={next}>
-            {step === 4 ? "Szenario anlegen" : "Weiter"}
+            {step === 4 ? t("wizard.create") : t("common.next")}
           </button>
         )}
       </div>

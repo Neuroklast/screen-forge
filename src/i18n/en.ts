@@ -286,4 +286,45 @@ export const en: Record<string, string> = {
   "dossier.delete": "Delete file",
   "dossier.photoError": "Choose a JPG, PNG or WebP up to 10 MB.",
   "dossier.portraitAlt": "Portrait preview",
+
+  "wizard.aria": "Guided scenario setup",
+  "wizard.eyebrow": "GUIDED SETUP · {step} / 5",
+  "wizard.q1": "What do you want to run?",
+  "wizard.q2": "Where does the scenario take place?",
+  "wizard.q3": "Which devices and participants do you need?",
+  "wizard.q4": "What should happen during it?",
+  "wizard.q5": "Is everything ready?",
+  "wizard.step.purpose": "Purpose",
+  "wizard.step.ground": "Ground",
+  "wizard.step.devices": "Devices",
+  "wizard.step.flow": "Flow",
+  "wizard.step.start": "Start",
+  "wizard.tpl.sar": "Search, map, files and casualty care",
+  "wizard.tpl.medical": "Patient monitor and hidden state changes",
+  "wizard.tpl.airsoft": "Optional GPS, teams and field tasks",
+  "wizard.tpl.film": "Repeatable sequence with simulated positions",
+  "wizard.library": "Scenario library",
+  "wizard.name": "Scenario name",
+  "wizard.source": "Data source",
+  "wizard.lat": "Latitude",
+  "wizard.lng": "Longitude",
+  "wizard.zoom": "Map zoom",
+  "wizard.sourceNote":
+    "LIVE uses released GPS data and online maps. PLAYBACK moves the prepared routes without location sharing or map requests. The target zone can be adjusted later in the editor.",
+  "wizard.devicesNote":
+    "One station is one device. Several monitors can show the same patient. Names and team membership help when handing out devices.",
+  "wizard.addPlayer": "Add player",
+  "wizard.flowNote":
+    "The trainer can pause or change values at any time. Hidden events are visible only here.",
+  "wizard.injectAt": "Change patient state after how many seconds?",
+  "wizard.injectToggle":
+    "Enable the state change unless treatment was already reported",
+  "wizard.terminalNote":
+    "Terminal task: read the active shunt code from the diagnostics report and enter it in the release field. All device data is fictional. Add further triggers and follow-up actions afterwards in the sequence editor.",
+  "wizard.devices": "Devices",
+  "wizard.patients": "Patients",
+  "wizard.events": "Events",
+  "wizard.summaryNote":
+    "After creation the scenario stays paused. Next you assign devices via QR code and check their connection. Only „Übung starten“ starts the shared clock.",
+  "wizard.create": "Create scenario",
 };
