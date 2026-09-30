@@ -1,6 +1,8 @@
 import { test, expect, type Page, type Browser } from '@playwright/test';
 async function login(page: Page) {
-  await page.goto(`/?role=trainer&room=e2e-${Date.now()}`);
+  await page.goto(
+    `/?role=trainer&room=e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+  );
   await page.getByLabel('Trainer-Schlüssel').fill('browser-test-key');
   await page.getByRole('button',{name:'Verbinden',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Was möchtest du als Nächstes tun?'})).toBeVisible();
@@ -84,6 +86,35 @@ test('dossiers synchronize and trainer patient changes reach the assigned monito
     await page.getByRole('button',{name:'Test Person freigeben'}).click();
     await expect(hq.device.getByRole('heading',{name:'Test Person'})).toBeVisible();
   } finally { await medic.ctx.close(); await hq.ctx.close(); }
+});
+test('station presentation is pushed to the assigned field device', async ({page,browser}) => {
+  await login(page);
+  await page.getByRole('button',{name:'Szenario bearbeiten',exact:true}).click();
+  const card = page.locator('.builder-card').filter({hasText:'Intelligence'});
+  await card.click();
+  await page.getByLabel('Titel',{exact:true}).fill('RELAY-07');
+  await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();
+  await expect(page.locator('.notice[role="status"]')).toContainText('Szenario gespeichert');
+  const {ctx,device} = await assign(page,browser,'Intelligence');
+  try {
+    await expect(device.getByText('RELAY-07',{exact:true})).toBeVisible();
+  } finally { await ctx.close(); }
+});
+test('field terminal completion is restored after a reload', async ({page,browser}) => {
+  await login(page);
+  const {ctx,device} = await assign(page,browser,'Intelligence');
+  try {
+    await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
+    await expect(device.locator('.field-header')).toContainText('LIVE');
+    const input = device.getByLabel('Terminal input');
+    for (const command of ['status','scan --local','inspect auth','login --token 07-RELAY']) {
+      await input.fill(command);
+      await input.press('Enter');
+    }
+    await expect(device.locator('.terminal-header')).toContainText('COMPLETE');
+    await device.reload();
+    await expect(device.locator('.terminal-header')).toContainText('COMPLETE');
+  } finally { await ctx.close(); }
 });
 test('field terminal controls stay reachable on a small screen', async ({page,browser}) => {
   await login(page);

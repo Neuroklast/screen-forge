@@ -570,7 +570,12 @@ export function TrainerView({ room }: { room: string }) {
                     ))}
                 </div>
               </section>
-              <MelTimeline state={ex.state} />
+              <MelTimeline
+                state={ex.state}
+                onStartWorkflow={(id) =>
+                  ex.send({ type: "workflow-start", workflow: id })
+                }
+              />
               <section className="panel">
                 <h2>{t("trainer.sendMessage")}</h2>
                 <div className="message-compose">

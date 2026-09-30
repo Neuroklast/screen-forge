@@ -34,6 +34,7 @@
 ## Runtime and state rules
 
 - The server is authoritative for exercise state; clients never invent state.
+- Workflow/task logic is deterministic core code (`src/core`); it emits journaled domain events and never touches React, sockets, or wall-clock timers ([../konzept/domain/14-interaction-model.md](../konzept/domain/14-interaction-model.md)).
 - Mission edits are allowed only in `draft`, `ready`, `paused`; the builder is read-only while `running`.
 - Every mission save bumps `revision`; stale saves are rejected, never silently merged.
 - Role projections are enforced server-side; hidden data (rules, codes, unreleased dossiers) never reaches non-EXCON clients.

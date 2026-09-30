@@ -15,14 +15,15 @@ The builder composes a **mission** ("Einsatz") from devices, entities, and injec
 
 | Surface | Purpose | Contents |
 | --- | --- | --- |
-| Palette (left) | Sources to drag | Modules, Entities, Injects, Teams |
+| Palette (left) | Sources to drag | Modules, Entities, Injects, Tasks, Teams |
 | Board (center) | Composition | Device cards, entity chips, connection lines, linter badge |
 | Inspector (right) | Precise values | Selected item fields; multi-select summary |
-| Views | Board | `Plan` (cards) and `Karte` (map with zones/routes) |
+| Views | Board | `Plan` (cards), `Karte` (map with zones/routes), `Ablauf` (workflow graph editor) |
 
 - Palette groups MUST be collapsible and searchable.
 - Board MUST support mouse and touch drag & drop; every drag action has a button-based alternative ([usability/04](../usability/04-builder-interaction.md)).
 - Inspector edits MUST be immediate; no "Apply" button for scalar fields.
+- A station inspector MAY bind a **presentation** (`presentation.scene` + `presentation.config`): the look and identity pushed to the field device. Edits bump `presentation.revision` so the device remounts; the preset excludes uploaded media and brand logos ([11-data-model.md](11-data-model.md)).
 
 ## Composition rules
 
@@ -33,6 +34,7 @@ The builder composes a **mission** ("Einsatz") from devices, entities, and injec
 - **Entity ↔ station bindings:** drag an entity chip onto a station card to bind (medical→patient, ordnance→ordnance prop, terminal→payload/objective). Unbind via inspector or drag-out.
 - **Teams:** optional; when used, stations and players inherit team color/label; objectives MAY be team-scoped.
 - **Zones/objectives:** drawn/placed on `Karte`; zones are circles; objectives have an auto success condition (inject action) or manual completion.
+- **Tasks/workflows:** tasks are dropped into a workflow graph ([14-interaction-model.md](14-interaction-model.md)); a workflow is optional mission data and MUST NOT be required to start. Editing a workflow follows the same phase gate and revision rules as any mission edit.
 
 ## Defaults (MUST NOT force content)
 
@@ -65,6 +67,10 @@ Severities: `error` blocks start, `warning` recommends, `info` explains.
 | Action on incompatible entity | error | `"Wirkung passt nicht zur Entität."` |
 | Dependency cycle without repeat rule | error | `"Zyklus ohne Wiederholungsregel."` |
 | Repeat without cap | error | `"Wiederholung ohne Obergrenze."` |
+| Unknown task type in a workflow | error | `"Unbekannter Aufgabentyp."` |
+| Workflow edge on an undefined output | error | `"Ungültiger Ausgang."` |
+| Unreachable workflow node | error | `"Knoten nicht erreichbar."` |
+| Workflow node without an exit | error | `"Knoten ohne Ausgang."` |
 | Invalid safety gate | error | `"Sicherheitsschwelle ungültig."` |
 | Inject without purpose | warning | `"Ereignis ohne Zweck."` |
 | Inject without expected outcome | warning | `"Kein erwartetes Ergebnis."` |
@@ -93,7 +99,7 @@ Severities: `error` blocks start, `warning` recommends, `info` explains.
 
 - Deleting a patient that a medical station references: station stays, binding clears, linter error appears.
 - Duplicating a station: new id, same module/config; bindings copied only for entities that still exist.
-- Deleting the last station: allowed; linter blocks start.
+- Deleting the last station: allowed; the linter blocks start (enforced server-side, not only in the editor).
 - Drag & drop cancelled mid-gesture: no partial state; Esc/back cancels.
 - Import of a v1 scenario: migrated with `rules→injects` naming, defaults preserved ([11-data-model.md](11-data-model.md)).
 

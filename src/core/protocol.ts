@@ -36,6 +36,8 @@ export const commandTypes = new Set([
   "intervention",
   "unlock",
   "prop",
+  "interaction",
+  "workflow-start",
 ]);
 
 export function isCommandType(type: string): boolean {

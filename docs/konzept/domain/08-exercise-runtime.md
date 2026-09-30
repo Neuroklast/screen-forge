@@ -22,7 +22,7 @@
 | `aborted` | Safety/EXCON abort | Reset to baseline, debrief |
 | `ended` | Time/objectives finished | Debrief, export, reset |
 
-- `"Übung starten"` MUST require: ≥1 station, linter clean, at least one connected device (warning only if none).
+- `"Übung starten"` MUST require: ≥1 station, linter clean, at least one connected device (warning only if none). The server is the gate: `play` is rejected while `lintMission` reports a blocking error (`server/exercise.mjs`, `src/core/missionLint.ts`).
 - `reset` restores the baseline snapshot (mission + initial entity states) without losing the mission.
 - Abort is distinct from pause: abort sets `aborted`, surfaces a full-screen banner on all devices, and cannot be resumed — only reset.
 - Time model: `serverNow`, `exerciseElapsed`, `deadlineAtServer`, `clockState`, `clockRevision`; the display is a prediction, the server is authority ([../control/05-sync-and-durability.md](../control/05-sync-and-durability.md)).
@@ -47,6 +47,13 @@ Action types: `patient`, `release`, `camera`, `objective`, `message`, `prop`, `l
 - Each inject fires at most once per run; `fired[]` is server state; manual re-fire is explicit (`"erneut auslösen"`).
 - Inject creation is advanced-mode; guided exposes time + one action only.
 
+## Workflows (interaction logic)
+
+- A mission MAY carry `workflows` ([14-interaction-model.md](14-interaction-model.md)); the server starts instances on their trigger (prop change or EXCON start) and advances them on `interaction` commands and prop events.
+- Execution is deterministic core code and emits only journaled domain events (`workflow.started`, `workflow.transition.taken`, `workflow.variable.changed`, `workflow.completed`); never wall-clock timers.
+- Workflow events are projected per role; expected values and secret variables are hidden from players. A completed workflow MAY be an inject trigger.
+- Edge cases: interaction while paused is rejected; a command for a node that is no longer active is rejected, never applied late.
+
 ## Mission data sources
 
 - `LIVE`: real device GPS, real clock; `SIG_LOST` after 10 s without position; camera feeds live.
@@ -64,11 +71,16 @@ Action types: `patient`, `release`, `camera`, `objective`, `message`, `prop`, `l
 ## State projection (redaction)
 
 - Server sends role-scoped projections; clients never receive hidden data.
-- `player`: own station, own team positions, released dossiers, own objectives, received messages.
+- `player`: own station (including its `presentation` look), own team positions, released dossiers, own objectives, received messages.
 - `hq`: all stations, all zones, all objectives, released dossiers, camera feeds; injects and codes hidden.
 - `assessor`: everything except codes and future injects (configurable to full).
 - `safety`: full state including injects and codes.
 - `technician`: device metadata only.
+
+## Authoritative block state
+
+- Block completion is server state, not local UI: `module.event` values, reported interventions and access grants are stored per station (`state.moduleEvents` / `interventions` / `props`).
+- A field device derives its block `complete` cue from that state, so a remount or reconnect rebuilds a finished task instead of showing it open again.
 
 ## Comms
 

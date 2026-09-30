@@ -23,6 +23,12 @@ Every module declares:
 - Modules MUST work in `LIVE` and `PLAYBACK`; GPS-dependent ones degrade to routes in playback.
 - Module UI MUST be operable with one hand on a tablet (field) and by keyboard (HQ/EXCON).
 
+## Modules, tasks and workflows
+
+- A module is the surface a station shows; the interaction behind it is described by tasks and workflows ([14-interaction-model.md](14-interaction-model.md)).
+- A module MAY be driven by a workflow: the workflow's active node decides which surface/task the station shows. `emits` stays the event vocabulary injects trigger on.
+- The task registry (`src/core/taskBlocks.ts`) owns task schemas and UI fields; the workflow interpreter owns execution. Neither is duplicated in a module.
+
 ## Field modules (station-side)
 
 | id | Label | Requires | Emits | Key config | Operated by |

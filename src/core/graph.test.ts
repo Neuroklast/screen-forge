@@ -24,6 +24,129 @@ const inject = (id: string, escalation: string, extra = {}) => ({
   ...extra,
 });
 
+const baseWorkflow = (overrides: Record<string, unknown> = {}) => ({
+  id: "wf-1",
+  version: 1,
+  name: "Flow",
+  trigger: { type: "manual" },
+  entry: "start",
+  nodes: [
+    { id: "start", type: "start" },
+    { id: "task", type: "task", task: "confirm", config: {} },
+    { id: "end", type: "end", outcome: "success" },
+  ],
+  edges: [
+    { id: "e1", source: "start", output: "out", target: "task" },
+    { id: "e2", source: "task", output: "success", target: "end" },
+    { id: "e3", source: "task", output: "failure", target: "end" },
+  ],
+  ...overrides,
+});
+
+const withWorkflows = (workflows: unknown[]) =>
+  scenarioSchema.parse({
+    version: 2,
+    name: "Graph",
+    mode: "LIVE",
+    seed: 1,
+    map: { lat: 0, lng: 0, zoom: 5, tiles: "", attribution: "" },
+    stations: [{ id: "hq", name: "HQ", role: "hq", module: "tracking" }],
+    workflows,
+  });
+
+const workflowFindings = (workflows: unknown[]) =>
+  lintGraph(withWorkflows(workflows)).filter((f) =>
+    f.id.startsWith("graph-wf-"),
+  );
+
+describe("workflow graph linter", () => {
+  it("accepts a reachable workflow with every port connected", () => {
+    expect(workflowFindings([baseWorkflow()])).toEqual([]);
+  });
+
+  it("flags unreachable nodes", () => {
+    const workflow = baseWorkflow({
+      nodes: [
+        { id: "start", type: "start" },
+        { id: "task", type: "task", task: "confirm", config: {} },
+        { id: "end", type: "end", outcome: "success" },
+        { id: "orphan", type: "end", outcome: "failure" },
+      ],
+    });
+    expect(
+      workflowFindings([workflow]).some(
+        (f) => f.id === "graph-wf-unreachable-wf-1-orphan",
+      ),
+    ).toBe(true);
+  });
+
+  it("flags nodes with an unconnected output", () => {
+    const workflow = baseWorkflow({
+      edges: [
+        { id: "e1", source: "start", output: "out", target: "task" },
+        { id: "e2", source: "task", output: "success", target: "end" },
+      ],
+    });
+    expect(
+      workflowFindings([workflow]).some((f) =>
+        f.id.startsWith("graph-wf-exit-wf-1-task"),
+      ),
+    ).toBe(true);
+  });
+
+  it("flags automatic cycles without a wait", () => {
+    const workflow = baseWorkflow({
+      nodes: [
+        { id: "start", type: "start" },
+        { id: "bump", type: "increment", variable: "n" },
+        {
+          id: "check",
+          type: "condition",
+          variable: "n",
+          operator: ">=",
+          value: 0,
+        },
+        { id: "end", type: "end", outcome: "success" },
+      ],
+      edges: [
+        { id: "e1", source: "start", output: "out", target: "bump" },
+        { id: "e2", source: "bump", output: "out", target: "check" },
+        { id: "e3", source: "check", output: "true", target: "bump" },
+        { id: "e4", source: "check", output: "false", target: "end" },
+      ],
+      variables: [{ id: "n", kind: "number", initial: 0 }],
+    });
+    expect(
+      workflowFindings([workflow]).some((f) => f.id === "graph-wf-loop-wf-1"),
+    ).toBe(true);
+  });
+
+  it("accepts an automatic cycle that settles through a condition", () => {
+    const workflow = baseWorkflow({
+      nodes: [
+        { id: "start", type: "start" },
+        { id: "bump", type: "increment", variable: "n" },
+        {
+          id: "check",
+          type: "condition",
+          variable: "n",
+          operator: ">=",
+          value: 3,
+        },
+        { id: "end", type: "end", outcome: "success" },
+      ],
+      edges: [
+        { id: "e1", source: "start", output: "out", target: "bump" },
+        { id: "e2", source: "bump", output: "out", target: "check" },
+        { id: "e3", source: "check", output: "true", target: "end" },
+        { id: "e4", source: "check", output: "false", target: "bump" },
+      ],
+      variables: [{ id: "n", kind: "number", initial: 0 }],
+    });
+    expect(workflowFindings([workflow])).toEqual([]);
+  });
+});
+
 describe("graph linter", () => {
   it("flags a cycle without a repeat rule", () => {
     const s = base([inject("a", "b"), inject("b", "a")]);

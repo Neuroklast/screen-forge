@@ -1,6 +1,12 @@
-import type { Finding } from "./missionLint";
-import type { Scenario } from "./training";
-import { t } from "../i18n";
+import type { Finding } from "./missionLint.ts";
+import type { Scenario } from "./training.ts";
+import { taskBlock } from "./taskBlocks.ts";
+import {
+  workflowNodePorts,
+  workflowSettles,
+  type Workflow,
+} from "./workflow.ts";
+import { t } from "../i18n/index.ts";
 
 const EXTERNAL_TRIGGERS = ["zone", "prop", "signal"];
 
@@ -26,6 +32,61 @@ function findCycleNodes(edges: Map<string, string[]>): Set<string> {
   };
   for (const node of edges.keys()) if (!color.get(node)) visit(node);
   return inCycle;
+}
+
+// Workflow graph checks: every port needs an exit, every node must be
+// reachable from the entry, and automatic cycles without a wait are errors.
+function lintWorkflow(workflow: Workflow): Finding[] {
+  const out: Finding[] = [];
+  const error = (id: string, message: string) =>
+    out.push({
+      id,
+      severity: "error",
+      message,
+      path: { collection: "workflows", id: workflow.id },
+    });
+  const outputs = new Map<string, Set<string>>();
+  const adjacency = new Map<string, string[]>();
+  for (const edge of workflow.edges) {
+    const ports = outputs.get(edge.source) ?? new Set<string>();
+    ports.add(edge.output);
+    outputs.set(edge.source, ports);
+    adjacency.set(edge.source, [
+      ...(adjacency.get(edge.source) ?? []),
+      edge.target,
+    ]);
+  }
+  for (const node of workflow.nodes) {
+    const name = node.name || node.id;
+    if (node.type === "task" && !taskBlock(node.task))
+      error(`graph-wf-task-${workflow.id}-${node.id}`, t("graph.wfTask", { name }));
+    for (const port of workflowNodePorts(node))
+      if (!outputs.get(node.id)?.has(port))
+        error(
+          `graph-wf-exit-${workflow.id}-${node.id}-${port}`,
+          t("graph.wfExit", { name }),
+        );
+  }
+  const reachable = new Set<string>();
+  const stack = [workflow.entry];
+  while (stack.length) {
+    const nodeId = stack.pop();
+    if (!nodeId || reachable.has(nodeId)) continue;
+    reachable.add(nodeId);
+    for (const next of adjacency.get(nodeId) ?? []) stack.push(next);
+  }
+  for (const node of workflow.nodes)
+    if (!reachable.has(node.id))
+      error(
+        `graph-wf-unreachable-${workflow.id}-${node.id}`,
+        t("graph.wfUnreachable", { name: node.name || node.id }),
+      );
+  if (!workflowSettles(workflow))
+    error(
+      `graph-wf-loop-${workflow.id}`,
+      t("graph.wfLoop", { name: workflow.name }),
+    );
+  return out;
 }
 
 // Graph-level validation on top of the schema/linter: dangling escalation,
@@ -87,6 +148,8 @@ export function lintGraph(s: Scenario): Finding[] {
         id,
       );
   }
+
+  for (const workflow of s.workflows) out.push(...lintWorkflow(workflow));
 
   return out;
 }

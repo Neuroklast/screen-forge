@@ -1,6 +1,6 @@
-import type { Scenario } from "./training";
-import { lintGraph } from "./graph";
-import { t } from "../i18n";
+import type { Scenario } from "./training.ts";
+import { lintGraph } from "./graph.ts";
+import { t } from "../i18n/index.ts";
 
 export type Severity = "error" | "warning" | "info";
 export type Collection =
@@ -12,7 +12,8 @@ export type Collection =
   | "objectives"
   | "teams"
   | "actors"
-  | "injects";
+  | "injects"
+  | "workflows";
 export type Finding = {
   id: string;
   severity: Severity;

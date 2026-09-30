@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import {
   actorSchema,
   dossierSchema,
@@ -16,8 +16,17 @@ import {
 import { findingCounts, lintMission, type Collection } from "../core/missionLint";
 import { taskBlocks } from "../core/taskBlocks";
 import { ordnanceTypes } from "../core/ordnance";
+import { PresentationFields } from "../training/PresentationFields";
 import { t } from "../i18n";
 import "./builder.css";
+
+// The graph editor (and its React Flow chunk) loads only when the flow view is
+// opened; the mission runtime never pulls it in.
+const WorkflowGraph = lazy(() =>
+  import("./WorkflowGraph").then((module) => ({
+    default: module.WorkflowGraph,
+  })),
+);
 
 type ModuleId = (typeof modules)[number];
 type Selection = { collection: Collection; id: string } | null;
@@ -98,6 +107,7 @@ export function MissionBuilder({
   const [history, setHistory] = useState<Scenario[]>([]);
   const [future, setFuture] = useState<Scenario[]>([]);
   const [drag, setDrag] = useState<Drag>(null);
+  const [view, setView] = useState<"plan" | "flow">("plan");
 
   const commit = useCallback(
     (next: Scenario) => {
@@ -235,6 +245,41 @@ export function MissionBuilder({
         }
       }}
     >
+      <div
+        className="builder-views"
+        role="tablist"
+        aria-label={t("builder.views")}
+      >
+        <button
+          role="tab"
+          aria-selected={view === "plan"}
+          className={view === "plan" ? "active" : ""}
+          onClick={() => setView("plan")}
+        >
+          {t("builder.viewPlan")}
+        </button>
+        <button
+          role="tab"
+          aria-selected={view === "flow"}
+          className={view === "flow" ? "active" : ""}
+          onClick={() => setView("flow")}
+        >
+          {t("builder.viewFlow")}
+        </button>
+      </div>
+      {view === "flow" ? (
+        <Suspense
+          fallback={<p className="builder-hint">{t("builder.loading")}</p>}
+        >
+          <WorkflowGraph
+            draft={draft}
+            commit={commit}
+            readOnly={readOnly}
+            findings={findings}
+          />
+        </Suspense>
+      ) : (
+        <>
       <aside className="builder-palette" aria-label={t("builder.palette")}>
         <div className="builder-palette-head">
           <strong>{t("builder.palette")}</strong>
@@ -421,6 +466,8 @@ export function MissionBuilder({
           )}
         </div>
       </aside>
+        </>
+      )}
     </section>
   );
 }
@@ -586,6 +633,11 @@ function StationInspector({
           </label>
         </>
       )}
+      <PresentationFields
+        station={station}
+        readOnly={readOnly}
+        onChange={(presentation) => onPatch({ presentation })}
+      />
       <button className="danger" onClick={onRemove} disabled={readOnly}>
         {t("builder.removeDevice")}
       </button>

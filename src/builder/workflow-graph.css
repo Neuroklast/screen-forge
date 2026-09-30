@@ -1,0 +1,159 @@
+.builder-flow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 300px;
+  gap: 12px;
+  align-items: start;
+}
+
+.builder-flow .builder-palette,
+.builder-flow .builder-inspector {
+  border: 1px solid #1e2a33;
+  background: #0a1016;
+  padding: 10px;
+}
+
+.palette-item.is-active {
+  border-color: #80dce5;
+  color: #80dce5;
+}
+
+.wf-board {
+  height: 520px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.wf-board .react-flow__edge-path {
+  stroke: #4f6570;
+}
+
+.wf-board .react-flow__edge-text {
+  fill: #8a9aa2;
+  font-size: 10px;
+}
+
+.wf-board .react-flow__controls button {
+  border-radius: 0;
+  border-bottom: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
+.wf-node {
+  min-width: 170px;
+  padding: 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  font-size: 12px;
+}
+
+.wf-node.is-selected {
+  border-color: #80dce5;
+}
+
+.wf-node.has-error {
+  border-color: #f36c75;
+}
+
+.wf-node header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4f6570;
+}
+
+.wf-node-entry {
+  color: #80dce5;
+}
+
+.wf-node strong {
+  display: block;
+  margin: 4px 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.wf-node-ports {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: right;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  color: #4f6570;
+}
+
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  background: #80dce5;
+}
+
+.wf-variable {
+  display: grid;
+  gap: 4px;
+  padding: 6px 0;
+  border-bottom: 1px solid #1e2a33;
+}
+
+.wf-variable input,
+.wf-variable select,
+.wf-option-row input,
+.wf-option-row button {
+  padding: 4px 6px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
+.wf-option-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+}
+
+.wf-findings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wf-findings button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.wf-findings .is-error button {
+  color: #f36c75;
+}
+
+.wf-findings .is-warning button {
+  color: #e8b563;
+}
+
+.wf-findings .is-ok {
+  color: #76fa96;
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .builder-flow {
+    grid-template-columns: 1fr;
+  }
+}

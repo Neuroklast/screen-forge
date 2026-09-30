@@ -28,6 +28,7 @@
 | 11 | [domain/11-data-model.md](domain/11-data-model.md) | Schemas, versioning, migration |
 | 12 | [domain/12-gap-analysis.md](domain/12-gap-analysis.md) | Planning implementation work |
 | 13 | [domain/13-field-client.md](domain/13-field-client.md) | Field shell, background location, offline maps |
+| 14 | [domain/14-interaction-model.md](domain/14-interaction-model.md) | Tasks, workflows, surfaces, interaction runtime |
 
 ## Usability concept
 

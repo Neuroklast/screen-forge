@@ -1,5 +1,23 @@
 import { z } from "zod";
 import { ordnanceTypeSchema } from "./ordnance.ts";
+import {
+  activeTaskOf,
+  advanceWorkflow,
+  evaluateWorkflow,
+  redactInstanceSecrets,
+  redactWorkflowSecrets,
+  startWorkflow,
+  workflowSchema,
+  type Workflow,
+  type WorkflowEvent,
+  type WorkflowInstance,
+} from "./workflow.ts";
+import {
+  sceneIds,
+  scenePresetSchema,
+  type SceneId,
+  type ScenePreset,
+} from "./config.ts";
 
 // Shared by the browser and Node 24. No browser-only imports in this module.
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,40}$/);
@@ -114,6 +132,36 @@ export const bindingSchema = z.object({
   prop: z.string().max(40).default(""),
   objective: z.string().max(40).default(""),
 });
+// Per-station presentation bound to the scenario and pushed to the field
+// device. `scene` overrides the module-derived scene; `config` carries the
+// look/identity preset; `revision` lets the device remount on a change.
+export const presentationSchema = z.object({
+  scene: z.enum(sceneIds).optional(),
+  config: scenePresetSchema.optional(),
+  revision: z.number().int().min(0).default(0),
+});
+export type Presentation = z.infer<typeof presentationSchema>;
+
+// Edits a station's presentation and bumps `revision` so field devices remount.
+// `scene: null` / `config: null` clears the override; `config` patches merge.
+export function editPresentation(
+  current: Presentation | undefined,
+  patch: { scene?: SceneId | null; config?: Partial<ScenePreset> | null },
+): Presentation {
+  const next: Presentation = current
+    ? { ...current, config: current.config ? { ...current.config } : undefined }
+    : { revision: 0 };
+  if ("scene" in patch) {
+    if (patch.scene) next.scene = patch.scene;
+    else delete next.scene;
+  }
+  if ("config" in patch) {
+    if (patch.config) next.config = { ...next.config, ...patch.config };
+    else delete next.config;
+  }
+  next.revision = (current?.revision ?? 0) + 1;
+  return next;
+}
 export const stationSchema = z.object({
   id,
   name: label,
@@ -128,6 +176,7 @@ export const stationSchema = z.object({
     .regex(/^\d{4,12}$/)
     .default("7392"),
   route: z.array(pointSchema).max(20).default([]),
+  presentation: presentationSchema.optional(),
 });
 export const propSchema = z.object({
   id,
@@ -250,6 +299,7 @@ const scenarioV2Schema = z
     injects: z.array(injectSchema).max(100).default([]),
     objectives: z.array(objectiveSchema).max(40).default([]),
     ordnanceTypes: z.array(ordnanceTypeSchema).max(40).default([]),
+    workflows: z.array(workflowSchema).max(40).default([]),
   })
   .superRefine((s, ctx) => {
     const issue = (message: string) =>
@@ -265,6 +315,7 @@ const scenarioV2Schema = z
       s.injects,
       s.objectives,
       s.ordnanceTypes,
+      s.workflows,
     ])
       if (new Set(rows.map((x) => x.id)).size !== rows.length)
         issue("IDs must be unique within each collection");
@@ -356,6 +407,48 @@ const scenarioV2Schema = z
           issue(`Target missing for ${rule.name}`);
       }
     }
+    for (const w of s.workflows) {
+      const trigger = w.trigger;
+      if (trigger.type === "prop") {
+        const prop = s.props.find((p) => p.id === trigger.prop);
+        if (!prop) issue(`Unknown prop for ${w.name}`);
+        else if (!prop.states.includes(trigger.to))
+          issue(`Unknown prop state for ${w.name}`);
+      }
+      for (const n of w.nodes) {
+        if (
+          n.type === "show-surface" &&
+          !s.stations.some((st) => st.id === n.station)
+        )
+          issue(`Station missing for ${w.name}`);
+        if (n.type === "set-prop-state") {
+          const prop = s.props.find((p) => p.id === n.prop);
+          if (!prop) issue(`Unknown prop for ${w.name}`);
+          else if (!prop.states.includes(n.state))
+            issue(`Unknown prop state for ${w.name}`);
+        }
+        if (
+          n.type === "complete-objective" &&
+          !s.objectives.some((o) => o.id === n.objective)
+        )
+          issue(`Objective missing for ${w.name}`);
+        if (
+          n.type === "task" &&
+          (n.task === "wait-for-event" || n.task === "connect")
+        ) {
+          const prop = String(n.config.prop ?? "");
+          if (prop) {
+            const row = s.props.find((p) => p.id === prop);
+            if (!row) issue(`Unknown prop for ${w.name}`);
+            else if (
+              String(n.config.to ?? "") &&
+              !row.states.includes(String(n.config.to))
+            )
+              issue(`Unknown prop state for ${w.name}`);
+          }
+        }
+      }
+    }
   });
 // Migration: read v1 (`scene`/`entityId`/`rules`) and any alias form, always emit v2.
 function normalizeScenario(input: unknown): unknown {
@@ -411,11 +504,16 @@ export type TrainingState = {
   revision: number;
   fired: string[];
   interventions: Record<string, string[]>;
+  moduleEvents: Record<string, string[]>;
   positions: Record<string, Position>;
   cameraOffline: Record<string, boolean>;
   completed: string[];
   props: Record<string, boolean>;
   propStates: Record<string, string>;
+  workflows: Record<string, WorkflowInstance>;
+  // Projection-only: the prop triggers of workflows relevant to a field
+  // station, so the device can offer the simulated connection action.
+  workflowTriggers?: { id: string; name: string; trigger: Workflow["trigger"] }[];
   log: { at: number; message: string }[];
   notes: { at: number; role: string; text: string }[];
   messages: { at: number; from: string; to: string; text: string }[];
@@ -434,11 +532,13 @@ export function newState(
     revision: 0,
     fired: [],
     interventions: {},
+    moduleEvents: {},
     positions: {},
     cameraOffline: {},
     completed: [],
     props: {},
     propStates: Object.fromEntries(scenario.props.map((p) => [p.id, p.initial])),
+    workflows: {},
     log: [],
     notes: [],
     messages: [],
@@ -636,6 +736,148 @@ export function advance(s: TrainingState, delta: number, now = Date.now()) {
     }
   evaluate(s, undefined, now);
 }
+// Instances a station may interact with: the workflow's surface targets the
+// station, its trigger or active task uses the station's prop, or the workflow
+// triggers on that prop.
+export function stationWorkflowInstances(
+  s: TrainingState,
+  station: string,
+): WorkflowInstance[] {
+  const st = s.scenario.stations.find((row) => row.id === station);
+  const bound = st?.bindings.prop ?? "";
+  return Object.values(s.workflows).filter((instance) => {
+    if (instance.surface?.station === station) return true;
+    if (!bound) return false;
+    const workflow = s.scenario.workflows.find(
+      (w) => w.id === instance.workflowId,
+    );
+    if (!workflow) return false;
+    if (workflow.trigger.type === "prop" && workflow.trigger.prop === bound)
+      return true;
+    const activeTask = activeTaskOf(workflow, instance);
+    return activeTask
+      ? String(activeTask.config.prop ?? "") === bound
+      : false;
+  });
+}
+
+// Player input for the station's active task. Returns no events when no task
+// is active, so stale or duplicate input never produces a second effect.
+export function interactionEvents(
+  s: TrainingState,
+  station: string,
+  value: string,
+): WorkflowEvent[] {
+  const code =
+    s.scenario.stations.find((row) => row.id === station)?.code || "";
+  for (const instance of stationWorkflowInstances(s, station)) {
+    if (instance.status !== "running") continue;
+    const workflow = s.scenario.workflows.find(
+      (w) => w.id === instance.workflowId,
+    );
+    if (!workflow) continue;
+    const events = evaluateWorkflow(
+      workflow,
+      instance,
+      { type: "interaction", value },
+      s.clock,
+      code,
+    );
+    if (events.length) return events;
+  }
+  return [];
+}
+
+// Prop changes advance waiting tasks (`wait-for-event`, `connect`) across all
+// running instances. Called by the server for every prop change.
+export function workflowPropEvents(
+  s: TrainingState,
+  prop: string,
+  state: string,
+  clock: number,
+): WorkflowEvent[] {
+  const events: WorkflowEvent[] = [];
+  for (const instance of Object.values(s.workflows)) {
+    if (instance.status !== "running") continue;
+    const workflow = s.scenario.workflows.find(
+      (w) => w.id === instance.workflowId,
+    );
+    if (!workflow) continue;
+    events.push(
+      ...evaluateWorkflow(
+        workflow,
+        instance,
+        { type: "prop", prop, state },
+        clock,
+      ),
+    );
+  }
+  return events;
+}
+
+// Starts one workflow instance; empty when unknown or already running.
+export function workflowStartEvents(
+  s: TrainingState,
+  workflowId: string,
+  clock: number,
+): WorkflowEvent[] {
+  const workflow = s.scenario.workflows.find((w) => w.id === workflowId);
+  if (!workflow || s.workflows[workflow.id]) return [];
+  return startWorkflow(workflow, workflow.id, clock);
+}
+
+// Deterministic instance id: one run per workflow per exercise.
+export function workflowStartsForProp(
+  s: TrainingState,
+  prop: string,
+  to: string,
+  clock: number,
+): WorkflowEvent[] {
+  const events: WorkflowEvent[] = [];
+  for (const workflow of s.scenario.workflows) {
+    if (
+      workflow.trigger.type !== "prop" ||
+      workflow.trigger.prop !== prop ||
+      workflow.trigger.to !== to
+    )
+      continue;
+    events.push(...workflowStartEvents(s, workflow.id, clock));
+  }
+  return events;
+}
+
+export function workflowTick(s: TrainingState, clock: number): WorkflowEvent[] {
+  const events: WorkflowEvent[] = [];
+  for (const instance of Object.values(s.workflows)) {
+    if (instance.status !== "running") continue;
+    const workflow = s.scenario.workflows.find(
+      (w) => w.id === instance.workflowId,
+    );
+    if (!workflow) continue;
+    events.push(...advanceWorkflow(workflow, instance, clock));
+  }
+  return events;
+}
+
+function redactProjectedInstances(
+  s: TrainingState,
+  keep?: Set<string>,
+): Record<string, WorkflowInstance> {
+  return Object.fromEntries(
+    Object.entries(s.workflows)
+      .filter(([key]) => !keep || keep.has(key))
+      .map(([key, instance]) => {
+        const workflow = s.scenario.workflows.find(
+          (w) => w.id === instance.workflowId,
+        );
+        if (!workflow) return [key, instance];
+        const redacted = redactInstanceSecrets(workflow, instance);
+        const activeTask = activeTaskOf(workflow, instance);
+        return [key, activeTask ? { ...redacted, activeTask } : redacted];
+      }),
+  );
+}
+
 // Do not send trainer secrets, hidden injects, locked dossiers or other teams' locations to field devices.
 export function projectState(
   s: TrainingState,
@@ -648,9 +890,17 @@ export function projectState(
     out.scenario.stations.forEach((st) => {
       st.code = "";
     });
+    out.scenario.workflows = out.scenario.workflows.map(redactWorkflowSecrets);
+    out.workflows = redactProjectedInstances(out);
     return out;
   }
+  const visibleInstances =
+    role === "element"
+      ? new Set(stationWorkflowInstances(s, station).map((i) => i.id))
+      : undefined;
+  out.workflows = redactProjectedInstances(out, visibleInstances);
   out.scenario.injects = [];
+  out.scenario.workflows = [];
   out.scenario.stations.forEach((st) => {
     st.code = "";
     st.route = [];
@@ -659,6 +909,8 @@ export function projectState(
   out.fired = [];
   out.interventions =
     role === "element" ? { [station]: out.interventions[station] || [] } : {};
+  if (role === "element")
+    out.moduleEvents = { [station]: out.moduleEvents?.[station] || [] };
   out.log = out.log.filter(
     (e) => !e.message.startsWith("Skipped:") && !e.message.startsWith("Event:"),
   );
@@ -668,6 +920,11 @@ export function projectState(
     );
   if (role === "element") {
     const st = s.scenario.stations.find((st) => st.id === station);
+    out.workflowTriggers = s.scenario.workflows
+      .filter(
+        (w) => w.trigger.type === "prop" && w.trigger.prop === st?.bindings.prop,
+      )
+      .map((w) => ({ id: w.id, name: w.name, trigger: w.trigger }));
     out.scenario.stations = out.scenario.stations.filter(
       (row) => row.id === station || (row.player && row.team === st?.team),
     );

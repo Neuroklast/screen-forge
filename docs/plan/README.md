@@ -7,7 +7,7 @@
 
 1. Read [00-guardrails.md](00-guardrails.md) first — non-negotiables for every change.
 2. Read the phase file you are implementing (01–07) plus [08-tests-and-dod.md](08-tests-and-dod.md).
-3. Pick the next task from the matching backlog: [09-backlog-foundation-to-catalog.md](09-backlog-foundation-to-catalog.md), [10-backlog-runtime-to-cleanup.md](10-backlog-runtime-to-cleanup.md) or [13-backlog-durable-engine.md](13-backlog-durable-engine.md).
+3. Pick the next task from the matching backlog: [09-backlog-foundation-to-catalog.md](09-backlog-foundation-to-catalog.md), [10-backlog-runtime-to-cleanup.md](10-backlog-runtime-to-cleanup.md), [13-backlog-durable-engine.md](13-backlog-durable-engine.md) or [15-backlog-interaction-engine.md](15-backlog-interaction-engine.md).
 4. Update the concept gap analysis in the same change; add a lesson if something surprised you ([../lessons/README.md](../lessons/README.md)).
 
 - Tasks have stable ids (`F1`, `B3`, `R2`, `T4`, `D5`, `X9`); the backlog is the working order.
@@ -40,6 +40,7 @@
 | 7 | Cleanup | [07-cleanup.md](07-cleanup.md) | any | M | Assets, dead code, README, fonts/sounds |
 | V2 | Scene rework | [11-scene-rework-v2.md](11-scene-rework-v2.md) | 1–3 | XL | OS/Terminal split, all scenes/blocks to V2 specs, new blocks |
 | 8 | Durable engine | [12-durable-engine.md](12-durable-engine.md) | 1–4 | XL | Command/event durability, MEL v2, profiles, templates |
+| 9 | Interaction engine | [14-interaction-engine.md](14-interaction-engine.md) | 1–4, 8 | XL | Workflow schema + deterministic interpreter, vertical pilot, graph editor, surfaces |
 
 - Parallelizable: 2 and 3 after 1; 5 and 6 after 1; 7 throughout.
 - Every phase ships independently: no phase may leave the app in a non-building state.

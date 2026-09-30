@@ -8,8 +8,17 @@ const KIND_KEY: Record<string, string> = {
   actual: "mel.actual",
 };
 
-export function MelTimeline({ state }: { state: TrainingState }) {
+export function MelTimeline({
+  state,
+  onStartWorkflow,
+}: {
+  state: TrainingState;
+  onStartWorkflow?: (id: string) => void;
+}) {
   const entries = buildTimeline(state);
+  const manualFlows = state.scenario.workflows.filter(
+    (workflow) => workflow.trigger.type === "manual",
+  );
   const download = () => {
     const url = URL.createObjectURL(
       new Blob([timelineCsv(entries)], { type: "text/csv" }),
@@ -26,6 +35,23 @@ export function MelTimeline({ state }: { state: TrainingState }) {
         <h2>{t("mel.title")}</h2>
         <button onClick={download}>{t("mel.export")}</button>
       </div>
+      {manualFlows.length > 0 && (
+        <div className="button-row">
+          {manualFlows.map((workflow) => {
+            const started = !!state.workflows[workflow.id];
+            return (
+              <button
+                key={workflow.id}
+                disabled={started || state.frozen || !onStartWorkflow}
+                onClick={() => onStartWorkflow?.(workflow.id)}
+              >
+                {t("mel.startFlow", { name: workflow.name })}
+                {started ? ` · ${t("mel.flowStarted")}` : ""}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <ul className="event-log mel-timeline">
         {entries.map((entry, index) => (
           <li key={`${entry.kind}-${entry.injectId ?? index}-${entry.at}`}>

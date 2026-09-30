@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { moduleEvents } from "../core/training";
+import { presentationConfig } from "../core/config";
+import { WorkflowSurface } from "../scenes/workflow/Surfaces";
 import { StageFrame } from "./StageFrame";
 import { useTraining } from "../core/useExercise";
 import { TacticalMap } from "../training/TacticalMap";
@@ -35,6 +37,18 @@ export function ElementView({ station }: { station: string }) {
         <p>Ask the trainer for a new QR code.</p>
       </main>
     );
+  const present = row.presentation;
+  const instance =
+    Object.values(ex.state.workflows).find((i) => i.status === "running") ??
+    Object.values(ex.state.workflows)[0];
+  const pending = (ex.state.workflowTriggers ?? []).find(
+    (t) =>
+      t.trigger.type === "prop" &&
+      t.trigger.prop === row.bindings.prop &&
+      ex.state.propStates[t.trigger.prop] !== t.trigger.to,
+  );
+  const connectState =
+    pending?.trigger.type === "prop" ? pending.trigger.to : "";
   return (
     <main className="training-app field-view">
       <header className="field-header">
@@ -49,7 +63,29 @@ export function ElementView({ station }: { station: string }) {
           EXERCISE ABORTED
         </div>
       )}
-      {row.module === "tracking" ? (
+      {!instance && connectState && (
+        <section className="panel wf-connect">
+          <h2>Device link</h2>
+          <p>Attach the cable to start the device session.</p>
+          <button
+            disabled={!ex.online || ex.state.frozen}
+            onClick={() => ex.send({ type: "prop", state: connectState })}
+          >
+            Connect device
+          </button>
+        </section>
+      )}
+      {instance ? (
+        <WorkflowSurface
+          config={presentationConfig(present?.scene ?? "terminal", present)}
+          stationName={row.name}
+          boundProp={row.bindings.prop}
+          instance={instance}
+          disabled={!ex.online || ex.state.frozen}
+          onInput={(value) => ex.send({ type: "interaction", value })}
+          onProp={(state) => ex.send({ type: "prop", state })}
+        />
+      ) : row.module === "tracking" ? (
         <>
           <TacticalMap />
           <section className="panel">
@@ -66,11 +102,23 @@ export function ElementView({ station }: { station: string }) {
         <CameraFeed station={row.id} publish />
       ) : row.module === "os" ? (
         <>
-          <StageFrame key={`os:${row.id}`} scene="os" mark />
+          <StageFrame
+            key={`${present?.scene ?? "os"}:${row.id}:${present?.revision ?? 0}`}
+            scene={present?.scene ?? "os"}
+            presentation={present}
+            station={row.id}
+            mark
+          />
           <DossierCards dossiers={ex.state.scenario.dossiers} />
         </>
       ) : row.module === "terminal" ? (
-        <StageFrame key={`terminal:${row.id}`} scene="terminal" mark />
+        <StageFrame
+          key={`${present?.scene ?? "terminal"}:${row.id}:${present?.revision ?? 0}`}
+          scene={present?.scene ?? "terminal"}
+          presentation={present}
+          station={row.id}
+          mark
+        />
       ) : ["countdown", "access", "lock"].includes(row.module) ? (
         <TrainingTerminal station={row} />
       ) : row.module === "ordnance" ? (
@@ -87,8 +135,10 @@ export function ElementView({ station }: { station: string }) {
         <BeaconControl station={row} />
       ) : (
         <StageFrame
-          key={`${row.module}:${row.bindings.patient}`}
-          scene={row.module}
+          key={`${present?.scene ?? row.module}:${row.bindings.patient}:${present?.revision ?? 0}`}
+          scene={present?.scene ?? row.module}
+          presentation={present}
+          station={row.id}
           mark
         />
       )}

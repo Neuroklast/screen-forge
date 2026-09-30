@@ -23,10 +23,16 @@ const base = {
 const build = (name: string, patch: Record<string, unknown>): Scenario =>
   scenarioSchema.parse({ ...base, name, ...patch });
 
+// One registry for every mission template: wizard quick picks, the gallery and
+// the mission library all read from here. `template(kind)` in training.ts stays
+// a low-level default factory (used by `newState`), not a second catalog.
+export type MissionCategory = "starter" | "airsoft" | "film" | "professional";
+
 export type MissionTemplate = {
   id: string;
   name: string;
   summary: string;
+  category: MissionCategory;
   difficulty: 1 | 2 | 3;
   durationMin: number;
   scenario: Scenario;
@@ -37,6 +43,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "blank",
     name: "Blank Mission",
     summary: "Free canvas without devices or entities.",
+    category: "starter",
     difficulty: 1,
     durationMin: 0,
     scenario: build("Blank Mission", {}),
@@ -45,6 +52,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "eod-disposal",
     name: "Ordnance Disposal",
     summary: "Fictional console, cordon and maintenance stages.",
+    category: "professional",
     difficulty: 3,
     durationMin: 25,
     scenario: build("Ordnance Disposal", {
@@ -93,6 +101,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "data-exfiltration",
     name: "Data Exfiltration",
     summary: "Target system, archive and exfiltration from the target area.",
+    category: "professional",
     difficulty: 3,
     durationMin: 25,
     scenario: build("Data Exfiltration", {
@@ -135,6 +144,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "beacon-activation",
     name: "Beacon Activation",
     summary: "Reach the target area, activate and hold the beacon.",
+    category: "airsoft",
     difficulty: 2,
     durationMin: 20,
     scenario: build("Beacon Activation", {
@@ -172,6 +182,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "search-rescue",
     name: "Search & Rescue",
     summary: "Find, stabilise and evacuate a patient.",
+    category: "airsoft",
     difficulty: 2,
     durationMin: 30,
     scenario: template("sar"),
@@ -180,6 +191,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "medical-emergency",
     name: "Medical Emergency",
     summary: "Patient care without props.",
+    category: "starter",
     difficulty: 1,
     durationMin: 15,
     scenario: build("Medical Emergency", {
@@ -202,6 +214,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "access-lockdown",
     name: "Access & Lockdown",
     summary: "Gain access and lock down the area.",
+    category: "starter",
     difficulty: 2,
     durationMin: 15,
     scenario: build("Access & Lockdown", {
@@ -222,6 +235,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "milsim-skirmish",
     name: "MILSIM Skirmish",
     summary: "Two teams, one objective, no props.",
+    category: "airsoft",
     difficulty: 2,
     durationMin: 20,
     scenario: build("MILSIM Skirmish", {
@@ -243,6 +257,7 @@ export const missionTemplates: MissionTemplate[] = [
     id: "film-playback",
     name: "Film Playback",
     summary: "Two stage outputs without an exercise server.",
+    category: "film",
     difficulty: 1,
     durationMin: 10,
     scenario: build("Film Playback", {
@@ -254,4 +269,374 @@ export const missionTemplates: MissionTemplate[] = [
       objectives: [{ id: "obj-1", name: "Prepare sequence" }],
     }),
   },
+  {
+    id: "relay-recovery",
+    name: "Relay Recovery",
+    summary: "Restore a degraded relay with a player team and timed MEL events.",
+    category: "airsoft",
+    difficulty: 2,
+    durationMin: 25,
+    scenario: scenarioSchema.parse({
+      version: 2,
+      name: "Relay Recovery",
+      mode: "LIVE",
+      seed: 3117,
+      map,
+      stations: [
+        { id: "hq", name: "HQ", role: "hq", module: "tracking" },
+        {
+          id: "op-a",
+          name: "Operator A",
+          role: "element",
+          module: "tracking",
+          player: true,
+        },
+        {
+          id: "op-b",
+          name: "Operator B",
+          role: "element",
+          module: "terminal",
+          code: "4173",
+        },
+        {
+          id: "relay",
+          name: "Relay Terminal",
+          role: "element",
+          module: "data-sheet",
+        },
+      ],
+      objectives: [{ id: "relay-online", name: "Activate relay" }],
+      injects: [
+        {
+          id: "link-degrade",
+          name: "Data link degraded",
+          trigger: "timer",
+          at: 180,
+          category: "inject",
+          purpose: "Use alternative information paths",
+          expectedOutcome: ["comms.report"],
+          evidence: ["Event: Data link degraded"],
+          failurePolicy: "degrade",
+          actions: [{ type: "message", text: "Data link unstable" }],
+        },
+        {
+          id: "extra-release",
+          name: "Additional release",
+          trigger: "timer",
+          at: 300,
+          category: "contingency",
+          purpose: "Verify the release process",
+          expectedOutcome: ["access.requested"],
+          evidence: ["Event: Additional release"],
+          failurePolicy: "continue",
+          actions: [{ type: "message", text: "Additional release required" }],
+        },
+        {
+          id: "time-window",
+          name: "Time window",
+          trigger: "manual",
+          category: "other",
+          purpose: "Decide under time pressure",
+          expectedOutcome: ["decision.request"],
+          evidence: ["Event: Time window"],
+          failurePolicy: "trainerDecision",
+          actions: [{ type: "message", text: "Time window running" }],
+        },
+      ],
+    }),
+  },
+  {
+    id: "device-link",
+    name: "Device Link & Diagnostics",
+    summary:
+      "Connect a fictional device, pass the code challenge, read diagnostics. The trainer provides the access code (default 7392).",
+    category: "professional",
+    difficulty: 2,
+    durationMin: 10,
+    scenario: scenarioSchema.parse({
+      version: 2,
+      name: "Device Link & Diagnostics",
+      mode: "LIVE",
+      seed: 1337,
+      map,
+      stations: [
+        { id: "hq", name: "Command", role: "hq", module: "tracking" },
+        {
+          id: "device-1",
+          name: "Device Console",
+          role: "element",
+          module: "terminal",
+          bindings: { patient: "", prop: "device-alpha", objective: "" },
+        },
+      ],
+      props: [
+        {
+          id: "device-alpha",
+          kind: "custom",
+          name: "Device alpha",
+          states: ["disconnected", "connected", "diagnosed", "locked"],
+          initial: "disconnected",
+        },
+      ],
+      objectives: [{ id: "obj-diagnose", name: "Diagnose device" }],
+      workflows: [
+        {
+          id: "wf-device-link",
+          version: 1,
+          name: "Device link",
+          trigger: { type: "prop", prop: "device-alpha", to: "connected" },
+          entry: "start",
+          nodes: [
+            { id: "start", type: "start" },
+            {
+              id: "link",
+              type: "show-surface",
+              station: "device-1",
+              surface: "link",
+            },
+            {
+              id: "code",
+              type: "task",
+              task: "code-entry",
+              config: {
+                expectedValueRef: "",
+                maxAttempts: 3,
+                inputLength: 4,
+                maskInput: true,
+              },
+            },
+            { id: "fail", type: "increment", variable: "attempts" },
+            {
+              id: "limit",
+              type: "condition",
+              variable: "attempts",
+              operator: ">=",
+              value: 3,
+            },
+            {
+              id: "lockout",
+              type: "show-surface",
+              station: "device-1",
+              surface: "lockout",
+            },
+            { id: "lockout-end", type: "end", outcome: "failure" },
+            {
+              id: "diagnostics",
+              type: "show-surface",
+              station: "device-1",
+              surface: "diagnostics",
+            },
+            {
+              id: "mark",
+              type: "set-prop-state",
+              prop: "device-alpha",
+              state: "diagnosed",
+            },
+            {
+              id: "done",
+              type: "complete-objective",
+              objective: "obj-diagnose",
+            },
+            { id: "end", type: "end", outcome: "success" },
+          ],
+          edges: [
+            { id: "e1", source: "start", output: "out", target: "link" },
+            { id: "e2", source: "link", output: "out", target: "code" },
+            {
+              id: "e3",
+              source: "code",
+              output: "success",
+              target: "diagnostics",
+            },
+            { id: "e4", source: "code", output: "failure", target: "fail" },
+            { id: "e5", source: "fail", output: "out", target: "limit" },
+            { id: "e6", source: "limit", output: "true", target: "lockout" },
+            { id: "e7", source: "limit", output: "false", target: "code" },
+            {
+              id: "e8",
+              source: "lockout",
+              output: "out",
+              target: "lockout-end",
+            },
+            {
+              id: "e9",
+              source: "diagnostics",
+              output: "out",
+              target: "mark",
+            },
+            { id: "e10", source: "mark", output: "out", target: "done" },
+            { id: "e11", source: "done", output: "out", target: "end" },
+          ],
+          variables: [{ id: "attempts", kind: "number", initial: 0 }],
+        },
+      ],
+    }),
+  },
+  {
+    id: "secure-transfer",
+    name: "Secure Data Transfer",
+    summary: "Scripted film playback with three manual beats.",
+    category: "film",
+    difficulty: 1,
+    durationMin: 10,
+    scenario: scenarioSchema.parse({
+      version: 2,
+      name: "Secure Data Transfer",
+      mode: "PLAYBACK",
+      seed: 7,
+      map,
+      stations: [
+        { id: "hero", name: "Hero Terminal", role: "element", module: "terminal" },
+        { id: "hq", name: "Director", role: "hq", module: "tracking" },
+      ],
+      objectives: [{ id: "transfer", name: "Transfer complete" }],
+      injects: [
+        {
+          id: "beat-login",
+          name: "Login",
+          trigger: "manual",
+          category: "expected_action",
+          purpose: "Beat: login",
+          expectedOutcome: ["identity.confirmed"],
+          evidence: ["Event: Login"],
+          failurePolicy: "hold",
+          actions: [{ type: "message", text: "IDENTITY VERIFIED" }],
+        },
+        {
+          id: "beat-warning",
+          name: "Warning",
+          trigger: "manual",
+          category: "expected_action",
+          purpose: "Beat: warning",
+          expectedOutcome: ["warning.shown"],
+          evidence: ["Event: Warning"],
+          failurePolicy: "hold",
+          actions: [{ type: "message", text: "INTEGRITY WARNING" }],
+        },
+        {
+          id: "beat-transfer",
+          name: "Transfer",
+          trigger: "manual",
+          category: "expected_action",
+          purpose: "Beat: transfer",
+          expectedOutcome: ["transfer.started"],
+          evidence: ["Event: Transfer"],
+          failurePolicy: "hold",
+          actions: [{ type: "message", text: "TRANSFER RUNNING" }],
+        },
+      ],
+    }),
+  },
+  {
+    id: "distributed-command",
+    name: "Distributed Command Incident",
+    summary: "Multi-role incident with MEL events, zones and a casualty.",
+    category: "professional",
+    difficulty: 3,
+    durationMin: 30,
+    scenario: scenarioSchema.parse({
+      version: 2,
+      name: "Distributed Command Incident",
+      mode: "LIVE",
+      seed: 4096,
+      map,
+      stations: [
+        { id: "hq", name: "Command", role: "hq", module: "tracking" },
+        { id: "comms", name: "Comms", role: "element", module: "comms" },
+        {
+          id: "med-1",
+          name: "Medic",
+          role: "element",
+          module: "medical",
+          bindings: { patient: "patient-1" },
+        },
+        { id: "term-1", name: "Access", role: "element", module: "access" },
+        {
+          id: "op-1",
+          name: "Team Alpha",
+          role: "element",
+          module: "tracking",
+          player: true,
+        },
+      ],
+      patients: [
+        { id: "patient-1", name: "Casualty 01", kind: "stable", since: 0 },
+      ],
+      zones: [
+        { id: "hazard", name: "Hazard Area", lat: 51.233, lng: 6.786, radius: 80 },
+      ],
+      objectives: [
+        { id: "obj-intel", name: "Common picture confirmed" },
+        { id: "obj-handover", name: "Handover complete" },
+      ],
+      injects: [
+        {
+          id: "source-conflict",
+          name: "Sources contradict",
+          trigger: "timer",
+          at: 180,
+          category: "inject",
+          purpose: "Train information assessment",
+          expectedOutcome: ["intel.flagged"],
+          evidence: ["Event: Sources contradict"],
+          failurePolicy: "continue",
+          actions: [{ type: "message", text: "Source B contradicts Source A" }],
+        },
+        {
+          id: "link-degrade",
+          name: "Link Alpha degraded",
+          trigger: "timer",
+          at: 360,
+          category: "inject",
+          purpose: "Degraded operations",
+          expectedOutcome: ["comms.report"],
+          evidence: ["Event: Link Alpha degraded"],
+          failurePolicy: "degrade",
+          actions: [{ type: "message", text: "Link Alpha degraded" }],
+        },
+        {
+          id: "casualty",
+          name: "Casualty active",
+          trigger: "manual",
+          category: "inject",
+          purpose: "Prioritisation and reporting",
+          expectedOutcome: ["patient.assessed"],
+          evidence: ["Event: Casualty active"],
+          failurePolicy: "trainerDecision",
+          actions: [{ type: "patient", target: "patient-1", kind: "trauma" }],
+        },
+        {
+          id: "hazard",
+          name: "Hazard reported",
+          trigger: "zone",
+          zone: "hazard",
+          station: "op-1",
+          category: "inject",
+          purpose: "Isolation and specialist request",
+          expectedOutcome: ["hazard.reported"],
+          evidence: ["Event: Hazard reported"],
+          fallback: "Controller message",
+          failurePolicy: "branch",
+          actions: [{ type: "message", text: "Suspicious object sighted" }],
+        },
+        {
+          id: "handover",
+          name: "Handover released",
+          trigger: "manual",
+          category: "expected_action",
+          purpose: "Structured completion",
+          expectedOutcome: ["handover.accepted"],
+          evidence: ["Event: Handover released"],
+          failurePolicy: "hold",
+          actions: [{ type: "objective", target: "obj-handover" }],
+        },
+      ],
+    }),
+  },
 ];
+
+export function buildMission(id: string): Scenario {
+  const found = missionTemplates.find((t) => t.id === id);
+  if (!found) throw new Error(`Unknown mission template: ${id}`);
+  return structuredClone(found.scenario);
+}

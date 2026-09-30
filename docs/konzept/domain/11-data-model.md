@@ -14,7 +14,8 @@ Room (server) ── holds ── Mission ── contains ── Station[1..n]  
                                    ├─ Entity: Objective[0..n]
                                    ├─ Entity: Team[0..n]
                                    ├─ Entity: Actor[0..n]
-                                   └─ Inject[0..n]
+                                   ├─ Inject[0..n]
+                                   └─ Workflow[0..n] (interaction graphs)
 Show (film) ── contains ── Step[1..n] (take graph)
 Template = Mission without room state, in `presets/missions/`
 ```
@@ -39,6 +40,7 @@ Template = Mission without room state, in `presets/missions/`
 | `teams` | `Team[]` | optional (new) |
 | `actors` | `Actor[]` | optional (new) |
 | `injects` | `Inject[]` | v1 name `rules`, migrated |
+| `workflows` | `Workflow[]` | optional (new); interaction graphs ([14-interaction-model.md](14-interaction-model.md)) |
 | `briefing` | string? | markdown, shown on HQ/briefing |
 | `debriefHints` | string[]? | AAR prompts |
 | `safetyProfile` | object? | stop signal, safety officer, restricted zones, prop register, abort recipients ([../scenarios/12-safety-profile.md](../scenarios/12-safety-profile.md)) |
@@ -57,6 +59,7 @@ Template = Mission without room state, in `presets/missions/`
 | `player` | boolean | GPS sharing enabled |
 | `route` | `{lat,lng}[]?` | PLAYBACK movement |
 | `config` | object | Module-specific (duration, code, stages, window) |
+| `presentation` | `{scene?, config?, revision}`? | Look/identity pushed to the field device. `scene` overrides the module-derived scene; `config` is a partial `Config` preset (title, subtitle, identifier, accent, mood, density, format, effects, overlays, sceneOptions, tokens, …; no `mediaIds`/`brand` logo, which stay in the author's browser); `revision` bumps on edit so the device remounts. Absent → scene defaults ([05-modules.md](05-modules.md)) |
 
 ## Entity shapes
 
@@ -71,6 +74,18 @@ Template = Mission without room state, in `presets/missions/`
 | `Actor` | `id, name, character, briefing?, dossierId?` |
 | `Inject` | `id, name, enabled, trigger, actions[], unless?, at?, jitter?, zone?, station?, signal?, prop?, from?, to?` plus MEL v2: `category?, status?, purpose?, expectedOutcome[]?, evidence[]?, failurePolicy?, safetyGate?, owner?, audience[]?, conditions[]?, escalation?, plannedAtOriginal?, scheduledAt?, timeBasis?, revision?` |
 
+## Workflow (mission data)
+
+- Workflow ids are unique per mission; node/edge/variable references MUST resolve inside the workflow (scenario references are checked by the linter). Schema version 1, interpreter in `src/core/workflow.ts` — definitions are mission data, never code.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `trigger` | `{type: manual}` or `{type: prop, prop, to}` | Instance start |
+| `entry` | node id | MUST be the `start` node |
+| `nodes` | `{id, name?, type, config, position?}[]` | Types per [14-interaction-model.md](14-interaction-model.md) |
+| `edges` | `{id, source, output, target}[]` | `output` MUST be a port of the source node |
+| `variables` | `{id, kind, initial, values?, secret?}[]` | Typed; `secret` values are redacted from players |
+
 ## Show (film)
 
 - Unchanged from v1: `{version, name, steps[]}` with `Step = {id, name, config, cue, operation, trigger, duration, value, next, onFail, timeout}`.
@@ -84,6 +99,7 @@ Template = Mission without room state, in `presets/missions/`
 | `room, mission, revision` | Revision bumps on save |
 | `clock, frozen, phase` | Phase: draft/ready/running/paused/aborted/ended |
 | `fired[], interventions{}, positions{}, cameraOffline{}, completed[], props{}, log[], presence[]` | Runtime |
+| `workflows{}` | Workflow instances: `workflowId`, `activeNodeIds[]`, `status`, `outcome?`, `variables`, `surface?`, `enteredAt{}`, `lastResult?`, `startedAt`, `updatedAt`; projections add `activeTask?` (registry config) and `workflowTriggers?` for field stations |
 | `baseline` | Snapshot for reset |
 | `notes[]` | Assessor notes (new) |
 
@@ -93,7 +109,7 @@ Template = Mission without room state, in `presets/missions/`
 - Migration MUST be lossless for v1 fields; unknown future fields are preserved on round-trip where possible.
 - Film `Config` keeps `version: 1`; training mission gets its own `version: 2` literal.
 - Breaking changes bump the mission version; old versions remain readable for one major cycle.
-- MEL v2 fields are additive/optional, so mission `version` stays `2`; unknown fields survive round-trip.
+- MEL v2 fields and `workflows` are additive/optional, so mission `version` stays `2`; a breaking change to existing field semantics bumps the mission version instead.
 
 ## Persistence
 

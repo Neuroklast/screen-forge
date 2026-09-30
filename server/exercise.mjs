@@ -15,12 +15,18 @@ import {
   advance,
   act,
   evaluate,
+  interactionEvents,
   projectState,
   logEvent,
   setProp,
+  workflowPropEvents,
+  workflowStartEvents,
+  workflowStartsForProp,
+  workflowTick,
 } from "../src/core/training.ts";
 import { PROTOCOL } from "../src/core/protocol.ts";
 import { applyEvent, domainEventSchema } from "../src/core/events.ts";
+import { lintMission } from "../src/core/missionLint.ts";
 
 const hash = (value) =>
   createHash("sha256").update(String(value)).digest("hex");
@@ -132,6 +138,28 @@ export async function startExercise({
         );
         rememberEvent(room, serverSeq, event);
       }
+  };
+  // Prop changes can advance waiting workflow tasks and set further props;
+  // bounded passes keep the journal ordered and stop runaway chains.
+  const reactToPropChanges = (room, actor, before) => {
+    const state = rooms.get(room);
+    if (!state) return;
+    for (let pass = 0; pass < 5; pass++) {
+      const changed = Object.entries(state.propStates).filter(
+        ([prop, value]) => before[prop] !== value,
+      );
+      if (!changed.length) return;
+      for (const [prop, value] of changed) {
+        before[prop] = value;
+        for (const event of workflowPropEvents(
+          state,
+          prop,
+          value,
+          state.clock,
+        ))
+          appendEvent(room, actor, event);
+      }
+    }
   };
   const readJson = async (path) => {
     try {
@@ -665,12 +693,36 @@ export async function startExercise({
           if (!prop || !prop.states.includes(String(msg.state)))
             throw new Error("Invalid prop state");
           const before = new Set(state.fired);
+          const propsBefore = { ...state.propStates };
           appendEvent(meta.room, meta.role, {
             type: "prop.changed",
             prop: st.bindings.prop,
             state: String(msg.state),
           });
+          for (const event of workflowStartsForProp(
+            state,
+            st.bindings.prop,
+            String(msg.state),
+            state.clock,
+          ))
+            appendEvent(meta.room, meta.role, event);
+          reactToPropChanges(meta.room, meta.role, propsBefore);
           evaluate(state, { type: "prop", station: st.id });
+          journalNewFired(meta.room, before);
+        } else if (msg.type === "interaction" && meta.role === "element") {
+          const st = state.scenario.stations.find((s) => s.id === meta.station);
+          if (state.frozen || !st) throw new Error("Interaction unavailable");
+          const events = interactionEvents(
+            state,
+            meta.station,
+            String(msg.value ?? "").slice(0, 500),
+          );
+          if (!events.length) throw new Error("No active task");
+          const before = new Set(state.fired);
+          const propsBefore = { ...state.propStates };
+          for (const event of events) appendEvent(meta.room, meta.role, event);
+          reactToPropChanges(meta.room, meta.role, propsBefore);
+          evaluate(state);
           journalNewFired(meta.room, before);
         } else if (msg.type === "abort" && ["trainer", "safety"].includes(meta.role)) {
           appendEvent(meta.room, meta.role, {
@@ -754,10 +806,12 @@ export async function startExercise({
             if (!inject) throw new Error("Unknown inject");
             if (state.frozen) throw new Error("Resume the exercise before firing");
             if (state.fired.includes(inject.id)) throw new Error("Already fired");
+            const propsBefore = { ...state.propStates };
             appendEvent(meta.room, meta.role, {
               type: "inject.fired",
               inject: inject.id,
             });
+            reactToPropChanges(meta.room, meta.role, propsBefore);
           } else if (msg.type === "reschedule") {
             const inject = state.scenario.injects.find((r) => r.id === msg.inject);
             if (!inject) throw new Error("Unknown inject");
@@ -788,6 +842,15 @@ export async function startExercise({
             });
           } else if (msg.type === "transport") {
             if (msg.command === "play" || msg.command === "pause") {
+              if (msg.command === "play") {
+                const blocking = lintMission(state.scenario).filter(
+                  (f) => f.severity === "error",
+                );
+                if (blocking.length)
+                  throw new Error(
+                    `Mission has ${blocking.length} blocking error(s)`,
+                  );
+              }
               appendEvent(meta.room, meta.role, {
                 type: "exercise.transport",
                 command: msg.command,
@@ -827,10 +890,12 @@ export async function startExercise({
               if (!rows.some((r) => r.id === action.target))
                 throw new Error("Unknown action target");
             }
+            const propsBefore = { ...state.propStates };
             appendEvent(meta.room, meta.role, {
               type: "action.applied",
               action,
             });
+            reactToPropChanges(meta.room, meta.role, propsBefore);
           } else if (msg.type === "patient") {
             const patient = patientSchema.parse(msg.patient),
               i = state.scenario.patients.findIndex((p) => p.id === patient.id);
@@ -845,10 +910,31 @@ export async function startExercise({
               type: "patient.changed",
               patient,
             });
+          } else if (msg.type === "workflow-start") {
+            const workflow = state.scenario.workflows.find(
+              (w) => w.id === msg.workflow,
+            );
+            if (!workflow) throw new Error("Unknown workflow");
+            if (workflow.trigger.type !== "manual")
+              throw new Error("Workflow starts from its trigger");
+            if (state.frozen)
+              throw new Error("Resume the exercise before starting a workflow");
+            if (state.workflows[workflow.id])
+              throw new Error("Workflow already started");
+            const propsBefore = { ...state.propStates };
+            for (const event of workflowStartEvents(
+              state,
+              workflow.id,
+              state.clock,
+            ))
+              appendEvent(meta.room, meta.role, event);
+            reactToPropChanges(meta.room, meta.role, propsBefore);
           } else throw new Error("Unknown command");
         }
         dirty = true;
-        const serverSeq = nextSeq(meta.room);
+        // The ACK mirrors the current journal position instead of consuming a
+        // new number, so the event sequence stays gap-free for replay/resume.
+        const serverSeq = roomSeq.get(meta.room) || 0;
         rememberCommand(meta.room, eventId, serverSeq);
         send(ws, {
           type: "ack",
@@ -909,9 +995,13 @@ export async function startExercise({
       if (!state.frozen) {
         const fired = state.fired.length;
         const before = new Set(state.fired);
+        const propsBefore = { ...state.propStates };
         advance(state, delta);
+        for (const event of workflowTick(state, state.clock))
+          appendEvent(room, "engine", event);
         dirty = true;
         if (state.fired.length !== fired) journalNewFired(room, before);
+        reactToPropChanges(room, "engine", propsBefore);
         broadcast(room, state.fired.length === fired);
       }
     }
