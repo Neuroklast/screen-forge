@@ -97,6 +97,20 @@ export function taskTypeLabel(task: string): string {
   return taskTypeLabels[task] ?? task;
 }
 
+// Human labels for the fixed node outputs; dynamic ports (choice options)
+// keep their configured id.
+export const portLabels: Record<string, string> = {
+  out: "flow.port.out",
+  success: "flow.port.success",
+  failure: "flow.port.failure",
+  true: "flow.port.true",
+  false: "flow.port.false",
+};
+
+export function workflowPortLabel(port: string): string {
+  return portLabels[port] ?? port;
+}
+
 export function flowKindOfNode(node: WorkflowNode): FlowNodeKind | "advanced" {
   switch (node.type) {
     case "start":

@@ -7,7 +7,6 @@ import {
   defaultValueFor,
   edgeForOutput,
   newVariable,
-  nodeSummary,
   removeNode,
   removeVariable,
   renameVariable,
@@ -164,8 +163,6 @@ export function WorkflowGraph({
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
           onPatch={patch}
-          labelOf={(node) => workflowNodeLabels[node.type]}
-          summaryOf={nodeSummary}
         />
       </div>
 

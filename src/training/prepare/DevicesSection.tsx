@@ -13,6 +13,14 @@ import { buildDevice, uid, type PrepareSectionProps } from "./shared";
 
 const CODE_MODULES = ["countdown", "access", "lock", "terminal"];
 
+const PROP_KIND_LABELS: Record<string, string> = {
+  ordnance: "prop.kind.ordnance",
+  beacon: "prop.kind.beacon",
+  payload: "prop.kind.payload",
+  keycard: "prop.kind.keycard",
+  custom: "prop.kind.custom",
+};
+
 type DevicesSectionProps = PrepareSectionProps & {
   presence: Record<string, { online: boolean; lastSeen: number }>;
   online: boolean;
@@ -53,6 +61,11 @@ export function DevicesSection({
   const presets = devicePresetsFor(caps);
   const teams = draft.teams;
   const participants = draft.stations.filter((st) => st.player);
+  // Ownership is only offered when it can be meaningful; otherwise the device
+  // is a scenario task by definition.
+  const hasOwnershipOptions =
+    caps.teams &&
+    (teams.length > 0 || participants.some((row) => row.team !== ""));
 
   const ownerOf = (st: TrainingStation): string => {
     if (st.player) return "participant";
@@ -130,29 +143,32 @@ export function DevicesSection({
               ))}
             </select>
           </label>
-          <label>
-            {t("prep.devices.owner")}
-            <select
-              value={owner}
-              disabled={readOnly}
-              onChange={(e) => setOwner(e.target.value)}
-            >
-              <option value="scenario">{t("prep.devices.ownerScenario")}</option>
-              {caps.teams &&
-                teams.map((team) => (
+          {hasOwnershipOptions && (
+            <label>
+              {t("prep.devices.owner")}
+              <select
+                value={owner}
+                disabled={readOnly}
+                onChange={(e) => setOwner(e.target.value)}
+              >
+                <option value="scenario">
+                  {t("prep.devices.ownerScenario")}
+                </option>
+                {teams.map((team) => (
                   <option key={team.id} value={team.id}>
                     {team.name}
                   </option>
                 ))}
-              {participants
-                .filter((row) => row.team !== "")
-                .map((row) => (
-                  <option key={row.id} value={`participant:${row.id}`}>
-                    {row.name}
-                  </option>
-                ))}
-            </select>
-          </label>
+                {participants
+                  .filter((row) => row.team !== "")
+                  .map((row) => (
+                    <option key={row.id} value={`participant:${row.id}`}>
+                      {row.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          )}
           <button disabled={readOnly} onClick={addDevice}>
             {t("prep.devices.add")}
           </button>
@@ -230,31 +246,37 @@ export function DevicesSection({
                 </select>
               </label>
               {st.role === "element" && !st.player && (
-                <label>
-                  {t("prep.devices.owner")}
-                  <select
-                    value={ownerOf(st)}
-                    disabled={readOnly}
-                    onChange={(e) => assignOwner(st, e.target.value)}
-                  >
-                    <option value="scenario">
-                      {t("prep.devices.ownerScenario")}
-                    </option>
-                    {caps.teams &&
-                      teams.map((team) => (
+                hasOwnershipOptions ? (
+                  <label>
+                    {t("prep.devices.owner")}
+                    <select
+                      value={ownerOf(st)}
+                      disabled={readOnly}
+                      onChange={(e) => assignOwner(st, e.target.value)}
+                    >
+                      <option value="scenario">
+                        {t("prep.devices.ownerScenario")}
+                      </option>
+                      {teams.map((team) => (
                         <option key={team.id} value={team.id}>
                           {team.name}
                         </option>
                       ))}
-                    {participants
-                      .filter((row) => row.team !== "")
-                      .map((row) => (
-                        <option key={row.id} value={`participant:${row.id}`}>
-                          {row.name}
-                        </option>
-                      ))}
-                  </select>
-                </label>
+                      {participants
+                        .filter((row) => row.team !== "")
+                        .map((row) => (
+                          <option key={row.id} value={`participant:${row.id}`}>
+                            {row.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                ) : (
+                  <p className="prepare-hint">
+                    {t("prep.devices.owner")}:{" "}
+                    {t("prep.devices.ownerScenario")}
+                  </p>
+                )
               )}
               {caps.patients && st.module === "medical" && (
                 <label>
@@ -351,11 +373,17 @@ export function DevicesSection({
                 </>
               )}
             </div>
-            <PresentationFields
-              station={st}
-              readOnly={readOnly}
-              onChange={(presentation) => patchStation(st.id, { presentation })}
-            />
+            <details className="prepare-advanced">
+              <summary>{t("presentation.heading")}</summary>
+              <PresentationFields
+                station={st}
+                readOnly={readOnly}
+                hideLegend
+                onChange={(presentation) =>
+                  patchStation(st.id, { presentation })
+                }
+              />
+            </details>
           </article>
         ))}
       </div>
@@ -400,7 +428,7 @@ export function DevicesSection({
                     >
                       {propKinds.map((kind) => (
                         <option key={kind} value={kind}>
-                          {kind}
+                          {t(PROP_KIND_LABELS[kind] ?? kind)}
                         </option>
                       ))}
                     </select>

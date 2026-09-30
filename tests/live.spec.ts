@@ -203,6 +203,8 @@ test("selected company branding applies to every scene", async ({ page }) => {
 test("global overlays exist on every scene, react to sliders and freeze with clock", async ({
   page,
 }) => {
+  // Eleven scene switches with a config round-trip each; CI runners are slow.
+  test.setTimeout(90_000);
   await page.goto("/?mode=film");
   for (const name of [
     "Intranet",

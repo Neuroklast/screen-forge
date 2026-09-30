@@ -26,10 +26,15 @@ import {
 import {
   addEdge,
   autoLayout,
+  flowKindOfNode,
+  flowNodeLabels,
   nodeFindingIds,
+  nodeSummary,
   removeEdge,
   removeNode,
   setNodePosition,
+  workflowNodeLabels,
+  workflowPortLabel,
   workflowUid,
 } from "../core/workflowEdit";
 import { t } from "../i18n";
@@ -38,6 +43,7 @@ import "./workflow-graph.css";
 type WorkflowNodeData = {
   node: WorkflowNode;
   ports: string[];
+  portLabels: string[];
   errors: number;
   isEntry: boolean;
   label: string;
@@ -62,8 +68,8 @@ function WorkflowNodeCard({ data, selected }: NodeProps<FlowNode>) {
       </header>
       <strong>{data.node.name || data.summary || "—"}</strong>
       <ul className="wf-node-ports">
-        {data.ports.map((port) => (
-          <li key={port}>{port}</li>
+        {data.portLabels.map((port, index) => (
+          <li key={data.ports[index]}>{port}</li>
         ))}
       </ul>
       {data.ports.map((port, index) => (
@@ -83,8 +89,8 @@ function WorkflowNodeCard({ data, selected }: NodeProps<FlowNode>) {
 
 const nodeTypes = { workflow: WorkflowNodeCard } satisfies NodeTypes;
 
-// Shared React Flow canvas. The preparation flow workspace and the legacy
-// builder view render it with their own palettes and inspectors.
+// Shared React Flow canvas. The preparation flow workspace renders it with
+// human node/port labels; the legacy builder view keeps the technical labels.
 export function WorkflowCanvas({
   workflow,
   findings,
@@ -92,8 +98,7 @@ export function WorkflowCanvas({
   selectedNodeId,
   onSelectNode,
   onPatch,
-  labelOf,
-  summaryOf,
+  variant = "legacy",
 }: {
   workflow: Workflow;
   findings: Finding[];
@@ -101,28 +106,40 @@ export function WorkflowCanvas({
   selectedNodeId: string;
   onSelectNode: (id: string) => void;
   onPatch: (next: Workflow) => void;
-  labelOf: (node: WorkflowNode) => string;
-  summaryOf: (node: WorkflowNode) => string;
+  variant?: "legacy" | "human";
 }) {
   const layout = useMemo(() => autoLayout(workflow), [workflow]);
   const renderKey = JSON.stringify(workflow);
 
   const flowNodes: FlowNode[] = useMemo(
     () =>
-      workflow.nodes.map((node) => ({
-        id: node.id,
-        type: "workflow" as const,
-        position: node.position ?? layout[node.id] ?? { x: 0, y: 0 },
-        data: {
-          node,
-          ports: workflowNodePorts(node),
-          errors: nodeFindingIds(findings, workflow.id, node.id).length,
-          isEntry: node.id === workflow.entry,
-          label: labelOf(node),
-          summary: summaryOf(node),
-        },
-      })),
-    [workflow, layout, findings, labelOf, summaryOf],
+      workflow.nodes.map((node) => {
+        const ports = workflowNodePorts(node);
+        const kind = flowKindOfNode(node);
+        const label =
+          variant === "human"
+            ? kind === "advanced"
+              ? workflowNodeLabels[node.type]
+              : flowNodeLabels[kind]
+            : workflowNodeLabels[node.type];
+        return {
+          id: node.id,
+          type: "workflow" as const,
+          position: node.position ?? layout[node.id] ?? { x: 0, y: 0 },
+          data: {
+            node,
+            ports,
+            portLabels: ports.map((port) =>
+              variant === "human" ? t(workflowPortLabel(port)) : port,
+            ),
+            errors: nodeFindingIds(findings, workflow.id, node.id).length,
+            isEntry: node.id === workflow.entry,
+            label,
+            summary: nodeSummary(node),
+          },
+        };
+      }),
+    [workflow, layout, findings, variant],
   );
   const flowEdges: Edge[] = useMemo(
     () =>
@@ -131,11 +148,11 @@ export function WorkflowCanvas({
         source: edge.source,
         target: edge.target,
         sourceHandle: edge.output,
-        label: edge.output,
+        label: variant === "human" ? t(workflowPortLabel(edge.output)) : edge.output,
         type: "smoothstep",
         markerEnd: { type: MarkerType.ArrowClosed },
       })),
-    [workflow],
+    [workflow, variant],
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(flowNodes);

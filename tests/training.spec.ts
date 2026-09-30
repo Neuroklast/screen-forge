@@ -92,6 +92,7 @@ test('station presentation is pushed to the assigned field device', async ({page
   await login(page);
   await page.getByRole('button',{name:'Geräte',exact:true}).click();
   const card = page.locator('.prepare-device').filter({hasText:'Intelligence'});
+  await card.getByText('Darstellung am Gerät').click();
   await card.getByLabel('Titel',{exact:true}).fill('RELAY-07');
   await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();
   await expect(page.locator('.notice[role="status"]')).toContainText('Szenario gespeichert');

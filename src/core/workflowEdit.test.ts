@@ -22,6 +22,7 @@ import {
   setOutputTarget,
   taskTypeLabel,
   workflowNodeTypes,
+  workflowPortLabel,
 } from "./workflowEdit";
 import { workflowSchema } from "./workflow";
 import { taskBlock, taskBlocks } from "./taskBlocks";
@@ -198,6 +199,16 @@ describe("flow workspace node concepts", () => {
       expect(taskTypeLabel(block.type)).not.toBe(block.type);
       expect(taskTypeLabel(block.type)).toMatch(/^task\./);
     }
+  });
+
+  it("labels fixed workflow ports in human language", () => {
+    expect(workflowPortLabel("out")).toBe("flow.port.out");
+    expect(workflowPortLabel("success")).toBe("flow.port.success");
+    expect(workflowPortLabel("failure")).toBe("flow.port.failure");
+    expect(workflowPortLabel("true")).toBe("flow.port.true");
+    expect(workflowPortLabel("false")).toBe("flow.port.false");
+    // Dynamic choice ports keep their configured id.
+    expect(workflowPortLabel("o1")).toBe("o1");
   });
 
   it("derives event links from prop actions to workflow triggers", () => {

@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 export async function osApp(page: Page, name: string) {
   const item = page
     .locator(".os-sidebar")
@@ -8,9 +8,16 @@ export async function osApp(page: Page, name: string) {
   await item.click();
 }
 export async function configuration(page: Page, tab: string) {
-  if (!(await page.getByRole("tab", { name: tab, exact: true }).isVisible()))
-    await page.getByLabel("Konfiguration öffnen").click();
-  await page.getByRole("tab", { name: tab, exact: true }).click();
+  const panel = page.locator(".config-menu");
+  const target = page.getByRole("tab", { name: tab, exact: true });
+  // The open button toggles, so a stale visibility check could close an
+  // already open panel. Retry until the panel is reliably open, then click.
+  await expect(async () => {
+    if (!(await panel.isVisible()))
+      await page.getByLabel("Konfiguration öffnen").click();
+    await expect(panel).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 15000 });
+  await target.click();
 }
 export { boxesOverlap } from "../src/core/layout";
 export async function closeConfiguration(page: Page) {

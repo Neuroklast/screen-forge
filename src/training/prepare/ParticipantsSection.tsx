@@ -142,7 +142,7 @@ export function ParticipantsSection({
                         }
                       />
                     </label>
-                    {caps.teams && (
+                    {caps.teams && teams.length > 0 && (
                       <label>
                         {t("cap.teams")}
                         <select

@@ -16,10 +16,12 @@ const DENSITIES = ["focused", "detailed"] as const;
 export function PresentationFields({
   station,
   readOnly,
+  hideLegend = false,
   onChange,
 }: {
   station: TrainingStation;
   readOnly?: boolean;
+  hideLegend?: boolean;
   onChange: (presentation: Presentation) => void;
 }) {
   const p = station.presentation;
@@ -28,7 +30,7 @@ export function PresentationFields({
     onChange(editPresentation(p, patch));
   return (
     <fieldset className="presentation-fields">
-      <legend>{t("presentation.heading")}</legend>
+      {!hideLegend && <legend>{t("presentation.heading")}</legend>}
       <label>
         {t("presentation.scene")}
         <select

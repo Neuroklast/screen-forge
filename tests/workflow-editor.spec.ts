@@ -12,7 +12,7 @@ async function login(page: import("@playwright/test").Page) {
 test("choice tasks expose dynamic ports", async ({ page }) => {
   await login(page);
   await page
-    .getByRole("button", { name: "+ Ablauf anlegen", exact: true })
+    .getByRole("button", { name: "Ablauf anlegen", exact: true })
     .click();
   await page.getByRole("button", { name: "Aktion", exact: true }).click();
   await page
@@ -28,7 +28,7 @@ test("choice tasks expose dynamic ports", async ({ page }) => {
   await expect(startNode).toBeVisible();
   await startNode.click();
   await page
-    .getByRole("combobox", { name: "out", exact: true })
+    .getByRole("combobox", { name: "Weiter", exact: true })
     .selectOption({ index: 2 });
   await expect(page.locator(".wf-findings")).toContainText("Keine Befunde.");
 });
@@ -37,7 +37,7 @@ test("flow workspace creates, connects and lints a flow", async ({ page }) => {
   await login(page);
   await expect(page.getByText("Kein Ablauf vorhanden.")).toBeVisible();
   await page
-    .getByRole("button", { name: "+ Ablauf anlegen", exact: true })
+    .getByRole("button", { name: "Ablauf anlegen", exact: true })
     .click();
   await expect(page.locator(".wf-node")).toHaveCount(2);
 
@@ -45,16 +45,16 @@ test("flow workspace creates, connects and lints a flow", async ({ page }) => {
   await page.getByRole("button", { name: "Aktion", exact: true }).click();
   await expect(page.locator(".wf-node")).toHaveCount(3);
   await page
-    .getByRole("combobox", { name: "success", exact: true })
+    .getByRole("combobox", { name: "Erfolg", exact: true })
     .selectOption({ index: 1 });
   await page
-    .getByRole("combobox", { name: "failure", exact: true })
+    .getByRole("combobox", { name: "Fehlschlag", exact: true })
     .selectOption({ index: 1 });
 
   // Rewire the start output to the task (accessible path, no dragging).
   await page.locator(".wf-node").filter({ hasText: "Start" }).click();
   await page
-    .getByRole("combobox", { name: "out", exact: true })
+    .getByRole("combobox", { name: "Weiter", exact: true })
     .selectOption({ index: 2 });
   await expect(page.locator(".wf-findings")).toContainText("Keine Befunde.");
 
@@ -73,7 +73,7 @@ test("flow workspace creates, connects and lints a flow", async ({ page }) => {
 test("migrated widget tasks are editable in the graph", async ({ page }) => {
   await login(page);
   await page
-    .getByRole("button", { name: "+ Ablauf anlegen", exact: true })
+    .getByRole("button", { name: "Ablauf anlegen", exact: true })
     .click();
   await page.getByRole("button", { name: "Aktion", exact: true }).click();
   const task = page.getByRole("combobox", { name: "Aufgabe", exact: true });

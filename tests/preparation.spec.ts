@@ -190,31 +190,31 @@ test("branched workflow stays connected and reports open outputs", async ({
   await login(page);
   await page.getByRole("button", { name: "Ablauf", exact: true }).click();
   await page
-    .getByRole("button", { name: "+ Ablauf anlegen", exact: true })
+    .getByRole("button", { name: "Ablauf anlegen", exact: true })
     .click();
   await page.getByRole("button", { name: "Entscheidung", exact: true }).click();
   await expect(page.locator(".wf-node")).toHaveCount(3);
 
   await page.locator(".wf-node").filter({ hasText: "Start" }).click();
   await page
-    .getByRole("combobox", { name: "out", exact: true })
+    .getByRole("combobox", { name: "Weiter", exact: true })
     .selectOption({ index: 2 });
   const decision = page.locator(".wf-node").filter({ hasText: "Entscheidung" });
   await decision.click();
   await page
-    .getByRole("combobox", { name: "true", exact: true })
+    .getByRole("combobox", { name: "Ja", exact: true })
     .selectOption({ index: 1 });
   await page
-    .getByRole("combobox", { name: "false", exact: true })
+    .getByRole("combobox", { name: "Nein", exact: true })
     .selectOption({ index: 1 });
   await expect(page.locator(".wf-findings")).toContainText("Keine Befunde.");
 
   await page
-    .getByRole("combobox", { name: "false", exact: true })
+    .getByRole("combobox", { name: "Nein", exact: true })
     .selectOption("");
   await expect(page.locator(".wf-findings")).toContainText("nicht verbunden");
   await page
-    .getByRole("combobox", { name: "false", exact: true })
+    .getByRole("combobox", { name: "Nein", exact: true })
     .selectOption({ index: 1 });
   await expect(page.locator(".wf-findings")).toContainText("Keine Befunde.");
 });

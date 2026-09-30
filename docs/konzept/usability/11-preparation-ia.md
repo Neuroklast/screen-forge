@@ -16,6 +16,9 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 | 5 | `"Ablauf"` | workflow graph, event timeline, inspector |
 | 6 | `"Prüfen"` | scenario validation, device readiness, briefing, template export, start |
 
+- Device cards show the operational fields only; the look/identity fields (`"Darstellung am Gerät"`) are collapsed per device.
+- Ownership is offered only when it can be meaningful (teams or participants exist); otherwise the device is a scenario task by definition. Domain values in the chrome are German (`"Sprengkörper"`, `"Bake"`, `"Datenkern"`, …), never raw enum ids.
+
 **Hard rule:** No new top-level preparation navigation item may be introduced for a domain entity, implementation concept or output format. New functionality MUST fit one of the six sections; if it does not, reconsider the information architecture before adding navigation.
 
 - While the exercise runs, the preparation sections are hidden and only live control is shown.
@@ -26,6 +29,9 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 
 - One visual workspace: workflow nodes form the connected scenario logic graph; timed, zone and manual events live on the timeline lane and show the workflow they start (derived from prop actions, never stored).
 - The palette uses human concepts: `"Start"`, `"Aktion"`, `"Entscheidung"`, `"Auf Ereignis warten"`, `"Meldung"`, `"Zustand ändern"`, `"Ziel abschließen"`, `"Ende"`; technical node and task types stay the storage format.
+- Outputs and edge labels are human too: `"Weiter"`, `"Erfolg"`, `"Fehlschlag"`, `"Ja"`, `"Nein"`; dynamic ports (choice options) keep their configured id.
+- The inspector shows workflow settings (name, trigger, `"Ablauf löschen"`) when nothing is selected, node settings when a node is selected, and event settings when an event is selected — one owner per selection.
+- Findings stay contextual: the selected workflow plus the selected event. The `"Prüfen"` section owns the global picture.
 - `"Weitere Bausteine"` (wait time, show surface, counter, prop state) and `"Rohdaten"` (raw MEL list, workflow variables) are collapsed.
 - The user never needs to understand the inject/workflow split for normal authoring; the architecture distinction stays internal and appears only in `"Rohdaten"` for experts.
 - The workspace occupies the majority of the viewport: palette left, graph center with the event timeline below, inspector right.
