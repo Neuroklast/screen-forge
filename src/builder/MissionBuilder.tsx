@@ -14,6 +14,7 @@ import {
   type TrainingStation,
 } from "../core/training";
 import { findingCounts, lintMission, type Collection } from "../core/missionLint";
+import { taskBlocks } from "../core/taskBlocks";
 import "./builder.css";
 
 type ModuleId = (typeof modules)[number];
@@ -25,6 +26,14 @@ type Drag =
   | null;
 
 const uid = (prefix: string) => `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+
+// Task-block registry entries map onto the station module they provision.
+const BLOCK_MODULE: Record<string, ModuleId> = {
+  hacking: "terminal",
+  medical: "medical",
+  camera: "camera",
+  tracking: "tracking",
+};
 
 const MODULE_LABELS: Record<ModuleId, string> = {
   medical: "Medizin",
@@ -243,6 +252,17 @@ export function MissionBuilder({
             label: MODULE_LABELS[m],
             onAdd: () => addStation(m),
             drag: { source: "palette", kind: "module", module: m } as Drag,
+          }))}
+          setDrag={setDrag}
+          readOnly={readOnly}
+        />
+        <PaletteGroup
+          title="Bausteine"
+          items={taskBlocks().map((b) => ({
+            key: `block-${b.type}`,
+            label: b.type,
+            onAdd: () => addStation(BLOCK_MODULE[b.type] ?? "terminal"),
+            drag: null,
           }))}
           setDrag={setDrag}
           readOnly={readOnly}
