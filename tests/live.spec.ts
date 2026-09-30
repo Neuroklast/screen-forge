@@ -19,7 +19,7 @@ test("perspective depth and autonomous target positions move and pause", async (
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Analysetisch");
+  await select(page, "Analysis Table");
   const layer = page.locator(".assembly-layer").first();
   const before = await layer.getAttribute("data-depth");
   await page.waitForTimeout(250);
@@ -55,7 +55,7 @@ test("corporate records require retrieval and diagnostics return results", async
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Firmenportal");
+  await select(page, "Corporate Portal");
   await page
     .locator(".corp-nav")
     .getByRole("button", { name: /Personnel/ })
@@ -81,7 +81,7 @@ test("actor typing advances distinct commands, timed output and visual channels 
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Betriebssystem");
+  await select(page, "Operating System");
   await osApp(page, "Terminal");
   const input = page.getByLabel("Terminal input");
   await input.fill("xxxx");
@@ -154,7 +154,7 @@ test("themes, logo and system profile survive reload and export", async ({
     .getByLabel("Systemvorlage", { exact: true })
     .selectOption({ label: "My film system" });
   await closeConfiguration(page);
-  await select(page, "Betriebssystem");
+  await select(page, "Operating System");
   await expect(page.locator(".os-wordmark strong")).toHaveText("ASHENRAI");
   await expect(page.locator(".custom-brand-logo")).toBeVisible();
   await configuration(page, "Themes");
@@ -171,11 +171,11 @@ test("selected company branding applies to every scene", async ({ page }) => {
     .selectOption({ label: "Umbrella Corporation" });
   await closeConfiguration(page);
   for (const name of [
-    "Firmenportal",
-    "Betriebssystem",
+    "Corporate Portal",
+    "Operating System",
     "Countdown",
     "Orbital Tracking",
-    "Analysetisch",
+    "Analysis Table",
   ]) {
     await select(page, name);
     await expect(
@@ -188,17 +188,17 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
 }) => {
   await page.goto("/?mode=film");
   for (const name of [
-    "Firmenportal",
-    "Betriebssystem",
+    "Corporate Portal",
+    "Operating System",
     "Countdown",
     "Orbital Tracking",
-    "Analysetisch",
-    "Codeschloss",
-    "Türsteuerung",
-    "Medizin",
-    "Kamera",
-    "Funk",
-    "Schieber",
+    "Analysis Table",
+    "Code Lock",
+    "Door Control",
+    "Medical",
+    "Camera",
+    "Radio",
+    "Slide",
   ]) {
     await closeConfiguration(page);
     await select(page, name);
@@ -221,7 +221,7 @@ test("completed OS process creates a report and messages link to processes", asy
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Betriebssystem");
+  await select(page, "Operating System");
   await osApp(page, "Messages");
   await page.getByRole("button", { name: "Recover attachment" }).click();
   await advance(page, 108);

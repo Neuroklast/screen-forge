@@ -3,7 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 async function enter(page: Page) {
   await page.goto("/?mode=film");
   await page
-    .getByRole("button", { name: /Betriebssystem/ })
+    .getByRole("button", { name: /Operating System/ })
     .first()
     .click();
   await page.getByRole("button", { name: "Pause", exact: true }).click();

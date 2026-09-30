@@ -12,22 +12,22 @@ test("all scenes render and operator controls reset a take", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/?mode=film");
   for (const title of [
-    "Firmenportal",
-    "Betriebssystem",
+    "Corporate Portal",
+    "Operating System",
     "Terminal",
     "Countdown",
     "Orbital Tracking",
-    "Analysetisch",
-    "Codeschloss",
-    "Türsteuerung",
-    "Medizin",
-    "Kamera",
-    "Funk",
-    "Schieber",
-    "Uhr",
-    "Drehregler",
-    "Codetabelle",
-    "Datenblatt",
+    "Analysis Table",
+    "Code Lock",
+    "Door Control",
+    "Medical",
+    "Camera",
+    "Radio",
+    "Slide",
+    "Clock",
+    "Rotary Dial",
+    "Code Table",
+    "Data Sheet",
   ]) {
     await page
       .getByRole("button", { name: new RegExp(title) })
@@ -72,7 +72,7 @@ test("prepared input, preset export, stage escape and persistence", async ({
 }) => {
   await page.goto("/?mode=film");
   await page
-    .getByRole("button", { name: /Betriebssystem/ })
+    .getByRole("button", { name: /Operating System/ })
     .first()
     .click();
   await osApp(page, "Terminal");
@@ -124,7 +124,7 @@ test("countdown stops at zero and reset restores original time", async ({
 test("multitouch scale, rotate and cancel remain finite", async ({ page }) => {
   await page.goto("/?mode=film");
   await page
-    .getByRole("button", { name: /Analysetisch/ })
+    .getByRole("button", { name: /Analysis Table/ })
     .first()
     .click();
   const surface = page.locator(".gesture-surface");
