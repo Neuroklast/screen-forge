@@ -1177,7 +1177,7 @@ export function OperatingSystem({
                       </button>
                     </div>
                     <div className="os-dimension-layout">
-                      <GestureSurface label="4D-Projektion verschieben und zoomen">
+                      <GestureSurface label="Move and zoom the 4D projection">
                         <Hypercube
                           time={
                             rotate
