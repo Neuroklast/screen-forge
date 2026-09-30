@@ -8,6 +8,7 @@ import {
   type Scenario,
   type Action,
 } from "../core/training";
+import { t } from "../i18n";
 const uid = (prefix: string) => `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 export function ScenarioEditor({
   draft,
@@ -22,10 +23,10 @@ export function ScenarioEditor({
     <section className="panel">
       <nav className="tab-bar">
         {[
-          ["devices", "Geräte & Bindungen"],
-          ["patients", "Patienten"],
-          ["rules", "Ereignisse"],
-          ["area", "Gelände & Ziele"],
+          ["devices", t("editor.tab.devices")],
+          ["patients", t("editor.tab.patients")],
+          ["rules", t("editor.tab.rules")],
+          ["area", t("editor.tab.area")],
         ].map(([id, name]) => (
           <button
             key={id}
@@ -38,15 +39,12 @@ export function ScenarioEditor({
       </nav>
       {tab === "devices" && (
         <>
-          <p>
-            Modul und Datenbindung sind unabhängig. Mehrere Geräte können
-            denselben Patienten darstellen.
-          </p>
+          <p>{t("editor.devicesNote")}</p>
           {draft.stations.map((st) => (
             <fieldset key={st.id} className="editor-row">
               <legend>{st.id}</legend>
               <label>
-                Name
+                {t("editor.name")}
                 <input
                   value={st.name}
                   onChange={(e) =>
@@ -59,7 +57,7 @@ export function ScenarioEditor({
                 />
               </label>
               <label>
-                Rolle
+                {t("editor.role")}
                 <select
                   value={st.role}
                   onChange={(e) =>
@@ -77,12 +75,12 @@ export function ScenarioEditor({
                     })
                   }
                 >
-                  <option value="element">Feldgerät</option>
+                  <option value="element">{t("editor.fieldDevice")}</option>
                   <option value="hq">HQ</option>
                 </select>
               </label>
               <label>
-                Modul
+                {t("editor.module")}
                 <select
                   value={st.module}
                   onChange={(e) =>
@@ -205,7 +203,7 @@ export function ScenarioEditor({
                   ...draft.stations,
                   stationSchema.parse({
                     id: uid("station"),
-                    name: "Neue Station",
+                    name: t("editor.newStation"),
                     role: "element",
                     module: "medical", bindings: { patient: draft.patients[0]?.id || "" },
                   }),
@@ -213,7 +211,7 @@ export function ScenarioEditor({
               })
             }
           >
-            Station hinzufügen
+            {t("editor.addStation")}
           </button>
         </>
       )}
@@ -223,7 +221,7 @@ export function ScenarioEditor({
             <fieldset key={p.id} className="editor-row">
               <legend>{p.id}</legend>
               <label>
-                Name
+                {t("editor.name")}
                 <input
                   value={p.name}
                   onChange={(e) =>
@@ -238,7 +236,7 @@ export function ScenarioEditor({
                 />
               </label>
               <label>
-                Verletzungen / Befund
+                {t("editor.injuries")}
                 <textarea
                   value={p.injuries}
                   onChange={(e) =>
@@ -259,7 +257,7 @@ export function ScenarioEditor({
                   })
                 }
               >
-                Entfernen
+                {t("editor.remove")}
               </button>
             </fieldset>
           ))}
@@ -270,7 +268,7 @@ export function ScenarioEditor({
                   ...draft.patients,
                   patientSchema.parse({
                     id: uid("patient"),
-                    name: "Neuer Patient",
+                    name: t("editor.newPatient"),
                     kind: "stable",
                     since: 0,
                   }),
@@ -278,18 +276,13 @@ export function ScenarioEditor({
               })
             }
           >
-            Patient hinzufügen
+            {t("editor.addPatient")}
           </button>
         </>
       )}
       {tab === "rules" && (
         <>
-          <p>
-            Jedes Ereignis läuft einmal pro Durchgang. „Zufallsfenster“
-            verschiebt den Zeitpunkt reproduzierbar um bis zu diese Anzahl
-            Sekunden. Bei Zonen zählt eine frische Position einschließlich
-            GPS-Genauigkeit vollständig innerhalb der Zone.
-          </p>
+          <p>{t("editor.rulesNote")}</p>
           {draft.injects.map((r) => {
             const set = (v: Partial<typeof r>) =>
               patch({
@@ -302,14 +295,14 @@ export function ScenarioEditor({
                 <legend>{r.id}</legend>
                 <div className="form-grid">
                   <label>
-                    Name
+                    {t("editor.name")}
                     <input
                       value={r.name}
                       onChange={(e) => set({ name: e.target.value })}
                     />
                   </label>
                   <label>
-                    Auslöser
+                    {t("editor.trigger")}
                     <select
                       value={r.trigger}
                       onChange={(e) =>
@@ -322,20 +315,20 @@ export function ScenarioEditor({
                         })
                       }
                     >
-                      <option value="timer">Zeitpunkt</option>
-                      <option value="zone">GPS-Zone betreten</option>
-                      <option value="intervention">Behandlung gemeldet</option>
-                      <option value="prop">Terminal freigegeben</option>
-                      <option value="signal">Modulaktion</option>
+                      <option value="timer">{t("editor.triggerTime")}</option>
+                      <option value="zone">{t("editor.triggerZone")}</option>
+                      <option value="intervention">{t("editor.triggerIntervention")}</option>
+                      <option value="prop">{t("editor.triggerProp")}</option>
+                      <option value="signal">{t("editor.triggerSignal")}</option>
                     </select>
                   </label>
                   <label>
-                    Station
+                    {t("editor.station")}
                     <select
                       value={r.station}
                       onChange={(e) => set({ station: e.target.value })}
                     >
-                      <option value="">Keine</option>
+                      <option value="">{t("editor.none")}</option>
                       {draft.stations
                         .filter((s) => s.role === "element")
                         .map((s) => (
@@ -348,7 +341,7 @@ export function ScenarioEditor({
                   {r.trigger === "timer" && (
                     <>
                       <label>
-                        Zeitpunkt (s)
+                        {t("editor.at")}
                         <input
                           type="number"
                           value={r.at}
@@ -356,7 +349,7 @@ export function ScenarioEditor({
                         />
                       </label>
                       <label>
-                        Zufallsfenster (s)
+                        {t("editor.jitter")}
                         <input
                           type="number"
                           value={r.jitter}
@@ -384,12 +377,12 @@ export function ScenarioEditor({
                   )}
                   {r.trigger === "signal" && (
                     <label>
-                      Modulaktion
+                      {t("editor.moduleAction")}
                       <select
                         value={r.intervention}
                         onChange={(e) => set({ intervention: e.target.value })}
                       >
-                        <option value="">Aktion wählen</option>
+                        <option value="">{t("editor.chooseAction")}</option>
                         {(
                           moduleEvents[
                             draft.stations.find((s) => s.id === r.station)
@@ -403,7 +396,7 @@ export function ScenarioEditor({
                   )}
                   {r.trigger === "intervention" && (
                     <label>
-                      Behandlung
+                      {t("editor.treatment")}
                       <select
                         value={r.intervention}
                         onChange={(e) => set({ intervention: e.target.value })}
@@ -417,12 +410,12 @@ export function ScenarioEditor({
                     </label>
                   )}
                   <label>
-                    Auslassen, wenn Station bereits meldete
+                    {t("editor.unless")}
                     <select
                       value={r.unless}
                       onChange={(e) => set({ unless: e.target.value })}
                     >
-                      <option value="">Immer ausführen</option>
+                      <option value="">{t("editor.always")}</option>
                       {["treated", "tourniquet", "oxygen", "evacuated"].map(
                         (v) => (
                           <option key={v}>{v}</option>
@@ -436,7 +429,7 @@ export function ScenarioEditor({
                       checked={r.enabled}
                       onChange={(e) => set({ enabled: e.target.checked })}
                     />
-                    Aktiv
+                    {t("editor.active")}
                   </label>
                 </div>
                 {r.actions.map((a, i) => (
@@ -462,12 +455,12 @@ export function ScenarioEditor({
                       set({
                         actions: [
                           ...r.actions,
-                          { type: "message", text: "Neue Meldung" },
+                          { type: "message", text: t("editor.newMessage") },
                         ],
                       })
                     }
                   >
-                    Folgeaktion hinzufügen
+                    {t("editor.addFollowUp")}
                   </button>
                   <button
                     onClick={() =>
@@ -476,7 +469,7 @@ export function ScenarioEditor({
                       })
                     }
                   >
-                    Ereignis entfernen
+                    {t("editor.removeEvent")}
                   </button>
                 </div>
               </fieldset>
@@ -489,15 +482,15 @@ export function ScenarioEditor({
                   ...draft.injects,
                   injectSchema.parse({
                     id: uid("event"),
-                    name: "Neues Ereignis",
+                    name: t("editor.newEvent"),
                     trigger: "timer",
-                    actions: [{ type: "message", text: "Status prüfen" }],
+                    actions: [{ type: "message", text: t("editor.statusCheck") }],
                   }),
                 ],
               })
             }
           >
-            Ereignis hinzufügen
+            {t("editor.addEvent")}
           </button>
         </>
       )}
@@ -520,7 +513,7 @@ export function ScenarioEditor({
               </label>
             ))}
             <label>
-              HTTPS XYZ-Kacheln (leer = Offline-Raster)
+              {t("editor.tiles")}
               <input
                 value={draft.map.tiles}
                 onChange={(e) =>
@@ -529,7 +522,7 @@ export function ScenarioEditor({
               />
             </label>
             <label>
-              Kartenattribution
+              {t("editor.attribution")}
               <input
                 value={draft.map.attribution}
                 onChange={(e) =>
@@ -542,7 +535,7 @@ export function ScenarioEditor({
             <fieldset className="editor-row" key={z.id}>
               <legend>Zone {z.id}</legend>
               <input
-                aria-label="Zonenname"
+                aria-label={t("editor.zoneName")}
                 value={z.name}
                 onChange={(e) =>
                   patch({
@@ -576,7 +569,7 @@ export function ScenarioEditor({
                   patch({ zones: draft.zones.filter((v) => v.id !== z.id) })
                 }
               >
-                Entfernen
+                {t("editor.remove")}
               </button>
             </fieldset>
           ))}
@@ -587,7 +580,7 @@ export function ScenarioEditor({
                   ...draft.zones,
                   {
                     id: uid("zone"),
-                    name: "Neue Zone",
+                    name: t("editor.newZone"),
                     lat: draft.map.lat,
                     lng: draft.map.lng,
                     radius: 100,
@@ -596,13 +589,13 @@ export function ScenarioEditor({
               })
             }
           >
-            Zone hinzufügen
+            {t("editor.addZone")}
           </button>
-          <h3>Einsatzziele</h3>
+          <h3>{t("editor.objectives")}</h3>
           {draft.objectives.map((o) => (
             <div className="button-row" key={o.id}>
               <input
-                aria-label="Einsatzziel"
+                aria-label={t("editor.objective")}
                 value={o.name}
                 onChange={(e) =>
                   patch({
@@ -619,7 +612,7 @@ export function ScenarioEditor({
                   })
                 }
               >
-                Entfernen
+                {t("editor.remove")}
               </button>
             </div>
           ))}
@@ -628,14 +621,14 @@ export function ScenarioEditor({
               patch({
                 objectives: [
                   ...draft.objectives,
-                  { id: uid("objective"), name: "Neues Ziel" },
+                  { id: uid("objective"), name: t("editor.newObjective") },
                 ],
               })
             }
           >
-            Ziel hinzufügen
+            {t("editor.addObjective")}
           </button>
-          <h3>Playback-Routen</h3>
+          <h3>{t("editor.routes")}</h3>
           {draft.stations
             .filter((s) => s.player)
             .map((st) => (
@@ -691,7 +684,7 @@ export function ScenarioEditor({
                     })
                   }
                 >
-                  Wegpunkt hinzufügen
+                  {t("editor.addWaypoint")}
                 </button>
               </fieldset>
             ))}
@@ -724,7 +717,7 @@ function ActionEditor({
   return (
     <div className="editor-row">
       <label>
-        Aktion
+        {t("editor.action")}
         <select
           value={a.type}
           onChange={(e) => {
@@ -744,20 +737,20 @@ function ActionEditor({
                               ?.id || "",
                           offline: true,
                         }
-                      : { type: "message", text: "Neue Meldung" },
+                      : { type: "message", text: t("editor.newMessage") },
             );
           }}
         >
-          <option value="patient">Patient ändern</option>
-          <option value="release">Akte freigeben</option>
-          <option value="camera">Kamerasignal</option>
-          <option value="objective">Ziel abschließen</option>
-          <option value="message">HQ-Meldung</option>
+          <option value="patient">{t("editor.actionPatient")}</option>
+          <option value="release">{t("editor.actionRelease")}</option>
+          <option value="camera">{t("editor.actionCamera")}</option>
+          <option value="objective">{t("editor.actionObjective")}</option>
+          <option value="message">{t("editor.actionMessage")}</option>
         </select>
       </label>
       {a.type !== "message" ? (
         <label>
-          Ziel
+          {t("editor.target")}
           <select
             value={a.target}
             onChange={(e) => onChange({ ...a, target: e.target.value })}
@@ -771,7 +764,7 @@ function ActionEditor({
         </label>
       ) : (
         <label>
-          Meldung
+          {t("editor.message")}
           <input
             value={a.text}
             onChange={(e) => onChange({ ...a, text: e.target.value })}
@@ -780,7 +773,7 @@ function ActionEditor({
       )}
       {a.type === "patient" && (
         <select
-          aria-label="Patientenzustand"
+          aria-label={t("editor.patientState")}
           value={a.kind}
           onChange={(e) =>
             onChange({ ...a, kind: e.target.value as typeof a.kind })
@@ -806,10 +799,10 @@ function ActionEditor({
             checked={a.offline}
             onChange={(e) => onChange({ ...a, offline: e.target.checked })}
           />
-          Signal unterbrochen
+          {t("editor.signalLost")}
         </label>
       )}
-      <button onClick={onRemove}>Aktion entfernen</button>
+      <button onClick={onRemove}>{t("editor.removeAction")}</button>
     </div>
   );
 }
