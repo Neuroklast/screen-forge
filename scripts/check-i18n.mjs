@@ -11,10 +11,7 @@ const GERMAN =
   /[äöüÄÖÜß]|\b(und|oder|nicht|werden|wird|Übung|Einsatz|Gerät|Geräte|Speichern|Zurück|Weiter|Abbrechen|Schließen|Löschen|Hinzufügen|Keine|Meldung|Notiz|Übungsleitung|Sicherheit|Beobachter|Vorlage|Vorlagen|Palette|Ereignis|Stufe|Fehler|Datenblatt|Zeitstrahl|Lage|Stationen|Verbinden|Anmelden|Zuweisen|Verwerfen|Befund)\b/;
 
 // Not migrated yet. This list MUST only shrink.
-const PENDING = new Set([
-  "src/App.tsx",
-  "src/views/TrainerView.tsx",
-]);
+const PENDING = new Set(["src/App.tsx"]);
 
 function walk(dir) {
   const out = [];

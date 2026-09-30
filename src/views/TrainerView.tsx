@@ -12,6 +12,7 @@ import { PatientControl } from "../training/PatientControl";
 import { TemplateGallery } from "../training/TemplateGallery";
 import { MelTimeline } from "../training/MelTimeline";
 import { briefingFilename, missionBriefing } from "../core/briefing";
+import { t } from "../i18n";
 import "../training/roles.css";
 export function TrainerView({ room }: { room: string }) {
   const ex = useTraining(),
@@ -48,7 +49,7 @@ export function TrainerView({ room }: { room: string }) {
       return false;
     }
     if (ex.send({ type: "configure", scenario: result.data, revision })) {
-      setMessage("Szenario an Server gesendet.");
+      setMessage(t("trainer.sent"));
       return true;
     }
     return false;
@@ -66,7 +67,7 @@ export function TrainerView({ room }: { room: string }) {
   useEffect(() => {
     if (ex.savedRevision >= 0) {
       setDirty(false);
-      setMessage("Szenario gespeichert.");
+      setMessage(t("trainer.saved"));
     }
   }, [ex.savedRevision]);
   const connected = Object.values(ex.state.presence).filter(
@@ -91,7 +92,7 @@ export function TrainerView({ room }: { room: string }) {
     <main className="training-app">
       {ex.state.phase === "aborted" && (
         <div className="abort-banner" role="alert">
-          ÜBUNG ABGEBROCHEN
+          {t("common.aborted")}
         </div>
       )}
       <header className="training-header">
@@ -101,7 +102,7 @@ export function TrainerView({ room }: { room: string }) {
           <h1>{ex.state.scenario.name}</h1>
         </div>
         <span className={ex.online ? "status-up" : "status-down"}>
-          {ex.online ? "Verbunden" : "Offline"}
+          {t(ex.online ? "trainer.connected" : "trainer.offline")}
         </span>
         <div className="training-clock">
           {Math.floor(ex.state.clock / 60)
@@ -111,7 +112,7 @@ export function TrainerView({ room }: { room: string }) {
           {Math.floor(ex.state.clock % 60)
             .toString()
             .padStart(2, "0")}
-          <small>{ex.state.frozen ? "PAUSIERT" : "LÄUFT"}</small>
+          <small>{t(ex.state.frozen ? "common.paused" : "trainer.running")}</small>
         </div>
         <button
           disabled={!ex.online || dirty}
@@ -123,37 +124,37 @@ export function TrainerView({ room }: { room: string }) {
             })
           }
         >
-          {ex.state.frozen ? "Übung starten" : "Pausieren"}
+          {t(ex.state.frozen ? "trainer.start" : "trainer.pause")}
         </button>
         <button
           disabled={!ex.online}
           onClick={() => {
             if (
               confirm(
-                "Durchgang zurücksetzen? Laufzeit, Ereignisse und Fortschritt werden auf den gespeicherten Anfangszustand gesetzt.",
+                t("trainer.resetConfirm"),
               )
             )
               ex.send({ type: "transport", command: "reset" });
           }}
         >
-          Reset
+          {t("trainer.reset")}
         </button>
         <button
           className="danger"
           disabled={!ex.online || ex.state.phase === "aborted"}
           onClick={() => ex.send({ type: "abort" })}
         >
-          Abbruch
+          {t("trainer.abort")}
         </button>
       </header>
       <nav className="training-nav">
         {[
-          ["home", "Übersicht"],
-          ["devices", "Geräte vorbereiten"],
-          ["live", "Live-Steuerung"],
-          ["editor", "Szenario bearbeiten"],
-          ["briefing", "Briefing"],
-          ["dossiers", "Personalakten"],
+          ["home", t("trainer.tab.home")],
+          ["devices", t("trainer.tab.devices")],
+          ["live", t("trainer.tab.live")],
+          ["editor", t("trainer.tab.editor")],
+          ["briefing", t("trainer.tab.briefing")],
+          ["dossiers", t("trainer.tab.dossiers")],
         ].map(([id, name]) => (
           <button
             key={id}
@@ -166,10 +167,10 @@ export function TrainerView({ room }: { room: string }) {
         <button
           onClick={() => {
             if (ex.state.frozen) setWizard(true);
-            else setMessage("Bitte die laufende Übung zuerst pausieren.");
+            else setMessage(t("trainer.pauseFirst"));
           }}
         >
-          Geführte Einrichtung
+          {t("trainer.guided")}
         </button>
       </nav>
       {message && (
@@ -180,12 +181,12 @@ export function TrainerView({ room }: { room: string }) {
       )}
       {dirty && (
         <p className="notice">
-          Ungespeicherter Entwurf. Zum Speichern muss die Übung pausiert sein.{" "}
+          {t("trainer.unsaved")}{" "}
           <button
             disabled={!ex.state.frozen || !ex.online}
             onClick={() => save()}
           >
-            Szenario speichern
+            {t("trainer.saveScenario")}
           </button>
           <button
             onClick={() => {
@@ -194,7 +195,7 @@ export function TrainerView({ room }: { room: string }) {
               setDirty(false);
             }}
           >
-            Entwurf verwerfen
+            {t("trainer.discardDraft")}
           </button>
         </p>
       )}
@@ -213,37 +214,31 @@ export function TrainerView({ room }: { room: string }) {
           {tab === "home" && (
             <>
               <section className="panel welcome">
-                <span className="eyebrow">
-                  VORBEREITEN · VERBINDEN · DURCHFÜHREN
-                </span>
-                <h2>Was möchtest du als Nächstes tun?</h2>
+                <span className="eyebrow">{t("trainer.home.eyebrow")}</span>
+                <h2>{t("trainer.home.title")}</h2>
                 <div className="template-grid">
                   <button
                     onClick={() => setWizard(true)}
                     disabled={!ex.state.frozen}
                   >
-                    <strong>Neues Szenario erstellen</strong>
-                    <span>
-                      Fünf kurze Schritte von der Vorlage bis zur Geräteausgabe.
-                    </span>
+                    <strong>{t("trainer.home.newScenario")}</strong>
+                    <span>{t("trainer.home.newScenarioDesc")}</span>
                   </button>
                   <button onClick={() => setGallery(true)} disabled={!ex.state.frozen}>
-                    <strong>Vorlage laden</strong>
-                    <span>Baukasten mit einer fertigen Vorlage starten.</span>
+                    <strong>{t("trainer.home.loadTemplate")}</strong>
+                    <span>{t("trainer.home.loadTemplateDesc")}</span>
                   </button>
                   <button onClick={() => setTab("briefing")}>
-                    <strong>Briefing erzeugen</strong>
-                    <span>Volltext-Briefing im Einsatzbefehl-Stil.</span>
+                    <strong>{t("trainer.home.briefing")}</strong>
+                    <span>{t("trainer.home.briefingDesc")}</span>
                   </button>
                   <button onClick={() => setTab("devices")}>
-                    <strong>Vorbereitetes Szenario starten</strong>
-                    <span>
-                      Geräte verbinden und Einsatzbereitschaft prüfen.
-                    </span>
+                    <strong>{t("trainer.home.prepared")}</strong>
+                    <span>{t("trainer.home.preparedDesc")}</span>
                   </button>
                   <label className="import-card">
-                    <strong>Szenario importieren</strong>
-                    <span>Gespeicherte Vorlage wiederverwenden.</span>
+                    <strong>{t("trainer.home.import")}</strong>
+                    <span>{t("trainer.home.importDesc")}</span>
                     <input
                       type="file"
                       accept=".json,application/json"
@@ -252,14 +247,16 @@ export function TrainerView({ room }: { room: string }) {
                         if (!file) return;
                         try {
                           if (file.size > 10000000)
-                            throw new Error("Datei zu groß");
+                            throw new Error(t("trainer.fileTooBig"));
                           change(
                             scenarioSchema.parse(JSON.parse(await file.text())),
                           );
                           setTab("editor");
                         } catch (e) {
                           setMessage(
-                            `Import nicht übernommen: ${(e as Error).message}`,
+                            t("trainer.importFailed", {
+                              message: (e as Error).message,
+                            }),
                           );
                         }
                         e.target.value = "";
@@ -283,24 +280,24 @@ export function TrainerView({ room }: { room: string }) {
                   <b>
                     {connected} / {ex.state.scenario.stations.length}
                   </b>
-                  <span>Geräte verbunden</span>
+                  <span>{t("trainer.devicesConnected")}</span>
                 </div>
                 <div>
                   <b>{ex.state.scenario.mode}</b>
-                  <span>Datenquelle</span>
+                  <span>{t("trainer.dataSource")}</span>
                 </div>
                 <div>
                   <b>
                     {ex.state.completed.length} /{" "}
                     {ex.state.scenario.objectives.length}
                   </b>
-                  <span>Ziele abgeschlossen</span>
+                  <span>{t("trainer.objectivesDone")}</span>
                 </div>
               </div>
               <div className="training-columns">
                 <TacticalMap />
                 <section className="panel">
-                  <h2>Ablaufprotokoll</h2>
+                  <h2>{t("trainer.log")}</h2>
                   <ol className="event-log">
                     {ex.state.log
                       .slice(-30)
@@ -320,7 +317,7 @@ export function TrainerView({ room }: { room: string }) {
                       )
                     }
                   >
-                    Protokoll exportieren
+                    {t("trainer.exportLog")}
                   </button>
                   <button
                     onClick={() => {
@@ -344,7 +341,7 @@ export function TrainerView({ room }: { room: string }) {
                       setTimeout(() => URL.revokeObjectURL(url), 1000);
                     }}
                   >
-                    Protokoll als CSV
+                    {t("trainer.exportCsv")}
                   </button>
                 </section>
               </div>
@@ -352,24 +349,16 @@ export function TrainerView({ room }: { room: string }) {
           )}
           {tab === "devices" && (
             <section className="panel">
-              <h2>Geräte vorbereiten</h2>
-              <p>
-                QR-Code einmalig einlösen. Er ist zehn Minuten gültig und
-                ersetzt die bisherige Gerätezuweisung erst beim Einlösen. HQ
-                kann keine Traineraktionen ausführen.
-              </p>
+              <h2>{t("trainer.prepare")}</h2>
+              <p>{t("trainer.qrNote")}</p>
               <label>
-                Adresse, die die Geräte erreichen können
+                {t("trainer.address")}
                 <input
                   value={publicOrigin}
                   onChange={(e) => setPublicOrigin(e.target.value)}
                 />
               </label>
-              <p className="muted">
-                Für Kamera und GPS ist HTTPS nötig. localhost funktioniert nur
-                auf diesem Rechner. Bereite jedes Tablet mit der Systemkamera
-                vor und öffne den QR-Link.
-              </p>
+              <p className="muted">{t("trainer.httpsNote")}</p>
               <div className="device-grid">
                 {ex.state.scenario.stations.map((s) => (
                   <article key={s.id} className="device-card">
@@ -379,12 +368,14 @@ export function TrainerView({ room }: { room: string }) {
                     <h3>{s.name}</h3>
                     <p>
                       {ex.state.presence[s.id]?.online
-                        ? "Verbunden"
-                        : "Nicht verbunden"}{" "}
+                        ? t("trainer.connected")
+                        : t("trainer.notConnected")}{" "}
                       · {s.team}
                     </p>
                     <small>
-                      {s.bindings.patient ? `Datenquelle: ${s.bindings.patient}` : s.id}
+                      {s.bindings.patient
+                        ? `${t("trainer.dataSource")}: ${s.bindings.patient}`
+                        : s.id}
                     </small>
                     <div className="button-row">
                       <button
@@ -393,7 +384,7 @@ export function TrainerView({ room }: { room: string }) {
                           ex.send({ type: "provision", station: s.id })
                         }
                       >
-                        QR-Code anzeigen
+                        {t("trainer.showQr")}
                       </button>
                       <button
                         disabled={!ex.online}
@@ -401,14 +392,14 @@ export function TrainerView({ room }: { room: string }) {
                           ex.send({ type: "revoke", station: s.id })
                         }
                       >
-                        Zugang widerrufen
+                        {t("trainer.revoke")}
                       </button>
                     </div>
                   </article>
                 ))}
               </div>
               {ex.invitation && invitationUrl && (
-                <section className="qr-panel" aria-label="Gerätezuweisung">
+                <section className="qr-panel" aria-label={t("trainer.assignment")}>
                   <h3>
                     {
                       ex.state.scenario.stations.find(
@@ -423,38 +414,30 @@ export function TrainerView({ room }: { room: string }) {
                     level="M"
                   />
                   <p>
-                    Gültig bis{" "}
+                    {t("trainer.validUntil")}{" "}
                     {new Date(ex.invitation.expires).toLocaleTimeString()}
                   </p>
                   <a href={invitationUrl} target="_blank" rel="noreferrer">
-                    Gerätelink öffnen
+                    {t("trainer.openLink")}
                   </a>
                   <button
                     onClick={() =>
                       void navigator.clipboard
                         .writeText(invitationUrl)
-                        .then(() => setMessage("Gerätelink kopiert."))
+                        .then(() => setMessage(t("trainer.linkCopied")))
                         .catch(() => setMessage(invitationUrl))
                     }
                   >
-                    Link kopieren
+                    {t("trainer.copyLink")}
                   </button>
                 </section>
               )}
-              <h3>Bereitschaft prüfen</h3>
+              <h3>{t("trainer.readiness")}</h3>
               <ul>
-                <li>Alle vorgesehenen Geräte verbunden?</li>
-                <li>
-                  GPS und Kamera auf den betreffenden Geräten freigegeben?
-                </li>
-                <li>
-                  Rollen, Patientenzuordnung und aktive Shunt-Codes
-                  kontrolliert?
-                </li>
-                <li>
-                  Startsignal und Abbruchsignal mit allen Teilnehmenden
-                  vereinbart?
-                </li>
+                <li>{t("trainer.ready1")}</li>
+                <li>{t("trainer.ready2")}</li>
+                <li>{t("trainer.ready3")}</li>
+                <li>{t("trainer.ready4")}</li>
               </ul>
               <button
                 className="primary"
@@ -464,7 +447,7 @@ export function TrainerView({ room }: { room: string }) {
                   setTab("live");
                 }}
               >
-                Übung starten
+                {t("trainer.start")}
               </button>
             </section>
           )}
@@ -476,20 +459,22 @@ export function TrainerView({ room }: { room: string }) {
                 ))}
               </div>
               <section className="panel">
-                <h2>Verdeckte Ereignisse</h2>
+                <h2>{t("trainer.hiddenEvents")}</h2>
                 <ul className="event-log">
                   {ex.state.scenario.injects.map((r) => (
                     <li key={r.id}>
                       <span>{r.name}</span>
                       <b>
                         {!r.enabled
-                          ? "Inaktiv"
+                          ? t("trainer.inactive")
                           : ex.state.fired.includes(r.id)
-                            ? "Verarbeitet"
+                            ? t("trainer.processed")
                             : r.trigger === "timer"
-                              ? `Bei ${dueAt(r, ex.state.scenario.seed).toFixed(0)} s`
+                              ? t("trainer.at", {
+                                  seconds: dueAt(r, ex.state.scenario.seed).toFixed(0),
+                                })
                               : r.trigger === "manual"
-                                ? "Manuell"
+                                ? t("trainer.manual")
                                 : r.trigger}
                       </b>
                       <button
@@ -501,7 +486,7 @@ export function TrainerView({ room }: { room: string }) {
                         }
                         onClick={() => ex.send({ type: "fire", inject: r.id })}
                       >
-                        Jetzt auslösen
+                        {t("trainer.fire")}
                       </button>
                       <button
                         disabled={!ex.online || ex.state.frozen}
@@ -516,7 +501,7 @@ export function TrainerView({ room }: { room: string }) {
                           })
                         }
                       >
-                        {r.enabled ? "Deaktivieren" : "Aktivieren"}
+                        {t(r.enabled ? "trainer.disable" : "trainer.enable")}
                       </button>
                       {[-300, -60, 60, 300].map((delta) => (
                         <button
@@ -544,7 +529,7 @@ export function TrainerView({ room }: { room: string }) {
                     </li>
                   ))}
                 </ul>
-                <h3>Freigaben und Signalstörungen</h3>
+                <h3>{t("trainer.releases")}</h3>
                 <div className="button-row">
                   {ex.state.scenario.dossiers
                     .filter((d) => !d.released)
@@ -558,7 +543,7 @@ export function TrainerView({ room }: { room: string }) {
                           })
                         }
                       >
-                        {d.name} freigeben
+                        {t("trainer.release", { name: d.name })}
                       </button>
                     ))}
                   {ex.state.scenario.stations
@@ -579,22 +564,22 @@ export function TrainerView({ room }: { room: string }) {
                       >
                         {s.name}:{" "}
                         {ex.state.cameraOffline[s.id]
-                          ? "Signal wiederherstellen"
-                          : "Signal unterbrechen"}
+                          ? t("trainer.restoreSignal")
+                          : t("trainer.cutSignal")}
                       </button>
                     ))}
                 </div>
               </section>
               <MelTimeline state={ex.state} />
               <section className="panel">
-                <h2>Meldung senden</h2>
+                <h2>{t("trainer.sendMessage")}</h2>
                 <div className="message-compose">
                   <select
-                    aria-label="Empfänger"
+                    aria-label={t("trainer.recipient")}
                     value={msgTo}
                     onChange={(e) => setMsgTo(e.target.value)}
                   >
-                    <option value="all">Alle</option>
+                    <option value="all">{t("trainer.all")}</option>
                     <option value="hq">HQ</option>
                     {draft.stations.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -603,10 +588,10 @@ export function TrainerView({ room }: { room: string }) {
                     ))}
                   </select>
                   <input
-                    aria-label="Meldung"
+                    aria-label={t("trainer.message")}
                     value={msgText}
                     maxLength={280}
-                    placeholder="Meldung"
+                    placeholder={t("trainer.message")}
                     onChange={(e) => setMsgText(e.target.value)}
                   />
                   <button
@@ -618,7 +603,7 @@ export function TrainerView({ room }: { room: string }) {
                         setMsgText("");
                     }}
                   >
-                    Senden
+                    {t("trainer.send")}
                   </button>
                 </div>
                 <ul className="event-log">
@@ -639,14 +624,14 @@ export function TrainerView({ room }: { room: string }) {
             <>
               <section className="panel form-grid">
                 <label>
-                  Szenarioname
+                  {t("trainer.scenarioName")}
                   <input
                     value={draft.name}
                     onChange={(e) => change({ ...draft, name: e.target.value })}
                   />
                 </label>
                 <label>
-                  Datenquelle
+                  {t("trainer.dataSourceLabel")}
                   <select
                     value={draft.mode}
                     onChange={(e) =>
@@ -663,7 +648,7 @@ export function TrainerView({ room }: { room: string }) {
                 <button
                   onClick={() => exportJson(draft, "screenforge-scenario.json")}
                 >
-                  Vorlage exportieren
+                  {t("trainer.exportTemplate")}
                 </button>
               </section>
               <div className="editor-mode">
@@ -671,13 +656,13 @@ export function TrainerView({ room }: { room: string }) {
                   className={editorMode === "builder" ? "active" : ""}
                   onClick={() => setEditorMode("builder")}
                 >
-                  Baukasten
+                  {t("trainer.builder")}
                 </button>
                 <button
                   className={editorMode === "classic" ? "active" : ""}
                   onClick={() => setEditorMode("classic")}
                 >
-                  Klassisch
+                  {t("trainer.classic")}
                 </button>
               </div>
               {editorMode === "builder" ? (
@@ -698,11 +683,11 @@ export function TrainerView({ room }: { room: string }) {
                   onClick={() => {
                     void navigator.clipboard
                       ?.writeText(briefingText)
-                      .then(() => setMessage("Briefing kopiert."))
-                      .catch(() => setMessage("Kopieren nicht möglich."));
+                      .then(() => setMessage(t("trainer.briefingCopied")))
+                      .catch(() => setMessage(t("trainer.copyFailed")));
                   }}
                 >
-                  Kopieren
+                  {t("trainer.copy")}
                 </button>
                 <button
                   onClick={() => {
@@ -716,7 +701,7 @@ export function TrainerView({ room }: { room: string }) {
                     setTimeout(() => URL.revokeObjectURL(url), 1000);
                   }}
                 >
-                  Als Datei
+                  {t("trainer.asFile")}
                 </button>
               </div>
               <pre className="briefing-text">{briefingText}</pre>
