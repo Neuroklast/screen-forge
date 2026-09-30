@@ -66,7 +66,7 @@ export function showTemplates(base: Config): { name: string; show: Show }[] {
     pinEnabled: true,
     pin,
   });
-  const corp = scene(base, "corporate", id);
+  const corp = scene(base, "intranet", id);
   return [
     {
       name: "Activate Locator Beacon",

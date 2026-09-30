@@ -20,7 +20,7 @@ Step fields: `id, name, config (film Config), cue, operation?, trigger (time|key
 ## Config preset (`<slug>.sfpreset.json`)
 
 - The existing film `Config` (`version: 1`): scene, title/subtitle/identifier, accent, mood, effects, density, format, workspace, theme, palette, tokens, overlays, mediaIds, pin fields, sound, brand, device, sequenceScale, actor fields.
-- `sceneOptions` (target): typed per-scene/block option record (`os`, `terminal`, `corporate`, `countdown`, `tracking`, `analysis`, `lock`, `medical`, `slide`, `clock`, `rotary`, `codeTable`). Flat legacy fields (`device`, `osApp`, `actorMode`, `script`, `commandsUntilSuccess`) migrate into it; defaults keep old files working.
+- `sceneOptions` (target): typed per-scene/block option record (`os`, `terminal`, `intranet`, `countdown`, `tracking`, `analysis`, `lock`, `medical`, `slide`, `clock`, `rotary`, `codeTable`). Flat legacy fields (`device`, `osApp`, `actorMode`, `script`, `commandsUntilSuccess`) migrate into it; defaults keep old files working.
 - `workspace` becomes `rehearsal` boolean in the target model ([../domain/09-film-tv.md](../domain/09-film-tv.md)); old files migrate by mapping `training` → `rehearsal: true`.
 - Presets ship in `presets/*.json` (samples) and export from the studio.
 

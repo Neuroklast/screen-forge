@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { moduleEvents } from "../core/training";
 import { presentationConfig } from "../core/config";
 import { WorkflowSurface } from "../scenes/workflow/Surfaces";
@@ -13,9 +13,38 @@ import { OrdnanceConsole } from "../training/OrdnanceConsole";
 import { OrdnanceDatasheet } from "../training/OrdnanceDatasheet";
 import { BeaconControl } from "../training/BeaconControl";
 import "../training/roles.css";
+import "./field.css";
+
+// Operator surface: a fixed viewport that mutates into the interface the
+// current state needs (workflow task, module, or abort). No web header and no
+// document scroll stack — only the active surface owns the screen.
+type Drawer = "messages" | "device" | "files" | null;
+
+// Instrument widgets share one scene component; in the field they render as
+// native surfaces (no letterbox) instead of the scaled studio stage.
+const INSTRUMENT_SCENES = {
+  rotary: "rotary",
+  "code-table": "code-table",
+  "data-sheet": "data-sheet",
+  clock: "clock",
+} as const;
+function isInstrument(
+  module: string,
+): module is keyof typeof INSTRUMENT_SCENES {
+  return module in INSTRUMENT_SCENES;
+}
+
+const MEDICAL_ACTIONS: [string, string][] = [
+  ["treated", "Report treatment"],
+  ["tourniquet", "Tourniquet reported"],
+  ["oxygen", "Oxygen reported"],
+  ["evacuated", "Evacuation reported"],
+];
+
 export function ElementView({ station }: { station: string }) {
-  const ex = useTraining(),
-    row = ex.state.scenario.stations.find((s) => s.id === station);
+  const ex = useTraining();
+  const [drawer, setDrawer] = useState<Drawer>(null);
+  const row = ex.state.scenario.stations.find((s) => s.id === station);
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent).detail;
@@ -30,13 +59,17 @@ export function ElementView({ station }: { station: string }) {
     window.addEventListener("screenforge:input", handler);
     return () => window.removeEventListener("screenforge:input", handler);
   }, [row?.module, ex.online, ex.state.frozen, ex.send]);
+
   if (!row)
     return (
-      <main className="training-app">
-        <h1>Station no longer available</h1>
-        <p>Ask the trainer for a new QR code.</p>
+      <main className="training-app field-app">
+        <div className="field-empty">
+          <h1>Station no longer available</h1>
+          <p>Ask the trainer for a new QR code.</p>
+        </div>
       </main>
     );
+
   const present = row.presentation;
   const instance =
     Object.values(ex.state.workflows).find((i) => i.status === "running") ??
@@ -49,164 +82,209 @@ export function ElementView({ station }: { station: string }) {
   );
   const connectState =
     pending?.trigger.type === "prop" ? pending.trigger.to : "";
+  const aborted = ex.state.phase === "aborted";
+  const allMessages = ex.state.messages;
+  const messages = allMessages.slice(-6).reverse();
+  const phaseLabel = aborted
+    ? "ABORTED"
+    : ex.state.frozen
+      ? "PAUSED"
+      : "LIVE";
+
+  const surface = instance ? (
+    <WorkflowSurface
+      config={presentationConfig(present?.scene ?? "terminal", present)}
+      stationName={row.name}
+      boundProp={row.bindings.prop}
+      instance={instance}
+      disabled={!ex.online || ex.state.frozen}
+      time={ex.state.clock}
+      onInput={(value) => ex.send({ type: "interaction", value })}
+      onProp={(state) => ex.send({ type: "prop", state })}
+    />
+  ) : connectState ? (
+    <section className="field-connect">
+      <h2>Device link</h2>
+      <p>Attach the cable to start the device session.</p>
+      <button
+        disabled={!ex.online || ex.state.frozen}
+        onClick={() => ex.send({ type: "prop", state: connectState })}
+      >
+        Connect device
+      </button>
+    </section>
+  ) : row.module === "tracking" ? (
+    <div className="field-map">
+      <TacticalMap />
+      <div className="field-overlay-panel">
+        <h2>Tasking</h2>
+        {ex.state.scenario.objectives.map((o) => (
+          <p key={o.id}>
+            {ex.state.completed.includes(o.id) ? "Complete" : "Open"}: {o.name}
+          </p>
+        ))}
+      </div>
+    </div>
+  ) : row.module === "camera" ? (
+    <CameraFeed station={row.id} publish />
+  ) : ["countdown", "access", "lock"].includes(row.module) ? (
+    <TrainingTerminal station={row} />
+  ) : row.module === "ordnance" ? (
+    <OrdnanceConsole station={row} />
+  ) : row.module === "beacon" ? (
+    <BeaconControl station={row} />
+  ) : row.module === "data-sheet" && row.bindings.prop ? (
+    <OrdnanceDatasheet
+      ordnanceId={
+        ex.state.scenario.props.find((p) => p.id === row.bindings.prop)
+          ?.ordnanceId || ""
+      }
+      custom={ex.state.scenario.ordnanceTypes}
+    />
+  ) : isInstrument(row.module) ? (
+    <StageFrame
+      key={`${present?.scene ?? row.module}:${row.id}:${present?.revision ?? 0}`}
+      scene={present?.scene ?? INSTRUMENT_SCENES[row.module]}
+      presentation={present}
+      station={row.id}
+      mark
+      native
+    />
+  ) : (
+    <StageFrame
+      key={`${present?.scene ?? row.module}:${row.id}:${present?.revision ?? 0}`}
+      scene={present?.scene ?? row.module}
+      presentation={present}
+      station={row.id}
+      mark
+    />
+  );
+
+  const actions =
+    row.module === "medical" ? (
+      <div className="field-action-row">
+        {MEDICAL_ACTIONS.map(([value, label]) => (
+          <button
+            key={value}
+            disabled={
+              !ex.online ||
+              ex.state.frozen ||
+              ex.state.interventions[station]?.includes(value)
+            }
+            onClick={() => ex.send({ type: "intervention", value })}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+  ) : ["intranet", "hologram"].includes(row.module) ? (
+    <div className="field-action-row">
+      <button
+        disabled={!ex.online || ex.state.frozen}
+        onClick={() =>
+          ex.send({
+            type: "module-event",
+            value:
+              row.module === "intranet"
+                ? "identity.confirmed"
+                : "analysis.complete",
+          })
+        }
+      >
+        {row.module === "intranet"
+          ? "Report identity check"
+          : "Report analysis complete"}
+      </button>
+    </div>
+  ) : null;
+
+  const drawerTitle =
+    drawer === "messages"
+      ? "Messages"
+      : drawer === "files"
+        ? "Personnel files"
+        : "Device";
+
   return (
-    <main className="training-app field-view">
-      <header className="field-header">
-        <b>{row.name}</b>
-        <span>
-          {row.team} · {ex.state.frozen ? "PAUSED" : ex.state.scenario.mode} ·
-          EXERCISE
-        </span>
-      </header>
-      {ex.state.phase === "aborted" && (
-        <div className="abort-banner" role="alert">
+    <main className="training-app field-app">
+      {aborted && (
+        <div className="abort-banner field-abort" role="alert">
           EXERCISE ABORTED
         </div>
       )}
-      {!instance && connectState && (
-        <section className="panel wf-connect">
-          <h2>Device link</h2>
-          <p>Attach the cable to start the device session.</p>
+      <header className="field-status">
+        <div className="field-identity">
+          <b>{row.name}</b>
+          <span>
+            {row.team} · {ex.state.scenario.mode}
+          </span>
+        </div>
+        <div className="field-marks">
+          <span className="field-exercise">EXERCISE</span>
+          <span className={`field-phase is-${phaseLabel.toLowerCase()}`}>
+            {phaseLabel}
+          </span>
+          <span className={`field-link ${ex.online ? "is-up" : "is-down"}`}>
+            {ex.online ? "LINK" : "OFFLINE"}
+          </span>
+        </div>
+        <div className="field-tools">
           <button
-            disabled={!ex.online || ex.state.frozen}
-            onClick={() => ex.send({ type: "prop", state: connectState })}
-          >
-            Connect device
-          </button>
-        </section>
-      )}
-      {instance ? (
-        <WorkflowSurface
-          config={presentationConfig(present?.scene ?? "terminal", present)}
-          stationName={row.name}
-          boundProp={row.bindings.prop}
-          instance={instance}
-          disabled={!ex.online || ex.state.frozen}
-          onInput={(value) => ex.send({ type: "interaction", value })}
-          onProp={(state) => ex.send({ type: "prop", state })}
-        />
-      ) : row.module === "tracking" ? (
-        <>
-          <TacticalMap />
-          <section className="panel">
-            <h2>Tasking</h2>
-            {ex.state.scenario.objectives.map((o) => (
-              <p key={o.id}>
-                {ex.state.completed.includes(o.id) ? "Complete" : "Open"}:{" "}
-                {o.name}
-              </p>
-            ))}
-          </section>
-        </>
-      ) : row.module === "camera" ? (
-        <CameraFeed station={row.id} publish />
-      ) : row.module === "os" ? (
-        <>
-          <StageFrame
-            key={`${present?.scene ?? "os"}:${row.id}:${present?.revision ?? 0}`}
-            scene={present?.scene ?? "os"}
-            presentation={present}
-            station={row.id}
-            mark
-          />
-          <DossierCards dossiers={ex.state.scenario.dossiers} />
-        </>
-      ) : row.module === "terminal" ? (
-        <StageFrame
-          key={`${present?.scene ?? "terminal"}:${row.id}:${present?.revision ?? 0}`}
-          scene={present?.scene ?? "terminal"}
-          presentation={present}
-          station={row.id}
-          mark
-        />
-      ) : ["countdown", "access", "lock"].includes(row.module) ? (
-        <TrainingTerminal station={row} />
-      ) : row.module === "ordnance" ? (
-        <OrdnanceConsole station={row} />
-      ) : row.module === "data-sheet" && row.bindings.prop ? (
-        <OrdnanceDatasheet
-          ordnanceId={
-            ex.state.scenario.props.find((p) => p.id === row.bindings.prop)
-              ?.ordnanceId || ""
-          }
-          custom={ex.state.scenario.ordnanceTypes}
-        />
-      ) : row.module === "beacon" ? (
-        <BeaconControl station={row} />
-      ) : (
-        <StageFrame
-          key={`${present?.scene ?? row.module}:${row.bindings.patient}:${present?.revision ?? 0}`}
-          scene={present?.scene ?? row.module}
-          presentation={present}
-          station={row.id}
-          mark
-        />
-      )}
-      {row.module === "medical" && (
-        <section className="panel">
-          <p>
-            {
-              ex.state.scenario.patients.find((p) => p.id === row.bindings.patient)
-                ?.injuries
-            }
-          </p>
-          <div className="button-row">
-            {[
-              ["treated", "Report treatment"],
-              ["tourniquet", "Tourniquet reported"],
-              ["oxygen", "Oxygen reported"],
-              ["evacuated", "Evacuation reported"],
-            ].map(([value, label]) => (
-              <button
-                key={value}
-                disabled={
-                  !ex.online ||
-                  ex.state.frozen ||
-                  ex.state.interventions[station]?.includes(value)
-                }
-                onClick={() => ex.send({ type: "intervention", value })}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <small>
-            Simulated values. Actions are logged; the scenario defines
-            their effect.
-          </small>
-        </section>
-      )}
-      {["corporate", "hologram"].includes(row.module) && (
-        <section className="panel">
-          <button
-            disabled={!ex.online || ex.state.frozen}
+            className={drawer === "messages" ? "active" : ""}
             onClick={() =>
-              ex.send({
-                type: "module-event",
-                value:
-                  row.module === "corporate"
-                    ? "identity.confirmed"
-                    : "analysis.complete",
-              })
+              setDrawer(drawer === "messages" ? null : "messages")
             }
           >
-            {row.module === "corporate"
-              ? "Report identity check"
-              : "Report analysis complete"}
+            Messages{allMessages.length ? ` · ${allMessages.length}` : ""}
           </button>
-        </section>
+          {row.module === "os" && (
+            <button
+              className={drawer === "files" ? "active" : ""}
+              onClick={() => setDrawer(drawer === "files" ? null : "files")}
+            >
+              Files
+            </button>
+          )}
+          <button
+            className={drawer === "device" ? "active" : ""}
+            onClick={() => setDrawer(drawer === "device" ? null : "device")}
+          >
+            Device
+          </button>
+        </div>
+      </header>
+      <section className="field-stage">{surface}</section>
+      {actions && <footer className="field-actions">{actions}</footer>}
+      {drawer && (
+        <div className="field-drawer" role="dialog" aria-label={drawerTitle}>
+          <header>
+            <b>{drawerTitle}</b>
+            <button aria-label="Close" onClick={() => setDrawer(null)}>
+              ×
+            </button>
+          </header>
+          <div className="field-drawer-body">
+            {drawer === "messages" ? (
+              messages.length ? (
+                <ul className="field-messages">
+                  {messages.map((m, i) => (
+                    <li key={i}>
+                      <time>{m.at.toFixed(1)}s</time>
+                      {m.text}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No messages.</p>
+              )
+            ) : drawer === "files" ? (
+              <DossierCards dossiers={ex.state.scenario.dossiers} />
+            ) : (
+              <DeviceTools />
+            )}
+          </div>
+        </div>
       )}
-      {ex.state.messages.length > 0 && (
-        <section className="panel">
-          <h2>Messages</h2>
-          <ul className="event-log">
-            {ex.state.messages.slice(-6).map((m, i) => (
-              <li key={i}>{m.text}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-      <DeviceTools />
     </main>
   );
 }

@@ -493,6 +493,8 @@ function taskOutput(
     const options = (parsed.data as { options: { id: string }[] }).options;
     return options.some((option) => option.id === value) ? value : null;
   }
+  if (node.task === "countdown")
+    return value === "failure" ? "failure" : "success";
   return "success";
 }
 

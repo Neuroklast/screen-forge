@@ -8,7 +8,7 @@
 
 | Concept | Definition | Example |
 | --- | --- | --- |
-| Scene | Functional surface with a fixed id | `corporate`, `terminal`, `countdown`, `tracking`, `hologram` |
+| Scene | Functional surface with a fixed id | `intranet`, `terminal`, `countdown`, `tracking`, `hologram` |
 | Company | Fictional identity: title, subtitle, identifier, brand mark | Vesper Research, Blackline Operations, AEON Spatial |
 | Title | The in-world brand shown on stage (from the company) | `VESPER`, `BLACKLINE`, `AEON` |
 
@@ -64,7 +64,7 @@
 
 ## Target state (Soll)
 
-- SHOULD decouple UI scene buttons from brand titles: scene picker uses functional names (`Konzernsystem`, `Netzwerkterminal`, …); titles are branding, not scene identity (current code mixes both — see [23-asset-and-catalog-gaps.md](23-asset-and-catalog-gaps.md)).
+- SHOULD decouple UI scene buttons from brand titles: scene picker uses functional names (`Intranet`, `Netzwerkterminal`, …); titles are branding, not scene identity (current code mixes both — see [23-asset-and-catalog-gaps.md](23-asset-and-catalog-gaps.md)).
 - SHOULD extend the company set for training scenarios (e.g. neutral agencies, logistics, media) with the same schema.
 - SHOULD allow company assignment per mission/template and per station (multi-company scenarios).
 - MAY add company metadata (sector, palette hint) while keeping themes independent.

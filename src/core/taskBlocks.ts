@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export type UiControl =
   | "text"
+  | "lines"
   | "number"
   | "duration"
   | "segmented"
@@ -252,6 +253,154 @@ export function registerBuiltins(): void {
       fields: [
         { path: "prompt", control: "text", label: "Hinweis" },
         { path: "seconds", control: "duration", label: "Dauer" },
+      ],
+    },
+  });
+  defineTaskBlock({
+    type: "dial",
+    version: 1,
+    category: "interaction",
+    schema: z.object({
+      dials: z.number().int().min(1).max(4).default(3),
+      seed: z.number().int().min(1).max(9999).default(1),
+    }),
+    defaults: () => ({ dials: 3, seed: 1 }),
+    surface: "dial",
+    ports: ["success"],
+    ui: {
+      icon: "sliders",
+      category: "interaction",
+      fields: [
+        { path: "dials", control: "number", label: "Regler" },
+        { path: "seed", control: "number", label: "Referenz" },
+      ],
+    },
+  });
+  defineTaskBlock({
+    type: "code-table",
+    version: 1,
+    category: "interaction",
+    schema: z.object({ message: z.string().max(60).default("RELAY") }),
+    defaults: () => ({ message: "RELAY" }),
+    surface: "code-table",
+    ports: ["success"],
+    ui: {
+      icon: "table",
+      category: "interaction",
+      fields: [{ path: "message", control: "text", label: "Klartext" }],
+    },
+  });
+  defineTaskBlock({
+    type: "datasheet",
+    version: 1,
+    category: "report",
+    schema: z.object({
+      subject: z.string().max(40).default("countdown"),
+      title: z.string().max(80).default(""),
+      relayText: z.string().max(120).default(""),
+    }),
+    defaults: () => ({ subject: "countdown", title: "", relayText: "" }),
+    surface: "datasheet",
+    ports: ["success"],
+    ui: {
+      icon: "file",
+      category: "report",
+      fields: [
+        { path: "subject", control: "text", label: "Thema" },
+        { path: "title", control: "text", label: "Titel" },
+        { path: "relayText", control: "text", label: "Funktext" },
+      ],
+    },
+  });
+  defineTaskBlock({
+    type: "timer",
+    version: 1,
+    category: "interaction",
+    schema: z.object({
+      label: z.string().max(80).default(""),
+      seconds: z.number().int().min(1).max(3600).default(10),
+    }),
+    defaults: () => ({ label: "", seconds: 10 }),
+    surface: "timer",
+    ports: ["success"],
+    ui: {
+      icon: "timer",
+      category: "interaction",
+      fields: [
+        { path: "label", control: "text", label: "Bezeichnung" },
+        { path: "seconds", control: "duration", label: "Dauer" },
+      ],
+    },
+  });
+  defineTaskBlock({
+    type: "countdown",
+    version: 1,
+    category: "interaction",
+    schema: z.object({
+      prompt: z.string().max(120).default(""),
+      seconds: z.number().int().min(1).max(3600).default(30),
+    }),
+    defaults: () => ({ prompt: "", seconds: 30 }),
+    surface: "countdown",
+    ports: ["success", "failure"],
+    ui: {
+      icon: "timer",
+      category: "interaction",
+      fields: [
+        { path: "prompt", control: "text", label: "Hinweis" },
+        { path: "seconds", control: "duration", label: "Frist" },
+      ],
+    },
+  });
+  defineTaskBlock({
+    type: "message-viewer",
+    version: 1,
+    category: "report",
+    schema: z.object({
+      title: z.string().max(80).default(""),
+      messages: z
+        .array(z.string().max(200))
+        .max(20)
+        .default(["Archive service — Two manifests available"]),
+    }),
+    defaults: () => ({
+      title: "",
+      messages: ["Archive service — Two manifests available"],
+    }),
+    surface: "message-viewer",
+    ports: ["success"],
+    ui: {
+      icon: "mail",
+      category: "report",
+      fields: [
+        { path: "title", control: "text", label: "Titel" },
+        { path: "messages", control: "lines", label: "Meldungen" },
+      ],
+    },
+  });
+  defineTaskBlock({
+    type: "file-browser",
+    version: 1,
+    category: "report",
+    schema: z.object({
+      title: z.string().max(80).default(""),
+      files: z
+        .array(z.string().max(200))
+        .max(20)
+        .default(["incident-041.manifest — signed manifest"]),
+    }),
+    defaults: () => ({
+      title: "",
+      files: ["incident-041.manifest — signed manifest"],
+    }),
+    surface: "file-browser",
+    ports: ["success"],
+    ui: {
+      icon: "folder",
+      category: "report",
+      fields: [
+        { path: "title", control: "text", label: "Titel" },
+        { path: "files", control: "lines", label: "Dateien" },
       ],
     },
   });

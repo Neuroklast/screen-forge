@@ -21,6 +21,23 @@ describe("task block registry", () => {
     expect(block!.schema.safeParse(defaults).success).toBe(true);
   });
 
+  it("registers the migrated widget tasks with a surface and ports", () => {
+    for (const [type, surface] of [
+      ["dial", "dial"],
+      ["code-table", "code-table"],
+      ["datasheet", "datasheet"],
+      ["timer", "timer"],
+      ["countdown", "countdown"],
+      ["message-viewer", "message-viewer"],
+      ["file-browser", "file-browser"],
+    ] as const) {
+      const block = taskBlock(type);
+      expect(block?.surface).toBe(surface);
+      expect(block?.ports).toContain("success");
+      expect(block!.schema.safeParse(block!.defaults()).success).toBe(true);
+    }
+  });
+
   it("rejects duplicate type definitions", () => {
     const def: TaskBlockDefinition = {
       type: "duplicate-test",

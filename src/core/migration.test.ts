@@ -72,4 +72,21 @@ describe("mission v1 -> v2 migration", () => {
     m.stations = m.stations.filter((s) => s.module !== "medical");
     expect(scenarioSchema.safeParse(m).success).toBe(true);
   });
+
+  it("renames the legacy corporate module to intranet", () => {
+    const legacy = {
+      ...template("sar"),
+      patients: [],
+      props: [],
+      dossiers: [],
+      zones: [],
+      objectives: [],
+      injects: [],
+      stations: [
+        { id: "stage-1", name: "Stage 01", role: "element", module: "corporate" },
+      ],
+    };
+    const parsed = scenarioSchema.parse(legacy);
+    expect(parsed.stations[0].module).toBe("intranet");
+  });
 });

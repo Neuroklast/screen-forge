@@ -56,6 +56,7 @@ One clean, efficient way to steer everything: who may do what, in which phase, f
 - **Keyboard-first for control roles**: phase control, inject fire, message, abort all have shortcuts; every shortcut has a visible equivalent.
 - **One primary action per surface**: EXCON's primary is the next MEL event; the UI suggests it.
 - **Bulk operations**: provision multiple devices, message multiple stations, duplicate missions.
+- **Progressive disclosure while running**: once the exercise runs, preparation surfaces (builder, briefing, dossiers, provisioning, wizard) are hidden from EXCON; the live surface keeps injects, patients, releases, cameras and messages, led by the next MEL action. Pausing restores the preparation surfaces because editing is allowed in `paused`.
 - **Presets**: room templates, inject macros, message templates ([01-inject-orchestration.md](01-inject-orchestration.md)).
 - **No hidden state**: phase, revision, clock, and pending actions are always visible in the header.
 

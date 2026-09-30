@@ -55,7 +55,7 @@ const MODULE_LABELS: Record<ModuleId, string> = {
   countdown: "module.countdown",
   access: "module.access",
   comms: "module.comms",
-  corporate: "module.corporate",
+  intranet: "module.intranet",
   hologram: "module.hologram",
   lock: "module.lock",
   slide: "module.slide",
@@ -82,7 +82,7 @@ const FIELD_MODULES: ModuleId[] = [
   "code-table",
   "data-sheet",
 ];
-const SYSTEM_MODULES: ModuleId[] = ["os", "corporate", "hologram", "slide"];
+const SYSTEM_MODULES: ModuleId[] = ["os", "intranet", "hologram", "slide"];
 
 const ENTITY_LABELS: { collection: Collection; label: string }[] = [
   { collection: "patients", label: "entity.patients" },

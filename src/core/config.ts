@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { stageFormatIds } from "./stage.ts";
 export const sceneIds = [
-  "corporate",
+  "intranet",
   "os",
   "terminal",
   "countdown",
@@ -35,7 +35,7 @@ export const paletteSchema = z.object({
   secondary: z.string().regex(/^#[0-9a-f]{6}$/i),
 });
 export function scenePalette(scene: SceneId) {
-  return scene === "corporate"
+  return scene === "intranet"
     ? {
         background: "#f4f3f0",
         surface: "#e4e3df",
@@ -85,7 +85,7 @@ export function sceneOptionsDefaults() {
       successText: "Access bypassed.",
       steps: [] as { command: string; outputs: string[]; hint: string }[],
     },
-    corporate: { startApp: "overview" as const, sounds: true },
+    intranet: { startApp: "overview" as const, sounds: true },
     countdown: {
       type: "bomb" as const,
       variant: "antimatter" as const,
@@ -167,14 +167,14 @@ export const sceneOptionsSchema = z.object({
         .default([]),
     })
     .default(() => sceneOptionsDefaults().terminal),
-  corporate: z
+  intranet: z
     .object({
       startApp: z
         .enum(["overview", "personnel", "archive", "diagnostics"])
         .default("overview"),
       sounds: z.boolean().default(true),
     })
-    .default(() => sceneOptionsDefaults().corporate),
+    .default(() => sceneOptionsDefaults().intranet),
   countdown: z
     .object({
       type: z.enum(["transfer", "bomb", "reactor", "custom"]).default("bomb"),
@@ -358,6 +358,9 @@ function normalizeConfig(input: unknown): unknown {
   // The studio work mode was named `training`, colliding with the exercise
   // product mode. It is now `rehearsal`; migrate persisted configs.
   if (raw.workspace === "training") raw.workspace = "rehearsal";
+  // The scene id `corporate` was renamed to the functional `intranet` (brand
+  // comes from the theme); migrate persisted configs and their scene options.
+  if (raw.scene === "corporate") raw.scene = "intranet";
   const options = {
     ...(raw.sceneOptions && typeof raw.sceneOptions === "object"
       ? (raw.sceneOptions as Record<string, unknown>)
@@ -394,6 +397,9 @@ function normalizeConfig(input: unknown): unknown {
   delete raw.script;
   delete raw.commandsUntilSuccess;
   delete raw.device;
+  if (options.corporate && !options.intranet)
+    options.intranet = options.corporate;
+  delete options.corporate;
   raw.sceneOptions = options;
   return raw;
 }
@@ -473,8 +479,8 @@ export const scenes: {
   kind: "scene" | "block";
 }[] = [
   {
-    id: "corporate",
-    name: "Corporate Portal",
+    id: "intranet",
+    name: "Intranet",
     code: "01 / INSTITUTIONAL",
     description: "Company intranet: personnel, archive, diagnostics.",
     accent: "#cf233c",
@@ -739,7 +745,7 @@ export function applyTheme(
     scene: config.scene,
   };
 }
-export function defaults(scene: SceneId = "corporate"): Config {
+export function defaults(scene: SceneId = "intranet"): Config {
   const s = scenes.find((x) => x.id === scene)!;
   return {
     version: 2,
@@ -762,7 +768,7 @@ export function defaults(scene: SceneId = "corporate"): Config {
     identifier: "VS-204 / UNIT 07",
     accent: s.accent,
     mood: "clinical",
-    effects: scene === "corporate" ? 0.45 : 0.8,
+    effects: scene === "intranet" ? 0.45 : 0.8,
     density: "detailed",
     format: "16-9",
     workspace: "film",

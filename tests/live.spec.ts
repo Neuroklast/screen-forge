@@ -51,11 +51,11 @@ test("perspective depth and autonomous target positions move and pause", async (
   await page.getByRole("button", { name: "Next contact" }).click();
   await expect(page.locator(".tracking-hud h3")).toHaveText("TRACK 02");
 });
-test("corporate records require retrieval and diagnostics return results", async ({
+test("intranet records require retrieval and diagnostics return results", async ({
   page,
 }) => {
   await page.goto("/?mode=film");
-  await select(page, "Corporate Portal");
+  await select(page, "Intranet");
   await page
     .locator(".corp-nav")
     .getByRole("button", { name: /Personnel/ })
@@ -182,7 +182,7 @@ test("selected company branding applies to every scene", async ({ page }) => {
     .selectOption({ label: "Umbrella Corporation" });
   await closeConfiguration(page);
   for (const name of [
-    "Corporate Portal",
+    "Intranet",
     "Operating System",
     "Countdown",
     "Orbital Tracking",
@@ -199,7 +199,7 @@ test("global overlays exist on every scene, react to sliders and freeze with clo
 }) => {
   await page.goto("/?mode=film");
   for (const name of [
-    "Corporate Portal",
+    "Intranet",
     "Operating System",
     "Countdown",
     "Orbital Tracking",

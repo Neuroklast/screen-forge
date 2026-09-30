@@ -17,11 +17,13 @@ export function StageFrame({
   mark,
   presentation,
   station,
+  native = false,
 }: {
   scene: SceneId;
   mark?: boolean;
   presentation?: TrainingStation["presentation"];
   station?: string;
+  native?: boolean;
 }) {
   const ex = useExerciseMaybe();
   const [config] = useState<Config>(() => ({
@@ -59,6 +61,45 @@ export function StageFrame({
   const palette = config.palette ?? scenePalette(scene);
   const fmt = stageOf(config.format);
   const scale = Math.min(size.width / fmt.width, size.height / fmt.height);
+  const vars = {
+    "--accent": config.accent,
+    "--on-accent": onAccent(config.accent),
+    "--theme-bg": palette.background,
+    "--theme-surface": palette.surface,
+    "--theme-text": palette.text,
+    "--theme-secondary": palette.secondary,
+    "--fx": config.effects,
+    "--display-glow": config.overlays.glow * config.effects,
+    "--display-chroma": config.overlays.chromatic * config.effects,
+  } as CSSProperties;
+  const content = (
+    <>
+      <Scene
+        config={config}
+        time={time}
+        cue={effectiveCue}
+        onCue={setCue}
+        onPlay={() => clock.setPlaying(true)}
+      />
+      <DisplayOverlays config={config} time={time} />
+      {mark && <div className="exercise-mark">UNCLASSIFIED // EXERCISE</div>}
+    </>
+  );
+  // Native mode renders the widget as a field surface that fills its cell
+  // (no letterbox scale); the same scene component is used in both hosts.
+  if (native)
+    return (
+      <div
+        className={`scene-canvas field-native family-${scene} mood-${config.mood} density-${config.density}`}
+        data-orient={stageOrient(config.format)}
+        data-recipe={stageRecipe(config.format)}
+        data-frame={config.frame.style}
+        data-workspace="rehearsal"
+        style={{ ...vars, width: "100%", height: "100%" }}
+      >
+        {content}
+      </div>
+    );
   return (
     <div
       className="role-stage"
@@ -70,32 +111,14 @@ export function StageFrame({
         data-orient={stageOrient(config.format)}
         data-recipe={stageRecipe(config.format)}
         data-workspace="rehearsal"
-        style={
-          {
-            width: fmt.width,
-            height: fmt.height,
-            transform: `translate(-50%, -50%) scale(${scale})`,
-            "--accent": config.accent,
-            "--on-accent": onAccent(config.accent),
-            "--theme-bg": palette.background,
-            "--theme-surface": palette.surface,
-            "--theme-text": palette.text,
-            "--theme-secondary": palette.secondary,
-            "--fx": config.effects,
-            "--display-glow": config.overlays.glow * config.effects,
-            "--display-chroma": config.overlays.chromatic * config.effects,
-          } as CSSProperties
-        }
+        style={{
+          ...vars,
+          width: fmt.width,
+          height: fmt.height,
+          transform: `translate(-50%, -50%) scale(${scale})`,
+        }}
       >
-        <Scene
-          config={config}
-          time={time}
-          cue={effectiveCue}
-          onCue={setCue}
-          onPlay={() => clock.setPlaying(true)}
-        />
-        <DisplayOverlays config={config} time={time} />
-        {mark && <div className="exercise-mark">UNCLASSIFIED // EXERCISE</div>}
+        {content}
       </div>
     </div>
   );

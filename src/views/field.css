@@ -1,0 +1,254 @@
+/* Operator field surface — fixed viewport prison (U9). The scroll exception in
+   docs/konzept/usability/09-layout-contracts.md applies to control chrome
+   (.training-app) only; this root never scrolls and has no web header or
+   document stack. Stacking uses the --sf-z-* registry from src/layout.css. */
+
+.training-app.field-app {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.field-status {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--train-edge);
+  background: var(--train-panel);
+}
+.field-identity {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.field-identity b {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.field-identity span {
+  color: var(--train-muted);
+  font:
+    12px "IBM Plex Mono",
+    monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.field-marks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font:
+    11px "IBM Plex Mono",
+    monospace;
+  letter-spacing: 0.12em;
+}
+.field-exercise {
+  color: #f0c674;
+}
+.field-phase.is-live {
+  color: var(--train-accent);
+}
+.field-phase.is-paused {
+  color: #e8b35e;
+}
+.field-phase.is-aborted {
+  color: #f36c75;
+}
+.field-link.is-up {
+  color: var(--train-accent);
+}
+.field-link.is-down {
+  color: #f36c75;
+}
+.field-tools {
+  display: flex;
+  gap: 8px;
+}
+.field-tools button {
+  min-height: 44px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.field-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  --theme-surface: var(--train-panel);
+  --theme-text: var(--train-text);
+  --accent: var(--train-accent);
+}
+.field-stage > * {
+  min-height: 0;
+}
+.field-stage .role-stage {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+.field-stage .field-native.scene-canvas {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  height: 100%;
+}
+.field-stage .field-native .instrument,
+.field-stage .field-native .scene-inner {
+  height: 100%;
+}
+.field-stage .tactical-map-wrap,
+.field-stage .tactical-map {
+  min-height: 0;
+  height: 100%;
+}
+.field-stage .camera-feed {
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+.field-stage .camera-screen {
+  aspect-ratio: auto;
+  height: 100%;
+}
+.field-stage .training-terminal,
+.field-stage .device-panel,
+.field-stage .wf-surface {
+  max-width: none;
+  margin: 0;
+  height: 100%;
+  overflow: auto;
+}
+
+.field-map {
+  position: relative;
+  min-height: 0;
+}
+.field-overlay-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: var(--sf-z-float);
+  max-width: min(320px, 60%);
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--train-edge);
+  background: color-mix(in srgb, var(--train-bg) 88%, transparent);
+  font-size: 13px;
+}
+.field-overlay-panel h2 {
+  font-size: 13px;
+  margin: 0 0 8px;
+  letter-spacing: 0.12em;
+  color: var(--train-muted);
+}
+.field-overlay-panel p {
+  margin: 4px 0;
+}
+
+.field-connect {
+  align-self: center;
+  justify-self: center;
+  width: min(420px, 90%);
+  padding: 28px;
+  border: 1px solid var(--train-accent);
+  background: var(--train-panel);
+  text-align: center;
+}
+.field-connect h2 {
+  margin-top: 0;
+}
+.field-connect button {
+  min-height: 48px;
+  margin-top: 12px;
+}
+
+.field-actions {
+  border-top: 1px solid var(--train-edge);
+  background: var(--train-panel);
+}
+.field-action-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 8px 14px;
+}
+.field-action-row button {
+  min-height: 48px;
+}
+
+.field-abort {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, 90%);
+  margin: 0;
+  z-index: var(--sf-z-critical);
+}
+
+.field-drawer {
+  position: absolute;
+  inset: 0;
+  z-index: var(--sf-z-overlay);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--train-bg);
+}
+.field-drawer > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--train-edge);
+  background: var(--train-panel);
+  letter-spacing: 0.12em;
+}
+.field-drawer > header button {
+  min-height: 44px;
+  min-width: 44px;
+}
+.field-drawer-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 14px;
+}
+.field-messages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.field-messages li {
+  border-bottom: 1px solid var(--train-edge);
+  padding-bottom: 8px;
+  display: flex;
+  gap: 12px;
+}
+.field-messages time {
+  color: var(--train-muted);
+  font-family: "IBM Plex Mono", monospace;
+  min-width: 54px;
+}
+
+.field-empty {
+  grid-row: 1 / -1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 24px;
+}

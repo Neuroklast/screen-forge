@@ -29,7 +29,7 @@
 
 - Scene surfaces may be stylistic, but **control chrome** (buttons, labels, linter) follows AA always.
 - Color is never the only signal: presence dots pair with text, team colors pair with labels/patterns.
-- Dark UI baseline uses the existing tokens; `corporate` (light) theme must pass the same checks.
+- Dark UI baseline uses the existing tokens; `intranet` (light) theme must pass the same checks.
 - EXERCISE watermark: ≥ 3:1 against scene, never overlapping critical controls.
 
 ## Touch ergonomics

@@ -3,20 +3,22 @@
 > ScreenForge concept set · Catalog · Target state (Soll) · Language: EN, UI labels DE
 > Code: `src/components/CodePad.tsx` (129), `StageKeys.tsx` (42), `GestureSurface.tsx` (129)
 
-## CodePad
+## CodePad / CodeEntry
 
+- `CodeEntry` (`src/components/CodeEntry.tsx`) is the single code-entry capability (SSOT: never two implementations): value buffer, numeric/alphanumeric QWERTY keypad, keyboard input, sounds and the denied shake. `CodePad` wraps it with the modal/embedded chrome, heading and mode switch; the workflow code-challenge surface (`src/scenes/workflow/Surfaces.tsx`) reuses the same component with a fixed `length` and `mask`.
 - Purpose: modal or embedded access-code dialog; used globally (`App.tsx:470`) and inside the Lock block (`Blocks.tsx:22`).
-- Props: `code`, `title`, `heading` (SSOT dialog heading, e.g. `Maintenance login`), `onUnlock()`, `mode` (`numeric` default), `fake`, `embedded`.
+- Props (`CodePad`): `code`, `title`, `heading` (SSOT dialog heading, e.g. `Maintenance login`), `onUnlock()`, `mode` (`numeric` default), `fake`, `embedded`, `attempts` (lockout after N denials; the Lock block passes `sceneOptions.lock.attempts`).
+- Props (`CodeEntry`): `length`, `minLength`, `mode`, `mask`, `denied`, `disabled`, `showModeSwitch`, `labels`, `onSubmit` (returning `true`/`false` drives the `load`/`fail` sounds).
 - Alphanumeric pad is **QWERTY** (`1234567890` / `QWERTYUIOP` / `ASDFGHJKL` / `ZXCVBNM` + `CLEAR`/`ENTER`), not alphabetical.
 - State: `value`, `denied` counter (drives shake), `pad` mode (switchable at runtime).
 - Behavior:
-  - Key press appends (max 8), `type` sound; `clear` resets with `click`; mount plays `prompt`.
+  - Key press appends (max `length`), `type` sound; `clear` resets with `click`; mount plays `prompt`.
   - Correct: case-insensitive compare → `load` sound + `screenforge:input {type:"pin", value}` + `onUnlock()`.
   - Wrong: `fail` sound, shake, `"SIGNATURE MISMATCH / RETRY"`.
   - `fake` mode: any 4–8 char code unlocks (staging).
   - Global keyboard listener for digits/letters/Enter/Backspace.
-- Known issues: keyboard effect re-binds every render (no dependency array); no lockout/attempt limit.
-- Soll: attempt counter + lockout, focus management (autofocus first key, `Esc` cancels in modal mode), aria-live for denied state.
+- Known issues: keyboard effect re-binds every render (no dependency array).
+- Soll: focus management (autofocus first key, `Esc` cancels in modal mode), aria-live for denied state.
 
 ## StageKeys
 

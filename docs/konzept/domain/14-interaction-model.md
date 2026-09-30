@@ -17,7 +17,7 @@ Tasks and workflows are the interaction layer between mission data and surfaces:
 | Tasks | What must be done? | Task registry (`src/core/taskBlocks.ts`): type, schema, UI fields, ports |
 | Logic | What follows? | Workflow graph (`src/core/workflow.ts`): nodes, edges, variables |
 
-- One implementation per capability: `CodeEntry`, `Timer`, `FileBrowser`, `MessageViewer` are components used inside the OS **or** inside a standalone surface — never two implementations.
+- One implementation per capability: `CodeEntry`, `Timer`, `FileBrowser`, `MessageViewer` are components used inside the OS **or** inside a standalone surface — never two implementations. The `rotary`/`code-table`/`datasheet` widget controls and `MessageViewer`/`FileBrowser` follow the same rule: the studio scene / OS app and the workflow surface render the same component.
 - Surfaces and widgets are element content: English labels, `EXERCISE` mark. Task registry UI labels are studio/training chrome: German.
 
 ## Workflow model
@@ -41,7 +41,7 @@ Edge     { id, source, output, target }
 | `set-prop-state` | `out` | `prop`, `state` |
 | `complete-objective` | `out` | `objective` |
 
-- Task types: `code-entry` (`expectedValueRef`, `maxAttempts`, `inputLength`, `maskInput`), `confirm`, `choice` (ports derived from its options), `wait-for-event` and `connect` (complete on a prop state), `report` (form; the submitted input is journaled for the AAR), `inspect`, `transfer`.
+- Task types: `code-entry` (`expectedValueRef`, `maxAttempts`, `inputLength`, `maskInput`), `confirm`, `choice` (ports derived from its options), `wait-for-event` and `connect` (complete on a prop state), `report` (form; the submitted input is journaled for the AAR), `inspect`, `transfer`, `dial` (align reference dials), `code-table` (A1Z26 decode), `datasheet` (archive search + relay), `timer` (auto-completing countdown), `countdown` (deadline task with `success`/`failure`), `message-viewer`, `file-browser`.
 - Variables are typed (`boolean`, `number`, `string`, `enum`) with an initial value; `secret: true` marks values that are redacted from players.
 - Conditions are typed `condition` nodes. Free-form expressions are NEVER allowed — they break validation, replay, redaction and the editor.
 - `end` carries the outcome; there are no separate success/failure node types.

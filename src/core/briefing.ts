@@ -9,7 +9,7 @@ const MODULE_EN: Record<string, string> = {
   countdown: "Countdown device",
   access: "Access control",
   comms: "Comms",
-  corporate: "Corporate system",
+  intranet: "Company intranet",
   hologram: "Analysis table",
   lock: "Lock",
   slide: "Slide",

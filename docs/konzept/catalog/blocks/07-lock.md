@@ -1,7 +1,7 @@
 # Catalog — Block: Lock (Keypad)
 
 > ScreenForge concept set · Catalog · Target state (Soll) · Language: EN, UI labels DE
-> Code: `src/scenes/blocks/Blocks.tsx:18-36`, `src/components/CodePad.tsx` (129)
+> Code: `src/scenes/blocks/Blocks.tsx:18-36`, `src/components/CodePad.tsx`, `src/components/CodeEntry.tsx`
 > Used in: Film (block `lock`). Training maps module `lock` to `TrainingTerminal` instead — see [../components/18-training-controls.md](../components/18-training-controls.md)
 
 ## Purpose
@@ -39,7 +39,7 @@ The Lock block is a standalone access keypad: a small framed surface that gates 
 
 ## Target state (Soll)
 
-- MUST add a retry lockout to the block (training terminal already locks 3 s server-side after a wrong code — align behavior).
+- DONE — retry lockout: the block enforces `sceneOptions.lock.attempts` through the shared `CodeEntry` (the pad disables and shows `LOCKED / TOO MANY ATTEMPTS` after the configured denials).
 - SHOULD show attempt count and lockout countdown in the pad (`"Noch 2 Versuche"`).
 - SHOULD support per-step codes in shows (a step may set `config.pin` and the pad uses it — already partially wired via `applyStep`).
 - MAY add an optional "access granted" full-screen flash for stage use.

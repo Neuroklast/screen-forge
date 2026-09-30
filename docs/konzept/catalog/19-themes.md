@@ -26,7 +26,7 @@
 
 ## Fallback palette
 
-`scenePalette(scene)`: corporate (light) = `#f4f3f0 / #e4e3df / #151515 / #62636b`; all other scenes = `#080d12 / #0e171f / #d6e2e5 / #80dce5` (`config.ts:32-46`).
+`scenePalette(scene)`: intranet (light) = `#f4f3f0 / #e4e3df / #151515 / #62636b`; all other scenes = `#080d12 / #0e171f / #d6e2e5 / #80dce5` (`config.ts:32-46`).
 
 ## Custom themes
 
@@ -37,7 +37,7 @@
 
 - Themes MUST pass contrast checks for control chrome on both light and dark surfaces (see [../usability/07-accessibility-devices.md](../usability/07-accessibility-devices.md)).
 - Theme choice MUST NOT change scene layout or content — only palette, font, mood, effects, overlays, tokens.
-- The corporate scene SHOULD default to `Vesper laboratory`; the network terminal to `Blackline`; theme choice is independent of the company identity applied to the scene.
+- The intranet scene SHOULD default to `Vesper laboratory`; the network terminal to `Blackline`; theme choice is independent of the company identity applied to the scene.
 
 ## Target state (Soll)
 
@@ -50,5 +50,5 @@
 
 - [ ] Given a theme selection, palette/accent/mood/effects/overlays/font apply in one action.
 - [ ] Given a custom theme saved, it survives reload and is selectable.
-- [ ] Given the light corporate scene with any theme, text contrast stays ≥ 4.5:1.
+- [ ] Given the light intranet scene with any theme, text contrast stays ≥ 4.5:1.
 - [ ] Given a theme with missing fields in storage, it is dropped without breaking the editor.

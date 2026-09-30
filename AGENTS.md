@@ -28,7 +28,7 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 
 - The concept set [docs/konzept/](docs/konzept/README.md) is the SSOT. Code follows it or records a deviation there.
 - NEVER add real weapon, explosive, CBRN, medical, or tactical procedure content; all systems are fictional (`EXERCISE` / `DEMO — FIKTIV`).
-- NEVER name a scene after a company: scenes are functional (`corporate`, `terminal`, `countdown`, `tracking`, `hologram`); `VESPER`/`BLACKLINE`/`AEON` are brand titles.
+- NEVER name a scene after a company: scenes are functional (`intranet`, `terminal`, `countdown`, `tracking`, `hologram`); `VESPER`/`BLACKLINE`/`AEON` are brand titles.
 - Element content (scenes, blocks, field consoles) MUST be English; German is only for the studio/training control chrome.
 - The server is authoritative for exercise state; enforce role projections server-side.
 - Mission edits only while `draft`/`ready`/`paused`; every save bumps `revision`; stale saves are rejected, never merged.

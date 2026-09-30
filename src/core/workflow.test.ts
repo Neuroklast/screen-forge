@@ -557,6 +557,49 @@ describe("task catalog", () => {
     expect(s.log.some((entry) => entry.message.includes("F03"))).toBe(true);
   });
 
+  it("countdown routes the success and failure branches", () => {
+    const workflow = workflowSchema.parse({
+      id: "wf-countdown",
+      version: 1,
+      trigger: { type: "manual" },
+      entry: "start",
+      nodes: [
+        { id: "start", type: "start" },
+        {
+          id: "deadline",
+          type: "task",
+          task: "countdown",
+          config: { prompt: "Act", seconds: 30 },
+        },
+        { id: "ok", type: "end", outcome: "success" },
+        { id: "late", type: "end", outcome: "failure" },
+      ],
+      edges: [
+        { id: "e1", source: "start", output: "out", target: "deadline" },
+        { id: "e2", source: "deadline", output: "success", target: "ok" },
+        { id: "e3", source: "deadline", output: "failure", target: "late" },
+      ],
+    });
+    const s = stateFor(workflow);
+    const instance = s.workflows["wf-countdown"];
+    expect(
+      evaluateWorkflow(
+        workflow,
+        instance,
+        { type: "interaction", value: "success" },
+        1,
+      )[0],
+    ).toMatchObject({ type: "workflow.transition.taken", output: "success" });
+    expect(
+      evaluateWorkflow(
+        workflow,
+        instance,
+        { type: "interaction", value: "failure" },
+        1,
+      )[0],
+    ).toMatchObject({ type: "workflow.transition.taken", output: "failure" });
+  });
+
   it("starts a manual workflow exactly once", () => {
     const workflow = workflowSchema.parse({
       id: "wf-manual",

@@ -33,4 +33,15 @@ describe("config migration to sceneOptions", () => {
     const parsed = schema.parse({ ...defaults(), workspace: "training" });
     expect(parsed.workspace).toBe("rehearsal");
   });
+
+  it("renames the legacy corporate scene to intranet", () => {
+    const parsed = schema.parse({
+      ...defaults(),
+      scene: "corporate",
+      sceneOptions: { corporate: { startApp: "archive", sounds: false } },
+    });
+    expect(parsed.scene).toBe("intranet");
+    expect(parsed.sceneOptions.intranet.startApp).toBe("archive");
+    expect(parsed.sceneOptions.intranet.sounds).toBe(false);
+  });
 });

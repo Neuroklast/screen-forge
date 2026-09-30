@@ -35,3 +35,4 @@
 | 2026-09 | Tests | E2E exercise rooms must be unique per test (add a random suffix): `Date.now()` collides across parallel Playwright workers and two missions then share one room. | med |
 | 2026-09 | Tests | Playwright `getByLabel(..., { exact: true })` fails for labels that wrap a control (label text includes the control's option text); target the control with `getByRole("combobox", { name, exact: true })` instead. | low |
 | 2026-09 | Runtime | Changing a task's type retires its outputs — prune edges whose port no longer exists (type/task change only, never config edits) or the mission keeps dangling connections that fail schema validation on save. | med |
+| 2026-09 | UI | The operator surface is not control chrome: it must be a fixed viewport (`.field-app`) that mutates into the active interface, while `.training-app` stays the scroll container. Field views stay dumb — progress is a declarative animation, never `setInterval`. | high |

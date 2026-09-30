@@ -51,6 +51,13 @@ export const workflowSurfaces = [
   "lockout",
   "code-challenge",
   "confirm",
+  "dial",
+  "code-table",
+  "datasheet",
+  "timer",
+  "countdown",
+  "message-viewer",
+  "file-browser",
 ] as const;
 
 export function createWorkflow(id: string): Workflow {

@@ -42,7 +42,7 @@ export const modules = [
   "countdown",
   "access",
   "comms",
-  "corporate",
+  "intranet",
   "hologram",
   "lock",
   "slide",
@@ -73,7 +73,7 @@ export const moduleEvents: Record<string, string[]> = {
   comms: ["comms.channel", "comms.ptt"],
   slide: ["slide.open"],
   hologram: ["analysis.complete"],
-  corporate: ["identity.confirmed"],
+  intranet: ["identity.confirmed"],
   ordnance: ["ordnance.stage", "ordnance.disarmed", "ordnance.tampered"],
   beacon: ["beacon.active", "beacon.lost"],
   terminal: ["shell.success", "terminal.bypass"],
@@ -467,7 +467,11 @@ function normalizeScenario(input: unknown): unknown {
     if (typeof st.entityId === "string" && st.entityId)
       bindings.patient = st.entityId;
     delete st.entityId;
-    return { ...st, module, bindings };
+    return {
+      ...st,
+      module: module === "corporate" ? "intranet" : module,
+      bindings,
+    };
   });
   const injects = Array.isArray(raw.injects)
     ? raw.injects

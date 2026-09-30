@@ -65,7 +65,7 @@ Every module declares:
 
 | id | Label | Capabilities | Purpose | Requires |
 | --- | --- | --- | --- | --- |
-| `corporate` | `"Konzernsystem"` | film, training | corporate records, search, access states (default brand VESPER) | — |
+| `intranet` | `"Intranet"` | film, training | company intranet: records, search, access states (default brand VESPER) | — |
 | `hologram` | `"Projektion"` | film, training | spatial assembly, analysis (default brand AEON) | — |
 | `slide` | `"Briefing"` | film, training | Briefing/debrief slides | — |
 | `os` | `"Betriebssystem"` | film, training | desktop applications (files, personnel, clusters, messages; default brand BLACKLINE) | — |
@@ -85,7 +85,7 @@ Every module declares:
 | terminal / access / lock | Terminal / Access / Lock scenes |
 | countdown | Sequence Control |
 | beacon / ordnance | new scenes (fictional control surfaces) |
-| corporate / hologram / slide / os | Corporate system / Analysis table / Slide / Network terminal |
+| intranet / hologram / slide / os | Company intranet / Analysis table / Slide / Network terminal |
 
 ## Module configuration defaults
 

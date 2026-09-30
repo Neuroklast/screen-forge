@@ -19,7 +19,7 @@
 
 ## Naming
 
-- Scenes are functional surfaces (`corporate`, `terminal`, `countdown`, `tracking`, `hologram`); companies are identities ([../konzept/catalog/20-companies-and-brands.md](../konzept/catalog/20-companies-and-brands.md)).
+- Scenes are functional surfaces (`intranet`, `terminal`, `countdown`, `tracking`, `hologram`); companies are identities ([../konzept/catalog/20-companies-and-brands.md](../konzept/catalog/20-companies-and-brands.md)).
 - NEVER name a scene after a company; `VESPER`/`BLACKLINE`/`AEON` are brand titles, not scene names.
 - UI uses the German labels from [../konzept/domain/01-glossary.md](../konzept/domain/01-glossary.md); code/schema uses the English terms.
 

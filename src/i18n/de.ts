@@ -346,7 +346,7 @@ export const de: Record<string, string> = {
   "module.countdown": "Zeitgeber",
   "module.access": "Zugang",
   "module.comms": "Funk",
-  "module.corporate": "Konzernsystem",
+  "module.intranet": "Intranet",
   "module.hologram": "Projektion",
   "module.lock": "Verriegelung",
   "module.slide": "Schieber",
@@ -637,6 +637,7 @@ export const de: Record<string, string> = {
   "trainer.ready4":
     "Startsignal und Abbruchsignal mit allen Teilnehmenden vereinbart?",
   "trainer.hiddenEvents": "Verdeckte Ereignisse",
+  "trainer.nextAction": "Nächste Aktion: {name} bei {seconds} s",
   "trainer.inactive": "Inaktiv",
   "trainer.processed": "Verarbeitet",
   "trainer.at": "Bei {seconds} s",

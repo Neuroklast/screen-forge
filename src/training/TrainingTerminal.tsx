@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTraining } from "../core/useExercise";
 import type { TrainingStation } from "../core/training";
+import { Timer } from "../components/Timer";
 export function TrainingTerminal({
   station: st,
 }: {
@@ -29,15 +30,11 @@ export function TrainingTerminal({
       </header>
       <h1>{st.name}</h1>
       {st.module === "countdown" && (
-        <div className="terminal-countdown">
-          {Math.floor(remaining / 60)
-            .toString()
-            .padStart(2, "0")}
-          :
-          {Math.floor(remaining % 60)
-            .toString()
-            .padStart(2, "0")}
-        </div>
+        <Timer
+          remaining={remaining}
+          format="mmss"
+          className="terminal-countdown"
+        />
       )}
       <nav className="tab-bar">
         <button onClick={() => setTab("status")}>STATUS</button>

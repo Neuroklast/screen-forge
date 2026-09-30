@@ -23,7 +23,7 @@ Für ein Tablet oder einen Touchscreen im selben Netzwerk: `start-lan.bat` start
 
 ## Enthaltene Szenen
 
-- **VESPER:** Helles Konzernsystem mit schwarzen Technikrahmen und roten Akzenten nach der Umbrella-Designreferenz. Navigation, Verzeichnissuche, Zugriffszustände und Diagnose.
+- **VESPER:** Helles Intranet mit schwarzen Technikrahmen und roten Akzenten nach der Umbrella-Designreferenz. Navigation, Verzeichnissuche, Zugriffszustände und Diagnose.
 - **BLACKLINE OS:** Cyberpunk-Betriebssystem mit sieben Anwendungen, lokalem Terminal, Dateisystem, Personalakten, Datenclustern, 4D-Projektion und Sequenzbibliothek.
 - **Sequence Control:** Countdown mit Pause, Zeitsprung, automatischem Stopp bei null und fiktiven Gerätediagnosen.
 - **Orbital Survey:** originale schematische Karte mit Touchgesten und Zielerfassung. Keine realen Satellitenbilder.
@@ -100,9 +100,9 @@ Der Windows-Launcher ist erstellt und auf Fehlerpfade geprüft, wurde in dieser 
 
 Für Kameraaufnahmen immer Bildrate, Belichtung, Moiré, Bildschirmhelligkeit und Lesbarkeit am Zielgerät prüfen. Ein Browser-Screenshot ersetzt diese Abnahme nicht.
 
-## Designupdate Konzernsystem
+## Designupdate Intranet
 
-Bei bereits gespeicherten lokalen Einstellungen kann die bisherige Akzentfarbe erhalten bleiben. Mit „Originaldesign wiederherstellen“ oder Import von `presets/corporate.json` wird die neue rot-weiße Voreinstellung geladen.
+Bei bereits gespeicherten lokalen Einstellungen kann die bisherige Akzentfarbe erhalten bleiben. Mit „Originaldesign wiederherstellen“ oder Import von `presets/intranet.json` wird die neue rot-weiße Voreinstellung geladen.
 
 ## BLACKLINE OS
 

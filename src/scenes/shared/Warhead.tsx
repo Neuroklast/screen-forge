@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SceneHeader, type SceneProps } from "../Scenes";
-import { clockParts, formatTime, noise, scriptedInput } from "../../core/runtime";
+import { noise, scriptedInput } from "../../core/runtime";
+import { Timer } from "../../components/Timer";
 import { Changed } from "./Process";
 import { AtomEmblem } from "../../components/BrandMark";
 import { playSound } from "../../core/sound";
@@ -224,7 +225,6 @@ export function Warhead(props: SceneProps) {
   const cancelHold = () => {
     if (!state.safe) setHold(null);
   };
-  const clock = clockParts(state.left);
   const countdown = config.sceneOptions.countdown;
   const profile = DEVICE_PROFILES[countdown.type] ?? DEVICE_PROFILES.bomb;
   const family =
@@ -330,13 +330,7 @@ export function Warhead(props: SceneProps) {
                 ? "LOSS OF CONTAINMENT"
                 : profile.timer}
           </div>
-          <div className="countdown-digits" aria-label={formatTime(state.left)}>
-            <span>{clock.hh}</span>
-            <i>:</i>
-            <span>{clock.mm}</span>
-            <i>:</i>
-            <span>{clock.ss}</span>
-          </div>
+          <Timer remaining={state.left} className="countdown-digits" />
           <div className="warhead-milliseconds">
             {state.safe
               ? "CRYO ONLINE / B-FIELD HOLDING"

@@ -12,7 +12,7 @@ test("all scenes render and operator controls reset a take", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/?mode=film");
   for (const title of [
-    "Corporate Portal",
+    "Intranet",
     "Operating System",
     "Terminal",
     "Countdown",
@@ -75,6 +75,9 @@ test("countdown primary action can never be displaced from the panel", async ({
     .getByRole("button", { name: /Countdown/ })
     .first()
     .click();
+  await expect(page.locator(".countdown-digits")).toContainText(
+    /\d\d:\d\d:\d\d/,
+  );
   const controls = await page.locator(".warhead-controls").boundingBox();
   const action = await page.locator(".neutralize-button").boundingBox();
   const stage = await page.locator(".scene-inner").boundingBox();

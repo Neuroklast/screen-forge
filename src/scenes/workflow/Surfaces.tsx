@@ -1,6 +1,18 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import type { Config } from "../../core/config";
 import { taskBlock } from "../../core/taskBlocks";
+import { CodeEntry } from "../../components/CodeEntry";
+import { Timer } from "../../components/Timer";
+import { CodeTableControl, DataSheetControl, RotaryControl } from "../blocks/controls";
+import { MessageViewer } from "../../components/MessageViewer";
+import { FileBrowser } from "../../components/FileBrowser";
+import { noise } from "../../core/runtime";
 import type { WorkflowInstance } from "../../core/workflow";
 import "./surfaces.css";
 
@@ -12,6 +24,7 @@ export type WorkflowSurfaceProps = {
   boundProp: string;
   instance: WorkflowInstance;
   disabled: boolean;
+  time: number;
   onInput: (value: string) => void;
   onProp: (state: string) => void;
 };
@@ -40,6 +53,20 @@ export function WorkflowSurface(props: WorkflowSurfaceProps) {
       return <InspectSurface {...props} />;
     case "transfer":
       return <TransferSurface {...props} />;
+    case "dial":
+      return <DialSurface {...props} />;
+    case "code-table":
+      return <CodeTableSurface {...props} />;
+    case "datasheet":
+      return <DatasheetSurface {...props} />;
+    case "timer":
+      return <TimerSurface {...props} />;
+    case "countdown":
+      return <CountdownSurface {...props} />;
+    case "message-viewer":
+      return <MessageSurface {...props} />;
+    case "file-browser":
+      return <FileBrowserSurface {...props} />;
     case "wait":
       return <WaitSurface {...props} />;
     case "connect":
@@ -129,20 +156,10 @@ function CodeChallengeSurface({
   };
   const length = Math.min(Math.max(Number(data.inputLength) || 4, 1), 12);
   const masked = data.maskInput !== false;
-  const [value, setValue] = useState("");
   const rejected =
     task !== undefined &&
     instance.lastResult?.node === task.node &&
     instance.lastResult.output === "failure";
-  const append = (digit: string) => {
-    if (value.length < length) setValue(value + digit);
-  };
-  const submit = () => {
-    if (value.length === length && !disabled) {
-      onInput(value);
-      setValue("");
-    }
-  };
   return (
     <Shell config={config} status="AUTH">
       <p className="wf-prompt">
@@ -151,46 +168,21 @@ function CodeChallengeSurface({
           {length} digits · {masked ? "masked" : "visible"}
         </small>
       </p>
-      <div className="wf-slots" aria-label="Entered code">
-        {Array.from({ length }, (_, i) => (
-          <span key={i} className={i < value.length ? "on" : ""}>
-            {i < value.length ? (masked ? "•" : value[i]) : "–"}
-          </span>
-        ))}
-      </div>
-      <div className="wf-keypad">
-        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
-          <button
-            key={digit}
-            disabled={disabled}
-            onClick={() => append(digit)}
-          >
-            {digit}
-          </button>
-        ))}
-        <button
-          disabled={disabled || !value}
-          onClick={() => setValue(value.slice(0, -1))}
-          aria-label="Delete digit"
-        >
-          ⌫
-        </button>
-        <button disabled={disabled} onClick={() => append("0")}>
-          0
-        </button>
-        <button
-          className="wf-submit"
-          disabled={disabled || value.length !== length}
-          onClick={submit}
-        >
-          OK
-        </button>
-      </div>
+      <CodeEntry
+        length={length}
+        minLength={length}
+        mask={masked}
+        showModeSwitch={false}
+        labels={{ enter: "OK" }}
+        disabled={disabled}
+        denied={rejected ? 1 : 0}
+        onSubmit={(value) => onInput(value)}
+      />
       <p
-        className={`wf-feedback ${rejected && !value ? "is-error" : ""}`}
+        className={`wf-feedback ${rejected ? "is-error" : ""}`}
         role="status"
       >
-        {rejected && !value ? "INPUT REJECTED — TRY AGAIN" : "AWAITING INPUT"}
+        {rejected ? "INPUT REJECTED — TRY AGAIN" : "AWAITING INPUT"}
       </p>
     </Shell>
   );
@@ -344,42 +336,273 @@ function TransferSurface({
     seconds?: number;
   };
   const seconds = Math.min(Math.max(Number(data.seconds) || 5, 1), 60);
-  const [progress, setProgress] = useState(0);
   const [running, setRunning] = useState(false);
   const inputRef = useRef(onInput);
   inputRef.current = onInput;
-  useEffect(() => {
-    if (!running || disabled) return;
-    const started = Date.now();
-    const timer = setInterval(() => {
-      const value = Math.min((Date.now() - started) / (seconds * 1000), 1);
-      setProgress(value);
-      if (value >= 1) {
-        clearInterval(timer);
-        setRunning(false);
-        inputRef.current("done");
-      }
-    }, 100);
-    return () => clearInterval(timer);
-  }, [running, disabled, seconds]);
   return (
     <Shell config={config} status="TRANSFER">
       <p className="wf-prompt">{data.prompt || "Start the data transfer"}</p>
       <div className="wf-progress" aria-hidden="true">
-        <span style={{ width: `${Math.round(progress * 100)}%` }} />
+        <span
+          key={running ? "run" : "idle"}
+          className={running ? "is-running" : ""}
+          style={
+            running
+              ? ({
+                  "--wf-duration": `${seconds}s`,
+                  animationPlayState: disabled ? "paused" : "running",
+                } as CSSProperties)
+              : undefined
+          }
+          onAnimationEnd={() => {
+            if (!running) return;
+            setRunning(false);
+            inputRef.current("done");
+          }}
+        />
       </div>
       <button
         className="wf-submit wf-wide"
         disabled={disabled || running}
-        onClick={() => {
-          setProgress(0);
-          setRunning(true);
-        }}
+        onClick={() => setRunning(true)}
       >
         {running ? "TRANSFERRING" : "START TRANSFER"}
       </button>
       <p className="wf-feedback" role="status">
         {running ? "TRANSFER RUNNING" : "READY"}
+      </p>
+    </Shell>
+  );
+}
+
+function DialSurface({
+  config,
+  instance,
+  disabled,
+  onInput,
+}: WorkflowSurfaceProps) {
+  const data = (instance.activeTask?.config ?? {}) as {
+    dials?: number;
+    seed?: number;
+  };
+  const dials = Math.max(1, Math.min(4, Number(data.dials) || 3));
+  const seed = Number(data.seed) || 1;
+  const targets = Array.from(
+    { length: dials },
+    (_, i) => 25 + Math.floor(noise(i, seed) * 50),
+  );
+  return (
+    <Shell config={config} status="ALIGN">
+      <p className="wf-prompt">
+        Align all dials to their reference
+        <small>{dials} dials · within ±2</small>
+      </p>
+      <RotaryControl
+        key={instance.activeTask?.node}
+        targets={targets}
+        disabled={disabled}
+        onComplete={() => onInput("done")}
+      />
+      <p className="wf-feedback" role="status">
+        AWAITING ALIGNMENT
+      </p>
+    </Shell>
+  );
+}
+
+function CodeTableSurface({
+  config,
+  instance,
+  disabled,
+  onInput,
+}: WorkflowSurfaceProps) {
+  const data = (instance.activeTask?.config ?? {}) as { message?: string };
+  const message = String(data.message || "RELAY");
+  return (
+    <Shell config={config} status="DECODE">
+      <p className="wf-prompt">
+        Decode the message
+        <small>A1Z26 · one number per letter</small>
+      </p>
+      <CodeTableControl
+        key={instance.activeTask?.node}
+        message={message}
+        disabled={disabled}
+        onComplete={() => onInput("done")}
+      />
+      <p className="wf-feedback" role="status">
+        AWAITING INPUT
+      </p>
+    </Shell>
+  );
+}
+
+function DatasheetSurface({
+  config,
+  instance,
+  disabled,
+  onInput,
+}: WorkflowSurfaceProps) {
+  const data = (instance.activeTask?.config ?? {}) as {
+    subject?: string;
+    title?: string;
+    relayText?: string;
+  };
+  return (
+    <Shell config={config} status="DATASHEET">
+      <DataSheetControl
+        key={instance.activeTask?.node}
+        subject={data.subject}
+        title={data.title}
+        relayText={data.relayText}
+        disabled={disabled}
+        onComplete={() => onInput("done")}
+      />
+      <p className="wf-feedback" role="status">
+        AWAITING RELAY
+      </p>
+    </Shell>
+  );
+}
+
+function TimerSurface({
+  config,
+  instance,
+  disabled,
+  time,
+  onInput,
+}: WorkflowSurfaceProps) {
+  const data = (instance.activeTask?.config ?? {}) as {
+    label?: string;
+    seconds?: number;
+  };
+  const seconds = Math.max(1, Math.min(3600, Number(data.seconds) || 10));
+  const node = instance.activeTask?.node ?? "";
+  const entered = instance.enteredAt[node] ?? instance.startedAt;
+  const remaining = Math.max(0, seconds - (time - entered));
+  const fired = useRef(false);
+  useEffect(() => {
+    if (disabled || fired.current || remaining > 0) return;
+    fired.current = true;
+    onInput("done");
+  }, [disabled, remaining, onInput]);
+  return (
+    <Shell config={config} status="TIMER">
+      <p className="wf-prompt">
+        {data.label || "Countdown"}
+        <small>completes automatically</small>
+      </p>
+      <Timer remaining={remaining} format="mmss" className="wf-timer" />
+      <p className="wf-feedback" role="status">
+        {remaining > 0 ? "COUNTING DOWN" : "COMPLETE"}
+      </p>
+    </Shell>
+  );
+}
+
+function CountdownSurface({
+  config,
+  instance,
+  disabled,
+  time,
+  onInput,
+}: WorkflowSurfaceProps) {
+  const data = (instance.activeTask?.config ?? {}) as {
+    prompt?: string;
+    seconds?: number;
+  };
+  const seconds = Math.max(1, Math.min(3600, Number(data.seconds) || 30));
+  const node = instance.activeTask?.node ?? "";
+  const entered = instance.enteredAt[node] ?? instance.startedAt;
+  const remaining = Math.max(0, seconds - (time - entered));
+  const expired = remaining <= 0;
+  const fired = useRef(false);
+  useEffect(() => {
+    if (disabled || fired.current || !expired) return;
+    fired.current = true;
+    onInput("failure");
+  }, [disabled, expired, onInput]);
+  return (
+    <Shell config={config} status="COUNTDOWN">
+      <p className="wf-prompt">
+        {data.prompt || "Act before the timer expires"}
+        <small>deadline task</small>
+      </p>
+      <Timer remaining={remaining} format="mmss" className="wf-timer" />
+      <button
+        className="wf-submit wf-wide"
+        disabled={disabled || expired}
+        onClick={() => onInput("success")}
+      >
+        COMPLETE
+      </button>
+      <p className="wf-feedback" role="status">
+        {expired ? "DEADLINE MISSED" : "ACTIVE"}
+      </p>
+    </Shell>
+  );
+}
+
+function MessageSurface({
+  config,
+  instance,
+  disabled,
+  onInput,
+}: WorkflowSurfaceProps) {
+  const data = (instance.activeTask?.config ?? {}) as {
+    title?: string;
+    messages?: string[];
+  };
+  const messages = (data.messages ?? []).map((line, i) => {
+    const [subject, ...rest] = line.split(/\s+[—-]\s+/);
+    return {
+      id: `m${i}`,
+      sender: data.title || "Control",
+      subject,
+      body: rest.join(" — ") || line,
+    };
+  });
+  return (
+    <Shell config={config} status="INBOX">
+      <MessageViewer messages={messages} disabled={disabled} />
+      <button
+        className="wf-submit wf-wide"
+        disabled={disabled}
+        onClick={() => onInput("done")}
+      >
+        ACKNOWLEDGE
+      </button>
+      <p className="wf-feedback" role="status">
+        AWAITING ACKNOWLEDGEMENT
+      </p>
+    </Shell>
+  );
+}
+
+function FileBrowserSurface({
+  config,
+  instance,
+  disabled,
+  onInput,
+}: WorkflowSurfaceProps) {
+  const data = (instance.activeTask?.config ?? {}) as {
+    title?: string;
+    files?: string[];
+  };
+  const files = (data.files ?? []).map((line, i) => {
+    const [name, ...rest] = line.split(/\s+[—-]\s+/);
+    return { id: `f${i}`, name, body: rest.join(" — ") };
+  });
+  return (
+    <Shell config={config} status="FILES">
+      <FileBrowser
+        title={data.title}
+        files={files}
+        disabled={disabled}
+        onComplete={() => onInput("done")}
+      />
+      <p className="wf-feedback" role="status">
+        AWAITING SELECTION
       </p>
     </Shell>
   );

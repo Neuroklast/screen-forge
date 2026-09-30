@@ -243,6 +243,25 @@ function FieldInput({
         {field.label}
       </label>
     );
+  if (field.control === "lines")
+    return (
+      <label>
+        {field.label}
+        <textarea
+          value={((value as string[] | undefined) ?? []).join("\n")}
+          disabled={disabled}
+          onChange={(event) =>
+            onChange(
+              event.target.value
+                .split("\n")
+                .map((line) => line.trim())
+                .filter(Boolean)
+                .slice(0, 20),
+            )
+          }
+        />
+      </label>
+    );
   if (field.control === "number" || field.control === "duration")
     return (
       <label>

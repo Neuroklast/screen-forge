@@ -50,7 +50,7 @@
 
 | # | File | Read when |
 | --- | --- | --- |
-| C1 | [catalog/scenes/01-corporate-system.md](catalog/scenes/01-corporate-system.md) | Corporate system scene |
+| C1 | [catalog/scenes/01-corporate-system.md](catalog/scenes/01-corporate-system.md) | Intranet scene |
 | C2 | [catalog/scenes/02-operating-system.md](catalog/scenes/02-operating-system.md) | Operating system: desktop, windows, apps, photos |
 | C3 | [catalog/scenes/03-os-sequences.md](catalog/scenes/03-os-sequences.md) | 14 OS sequences, sequence panel |
 | C4 | [catalog/scenes/04-sequence-control.md](catalog/scenes/04-sequence-control.md) | Countdown/device console scene |

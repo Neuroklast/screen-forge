@@ -48,7 +48,7 @@ describe("station presentation", () => {
           ? {
               ...station,
               presentation: {
-                scene: "corporate",
+                scene: "intranet",
                 config: { title: "RECORDS" },
                 revision: 2,
               },
@@ -56,7 +56,7 @@ describe("station presentation", () => {
           : station,
       ),
     });
-    expect(parsed.stations[0].presentation?.scene).toBe("corporate");
+    expect(parsed.stations[0].presentation?.scene).toBe("intranet");
     expect(parsed.stations[0].presentation?.revision).toBe(2);
   });
 

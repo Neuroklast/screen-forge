@@ -178,6 +178,18 @@
   justify-content: space-between;
   gap: 16px;
 }
+.live-priority {
+  border-color: var(--train-accent);
+}
+.live-next {
+  font:
+    12px/1.5 "IBM Plex Mono",
+    monospace;
+  color: var(--train-accent);
+  border: 1px solid var(--train-edge);
+  padding: 4px 10px;
+  white-space: nowrap;
+}
 .template-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

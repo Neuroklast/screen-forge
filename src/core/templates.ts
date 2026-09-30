@@ -263,7 +263,7 @@ export const missionTemplates: MissionTemplate[] = [
     scenario: build("Film Playback", {
       mode: "PLAYBACK",
       stations: [
-        { id: "stage-1", name: "Stage 01", role: "element", module: "corporate" },
+        { id: "stage-1", name: "Stage 01", role: "element", module: "intranet" },
         { id: "stage-2", name: "Stage 02", role: "element", module: "hologram" },
       ],
       objectives: [{ id: "obj-1", name: "Prepare sequence" }],

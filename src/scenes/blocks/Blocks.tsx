@@ -29,6 +29,7 @@ export function Lock({ config, onCue }: SceneProps) {
         code={config.pin}
         mode={config.pinMode}
         fake={config.pinFake}
+        attempts={config.sceneOptions.lock.attempts}
         onUnlock={() => {
           onCue("complete");
           signal("lock.open");

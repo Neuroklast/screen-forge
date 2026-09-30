@@ -139,7 +139,7 @@ test("authenticated multi-device lifecycle, validation, diagnostics, revocation 
     scenario.map.tiles = "";
     scenario.stations.find((s) => s.id === "prop-1").code = "482916";
     scenario.stations.find((s) => s.id === "prop-1").presentation = {
-      scene: "corporate",
+      scene: "intranet",
       config: { title: "RELAY 07" },
       revision: 3,
     };

@@ -1,18 +1,18 @@
-# Catalog — Corporate System (Firmenportal)
+# Catalog — Intranet (Firmenportal)
 
 > ScreenForge concept set · Catalog · Target state (Soll) · Language: EN, UI labels DE
-> Scene id `corporate` · Default in-world title `VESPER` (company: Vesper Research) · Code: `src/scenes/shared/LiveScenes.tsx:12-318`, `src/scenes/corporate.css` (365 lines)
-> Used in: Film (scene `corporate`), Training (via `StageFrame`, module `corporate`, signal `identity.confirmed`)
+> Scene id `intranet` (formerly `corporate`) · Default in-world title `VESPER` (company: Vesper Research) · Code: `src/scenes/shared/LiveScenes.tsx:12-318`, `src/scenes/corporate.css`
+> Used in: Film (scene `intranet`), Training (via `StageFrame`, module `intranet`, signal `identity.confirmed`)
 
 ## Naming (concept clarification)
 
 - A **scene** is a surface with a function: here the light corporate system for institutional/facility stories.
 - A **company** is an identity (title, subtitle, identifier, brand mark) applied via SystemProfiles — 14 exist, including Vesper Research, Blackline Operations, and AEON Spatial.
-- `VESPER` is the scene's default in-world title and simultaneously the brand of Vesper Research; it is NOT the scene's name. Scenes are named functionally in this catalog (`corporate`, `terminal`, `countdown`, `tracking`, `hologram`); companies are cataloged in [../20-companies-and-brands.md](../20-companies-and-brands.md).
+- `VESPER` is the scene's default in-world title and simultaneously the brand of Vesper Research; it is NOT the scene's name. Scenes are named functionally in this catalog (`intranet`, `terminal`, `countdown`, `tracking`, `hologram`); companies are cataloged in [../20-companies-and-brands.md](../20-companies-and-brands.md).
 
 ## Purpose
 
-The corporate system is the light "company intranet" surface: a believable institutional workspace for research-facility stories. It carries the light corporate reference design (black type frames, red accents) and is the primary face of a fictional megacorp on set.
+The intranet scene is the light "company intranet" surface: a believable institutional workspace for research-facility stories. It carries the light reference design (black type frames, red accents) and is the primary face of a fictional megacorp on set.
 
 ## Component tree
 
@@ -59,7 +59,7 @@ The corporate system is the light "company intranet" surface: a believable insti
 - MUST present a windowed, OS-like surface: Personnel, Archive and Diagnostics open as windows with squared chrome, subtle open/close animations and synthetic sounds.
 - MUST stay dense and squared — no rounded corners, no modern UI look.
 - SHOULD reuse the shared OS chrome and photo rules from [02-operating-system.md](02-operating-system.md) (uncropped photos with theme overlay).
-- SHOULD be configurable via `sceneOptions.corporate` (start app, density, sounds).
+- SHOULD be configurable via `sceneOptions.intranet` (start app, density, sounds).
 
 ## Edge cases
 
@@ -72,6 +72,6 @@ The corporate system is the light "company intranet" surface: a believable insti
 
 - [ ] Given film mode, `Review access` completes in 9 s and shows the warning-dependent result.
 - [ ] Given training mode with released dossiers, the personnel tab shows only released persons.
-- [ ] Given the EXERCISE watermark is enabled, it is visible on every corporate view.
+- [ ] Given the EXERCISE watermark is enabled, it is visible on every intranet view.
 - [ ] Given the fingerprint has not been scanned, records show `LOCKED` and cannot be opened.
 - [ ] Given a company identity applied, title/subtitle/identifier/mark change without changing the scene.

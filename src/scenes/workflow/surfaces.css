@@ -93,45 +93,6 @@
   opacity: 0.55;
   font-size: var(--sf-type-8px);
 }
-.wf-slots {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: var(--sf-space-8px);
-  max-width: 360px;
-}
-.wf-slots span {
-  display: grid;
-  place-items: center;
-  min-height: var(--sf-layout-40px);
-  border: var(--sf-stroke-1px) solid
-    color-mix(in srgb, var(--theme-text) 22%, transparent);
-  font-size: var(--sf-type-12px);
-}
-.wf-slots span.on {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.wf-keypad {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sf-space-8px);
-  max-width: 360px;
-}
-.wf-keypad button {
-  min-height: var(--sf-layout-40px);
-  border: var(--sf-stroke-1px) solid
-    color-mix(in srgb, var(--theme-text) 22%, transparent);
-  color: var(--theme-text);
-  font-size: var(--sf-type-10px);
-}
-.wf-keypad button:disabled {
-  opacity: 0.35;
-}
-.wf-keypad .wf-submit {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 .wf-wide {
   justify-self: start;
   padding: var(--sf-space-10px) var(--sf-space-18px);
@@ -225,4 +186,62 @@
   display: block;
   height: 100%;
   background: var(--accent);
+}
+.wf-progress span.is-running {
+  animation: wf-fill var(--wf-duration, 5s) linear forwards;
+}
+@keyframes wf-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+.wf-timer {
+  font-size: var(--sf-type-28px);
+  letter-spacing: var(--sf-type-1px);
+  color: var(--accent);
+}
+.fb {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: var(--sf-space-10px);
+  min-height: 0;
+}
+.fb-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-space-4px);
+  min-height: 0;
+  overflow: hidden;
+}
+.fb-list button {
+  text-align: left;
+  padding: var(--sf-space-8px) var(--sf-space-10px);
+  border: var(--sf-stroke-1px) solid
+    color-mix(in srgb, var(--theme-text) 18%, transparent);
+  background: transparent;
+  color: var(--theme-text);
+  font-size: var(--sf-type-10px);
+}
+.fb-list button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.fb-detail {
+  display: grid;
+  align-content: start;
+  gap: var(--sf-space-8px);
+  padding: var(--sf-space-10px);
+  border: var(--sf-stroke-1px) solid
+    color-mix(in srgb, var(--theme-text) 18%, transparent);
+}
+.fb-detail h3 {
+  margin: 0;
+  font-size: var(--sf-type-12px);
+}
+.fb-detail p {
+  font-size: var(--sf-type-10px);
+  opacity: 0.75;
 }

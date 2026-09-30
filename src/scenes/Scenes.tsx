@@ -116,7 +116,7 @@ export function Terrain() {
   );
 }
 export const sceneComponents = {
-  corporate: Corporate,
+  intranet: Corporate,
   os: OperatingSystem,
   terminal: Terminal,
   countdown: Warhead,

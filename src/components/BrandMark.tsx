@@ -178,7 +178,7 @@ export function BrandMark({ config }: { config: Config }) {
         <path d="M20 40H44" stroke="var(--accent)" strokeWidth="3" />
       </svg>
     );
-  if (config.scene === "corporate")
+  if (config.scene === "intranet")
     return (
       <svg viewBox="0 0 64 64" aria-hidden="true">
         <rect

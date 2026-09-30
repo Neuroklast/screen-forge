@@ -14,7 +14,7 @@ async function assign(page: Page, browser: Browser, name: string) {
   await expect(page.locator('.qr-panel h3')).toHaveText(name);
   const url = await page.getByRole('link',{name:'Gerätelink öffnen'}).getAttribute('href');
   const ctx = await browser.newContext(); const device = await ctx.newPage(); await device.goto(url!);
-  await expect(device.locator('.field-header, .hq-view')).toBeVisible();
+  await expect(device.locator('.field-status, .hq-view')).toBeVisible();
   return {ctx,device,url:url!};
 }
 test('guided setup, one-time QR, diagnostic code, pause/reset and mobile layout', async ({page,browser}) => {
@@ -28,6 +28,7 @@ test('guided setup, one-time QR, diagnostic code, pause/reset and mobile layout'
   const {ctx,device,url} = await assign(page,browser,'Sequence terminal');
   try {
     await expect(device.getByText('STANDBY',{exact:true})).toBeVisible();
+    await expect(device.locator('.terminal-countdown')).toContainText(/\d\d:\d\d/);
     await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
     await device.getByRole('button',{name:'DIAGNOSTICS',exact:true}).click();
     await device.getByRole('button',{name:'Read current diagnostics'}).click();
@@ -39,7 +40,7 @@ test('guided setup, one-time QR, diagnostic code, pause/reset and mobile layout'
     await page.getByRole('button',{name:'Pausieren',exact:true}).click();
     page.once('dialog',d=>d.accept()); await page.getByRole('button',{name:'Reset',exact:true}).click();
     await expect(device.getByText('STANDBY',{exact:true})).toBeVisible();
-    await device.reload(); await expect(device.locator('.field-header')).toBeVisible();
+    await device.reload(); await expect(device.locator('.field-status')).toBeVisible();
     await device.setViewportSize({width:390,height:844});
     expect(await device.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
     const replay = await browser.newPage(); await replay.goto(url); await expect(replay.getByRole('alert')).toContainText('expired'); await replay.close();
@@ -105,7 +106,7 @@ test('field terminal completion is restored after a reload', async ({page,browse
   const {ctx,device} = await assign(page,browser,'Intelligence');
   try {
     await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
-    await expect(device.locator('.field-header')).toContainText('LIVE');
+    await expect(device.locator('.field-status')).toContainText('LIVE');
     const input = device.getByLabel('Terminal input');
     for (const command of ['status','scan --local','inspect auth','login --token 07-RELAY']) {
       await input.fill(command);
@@ -127,5 +128,47 @@ test('field terminal controls stay reachable on a small screen', async ({page,br
     await submit.scrollIntoViewIfNeeded();
     await expect(submit).toBeInViewport();
     await expect(device.getByRole('button',{name:'STATUS',exact:true})).toBeInViewport();
+  } finally { await ctx.close(); }
+});
+test('preparation surfaces hide while the exercise runs', async ({page}) => {
+  await login(page);
+  await expect(page.getByRole('button',{name:'Geräte vorbereiten',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
+  await expect(page.getByRole('button',{name:'Live-Steuerung',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Szenario bearbeiten',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Personalakten',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Geführte Einrichtung',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Verdeckte Ereignisse'})).toBeVisible();
+  await page.getByRole('button',{name:'Pausieren',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Szenario bearbeiten',exact:true})).toBeVisible();
+});
+test('field surface is a fixed viewport without a document scroll', async ({page,browser}) => {
+  await login(page);
+  const {ctx,device} = await assign(page,browser,'Sequence terminal');
+  try {
+    await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
+    await expect(device.locator('.field-status')).toContainText('LIVE');
+    await expect(device.locator('.field-stage')).toBeVisible();
+    const overflow = await device.evaluate(() => {
+      const root = document.querySelector('.field-app');
+      return root ? root.scrollHeight - root.clientHeight : -1;
+    });
+    expect(overflow).toBeLessThanOrEqual(1);
+  } finally { await ctx.close(); }
+});
+test('instrument module renders as a native field surface, not a scaled stage', async ({page,browser}) => {
+  await login(page);
+  await page.getByRole('button',{name:'Neues Szenario erstellen',exact:false}).click();
+  await page.getByRole('button',{name:'Ordnance Disposal',exact:false}).click();
+  await page.getByLabel('Szenarioname',{exact:true}).fill('Instrument test');
+  for (let i=0;i<3;i++) await page.getByRole('button',{name:'Weiter',exact:true}).click();
+  await page.getByRole('button',{name:'Szenario anlegen'}).click();
+  await expect(page.getByRole('heading',{level:1})).toHaveText('Instrument test');
+  const {ctx,device} = await assign(page,browser,'Data Sheet');
+  try {
+    await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
+    await expect(device.locator('.field-native')).toBeVisible();
+    await expect(device.locator('.role-stage')).toHaveCount(0);
+    await expect(device.locator('.field-native .instrument-frame')).toBeVisible();
   } finally { await ctx.close(); }
 });

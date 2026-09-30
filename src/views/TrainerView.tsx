@@ -70,9 +70,19 @@ export function TrainerView({ room }: { room: string }) {
       setMessage(t("trainer.saved"));
     }
   }, [ex.savedRevision]);
+  // Progressive disclosure: while the exercise runs, only live controls are
+  // relevant; preparation surfaces disappear and the surface switches to live.
+  const live = ex.state.phase === "running";
+  useEffect(() => {
+    if (live && tab !== "live") setTab("live");
+  }, [live, tab]);
   const connected = Object.values(ex.state.presence).filter(
     (p) => p.online,
   ).length;
+  const nextInject = ex.state.scenario.injects
+    .filter((r) => r.enabled && !ex.state.fired.includes(r.id))
+    .map((r) => ({ inject: r, at: dueAt(r, ex.state.scenario.seed) }))
+    .sort((a, b) => a.at - b.at)[0];
   let invitationUrl = "";
   try {
     const origin = new URL(publicOrigin);
@@ -155,23 +165,27 @@ export function TrainerView({ room }: { room: string }) {
           ["editor", t("trainer.tab.editor")],
           ["briefing", t("trainer.tab.briefing")],
           ["dossiers", t("trainer.tab.dossiers")],
-        ].map(([id, name]) => (
+        ]
+          .filter(([id]) => !live || id === "live")
+          .map(([id, name]) => (
+            <button
+              key={id}
+              className={tab === id ? "active" : ""}
+              onClick={() => setTab(id)}
+            >
+              {name}
+            </button>
+          ))}
+        {!live && (
           <button
-            key={id}
-            className={tab === id ? "active" : ""}
-            onClick={() => setTab(id)}
+            onClick={() => {
+              if (ex.state.frozen) setWizard(true);
+              else setMessage(t("trainer.pauseFirst"));
+            }}
           >
-            {name}
+            {t("trainer.guided")}
           </button>
-        ))}
-        <button
-          onClick={() => {
-            if (ex.state.frozen) setWizard(true);
-            else setMessage(t("trainer.pauseFirst"));
-          }}
-        >
-          {t("trainer.guided")}
-        </button>
+        )}
       </nav>
       {message && (
         <p className="notice" role="status">
@@ -453,13 +467,18 @@ export function TrainerView({ room }: { room: string }) {
           )}
           {tab === "live" && (
             <>
-              <div className="training-columns">
-                {ex.state.scenario.patients.map((p) => (
-                  <PatientControl key={p.id} patient={p} />
-                ))}
-              </div>
-              <section className="panel">
-                <h2>{t("trainer.hiddenEvents")}</h2>
+              <section className="panel live-priority">
+                <div className="section-heading">
+                  <h2>{t("trainer.hiddenEvents")}</h2>
+                  {nextInject && (
+                    <span className="live-next" role="status">
+                      {t("trainer.nextAction", {
+                        name: nextInject.inject.name,
+                        seconds: nextInject.at.toFixed(0),
+                      })}
+                    </span>
+                  )}
+                </div>
                 <ul className="event-log">
                   {ex.state.scenario.injects.map((r) => (
                     <li key={r.id}>
@@ -576,6 +595,11 @@ export function TrainerView({ room }: { room: string }) {
                   ex.send({ type: "workflow-start", workflow: id })
                 }
               />
+              <div className="training-columns">
+                {ex.state.scenario.patients.map((p) => (
+                  <PatientControl key={p.id} patient={p} />
+                ))}
+              </div>
               <section className="panel">
                 <h2>{t("trainer.sendMessage")}</h2>
                 <div className="message-compose">

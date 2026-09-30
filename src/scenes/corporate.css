@@ -1,6 +1,6 @@
 /* Reference: Neuroklast/umbrella-corp-band-t, main, src/index.css and TechFrame.tsx.
    Family-scoped styling. The scene's existing interactions and state are preserved. */
-.family-corporate {
+.family-intranet {
   --scene-bg: var(--theme-bg);
   --corp-ink: var(--theme-text);
   --corp-muted: color-mix(in srgb, var(--theme-text) 72%, var(--theme-bg));
