@@ -6,6 +6,7 @@ import {
   workflowSettles,
   type Workflow,
 } from "./workflow.ts";
+import { workflowPortLabel } from "./workflowEdit.ts";
 import { t } from "../i18n/index.ts";
 
 const EXTERNAL_TRIGGERS = ["zone", "prop", "signal"];
@@ -64,7 +65,7 @@ function lintWorkflow(workflow: Workflow): Finding[] {
       if (!outputs.get(node.id)?.has(port))
         error(
           `graph-wf-exit-${workflow.id}-${node.id}-${port}`,
-          t("graph.wfExit", { name, port }),
+          t("graph.wfExit", { name, port: t(workflowPortLabel(port)) }),
         );
   }
   const reachable = new Set<string>();

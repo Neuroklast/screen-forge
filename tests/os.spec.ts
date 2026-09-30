@@ -7,6 +7,11 @@ async function enter(page: Page) {
     .first()
     .click();
   await page.getByRole("button", { name: "Pause", exact: true }).click();
+  // The transport label flips to "Abspielen" once paused; seeking before that
+  // races with the scene clock.
+  await expect(
+    page.getByRole("button", { name: "Abspielen", exact: true }),
+  ).toBeVisible();
   await page.getByLabel("Szenenzeit", { exact: true }).fill("0");
 }
 async function app(page: Page, name: string) {
@@ -51,6 +56,9 @@ test("long operation seeks both directions, pauses and resets deterministically"
   await app(page, "Sequences");
   await page.getByRole("button", { name: "Run full operation" }).click();
   await page.getByRole("button", { name: "Pause", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Abspielen", exact: true }),
+  ).toBeVisible();
   await seek(page, 239);
   await expect(page.locator(".os-sequence-display h3")).toHaveText(
     "Containment exception",
@@ -61,9 +69,13 @@ test("long operation seeks both directions, pauses and resets deterministically"
     "Memory surface inspection",
   );
   await expect(page.locator(".cyber-os")).not.toHaveClass(/os-warning/);
-  const before = await page.locator(".os-phase-visual").innerHTML();
+  // AnimatePresence crossfades the phase visual for 0.24 s after a phase
+  // change; wait it out before asserting that the paused visual is stable.
+  const visual = page.locator(".os-phase-visual");
+  await page.waitForTimeout(300);
+  const before = await visual.innerHTML();
   await page.waitForTimeout(120);
-  expect(await page.locator(".os-phase-visual").innerHTML()).toBe(before);
+  expect(await visual.innerHTML()).toBe(before);
   await page.getByRole("button", { name: "Take zurücksetzen" }).click();
   await expect(page.locator(".os-sequence")).toHaveCount(0);
   await expect(page.locator(".os-task-time")).toContainText("00:00:00");

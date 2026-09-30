@@ -1,5 +1,7 @@
 # ScreenForge
 
+[![Validate ScreenForge](https://github.com/Neuroklast/screen-forge/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Neuroklast/screen-forge/actions/workflows/ci.yml)
+
 Interaktive Filmoberflächen mit React, TypeScript, Motion und Vite. Alle angezeigten Systeme sind Fiktion. Keine Shell-Ausführung, kein Netzwerkzugriff aus Szenen, keine Waffentechnik. Lokale SVG-Grafiken und eigenständige Szenen. Das Konzernsystem verwendet die vom Nutzer vorgegebene helle, schwarz-rote Designreferenz aus Neuroklast/umbrella-corp-band-t.
 
 ## Konzept (Soll-Zustand)

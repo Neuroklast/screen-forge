@@ -936,6 +936,7 @@ export const en: Record<string, string> = {
   "prep.devices.remove": "Remove device",
   "prep.devices.props": "Props",
   "prep.devices.addProp": "Add prop",
+  "prep.devices.propName": "Prop {n}",
   "prep.devices.propKind": "Kind",
   "prop.kind.ordnance": "Ordnance",
   "prop.kind.beacon": "Beacon",

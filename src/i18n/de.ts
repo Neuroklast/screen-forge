@@ -947,6 +947,7 @@ export const de: Record<string, string> = {
   "prep.devices.remove": "Gerät entfernen",
   "prep.devices.props": "Requisiten",
   "prep.devices.addProp": "Requisite hinzufügen",
+  "prep.devices.propName": "Requisite {n}",
   "prep.devices.propKind": "Art",
   "prop.kind.ordnance": "Sprengkörper",
   "prop.kind.beacon": "Bake",

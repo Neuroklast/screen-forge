@@ -512,7 +512,9 @@ export function DevicesSection({
                   propSchema.parse({
                     id: uid("prop"),
                     kind: "custom",
-                    name: `${t("prep.devices.addProp")} ${draft.props.length + 1}`,
+                    name: t("prep.devices.propName", {
+                      n: draft.props.length + 1,
+                    }),
                   }),
                 ],
               })

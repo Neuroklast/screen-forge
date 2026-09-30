@@ -165,7 +165,6 @@ export function ReviewSection({
           >
             {t("trainer.start")}
           </button>
-          <button onClick={() => onGo("flow")}>{t("prep.tab.flow")}</button>
         </div>
       </section>
     </section>
