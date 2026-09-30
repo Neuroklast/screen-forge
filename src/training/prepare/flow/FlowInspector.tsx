@@ -29,6 +29,7 @@ export function FlowInspector({
   readOnly,
   selectedNode,
   selectedEvent,
+  linkedWorkflow,
   findings,
   onSelectNode,
   onSelectEvent,
@@ -43,6 +44,7 @@ export function FlowInspector({
   readOnly: boolean;
   selectedNode?: WorkflowNode;
   selectedEvent?: Inject;
+  linkedWorkflow?: Workflow;
   findings: Finding[];
   onSelectNode: (id: string) => void;
   onSelectEvent: (id: string) => void;
@@ -92,6 +94,7 @@ export function FlowInspector({
             draft={draft}
             caps={caps}
             readOnly={readOnly}
+            linkedWorkflow={linkedWorkflow}
             onChange={(next) => onPatchInject(selectedEvent.id, next)}
             onRemove={() => onDeleteEvent(selectedEvent.id)}
           />

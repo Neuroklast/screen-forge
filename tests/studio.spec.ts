@@ -78,6 +78,9 @@ test("countdown primary action can never be displaced from the panel", async ({
   await expect(page.locator(".countdown-digits")).toContainText(
     /\d\d:\d\d:\d\d/,
   );
+  // Web fonts shift the layout by a few pixels after first paint; wait for
+  // them before asserting geometry, or the overflow check flakes.
+  await page.evaluate(() => document.fonts.ready.then(() => true));
   const controls = await page.locator(".warhead-controls").boundingBox();
   const action = await page.locator(".neutralize-button").boundingBox();
   const stage = await page.locator(".scene-inner").boundingBox();

@@ -249,6 +249,46 @@ test("device assignment links equipment to a participant", async ({ page }) => {
   );
 });
 
+test("timed event appears on the timeline with a human sentence", async ({
+  page,
+}) => {
+  await login(page);
+  await page.getByRole("button", { name: "Ablauf", exact: true }).click();
+  await page.getByRole("button", { name: "Zeitpunkt", exact: true }).click();
+  const chip = page.locator(".flow-chip").filter({ hasText: "1:00" });
+  await expect(chip).toBeVisible();
+  await expect(page.locator(".flow-summary")).toContainText(
+    "Wenn Zeitpunkt 1:00",
+  );
+  await expect(page.locator(".flow-summary")).toContainText("sende Meldung");
+  await page.getByLabel("Zeitpunkt (s)").fill("90");
+  await expect(page.locator(".flow-chip").filter({ hasText: "1:30" })).toBeVisible();
+  await expect(page.locator(".flow-summary")).toContainText("1:30");
+});
+
+test("event that starts a workflow highlights the entry node", async ({
+  page,
+}) => {
+  await login(page);
+  await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Requisite hinzufügen", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Ablauf", exact: true }).click();
+  await page.getByRole("button", { name: "Ablauf anlegen", exact: true }).click();
+  // Trigger the flow on the prop state; the defaults already reference it.
+  await page.getByLabel("Startet").selectOption({ label: "Wenn Requisite" });
+  // The event sets the same prop state, so the link is derived.
+  await page.getByRole("button", { name: "Manuell", exact: true }).click();
+  await page
+    .getByLabel("Aktion", { exact: true })
+    .selectOption({ label: "Requisite setzen" });
+  await expect(
+    page.locator(".flow-chip").filter({ hasText: "startet" }),
+  ).toBeVisible();
+  await expect(page.locator(".wf-node.is-highlighted")).toHaveCount(1);
+});
+
 test("start validation blocks a medical scenario without a patient", async ({
   page,
 }) => {

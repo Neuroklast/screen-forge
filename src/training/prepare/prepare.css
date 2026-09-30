@@ -150,6 +150,25 @@
   margin-bottom: 10px;
 }
 
+.palette-select {
+  width: 100%;
+  padding: 5px 7px;
+  border: 1px solid #1e2a33;
+  border-radius: 0;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
+.flow-summary {
+  margin: 0 0 8px;
+  padding: 8px;
+  border-left: 2px solid #e8b563;
+  background: #13202a;
+  color: #d6e2e5;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .flow-workspace {
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr) 320px;

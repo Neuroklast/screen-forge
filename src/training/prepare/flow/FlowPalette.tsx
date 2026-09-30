@@ -6,7 +6,7 @@ import {
 } from "../../../core/workflowEdit";
 import type { Workflow } from "../../../core/workflow";
 import { t } from "../../../i18n";
-import { EVENT_TRIGGERS, triggerLabel } from "./EventInspector";
+import { EVENT_TRIGGERS, triggerLabel } from "./triggers";
 
 const ADVANCED_NODES = [
   "delay",
@@ -17,7 +17,9 @@ const ADVANCED_NODES = [
 
 export type AdvancedNodeType = (typeof ADVANCED_NODES)[number];
 
-// Sources of the flow workspace: existing flows, logic blocks and events.
+// Sources of the flow workspace. The active flow is a compact selector at the
+// top; blocks and triggers are separate groups so the user never has to reason
+// about the internal workflow/event split.
 export function FlowPalette({
   workflows,
   workflowId,
@@ -42,15 +44,19 @@ export function FlowPalette({
       <div className="palette-group">
         <span className="palette-group-title">{t("cap.workflows")}</span>
         <div className="palette-items">
-          {workflows.map((row) => (
-            <button
-              key={row.id}
-              className={`palette-item ${workflowId === row.id ? "is-active" : ""}`}
-              onClick={() => onSelectWorkflow(row.id)}
-            >
-              {row.name}
-            </button>
-          ))}
+          <select
+            className="palette-select"
+            aria-label={t("cap.workflows")}
+            value={workflowId}
+            disabled={!workflows.length}
+            onChange={(e) => onSelectWorkflow(e.target.value)}
+          >
+            {workflows.map((row) => (
+              <option key={row.id} value={row.id}>
+                {row.name}
+              </option>
+            ))}
+          </select>
           <button
             className="palette-item"
             disabled={readOnly}
@@ -61,7 +67,7 @@ export function FlowPalette({
         </div>
       </div>
       <div className="palette-group">
-        <span className="palette-group-title">{t("flow.palette")}</span>
+        <span className="palette-group-title">{t("flow.group.flow")}</span>
         <div className="palette-items">
           {(Object.keys(flowNodeLabels) as FlowNodeKind[]).map((kind) => (
             <button
@@ -91,7 +97,7 @@ export function FlowPalette({
         </div>
       </details>
       <div className="palette-group">
-        <span className="palette-group-title">{t("flow.events")}</span>
+        <span className="palette-group-title">{t("flow.group.triggers")}</span>
         <div className="palette-items">
           {EVENT_TRIGGERS.map((trigger) => (
             <button

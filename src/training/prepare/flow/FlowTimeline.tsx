@@ -2,14 +2,8 @@ import type { Inject } from "../../../core/training";
 import type { Workflow } from "../../../core/workflow";
 import type { FlowLink } from "../../../core/workflowEdit";
 import { t } from "../../../i18n";
-import { triggerLabel } from "./EventInspector";
-
-export function formatClock(seconds: number): string {
-  const total = Math.max(0, Math.round(seconds));
-  const minutes = Math.floor(total / 60);
-  const rest = total % 60;
-  return `${minutes}:${rest.toString().padStart(2, "0")}`;
-}
+import { formatClock } from "./format";
+import { triggerLabel } from "./triggers";
 
 // The event lane of the flow workspace: one chip per event, in execution
 // order. Chips that start a workflow say so; the internal split stays hidden.

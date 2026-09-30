@@ -36,10 +36,20 @@ export function FlowSection({
 }: PrepareSectionProps) {
   const [workflowId, setWorkflowId] = useState(draft.workflows[0]?.id ?? "");
   const [selection, setSelection] = useState<FlowSelection>(null);
-  const workflow =
-    draft.workflows.find((row) => row.id === workflowId) ?? draft.workflows[0];
   const findings = lintMission(draft);
   const links = flowLinks(draft);
+  // A selected event brings its workflow to the canvas and highlights the
+  // entry node, so the event-to-flow connection is visible, not just textual.
+  const eventLink =
+    selection?.kind === "event"
+      ? links.find((row) => row.inject === selection.id)
+      : undefined;
+  const workflow =
+    draft.workflows.find((row) => row.id === eventLink?.workflow) ??
+    draft.workflows.find((row) => row.id === workflowId) ??
+    draft.workflows[0];
+  const highlightNodeId =
+    eventLink && workflow?.id === eventLink.workflow ? workflow.entry : "";
   const selectedNode =
     selection?.kind === "node"
       ? workflow?.nodes.find((row) => row.id === selection.id)
@@ -147,6 +157,7 @@ export function FlowSection({
                   }
                   onPatch={patchWorkflow}
                   variant="human"
+                  highlightNodeId={highlightNodeId}
                 />
               </Suspense>
             ) : (
@@ -169,6 +180,7 @@ export function FlowSection({
           readOnly={readOnly}
           selectedNode={selectedNode}
           selectedEvent={selectedEvent}
+          linkedWorkflow={eventLink ? workflow : undefined}
           findings={findings}
           onSelectNode={(id) =>
             setSelection(id ? { kind: "node", id } : null)

@@ -28,8 +28,11 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 ## Flow workspace
 
 - One visual workspace: workflow nodes form the connected scenario logic graph; timed, zone and manual events live on the timeline lane and show the workflow they start (derived from prop actions, never stored).
+- The palette groups are `"Ablauf"` (the logic blocks) and `"Auslöser"` (events), with `"Weitere Bausteine"` collapsed; the active flow is a compact selector at the top, not a palette segment.
 - The palette uses human concepts: `"Start"`, `"Aktion"`, `"Entscheidung"`, `"Auf Ereignis warten"`, `"Meldung"`, `"Zustand ändern"`, `"Ziel abschließen"`, `"Ende"`; technical node and task types stay the storage format.
 - Outputs and edge labels are human too: `"Weiter"`, `"Erfolg"`, `"Fehlschlag"`, `"Ja"`, `"Nein"`; dynamic ports (choice options) keep their configured id.
+- The event editor leads with a derived sentence (`"Wenn Zeitpunkt 3:00 → sende Meldung … → startet „Ablauf“"`); trigger configuration and actions follow below.
+- Selecting an event brings its workflow to the canvas and highlights the entry node, so the event-to-flow connection is visible, not only textual.
 - The inspector shows workflow settings (name, trigger, `"Ablauf löschen"`) when nothing is selected, node settings when a node is selected, and event settings when an event is selected — one owner per selection.
 - Findings stay contextual: the selected workflow plus the selected event. The `"Prüfen"` section owns the global picture.
 - `"Weitere Bausteine"` (wait time, show surface, counter, prop state) and `"Rohdaten"` (raw MEL list, workflow variables) are collapsed.

@@ -46,6 +46,7 @@ type WorkflowNodeData = {
   portLabels: string[];
   errors: number;
   isEntry: boolean;
+  highlighted: boolean;
   label: string;
   summary: string;
 };
@@ -57,7 +58,7 @@ function WorkflowNodeCard({ data, selected }: NodeProps<FlowNode>) {
     <div
       className={`wf-node ${selected ? "is-selected" : ""} ${
         data.errors ? "has-error" : ""
-      }`}
+      } ${data.highlighted ? "is-highlighted" : ""}`}
     >
       <Handle type="target" position={Position.Left} />
       <header>
@@ -99,6 +100,7 @@ export function WorkflowCanvas({
   onSelectNode,
   onPatch,
   variant = "legacy",
+  highlightNodeId = "",
 }: {
   workflow: Workflow;
   findings: Finding[];
@@ -107,6 +109,7 @@ export function WorkflowCanvas({
   onSelectNode: (id: string) => void;
   onPatch: (next: Workflow) => void;
   variant?: "legacy" | "human";
+  highlightNodeId?: string;
 }) {
   const layout = useMemo(() => autoLayout(workflow), [workflow]);
   const renderKey = JSON.stringify(workflow);
@@ -134,12 +137,13 @@ export function WorkflowCanvas({
             ),
             errors: nodeFindingIds(findings, workflow.id, node.id).length,
             isEntry: node.id === workflow.entry,
+            highlighted: node.id === highlightNodeId,
             label,
             summary: nodeSummary(node),
           },
         };
       }),
-    [workflow, layout, findings, variant],
+    [workflow, layout, findings, variant, highlightNodeId],
   );
   const flowEdges: Edge[] = useMemo(
     () =>
