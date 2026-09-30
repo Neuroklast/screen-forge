@@ -147,7 +147,6 @@ export default function App() {
     const step = show.steps.find((s) => s.id === running);
     if (step && triggerMatches(step, clock.elapsed)) advanceShow();
     if (
-      rehearsal &&
       step &&
       step.timeout > 0 &&
       clock.elapsed >= step.timeout &&
@@ -161,7 +160,7 @@ export default function App() {
         clock.setPlaying(false);
       }
     }
-  }, [clock.elapsed, clock.playing, running, show, rehearsal]);
+  }, [clock.elapsed, clock.playing, running, show]);
   useEffect(() => {
     const input = (e: Event) => {
       const detail = (e as CustomEvent<{ type: string; value: string }>).detail;
@@ -529,6 +528,7 @@ export default function App() {
               }}
               onStop={() => setRunning(null)}
               onAdvance={advanceShow}
+              onFail={failShow}
             />
           )}
           <div className="transport">

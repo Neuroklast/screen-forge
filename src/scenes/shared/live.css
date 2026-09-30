@@ -205,7 +205,15 @@
   margin-top: var(--sf-space-12px);
 }
 .corp-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   overflow: hidden;
+}
+.corp-view {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 .holo-readout .process-readout {
   padding: var(--sf-space-10px);

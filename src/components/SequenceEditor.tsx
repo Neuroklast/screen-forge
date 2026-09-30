@@ -11,6 +11,7 @@ export function SequenceEditor({
   running,
   onStop,
   onAdvance,
+  onFail,
 }: {
   show: Show;
   onChange: (s: Show) => void;
@@ -19,6 +20,7 @@ export function SequenceEditor({
   running: string | null;
   onStop: () => void;
   onAdvance: () => void;
+  onFail: () => void;
 }) {
   const [selected, setSelected] = useState(show.steps[0]?.id ?? ""),
     [page, setPage] = useState(0),
@@ -73,6 +75,9 @@ export function SequenceEditor({
         </button>
         <button disabled={!running} onClick={onAdvance}>
           {t("sequence.nextCue")}
+        </button>
+        <button disabled={!running} onClick={onFail}>
+          {t("sequence.failCue")}
         </button>
         <button onClick={exportShow}>{t("sequence.export")}</button>
         <label className="show-import">
@@ -366,40 +371,36 @@ export function SequenceEditor({
                   />
                 </label>
               )}
-              {config.workspace === "rehearsal" && (
-                <>
-                  <label>
-                    {t("sequence.timeout")}
-                    <input
-                      aria-label={t("sequence.timeoutAria")}
-                      type="number"
-                      min={0}
-                      value={item.timeout}
-                      onChange={(e) =>
-                        set({ timeout: Math.max(0, +e.target.value) })
-                      }
-                    />
-                  </label>
-                  <label>
-                    {t("sequence.onFail")}
-                    <select
-                      aria-label={t("sequence.onFailAria")}
-                      value={item.onFail}
-                      onChange={(e) => set({ onFail: e.target.value })}
-                    >
-                      <option value="">{t("sequence.endSequence")}</option>
-                      <option value="end">{t("sequence.endSequence")}</option>
-                      {show.steps
-                        .filter((s) => s.id !== item.id)
-                        .map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
-                </>
-              )}
+              <label>
+                {t("sequence.timeout")}
+                <input
+                  aria-label={t("sequence.timeoutAria")}
+                  type="number"
+                  min={0}
+                  value={item.timeout}
+                  onChange={(e) =>
+                    set({ timeout: Math.max(0, +e.target.value) })
+                  }
+                />
+              </label>
+              <label>
+                {t("sequence.onFail")}
+                <select
+                  aria-label={t("sequence.onFailAria")}
+                  value={item.onFail}
+                  onChange={(e) => set({ onFail: e.target.value })}
+                >
+                  <option value="">{t("sequence.endSequence")}</option>
+                  <option value="end">{t("sequence.endSequence")}</option>
+                  {show.steps
+                    .filter((s) => s.id !== item.id)
+                    .map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
               <label>
                 {t("sequence.link")}
                 <select

@@ -303,7 +303,7 @@ function NodeFields({
     workflow.variables.find((variable) => variable.id === id);
   switch (node.type) {
     case "start":
-      return null;
+      return <p className="builder-hint">{t("builder.startHint")}</p>;
     case "end":
       return (
         <label>

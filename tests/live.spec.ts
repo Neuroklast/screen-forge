@@ -79,6 +79,12 @@ test("intranet records require retrieval and diagnostics return results", async 
   );
   await advance(page, 7);
   await expect(page.locator(".corp-record")).toContainText("Research director");
+  const recordBox = await page.locator(".corp-record").boundingBox();
+  const stageBox = await page.locator(".scene-inner").boundingBox();
+  expect(recordBox && stageBox).toBeTruthy();
+  expect(recordBox!.y + recordBox!.height).toBeLessThanOrEqual(
+    stageBox!.y + stageBox!.height + 1,
+  );
   await page.getByRole("button", { name: "Close record" }).click();
   await page
     .locator(".corp-nav")

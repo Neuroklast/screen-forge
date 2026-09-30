@@ -7,6 +7,7 @@
 
 ## Recent fixes
 
+- **Demo mode (D1–D7):** `/?demo=1` / `?mode=demo` opens an offline showcase hub with a JSON-defined 7-stop guided tour, bundled seed content, sandbox reset, kiosk idle restart with a presenter PIN, and a `DEMO — FIKTIV` watermark; it never mounts the exercise provider, so no `/exercise` WebSocket is opened (`src/demo/DemoHub.tsx`, `src/demo/Tour.tsx`, `src/demo/tour.json`, `src/core/demoContent.ts`, `src/main.tsx`, `src/views/StartPage.tsx`, `tests/demo.spec.ts`).
 - **Functional scene rename (I10):** the scene and module id `corporate` is now `intranet` (brand comes from the theme/profile); config and scenario migrations map the old id, and the CSS family class, templates, presets, builder, i18n and docs follow (`src/core/config.ts`, `src/core/training.ts`, `src/scenes/Scenes.tsx`, `src/scenes/corporate.css`, `presets/intranet.json`). The `dashboard`/`database` split remains undefined pending a concept decision.
 - **Task-driven surface catalog (I9b-2d):** `datasheet`, `timer`, `countdown`, `message-viewer` and `file-browser` are now workflow tasks with field surfaces; the `datasheet` scene and surface share `DataSheetControl`, the OS Messages app and the message surface share `MessageViewer`, and the `lines` UI control lets the builder edit string lists. Deviation: the OS archive pane (`OperatingSystem.tsx`) keeps its own file list for now; the shared `FileBrowser` is used by the task surface and the OS pane migration is tracked (`src/scenes/blocks/controls.tsx`, `src/core/taskBlocks.ts`, `src/scenes/workflow/Surfaces.tsx`, `src/components/MessageViewer.tsx`, `src/components/FileBrowser.tsx`, `src/scenes/os/Messages.tsx`).
 - **Task-driven widget surfaces (I9b-2c):** `rotary` and `code-table` are now workflow tasks (`dial`, `code-table`) with field surfaces; the studio scene and the workflow surface render the same `RotaryControl`/`CodeTableControl` (one implementation per capability), and the graph editor exposes them (`src/scenes/blocks/controls.tsx`, `src/scenes/blocks/Instruments.tsx`, `src/core/taskBlocks.ts`, `src/scenes/workflow/Surfaces.tsx`, `src/core/workflowEdit.ts`).
@@ -55,7 +56,7 @@ The rows above predate several phases and are partially stale; a full refresh is
 | # | Area | Soll | Ist | Action |
 | --- | --- | --- | --- | --- |
 | 1 | Start page & mode entry | 3 mode cards, resume, roles, depth toggle | `/` is the studio; no start page (`src/main.tsx`) | new |
-| 2 | Demo mode | Offline tour, sandbox, kiosk | No `demo` anywhere in code | new |
+| 2 | Demo mode | Offline tour, sandbox, kiosk | Implemented: `/?demo=1` / `?mode=demo` hub, bundled seed, 7-stop guided tour (`tour.json`), sandbox reset, kiosk idle restart + presenter PIN, offline guard (no `/exercise` socket), `DEMO — FIKTIV` watermark (`src/demo/**`, `src/core/demoContent.ts`) | keep |
 | 3 | Guided/Advanced depth | Orthogonal depth level, switchable | Only the 5-step wizard; no advanced/guided concept (`ScenarioWizard.tsx`) | refactor |
 | 4 | Mission builder (drag & drop) | Palette + board + inspector, touch | Form fieldsets only; DnD only in film `SequenceEditor.tsx` | new |
 | 5 | Devices 1..n | 0 allowed while building, ≥1 to start | Schema min 0, max 40 (`training.ts:243`); server rejects `play` below 1 station (`server/exercise.mjs`) | refactor |

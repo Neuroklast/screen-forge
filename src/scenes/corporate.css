@@ -9,7 +9,7 @@
   color-scheme: light;
   font-family: "JetBrains Mono", monospace;
 }
-.family-corporate .corporate {
+.family-intranet .corporate {
   padding: var(--sf-space-28px) var(--sf-space-36px) var(--sf-space-22px);
   background-image: radial-gradient(
     ellipse at 95% 0%,
@@ -17,78 +17,79 @@
     transparent 55%
   );
 }
-.family-corporate .scene-header {
+.family-intranet .scene-header {
   border-bottom: var(--sf-stroke-2px) solid var(--corp-ink);
   padding-bottom: var(--sf-space-22px);
   min-height: var(--sf-layout-100px);
 }
-.family-corporate .scene-brand {
+.family-intranet .scene-brand {
   gap: var(--sf-space-18px);
 }
-.family-corporate .brand-mark {
+.family-intranet .brand-mark {
   width: var(--sf-layout-58px);
   height: var(--sf-layout-58px);
   flex-shrink: 0;
 }
-.family-corporate .brand-mark svg {
+.family-intranet .brand-mark svg {
   display: block;
   width: 100%;
   height: 100%;
 }
-.family-corporate .scene-brand strong {
+.family-intranet .scene-brand strong {
   font-size: var(--sf-type-35px);
   font-weight: var(--sf-font-weight-700);
   letter-spacing: var(--sf-type-1-5px);
   line-height: 1.05;
 }
-.family-corporate .scene-brand .micro {
+.family-intranet .scene-brand .micro {
   font-size: var(--sf-type-9px);
   font-weight: var(--sf-font-weight-500);
   letter-spacing: var(--sf-type-2px);
   margin-top: var(--sf-space-9px);
   color: var(--corp-muted);
 }
-.family-corporate .micro {
+.family-intranet .micro {
   opacity: var(--sf-opacity-1);
   font-size: var(--sf-type-9px);
   font-weight: var(--sf-font-weight-500);
   letter-spacing: var(--sf-type-1-4px);
 }
-.family-corporate .header-status {
+.family-intranet .header-status {
   border: var(--sf-stroke-2px) solid var(--corp-ink);
   padding: var(--sf-space-10px) var(--sf-space-14px);
   font-size: var(--sf-type-9px);
   line-height: 1.4;
   min-width: var(--sf-layout-206px);
 }
-.family-corporate .header-status .status-dot {
+.family-intranet .header-status .status-dot {
   border-radius: 0;
   width: var(--sf-layout-6px);
   height: var(--sf-layout-6px);
   background: var(--accent);
 }
-.family-corporate .header-status small {
+.family-intranet .header-status small {
   opacity: var(--sf-opacity-1);
   color: var(--corp-muted);
   font-size: var(--sf-type-8px);
   margin-top: var(--sf-space-5px);
 }
-.family-corporate .corp-layout {
+.family-intranet .corp-layout {
   grid-template-columns: var(--sf-layout-183px) minmax(0, 1fr);
   gap: var(--sf-space-32px);
   padding: var(--sf-space-26px) 0 var(--sf-space-23px);
+  flex: 1;
   min-height: 0;
 }
-.family-corporate .corp-nav {
+.family-intranet .corp-nav {
   border-right: var(--sf-stroke-2px) solid var(--corp-ink);
   padding-right: var(--sf-space-22px);
 }
-.family-corporate .corp-nav > .micro {
+.family-intranet .corp-nav > .micro {
   color: var(--corp-muted);
   margin: 0 0 var(--sf-space-15px);
   font-size: var(--sf-type-8px);
 }
-.family-corporate .corp-nav > button {
+.family-intranet .corp-nav > button {
   min-height: var(--sf-layout-48px);
   padding: var(--sf-space-14px) var(--sf-space-9px);
   gap: var(--sf-space-12px);
@@ -100,33 +101,33 @@
   text-transform: uppercase;
   letter-spacing: var(--sf-type-0-5px);
 }
-.family-corporate .corp-nav > button span {
+.family-intranet .corp-nav > button span {
   font:
     var(--sf-type-9px) "JetBrains Mono",
     monospace;
   color: var(--corp-muted);
   opacity: var(--sf-opacity-1);
 }
-.family-corporate .corp-nav > button:hover {
+.family-intranet .corp-nav > button:hover {
   background: color-mix(in srgb, var(--corp-ink) 10%, var(--scene-bg));
 }
-.family-corporate .corp-nav > button.selected {
+.family-intranet .corp-nav > button.selected {
   color: var(--scene-bg);
   background: var(--corp-ink);
   border-left: var(--sf-stroke-4px) solid var(--accent);
   padding-left: var(--sf-space-5px);
 }
-.family-corporate .corp-nav > button.selected span {
+.family-intranet .corp-nav > button.selected span {
   color: color-mix(in srgb, var(--scene-bg) 75%, var(--corp-ink));
 }
-.family-corporate .corp-seal {
+.family-intranet .corp-seal {
   opacity: var(--sf-opacity-1);
   margin-top: var(--sf-space-47px);
   border: var(--sf-stroke-1px) solid var(--corp-ink);
   padding: var(--sf-space-17px) var(--sf-space-12px);
   position: relative;
 }
-.family-corporate .corp-seal::after {
+.family-intranet .corp-seal::after {
   content: "LEVEL / 04";
   position: absolute;
   right: var(--sf-layout-8px);
@@ -136,51 +137,51 @@
   font-size: var(--sf-type-7px);
   letter-spacing: var(--sf-type-1px);
 }
-.family-corporate .corp-seal svg {
+.family-intranet .corp-seal svg {
   color: var(--accent);
   stroke-width: 1;
 }
-.family-corporate .corp-seal > span {
+.family-intranet .corp-seal > span {
   color: var(--corp-muted);
   font-size: var(--sf-type-8px);
 }
-.family-corporate .corp-seal .micro {
+.family-intranet .corp-seal .micro {
   font-size: var(--sf-type-7px);
   margin-top: var(--sf-space-11px);
 }
-.family-corporate .section-heading {
+.family-intranet .section-heading {
   align-items: flex-start;
 }
-.family-corporate .section-heading > svg {
+.family-intranet .section-heading > svg {
   color: var(--accent);
   margin-top: var(--sf-space-11px);
   width: var(--sf-layout-35px);
   height: var(--sf-layout-35px);
   stroke-width: 1.5;
 }
-.family-corporate .section-heading .micro {
+.family-intranet .section-heading .micro {
   color: var(--accent);
 }
-.family-corporate .corp-main h2 {
+.family-intranet .corp-main h2 {
   font-size: var(--sf-type-43px);
   line-height: 1.08;
   font-weight: var(--sf-font-weight-700);
   letter-spacing: var(--sf-type-1-8px);
   margin: var(--sf-space-11px) 0 var(--sf-space-26px);
 }
-.family-corporate .corp-metrics {
+.family-intranet .corp-metrics {
   gap: var(--sf-space-15px);
   margin-bottom: var(--sf-space-28px);
   grid-template-columns: 1.2fr 1fr 1fr;
 }
-.family-corporate .corp-metrics > div {
+.family-intranet .corp-metrics > div {
   border: var(--sf-stroke-2px) solid var(--corp-ink);
   position: relative;
   padding: var(--sf-space-18px) var(--sf-space-18px) var(--sf-space-16px);
   background: var(--corp-card, var(--theme-surface));
 }
-.family-corporate .corp-metrics > div::before,
-.family-corporate .corp-panels > section::before {
+.family-intranet .corp-metrics > div::before,
+.family-intranet .corp-panels > section::before {
   content: "";
   position: absolute;
   pointer-events: none;
@@ -191,8 +192,8 @@
   border-left: var(--sf-stroke-2px) solid var(--corp-ink);
   border-top: var(--sf-stroke-2px) solid var(--corp-ink);
 }
-.family-corporate .corp-metrics > div::after,
-.family-corporate .corp-panels > section::after {
+.family-intranet .corp-metrics > div::after,
+.family-intranet .corp-panels > section::after {
   content: "";
   position: absolute;
   pointer-events: none;
@@ -203,34 +204,34 @@
   border-right: var(--sf-stroke-2px) solid var(--corp-ink);
   border-bottom: var(--sf-stroke-2px) solid var(--corp-ink);
 }
-.family-corporate .corp-metrics .micro {
+.family-intranet .corp-metrics .micro {
   font-size: var(--sf-type-8px);
   letter-spacing: var(--sf-type-1px);
   color: var(--corp-muted);
 }
-.family-corporate .corp-metrics strong {
+.family-intranet .corp-metrics strong {
   font-size: var(--sf-type-29px);
   font-weight: var(--sf-font-weight-600);
   letter-spacing: var(--sf-type-1-3px);
   margin: var(--sf-space-8px) 0 var(--sf-space-10px);
 }
-.family-corporate .thin-line {
+.family-intranet .thin-line {
   opacity: var(--sf-opacity-1);
   height: var(--sf-layout-3px);
   width: var(--sf-layout-25px);
   background: var(--accent);
 }
-.family-corporate .corp-panels {
+.family-intranet .corp-panels {
   gap: var(--sf-space-23px);
   grid-template-columns: 1.4fr 1fr;
 }
-.family-corporate .corp-panels section {
+.family-intranet .corp-panels section {
   border: var(--sf-stroke-1px) solid var(--corp-ink);
   background: var(--corp-card, var(--theme-surface));
   padding: var(--sf-space-17px);
   position: relative;
 }
-.family-corporate .corp-panels section > .micro {
+.family-intranet .corp-panels section > .micro {
   display: inline-block;
   background: var(--corp-card, var(--theme-surface));
   padding: 0 var(--sf-space-7px);
@@ -240,7 +241,7 @@
   font-size: var(--sf-type-8px);
   letter-spacing: var(--sf-type-1-2px);
 }
-.family-corporate .wave {
+.family-intranet .wave {
   color: var(--accent);
   opacity: var(--sf-opacity-1);
   height: var(--sf-layout-78px);
@@ -250,26 +251,26 @@
     linear-gradient(var(--sf-layout-90deg), var(--sf-color-1515150c) var(--sf-layout-1px), transparent var(--sf-layout-1px));
   background-size: var(--sf-layout-24px) var(--sf-layout-20px);
 }
-.family-corporate .wave path {
+.family-intranet .wave path {
   stroke-width: var(--sf-layout-1-8px);
 }
-.family-corporate .between {
+.family-intranet .between {
   font-size: var(--sf-type-8px);
   letter-spacing: var(--sf-type-0-5px);
 }
-.family-corporate .corp-panels h3 {
+.family-intranet .corp-panels h3 {
   font-weight: var(--sf-font-weight-600);
   font-size: var(--sf-type-22px);
   letter-spacing: var(--sf-type-0-6px);
   margin: var(--sf-space-9px) 0 var(--sf-space-8px);
 }
-.family-corporate .corp-panels p {
+.family-intranet .corp-panels p {
   color: var(--corp-muted);
   opacity: var(--sf-opacity-1);
   font-size: var(--sf-type-9px);
   line-height: 1.5;
 }
-.family-corporate .scene-button {
+.family-intranet .scene-button {
   background: var(--corp-ink);
   color: var(--scene-bg);
   border: var(--sf-stroke-2px) solid var(--corp-ink);
@@ -281,36 +282,36 @@
   min-height: var(--sf-layout-38px);
   margin-top: var(--sf-space-5px);
 }
-.family-corporate .scene-button:hover {
+.family-intranet .scene-button:hover {
   background: var(--accent);
   border-color: var(--accent);
 }
-.family-corporate button:focus-visible,
-.family-corporate input:focus-visible {
+.family-intranet button:focus-visible,
+.family-intranet input:focus-visible {
   outline-color: var(--accent);
 }
-.family-corporate .event-table {
+.family-intranet .event-table {
   margin-top: var(--sf-space-26px);
 }
-.family-corporate .event-table > .micro {
+.family-intranet .event-table > .micro {
   border-bottom: var(--sf-stroke-2px) solid var(--corp-ink);
   padding-bottom: var(--sf-space-7px);
   font-size: var(--sf-type-8px);
 }
-.family-corporate .event-table > div:not(.micro) {
+.family-intranet .event-table > div:not(.micro) {
   border-bottom: var(--sf-stroke-1px) solid var(--corp-line);
   font-size: var(--sf-type-9px);
   padding: var(--sf-space-9px) 0;
 }
-.family-corporate .event-table time {
+.family-intranet .event-table time {
   color: var(--corp-muted);
   opacity: var(--sf-opacity-1);
 }
-.family-corporate .event-table b {
+.family-intranet .event-table b {
   font-size: var(--sf-type-8px);
   color: var(--corp-muted);
 }
-.family-corporate .scene-footer {
+.family-intranet .scene-footer {
   border-top: var(--sf-stroke-2px) solid var(--corp-ink);
   font-size: var(--sf-type-8px);
   letter-spacing: var(--sf-type-1px);
@@ -318,26 +319,26 @@
   opacity: var(--sf-opacity-1);
   color: var(--corp-muted);
 }
-.family-corporate .directory input {
+.family-intranet .directory input {
   color: var(--corp-ink);
   border: var(--sf-stroke-2px) solid var(--corp-ink);
   background: var(--corp-card, var(--theme-surface));
   border-radius: 0;
 }
-.family-corporate .directory > button {
+.family-intranet .directory > button {
   border-bottom: var(--sf-stroke-1px) solid var(--corp-line);
   font-size: var(--sf-type-11px);
   color: var(--corp-ink);
 }
-.family-corporate .directory > button:hover {
+.family-intranet .directory > button:hover {
   background: color-mix(in srgb, var(--corp-ink) 10%, var(--scene-bg));
 }
-.family-corporate .directory > button span {
+.family-intranet .directory > button span {
   opacity: var(--sf-opacity-1);
   color: var(--corp-muted);
   font-size: var(--sf-type-8px);
 }
-.family-corporate .display-texture {
+.family-intranet .display-texture {
   background: repeating-linear-gradient(
     var(--sf-layout-0deg),
     transparent 0,
@@ -345,10 +346,10 @@
     var(--sf-color-16161624) var(--sf-layout-4px)
   );
 }
-.family-corporate.mood-tense .scene-header {
+.family-intranet.mood-tense .scene-header {
   border-bottom-color: var(--accent);
 }
-.family-corporate.mood-damaged .scene-inner {
+.family-intranet.mood-damaged .scene-inner {
   filter: contrast(1.03);
 }
 .scene-thumbnail.thumb-corporate {

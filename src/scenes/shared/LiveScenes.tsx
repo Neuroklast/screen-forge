@@ -152,6 +152,7 @@ export function Corporate(props: SceneProps) {
           <AnimatePresence mode="wait">
             <motion.div
               key={tab}
+              className="corp-view"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
@@ -313,7 +314,9 @@ export function Corporate(props: SceneProps) {
                       )}
                     </>
                   )}
-                  <ProcessReadout process={process} />
+                  {!(record && process.done) && (
+                    <ProcessReadout process={process} />
+                  )}
                   {record && process.done && (
                     <motion.article
                       className="corp-record"

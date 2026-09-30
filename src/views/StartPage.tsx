@@ -142,11 +142,14 @@ export function StartPage() {
           <span>{t("start.trainingDesc")}</span>
           <span className="mode-action">{t("start.open")}</span>
         </button>
-        <button className="mode-card is-disabled" disabled aria-disabled="true">
+        <button
+          className="mode-card"
+          onClick={() => open("/?demo=1", "demo")}
+        >
           <span className="mode-code">03</span>
           <strong>{t("start.demo")}</strong>
           <span>{t("start.demoDesc")}</span>
-          <span className="mode-action">{t("start.demoSoon")}</span>
+          <span className="mode-action">{t("start.open")}</span>
         </button>
       </section>
 

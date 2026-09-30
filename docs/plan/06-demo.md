@@ -29,10 +29,10 @@ An offline showcase mode that runs in five minutes without setup: seeded content
 
 ## Acceptance criteria
 
-- [ ] Given no network, all 7 tour stops work end-to-end.
-- [ ] Given `?demo=1` with a running server, no `/exercise` WebSocket is opened.
-- [ ] Given kiosk demo idle for 90 s, the tour restarts at stop 1.
-- [ ] Given sandbox edits, reset restores the seeded content exactly.
+- [x] Given no network, all 7 tour stops work end-to-end.
+- [x] Given `?demo=1` with a running server, no `/exercise` WebSocket is opened.
+- [x] Given kiosk demo idle for 90 s, the tour restarts at stop 1.
+- [x] Given sandbox edits, reset restores the seeded content exactly.
 - [ ] Given WebGL/media failure, the affected stop is skipped with a notice.
 
 ## Tests

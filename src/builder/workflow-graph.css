@@ -29,8 +29,11 @@
 }
 
 .wf-board .react-flow__edge-text {
-  fill: #8a9aa2;
+  fill: #cbd7e0;
   font-size: 10px;
+}
+.wf-board .react-flow__edge-textbg {
+  fill: #0e171f;
 }
 
 .wf-board .react-flow__controls button {

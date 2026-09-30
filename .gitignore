@@ -8,6 +8,10 @@ screen-forge/
 
 .exercise-data/
 
+# Generated understand-anything artifacts (knowledge/domain graphs)
+.ua/
+.understand-anything/
+
 # Local media masters and served example media (packaging decision: plan task X2)
 secret data/
 public/media/

@@ -1,0 +1,263 @@
+/* Demo showcase shell (concept 10-demo). Offline only; no server chrome. */
+.demo-app {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  width: 100vw;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #070b10;
+  color: #e4ecf3;
+  font:
+    15px/1.5 Inter,
+    system-ui,
+    sans-serif;
+}
+.demo-app * {
+  box-sizing: border-box;
+}
+.demo-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #2b3947;
+  background: #0c1117;
+}
+.demo-watermark {
+  font:
+    700 15px "IBM Plex Mono",
+    monospace;
+  letter-spacing: 0.22em;
+  color: #f0c674;
+}
+.demo-kiosk {
+  font:
+    11px "IBM Plex Mono",
+    monospace;
+  letter-spacing: 0.18em;
+  color: #f36c75;
+  border: 1px solid #f36c75;
+  padding: 2px 8px;
+}
+.demo-controls {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+.demo-app button {
+  font: inherit;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #2b3947;
+  border-radius: 0;
+  background: #111a24;
+  color: #e4ecf3;
+  cursor: pointer;
+}
+.demo-app button:hover:not(:disabled) {
+  border-color: #86d9c1;
+}
+.demo-app button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.demo-app button.primary {
+  background: #86d9c1;
+  border-color: #86d9c1;
+  color: #0c2620;
+  font-weight: 700;
+}
+.demo-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+.demo-stage .role-stage {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+/* Builder stops: the canvas fills the stage; the rails scroll internally. */
+.demo-stage[data-view="build"] .builder,
+.demo-stage[data-view="sandbox"] .builder {
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+}
+.demo-stage[data-view="build"] .builder-flow,
+.demo-stage[data-view="sandbox"] .builder-flow {
+  height: 100%;
+  min-height: 0;
+  align-items: stretch;
+}
+.demo-stage[data-view="build"] .builder-palette,
+.demo-stage[data-view="build"] .builder-inspector,
+.demo-stage[data-view="sandbox"] .builder-palette,
+.demo-stage[data-view="sandbox"] .builder-inspector {
+  min-height: 0;
+  max-height: 100%;
+  overflow: auto;
+  scrollbar-width: none;
+}
+.demo-stage[data-view="build"] .builder-board,
+.demo-stage[data-view="sandbox"] .builder-board,
+.demo-stage[data-view="build"] .wf-board,
+.demo-stage[data-view="sandbox"] .wf-board {
+  height: 100%;
+  min-height: 0;
+}
+.demo-film {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+}
+.demo-film-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  border-top: 1px solid #2b3947;
+  background: #0c1117;
+  font:
+    12px "IBM Plex Mono",
+    monospace;
+}
+.demo-panel {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 22px;
+}
+.demo-panel h2 {
+  font-size: 24px;
+  margin: 0 0 18px;
+}
+.demo-inject-list,
+.demo-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.demo-inject-list li,
+.demo-log li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid #2b3947;
+  background: #0c1117;
+}
+.demo-inject-list small {
+  color: #9bafbe;
+  margin-left: auto;
+}
+.demo-log time {
+  font-family: "IBM Plex Mono", monospace;
+  color: #86d9c1;
+  min-width: 56px;
+}
+.demo-empty {
+  color: #9bafbe;
+}
+.demo-tour {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+  padding: 12px 18px;
+  border-top: 1px solid #86d9c1;
+  background: #0c1117;
+}
+.demo-tour-progress {
+  display: flex;
+  gap: 6px;
+}
+.demo-tour-progress button {
+  min-height: 44px;
+  min-width: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.demo-tour-progress button::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 4px;
+  background: #2b3947;
+}
+.demo-tour-progress button.done::after {
+  background: #4f6570;
+}
+.demo-tour-progress button.on::after {
+  background: #86d9c1;
+}
+.demo-tour-text {
+  min-width: 0;
+}
+.demo-tour-text strong {
+  display: block;
+  font-size: 16px;
+}
+.demo-tour-text p {
+  margin: 2px 0 0;
+  color: #cbd7e0;
+  font-size: 13px;
+}
+.demo-tour-step {
+  font:
+    11px "IBM Plex Mono",
+    monospace;
+  letter-spacing: 0.14em;
+  color: #9bafbe;
+}
+.demo-tour-actions {
+  display: flex;
+  gap: 8px;
+}
+.demo-notice {
+  position: absolute;
+  right: 20px;
+  top: 64px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #f0c674;
+  background: #302a20;
+  z-index: var(--sf-z-critical);
+}
+.demo-notice button {
+  margin-left: 12px;
+  min-height: 32px;
+}
+.demo-pin {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(340px, 90%);
+  height: fit-content;
+  padding: 24px;
+  border: 1px solid #86d9c1;
+  background: #0c1117;
+  z-index: var(--sf-z-critical);
+}
+.demo-pin label {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #9bafbe;
+}
+.demo-pin input {
+  font: inherit;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #2b3947;
+  background: #111a24;
+  color: #e4ecf3;
+}

@@ -1488,7 +1488,11 @@
   position: absolute;
   inset: 0;
   z-index: var(--sf-z-panel);
-  background: radial-gradient(ellipse at 70% 40%, var(--sf-color-172333), var(--sf-color-090d14) 65%);
+  background: radial-gradient(
+    ellipse at 70% 40%,
+    color-mix(in srgb, var(--os-bg) 82%, var(--os-cyan)),
+    var(--os-bg) 65%
+  );
   padding: var(--sf-space-30px) var(--sf-space-38px);
   display: flex;
   flex-direction: column;

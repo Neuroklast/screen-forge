@@ -1,0 +1,44 @@
+[
+  {
+    "id": "film",
+    "title": "Film & TV",
+    "body": "Szenen, Abläufe und Bühnenausgabe — die Show läuft offline.",
+    "view": "film"
+  },
+  {
+    "id": "build",
+    "title": "Einsatz bauen",
+    "body": "Die EOD-Mission im Baukasten: Geräte, Ziele und Ablauf.",
+    "view": "build"
+  },
+  {
+    "id": "field",
+    "title": "Feldgerät",
+    "body": "Operator-Oberfläche für Tablet — ein Fokus pro Aufgabe.",
+    "view": "field"
+  },
+  {
+    "id": "hq",
+    "title": "HQ",
+    "body": "Karte, Ziele und Geräte auf einen Blick.",
+    "view": "hq"
+  },
+  {
+    "id": "injects",
+    "title": "Injects",
+    "body": "Manuelle Ereignisse auslösen und im Log verfolgen.",
+    "view": "injects"
+  },
+  {
+    "id": "debrief",
+    "title": "Debrief",
+    "body": "Log und Zeitstrahl des Durchgangs.",
+    "view": "debrief"
+  },
+  {
+    "id": "sandbox",
+    "title": "Sandbox",
+    "body": "Freies Spiel im Baukasten — jederzeit zurücksetzen.",
+    "view": "sandbox"
+  }
+]
