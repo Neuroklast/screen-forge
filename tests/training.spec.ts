@@ -45,6 +45,16 @@ test('guided setup, one-time QR, diagnostic code, pause/reset and mobile layout'
     await device.screenshot({path:'test-results/terminal-mobile.png',fullPage:true});
   } finally { await ctx.close(); }
 });
+test('MEL timeline shows planned, rescheduled and actual entries with CSV export', async ({page}) => {
+  await login(page);
+  await page.getByRole('button',{name:'Übung starten',exact:true}).last().click();
+  await expect(page.getByRole('button',{name:'Pausieren',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Live-Steuerung',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'MEL-Zeitstrahl'})).toBeVisible();
+  await page.getByRole('button',{name:'+1 min'}).first().click();
+  await expect(page.locator('.mel-timeline')).toContainText('Verschoben');
+  await expect(page.getByRole('button',{name:'MEL exportieren (CSV)'})).toBeVisible();
+});
 test('dossiers synchronize and trainer patient changes reach the assigned monitor', async ({page,browser}) => {
   await login(page);
   const medic = await assign(page,browser,'Medic 01');

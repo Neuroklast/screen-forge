@@ -10,6 +10,7 @@ import { DossierEditor } from "../training/Dossiers";
 import { TacticalMap } from "../training/TacticalMap";
 import { PatientControl } from "../training/PatientControl";
 import { TemplateGallery } from "../training/TemplateGallery";
+import { MelTimeline } from "../training/MelTimeline";
 import { briefingFilename, missionBriefing } from "../core/briefing";
 import "../training/roles.css";
 export function TrainerView({ room }: { room: string }) {
@@ -517,6 +518,29 @@ export function TrainerView({ room }: { room: string }) {
                       >
                         {r.enabled ? "Deaktivieren" : "Aktivieren"}
                       </button>
+                      {[-300, -60, 60, 300].map((delta) => (
+                        <button
+                          key={delta}
+                          disabled={
+                            !ex.online ||
+                            ex.state.frozen ||
+                            ex.state.fired.includes(r.id)
+                          }
+                          onClick={() =>
+                            ex.send({
+                              type: "reschedule",
+                              inject: r.id,
+                              to: Math.max(
+                                0,
+                                dueAt(r, ex.state.scenario.seed) + delta,
+                              ),
+                              reason: "live",
+                            })
+                          }
+                        >
+                          {delta > 0 ? `+${delta / 60}` : delta / 60} min
+                        </button>
+                      ))}
                     </li>
                   ))}
                 </ul>
@@ -561,6 +585,7 @@ export function TrainerView({ room }: { room: string }) {
                     ))}
                 </div>
               </section>
+              <MelTimeline state={ex.state} />
               <section className="panel">
                 <h2>Meldung senden</h2>
                 <div className="message-compose">

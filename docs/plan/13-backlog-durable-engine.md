@@ -6,9 +6,9 @@
 
 ## Progress
 
-- Done: E1–E8; E9 timeline/replay; E10 task-block registry; E11/E12 mission templates; E13 profiles; E14 doctrine packs; E15 symbology; E16 map adapter (spike pending hardware).
+- Done: E1–E8; E9 timeline/replay + MEL panel & CSV in the trainer UI; E10 task-block registry (core); E11/E12 mission templates (core); E13 profiles; E14 doctrine packs; E15 symbology; E16 map adapter (spike pending hardware).
 - Doing: —
-- Open: E17 (optional desktop dependency graph — deferred).
+- Open: E10 builder generation from the registry, E11 wizard template picker, E17 optional graph (deferred).
 
 ## Wave 1 — Critical
 
