@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTraining } from "../core/useExercise";
+import { t } from "../i18n";
 import "../training/roles.css";
 
 export function SafetyView({ room }: { room: string }) {
@@ -9,42 +10,40 @@ export function SafetyView({ room }: { room: string }) {
   return (
     <main className="training-app">
       <header className="field-header">
-        <b>Sicherheit · {room}</b>
+        <b>{t("safety.title", { room })}</b>
         <span>
-          {ex.online ? "verbunden" : "offline"} · {ex.state.phase}
+          {t(ex.online ? "common.connected" : "common.offline")} ·{" "}
+          {ex.state.phase}
         </span>
       </header>
       {aborted && (
         <div className="abort-banner" role="alert">
-          ÜBUNG ABGEBROCHEN
+          {t("common.aborted")}
         </div>
       )}
       <section className="panel">
-        <h2>Abbruch</h2>
-        <p>
-          Sofortiger Übungsabbruch, unabhängig von der Übungsleitung. Kein
-          Bestätigungsdialog.
-        </p>
+        <h2>{t("safety.abortTitle")}</h2>
+        <p>{t("safety.abortText")}</p>
         <div className="button-row">
           <button
             className="danger"
             disabled={!ex.online || aborted}
             onClick={() => ex.send({ type: "abort" })}
           >
-            Übung abbrechen
+            {t("safety.abort")}
           </button>
           <button
             disabled={!ex.online || ex.state.frozen || aborted}
             onClick={() => ex.send({ type: "transport", command: "pause" })}
           >
-            Pause
+            {t("safety.pause")}
           </button>
         </div>
       </section>
       <section className="panel">
-        <h2>Notiz</h2>
+        <h2>{t("common.note")}</h2>
         <textarea
-          aria-label="Sicherheitsnotiz"
+          aria-label={t("safety.noteLabel")}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
@@ -55,19 +54,22 @@ export function SafetyView({ room }: { room: string }) {
             setText("");
           }}
         >
-          Notiz speichern
+          {t("common.saveNote")}
         </button>
       </section>
       <section className="panel">
-        <h2>Status</h2>
+        <h2>{t("safety.status")}</h2>
         <p>
-          {ex.state.scenario.stations.length} Geräte ·{" "}
-          {ex.state.scenario.patients.length} Patienten · Phase {ex.state.phase}
+          {t("safety.statusLine", {
+            stations: ex.state.scenario.stations.length,
+            patients: ex.state.scenario.patients.length,
+            phase: ex.state.phase,
+          })}
         </p>
         <ul className="presence-list">
           {Object.entries(ex.state.presence).map(([id, p]) => (
             <li key={id}>
-              {id}: {p.online ? "online" : "offline"}
+              {id}: {t(p.online ? "common.connected" : "common.offline")}
             </li>
           ))}
         </ul>

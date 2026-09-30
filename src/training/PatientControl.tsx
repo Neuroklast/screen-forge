@@ -2,6 +2,7 @@ import { useState } from "react";
 import { kinds, vitalSchema, type TrainingPatient } from "../core/training";
 import { vitalsOf, type Vitals } from "../core/patient";
 import { useTraining } from "../core/useExercise";
+import { t } from "../i18n";
 export function PatientControl({ patient: p }: { patient: TrainingPatient }) {
   const ex = useTraining(),
     [draft, setDraft] = useState<TrainingPatient | null>(null),
@@ -14,9 +15,7 @@ export function PatientControl({ patient: p }: { patient: TrainingPatient }) {
   const save = () => {
     const result = vitalSchema.safeParse(v);
     if (!result.success || v.dia > v.sys) {
-      setError(
-        "Werte außerhalb des Bereichs oder diastolischer Druck größer als systolischer Druck.",
-      );
+      setError(t("patient.range"));
       return;
     }
     ex.send({ type: "patient", patient: current });
@@ -69,7 +68,7 @@ export function PatientControl({ patient: p }: { patient: TrainingPatient }) {
         ))}
       </div>
       <label>
-        Triage
+        {t("patient.triage")}
         <select
           value={current.triage}
           onChange={(e) =>
@@ -79,13 +78,13 @@ export function PatientControl({ patient: p }: { patient: TrainingPatient }) {
             })
           }
         >
-          {["green", "yellow", "red", "black"].map((t) => (
-            <option key={t}>{t}</option>
+          {["green", "yellow", "red", "black"].map((tri) => (
+            <option key={tri}>{tri}</option>
           ))}
         </select>
       </label>
       <label>
-        Befund
+        {t("patient.findings")}
         <textarea
           value={current.injuries}
           onChange={(e) => setDraft({ ...current, injuries: e.target.value })}
@@ -93,9 +92,9 @@ export function PatientControl({ patient: p }: { patient: TrainingPatient }) {
       </label>
       <div className="button-row">
         <button disabled={!draft || !ex.online} onClick={save}>
-          Werte übernehmen
+          {t("patient.apply")}
         </button>
-        <button onClick={() => setDraft(null)}>Verwerfen</button>
+        <button onClick={() => setDraft(null)}>{t("patient.discard")}</button>
       </div>
       {error && <p role="alert">{error}</p>}
     </section>

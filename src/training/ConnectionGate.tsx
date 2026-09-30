@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useTraining } from "../core/useExercise";
+import { t } from "../i18n";
 export function ConnectionGate({ children }: { children: ReactNode }) {
   const ex = useTraining(),
     [key, setKey] = useState(""),
@@ -10,12 +11,8 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
       <main className="training-app">
         <section className="training-login">
           <span className="eyebrow">SCREENFORGE / EXERCISE CONTROL</span>
-          <h1>{keyRole ? "Anmelden" : "Gerät zuweisen"}</h1>
-          <p>
-            {keyRole
-              ? "Den Trainer-Schlüssel zeigt das Serverfenster beim Start. Der Zugang gilt für diesen Browser-Tab."
-              : "QR-Code auf dem Trainerbildschirm mit der Systemkamera scannen und den Link öffnen. Alternativ den Zuweisungslink einfügen."}
-          </p>
+          <h1>{t(keyRole ? "gate.signIn" : "gate.assignDevice")}</h1>
+          <p>{t(keyRole ? "gate.signInHint" : "gate.assignHint")}</p>
           {ex.error && <p role="alert">{ex.error}</p>}
           {keyRole ? (
             <form
@@ -25,7 +22,7 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
               }}
             >
               <label>
-                Trainer-Schlüssel
+                {t("gate.trainerKey")}
                 <input
                   type="password"
                   autoComplete="off"
@@ -35,7 +32,7 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
                 />
               </label>
               <button className="primary" type="submit">
-                Verbinden
+                {t("gate.connect")}
               </button>
             </form>
           ) : (
@@ -51,12 +48,12 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
                     throw new Error();
                   location.assign(target.href);
                 } catch {
-                  ex.setError("Ungültiger Zuweisungslink für diesen Server.");
+                  ex.setError(t("gate.invalidLink"));
                 }
               }}
             >
               <label>
-                Zuweisungslink
+                {t("gate.assignLink")}
                 <input
                   type="url"
                   value={url}
@@ -64,24 +61,23 @@ export function ConnectionGate({ children }: { children: ReactNode }) {
                   required
                 />
               </label>
-              <button type="submit">Zuweisen</button>
+              <button type="submit">{t("gate.assign")}</button>
             </form>
           )}
-          <a href="/?mode=film">Filmstudio öffnen</a>
+          <a href="/?mode=film">{t("gate.openFilm")}</a>
         </section>
       </main>
     );
   return (
     <>
       <div className="connection-status" role="status">
-        {!ex.online &&
-          "Verbindung unterbrochen. Angezeigte Daten sind veraltet."}
+        {!ex.online && t("gate.disconnected")}
         {ex.error && (
           <span role="alert">
             {ex.error}
             <button
               onClick={() => ex.setError("")}
-              aria-label="Meldung schließen"
+              aria-label={t("gate.closeMessage")}
             >
               ×
             </button>

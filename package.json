@@ -10,6 +10,7 @@
     "test": "vitest run src/core && node --test server/*.test.mjs",
     "test:e2e": "playwright test",
     "check": "tsc --noEmit",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "check:layout": "node scripts/check-layout.mjs",
     "gen:sounds": "node scripts/gen-os-sounds.mjs"
   },

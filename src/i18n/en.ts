@@ -79,4 +79,68 @@ export const en: Record<string, string> = {
   "mel.planned": "Planned",
   "mel.rescheduled": "Rescheduled",
   "mel.actual": "Actual",
+
+  "common.aborted": "EXERCISE ABORTED",
+  "common.connected": "connected",
+  "common.offline": "offline",
+  "common.connectedTitle": "Connected",
+  "common.offlineTitle": "Offline",
+  "common.saveNote": "Save note",
+  "common.note": "Note",
+
+  "safety.title": "Safety · {room}",
+  "safety.abortTitle": "Abort",
+  "safety.abortText":
+    "Immediate exercise abort, independent of exercise control. No confirmation dialog.",
+  "safety.abort": "Abort exercise",
+  "safety.pause": "Pause",
+  "safety.noteLabel": "Safety note",
+  "safety.status": "Status",
+  "safety.statusLine": "{stations} devices · {patients} patients · phase {phase}",
+
+  "assessor.title": "Assessor · {room}",
+  "assessor.timeline": "Timeline",
+  "assessor.noEntries": "No entries.",
+  "assessor.noteLabel": "Assessor note",
+  "assessor.notes": "Notes",
+  "assessor.noNotes": "No notes yet.",
+
+  "hq.situation": "Situation",
+  "hq.stations": "Stations",
+  "hq.completed": "Complete",
+  "hq.open": "Open",
+  "hq.log": "Exercise log",
+  "hq.messages": "Messages",
+
+  "gate.signIn": "Sign in",
+  "gate.assignDevice": "Assign device",
+  "gate.signInHint":
+    "The server window shows the trainer key on start. Access applies to this browser tab.",
+  "gate.assignHint":
+    "Scan the QR code on the trainer screen with the system camera and open the link. Alternatively paste the assignment link.",
+  "gate.trainerKey": "Trainer key",
+  "gate.connect": "Connect",
+  "gate.assignLink": "Assignment link",
+  "gate.assign": "Assign",
+  "gate.invalidLink": "Invalid assignment link for this server.",
+  "gate.openFilm": "Open film studio",
+  "gate.disconnected": "Connection lost. Displayed data is stale.",
+  "gate.closeMessage": "Dismiss message",
+
+  "gallery.title": "Templates",
+  "gallery.close": "Close",
+  "gallery.level": "Level",
+  "gallery.all": "all",
+  "gallery.maxDuration": "Max duration",
+  "gallery.any": "any",
+  "gallery.meta": "{count} devices · {duration} min · level {level}",
+  "gallery.load": "Load",
+  "gallery.empty": "No template matches the filters.",
+
+  "patient.findings": "Findings",
+  "patient.apply": "Apply values",
+  "patient.discard": "Discard",
+  "patient.range":
+    "Values out of range or diastolic pressure greater than systolic pressure.",
+  "patient.triage": "Triage",
 };

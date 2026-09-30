@@ -1,10 +1,11 @@
 import type { TrainingState } from "../core/training";
 import { buildTimeline, timelineCsv } from "../core/timeline";
+import { t } from "../i18n";
 
-const KIND_LABEL: Record<string, string> = {
-  planned: "Geplant",
-  rescheduled: "Verschoben",
-  actual: "Tatsächlich",
+const KIND_KEY: Record<string, string> = {
+  planned: "mel.planned",
+  rescheduled: "mel.rescheduled",
+  actual: "mel.actual",
 };
 
 export function MelTimeline({ state }: { state: TrainingState }) {
@@ -22,14 +23,14 @@ export function MelTimeline({ state }: { state: TrainingState }) {
   return (
     <section className="panel">
       <div className="button-row">
-        <h2>MEL-Zeitstrahl</h2>
-        <button onClick={download}>MEL exportieren (CSV)</button>
+        <h2>{t("mel.title")}</h2>
+        <button onClick={download}>{t("mel.export")}</button>
       </div>
       <ul className="event-log mel-timeline">
         {entries.map((entry, index) => (
           <li key={`${entry.kind}-${entry.injectId ?? index}-${entry.at}`}>
             <span>{entry.at.toFixed(0)} s</span>
-            <b>{KIND_LABEL[entry.kind] ?? entry.kind}</b>
+            <b>{t(KIND_KEY[entry.kind] ?? entry.kind)}</b>
             <span>{entry.label}</span>
           </li>
         ))}

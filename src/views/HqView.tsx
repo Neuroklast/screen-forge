@@ -4,6 +4,7 @@ import { CameraFeed } from "../training/CameraFeed";
 import { DossierCards } from "../training/Dossiers";
 import { DeviceTools } from "../training/DeviceTools";
 import { vitalsOf } from "../core/patient";
+import { t } from "../i18n";
 export function HqView({ room }: { room: string }) {
   const ex = useTraining();
   return (
@@ -14,25 +15,33 @@ export function HqView({ room }: { room: string }) {
           <h1>{ex.state.scenario.name}</h1>
         </div>
         <span>
-          {ex.online ? "Verbunden" : "Offline"} ·{" "}
-          {ex.state.frozen ? "PAUSIERT" : ex.state.scenario.mode}
+          {t(ex.online ? "common.connectedTitle" : "common.offlineTitle")} ·{" "}
+          {ex.state.frozen ? t("common.paused") : ex.state.scenario.mode}
         </span>
       </header>
       <div className="training-columns">
         <TacticalMap />
         <section className="panel">
-          <h2>Lageübersicht</h2>
+          <h2>{t("hq.situation")}</h2>
           {ex.state.scenario.objectives.map((o) => (
             <p key={o.id}>
-              {ex.state.completed.includes(o.id) ? "Abgeschlossen" : "Offen"}:{" "}
-              {o.name}
+              {t(
+                ex.state.completed.includes(o.id)
+                  ? "hq.completed"
+                  : "hq.open",
+              )}
+              : {o.name}
             </p>
           ))}
-          <h3>Stationen</h3>
+          <h3>{t("hq.stations")}</h3>
           {ex.state.scenario.stations.map((s) => (
             <p key={s.id}>
               {s.name} ·{" "}
-              {ex.state.presence[s.id]?.online ? "Verbunden" : "Offline"}
+              {t(
+                ex.state.presence[s.id]?.online
+                  ? "common.connectedTitle"
+                  : "common.offlineTitle",
+              )}
             </p>
           ))}
           {ex.state.scenario.patients.map((p) => {
@@ -63,7 +72,7 @@ export function HqView({ room }: { room: string }) {
       </div>
       <DossierCards dossiers={ex.state.scenario.dossiers} />
       <section className="panel">
-        <h2>Einsatzprotokoll</h2>
+        <h2>{t("hq.log")}</h2>
         <ol className="event-log">
           {ex.state.log
             .slice(-40)
@@ -78,7 +87,7 @@ export function HqView({ room }: { room: string }) {
       </section>
       {ex.state.messages.length > 0 && (
         <section className="panel">
-          <h2>Meldungen</h2>
+          <h2>{t("hq.messages")}</h2>
           <ul className="event-log">
             {ex.state.messages.slice(-8).map((m, i) => (
               <li key={i}>

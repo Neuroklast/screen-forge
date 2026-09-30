@@ -79,4 +79,70 @@ export const de: Record<string, string> = {
   "mel.planned": "Geplant",
   "mel.rescheduled": "Verschoben",
   "mel.actual": "Tatsächlich",
+
+  "common.aborted": "ÜBUNG ABGEBROCHEN",
+  "common.connected": "verbunden",
+  "common.offline": "offline",
+  "common.connectedTitle": "Verbunden",
+  "common.offlineTitle": "Offline",
+  "common.saveNote": "Notiz speichern",
+  "common.note": "Notiz",
+
+  "safety.title": "Sicherheit · {room}",
+  "safety.abortTitle": "Abbruch",
+  "safety.abortText":
+    "Sofortiger Übungsabbruch, unabhängig von der Übungsleitung. Kein Bestätigungsdialog.",
+  "safety.abort": "Übung abbrechen",
+  "safety.pause": "Pause",
+  "safety.noteLabel": "Sicherheitsnotiz",
+  "safety.status": "Status",
+  "safety.statusLine":
+    "{stations} Geräte · {patients} Patienten · Phase {phase}",
+
+  "assessor.title": "Beobachter · {room}",
+  "assessor.timeline": "Zeitstrahl",
+  "assessor.noEntries": "Keine Einträge.",
+  "assessor.noteLabel": "Beobachternotiz",
+  "assessor.notes": "Notizen",
+  "assessor.noNotes": "Noch keine Notizen.",
+
+  "hq.situation": "Lageübersicht",
+  "hq.stations": "Stationen",
+  "hq.completed": "Abgeschlossen",
+  "hq.open": "Offen",
+  "hq.log": "Einsatzprotokoll",
+  "hq.messages": "Meldungen",
+
+  "gate.signIn": "Anmelden",
+  "gate.assignDevice": "Gerät zuweisen",
+  "gate.signInHint":
+    "Den Trainer-Schlüssel zeigt das Serverfenster beim Start. Der Zugang gilt für diesen Browser-Tab.",
+  "gate.assignHint":
+    "QR-Code auf dem Trainerbildschirm mit der Systemkamera scannen und den Link öffnen. Alternativ den Zuweisungslink einfügen.",
+  "gate.trainerKey": "Trainer-Schlüssel",
+  "gate.connect": "Verbinden",
+  "gate.assignLink": "Zuweisungslink",
+  "gate.assign": "Zuweisen",
+  "gate.invalidLink": "Ungültiger Zuweisungslink für diesen Server.",
+  "gate.openFilm": "Filmstudio öffnen",
+  "gate.disconnected":
+    "Verbindung unterbrochen. Angezeigte Daten sind veraltet.",
+  "gate.closeMessage": "Meldung schließen",
+
+  "gallery.title": "Vorlagen",
+  "gallery.close": "Schließen",
+  "gallery.level": "Level",
+  "gallery.all": "alle",
+  "gallery.maxDuration": "Max. Dauer",
+  "gallery.any": "egal",
+  "gallery.meta": "{count} Geräte · {duration} min · Level {level}",
+  "gallery.load": "Laden",
+  "gallery.empty": "Keine Vorlage passt zu den Filtern.",
+
+  "patient.findings": "Befund",
+  "patient.apply": "Werte übernehmen",
+  "patient.discard": "Verwerfen",
+  "patient.range":
+    "Werte außerhalb des Bereichs oder diastolischer Druck größer als systolischer Druck.",
+  "patient.triage": "Triage",
 };

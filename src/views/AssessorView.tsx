@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTraining } from "../core/useExercise";
+import { t } from "../i18n";
 import "../training/roles.css";
 
 const clock = (at: number) =>
@@ -13,31 +14,32 @@ export function AssessorView({ room }: { room: string }) {
   return (
     <main className="training-app">
       <header className="field-header">
-        <b>Beobachter · {room}</b>
+        <b>{t("assessor.title", { room })}</b>
         <span>
-          {ex.online ? "verbunden" : "offline"} · {ex.state.phase}
+          {t(ex.online ? "common.connected" : "common.offline")} ·{" "}
+          {ex.state.phase}
         </span>
       </header>
       {ex.state.phase === "aborted" && (
         <div className="abort-banner" role="alert">
-          ÜBUNG ABGEBROCHEN
+          {t("common.aborted")}
         </div>
       )}
       <section className="panel">
-        <h2>Zeitstrahl</h2>
+        <h2>{t("assessor.timeline")}</h2>
         <ol className="timeline">
           {ex.state.log.slice(-80).map((entry, i) => (
             <li key={i}>
               <span>{clock(entry.at)}</span> {entry.message}
             </li>
           ))}
-          {!ex.state.log.length && <li>Keine Einträge.</li>}
+          {!ex.state.log.length && <li>{t("assessor.noEntries")}</li>}
         </ol>
       </section>
       <section className="panel">
-        <h2>Notiz</h2>
+        <h2>{t("common.note")}</h2>
         <textarea
-          aria-label="Beobachternotiz"
+          aria-label={t("assessor.noteLabel")}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
@@ -48,18 +50,18 @@ export function AssessorView({ room }: { room: string }) {
             setText("");
           }}
         >
-          Notiz speichern
+          {t("common.saveNote")}
         </button>
       </section>
       <section className="panel">
-        <h2>Notizen</h2>
+        <h2>{t("assessor.notes")}</h2>
         <ul className="note-list">
           {ex.state.notes.map((note, i) => (
             <li key={i}>
               <span>{clock(note.at)}</span> {note.role}: {note.text}
             </li>
           ))}
-          {!ex.state.notes.length && <li>Noch keine Notizen.</li>}
+          {!ex.state.notes.length && <li>{t("assessor.noNotes")}</li>}
         </ul>
       </section>
     </main>
