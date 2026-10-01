@@ -1,0 +1,130 @@
+/* Forces workspace (docs/konzept/usability/13-editor-workspace.md). Namespaced
+   under `sf-force-*`; grid only, no raw z-index. */
+
+.sf-force-workspace {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+}
+
+.sf-force-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.sf-force-toolbar h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.sf-force-add {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 6px;
+}
+
+.sf-force-add button {
+  padding: 5px 10px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  cursor: pointer;
+}
+
+.sf-force-nav {
+  display: grid;
+  gap: 12px;
+  padding: 10px;
+  align-content: start;
+}
+
+.sf-force-nav-block {
+  display: grid;
+  gap: 6px;
+}
+
+.sf-force-nav-block h3 {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4f6570;
+}
+
+.sf-force-item {
+  cursor: pointer;
+}
+
+.sf-force-item.is-selected {
+  border-color: #80dce5;
+  background: #10212a;
+}
+
+.sf-force-item strong {
+  font-size: 13px;
+}
+
+.sf-force-roster {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  align-content: start;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sf-force-counts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: #8a9aa2;
+}
+
+.sf-force-inspector {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  align-content: start;
+}
+
+.sf-force-inspector h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.sf-force-field {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+  color: #8a9aa2;
+}
+
+.sf-force-field input,
+.sf-force-field select,
+.sf-force-field textarea {
+  padding: 5px 7px;
+  border: 1px solid #1e2a33;
+  border-radius: 0;
+  background: #0e171f;
+  color: #d6e2e5;
+  min-width: 0;
+}
+
+.sf-force-field textarea {
+  min-height: 54px;
+  resize: vertical;
+}
+
+.sf-force-inspector-empty {
+  color: #4f6570;
+  font-size: 12px;
+}

@@ -1071,6 +1071,9 @@ export const de: Record<string, string> = {
   "prep.review.fixNext": "Nächsten Punkt beheben",
   "prep.review.details": "Details",
   "prep.flow.workspace": "Ablauf-Arbeitsfläche",
+  "prep.people.workspace": "Kräfte-Arbeitsfläche",
+  "prep.people.roster": "Übersicht",
+  "prep.people.noSelection": "Niemand ausgewählt",
   "workspace.navigator": "Navigator",
   "workspace.inspector": "Inspector",
 

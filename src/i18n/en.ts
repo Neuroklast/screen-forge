@@ -1060,6 +1060,9 @@ export const en: Record<string, string> = {
   "prep.review.fixNext": "Fix next issue",
   "prep.review.details": "Details",
   "prep.flow.workspace": "Flow workspace",
+  "prep.people.workspace": "Forces workspace",
+  "prep.people.roster": "Roster",
+  "prep.people.noSelection": "Nothing selected",
   "workspace.navigator": "Navigator",
   "workspace.inspector": "Inspector",
 
