@@ -1019,6 +1019,7 @@ export const en: Record<string, string> = {
   "prep.devices.addProp": "Add prop",
   "prep.devices.propName": "Prop {n}",
   "prep.devices.propKind": "Kind",
+  "prep.devices.ordnanceType": "Ordnance type",
   "prop.kind.ordnance": "Ordnance",
   "prop.kind.beacon": "Beacon",
   "prop.kind.payload": "Data core",

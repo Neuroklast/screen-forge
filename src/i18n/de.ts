@@ -1030,6 +1030,7 @@ export const de: Record<string, string> = {
   "prep.devices.addProp": "Requisite hinzufügen",
   "prep.devices.propName": "Requisite {n}",
   "prep.devices.propKind": "Art",
+  "prep.devices.ordnanceType": "Sprengkörper-Typ",
   "prop.kind.ordnance": "Sprengkörper",
   "prop.kind.beacon": "Bake",
   "prop.kind.payload": "Datenkern",

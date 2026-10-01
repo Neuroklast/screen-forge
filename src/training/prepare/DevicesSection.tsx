@@ -6,6 +6,8 @@ import {
   type Scenario,
   type TrainingStation,
 } from "../../core/training";
+import { labelFor } from "../../core/labels";
+import { ordnanceTypes } from "../../core/ordnance";
 import { t } from "../../i18n";
 import { PresentationFields } from "../PresentationFields";
 import { devicePresets, devicePresetsFor, presetLabel } from "./devicePresets";
@@ -433,6 +435,31 @@ export function DevicesSection({
                       ))}
                     </select>
                   </label>
+                  {prop.kind === "ordnance" && (
+                    <label>
+                      {t("prep.devices.ordnanceType")}
+                      <select
+                        value={prop.ordnanceId ?? ""}
+                        disabled={readOnly}
+                        onChange={(e) =>
+                          patch({
+                            props: draft.props.map((row) =>
+                              row.id === prop.id
+                                ? { ...row, ordnanceId: e.target.value }
+                                : row,
+                            ),
+                          })
+                        }
+                      >
+                        <option value="">{t("prep.devices.bindingNone")}</option>
+                        {[...ordnanceTypes(), ...draft.ordnanceTypes].map((o) => (
+                          <option key={o.id} value={o.id}>
+                            {o.designation}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <label>
                     {t("editor.name")}
                     <input
@@ -494,7 +521,7 @@ export function DevicesSection({
                     >
                       {prop.states.map((state) => (
                         <option key={state} value={state}>
-                          {state}
+                          {labelFor("propState", state)}
                         </option>
                       ))}
                     </select>
@@ -540,7 +567,10 @@ export function DevicesSection({
           {draft.stations.map((st) => (
             <article key={st.id} className="device-card">
               <span className="eyebrow">
-                {st.role} / {st.module}
+                {st.role === "hq"
+                  ? t("prep.devices.roleHq")
+                  : t("prep.devices.roleField")}{" "}
+                / {t(presetLabel(st.module))}
               </span>
               <h3>{st.name}</h3>
               <p>
