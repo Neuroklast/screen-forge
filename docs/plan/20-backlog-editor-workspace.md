@@ -72,3 +72,4 @@
 | W63 | Next: surface-specific preview scenarios (generic states + per-surface demo scenarios) | todo |
 | W64 | Replace the three-tool mini-nav with Edit↔Interact plus a `Geräte verbinden` context action | done |
 | W65 | `"Übersicht"` becomes the project/start page; five editor sections (Mission/Forces/Assets/Flow/Review) | done |
+| W66 | Extract `deviceSurfaceKind`: the surface is resolved separately from the renderer | done |

@@ -26,9 +26,13 @@ A participant is currently a station with `player: true`; that stays storage. Th
 - The normal editor does not expose `module`, `scene`, `presentation`, `capabilities`, `bindings` or `role`; they live behind `"Advanced"`. The user picks a profile; ScreenForge decides the module, the required world object and sensible defaults.
 - One renderer per capability: `DeviceSurface` is the single dispatch for field and preview.
 
+## Surface resolution (started)
+
+`deviceSurfaceKind` (`src/training/deviceSurfaceKind.ts`) is the single pure mapping from a device + runtime state + host to a surface kind (`workflow`/`connect`/`map`/`camera`/`console`/`ordnance`/`beacon`/`datasheet`/`scene`). `DeviceSurface` switches on the result instead of cascading on `module`. This is the first step toward the profile+surface model; the runtime behaviour is unchanged.
+
 ## Target — profile + surface (not yet implemented)
 
-Today `DeviceSurface` decides from `module`, sometimes `presentation.scene`, and special cases (`ordnance`, `beacon`, `tracking`, `camera`). With more device archetypes that becomes unmaintainable. The target model:
+The full target model:
 
 ```text
 Device
