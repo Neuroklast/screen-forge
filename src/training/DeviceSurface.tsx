@@ -13,9 +13,11 @@ import { TrainingTerminal } from "./TrainingTerminal";
 
 // One decision point for how a device renders, shared by the operator field
 // shell (ElementView) and the editor preview (Device Builder). The field host
-// uses the live consoles; the preview host avoids side-effectful leaves
-// (Leaflet, WebRTC) and renders their scene surface instead, and drives the cue
-// from the editor preview state (docs/architecture/previews.md).
+// uses the live consoles; the preview host skips the side-effectful leaves
+// (Leaflet map, WebRTC camera feed) and renders their scene surface instead, and
+// drives the cue from the editor preview state (docs/architecture/previews.md).
+// Scene blocks can still run user-initiated local effects (e.g. a camera
+// permission prompt); that is a recorded exception, not a silent one.
 
 const INSTRUMENT_SCENES = {
   rotary: "rotary",

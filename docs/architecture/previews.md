@@ -40,6 +40,7 @@ The editor preview shows the real result. Preview, runtime and editor use the sa
 ## Known exceptions
 
 - The synthetic preview provider is a bounded exception for authoring: it feeds real components a sandbox state. Keep it typed as `TrainingState`/`ExerciseValue` so drift fails `npm run check`.
+- The preview skips the `CameraFeed` and map **leaves**, but scene blocks rendered through `StageFrame` can still run a user-initiated local effect (e.g. the `camera` scene's `getUserMedia` permission prompt). This is local, user-triggered and never server/role state; removing it needs a scene-level preview flag, tracked as follow-up work.
 
 ## Migration notes
 
