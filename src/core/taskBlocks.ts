@@ -10,7 +10,16 @@ export type UiControl =
   | "station-reference"
   | "entity-reference";
 
-export type UiField = { path: string; control: UiControl; label: string };
+export type UiField = {
+  path: string;
+  control: UiControl;
+  label: string;
+  // Fixed choices for a `segmented` control; `optionLabelPrefix` resolves each
+  // value through the i18n layer as prefix + dot + value, so no raw enum id
+  // reaches the UI.
+  options?: string[];
+  optionLabelPrefix?: string;
+};
 
 // One definition feeds serialization, validation, defaults, the trainer form,
 // reference linting and documentation. The schema is the data truth; `ui` is
@@ -185,7 +194,11 @@ export function registerBuiltins(): void {
     defaults: () => ({ prompt: "", prop: "", to: "" }),
     surface: "connect",
     ports: ["success"],
-    ui: { icon: "plug", category: "interaction", fields: [] },
+    ui: {
+      icon: "plug",
+      category: "interaction",
+      fields: [{ path: "prompt", control: "text", label: "Hinweis" }],
+    },
   });
   const reportSchema = z
     .object({
@@ -425,11 +438,23 @@ export function registerBuiltins(): void {
       category: "terminal",
       fields: [
         { path: "duration", control: "duration", label: "Dauer" },
-        { path: "difficulty", control: "segmented", label: "Schwierigkeit" },
+        {
+          path: "difficulty",
+          control: "segmented",
+          label: "Schwierigkeit",
+          options: ["1", "2", "3", "4", "5"],
+        },
         {
           path: "targetStationId",
           control: "station-reference",
           label: "Zielterminal",
+        },
+        {
+          path: "failurePolicy",
+          control: "segmented",
+          label: "Bei Fehlschlag",
+          options: ["retry", "degrade", "lockout"],
+          optionLabelPrefix: "task.failurePolicy",
         },
       ],
     },
@@ -448,7 +473,13 @@ export function registerBuiltins(): void {
       category: "medical",
       fields: [
         { path: "patientId", control: "entity-reference", label: "Patient" },
-        { path: "assessment", control: "segmented", label: "Beurteilung" },
+        {
+          path: "assessment",
+          control: "segmented",
+          label: "Beurteilung",
+          options: ["march", "simple"],
+          optionLabelPrefix: "task.assessment",
+        },
       ],
     },
   });
@@ -461,7 +492,15 @@ export function registerBuiltins(): void {
     ui: {
       icon: "camera",
       category: "camera",
-      fields: [{ path: "feed", control: "segmented", label: "Quelle" }],
+      fields: [
+        {
+          path: "feed",
+          control: "segmented",
+          label: "Quelle",
+          options: ["live", "offline"],
+          optionLabelPrefix: "task.feed",
+        },
+      ],
     },
   });
   defineTaskBlock({

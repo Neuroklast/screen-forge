@@ -117,15 +117,78 @@ function FieldInput({
   field,
   value,
   variables,
+  draft,
   disabled,
   onChange,
 }: {
   field: UiField;
   value: unknown;
   variables: WorkflowVariable[];
+  draft: Scenario;
   disabled: boolean;
   onChange: (value: unknown) => void;
 }) {
+  if (field.control === "segmented" && field.options)
+    return (
+      <label>
+        {field.label}
+        <select
+          value={String(value ?? "")}
+          disabled={disabled}
+          onChange={(event) =>
+            onChange(
+              typeof value === "number"
+                ? Number(event.target.value)
+                : event.target.value,
+            )
+          }
+        >
+          {field.options.map((option) => (
+            <option key={option} value={option}>
+              {field.optionLabelPrefix
+                ? t(`${field.optionLabelPrefix}.${option}`)
+                : option}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  if (field.control === "station-reference")
+    return (
+      <label>
+        {field.label}
+        <select
+          value={String(value ?? "")}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">{t("builder.noneOption")}</option>
+          {draft.stations.map((station) => (
+            <option key={station.id} value={station.id}>
+              {station.name}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  if (field.control === "entity-reference")
+    return (
+      <label>
+        {field.label}
+        <select
+          value={String(value ?? "")}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">{t("builder.noneOption")}</option>
+          {draft.patients.map((patient) => (
+            <option key={patient.id} value={patient.id}>
+              {patient.name}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
   if (field.path === "expectedValueRef")
     return (
       <VariableSelect
@@ -209,6 +272,19 @@ export function NodeFields({
 }) {
   const variableOf = (id: string) =>
     workflow.variables.find((variable) => variable.id === id);
+  // Every element is fully configurable: the name is editable for every node
+  // type, the type-specific fields follow.
+  const nameField = (
+    <label>
+      {t("builder.nodeName")}
+      <input
+        value={node.name}
+        disabled={readOnly}
+        onChange={(event) => onChange({ ...node, name: event.target.value })}
+      />
+    </label>
+  );
+  const body = (() => {
   switch (node.type) {
     case "start":
       return <p className="builder-hint">{t("builder.startHint")}</p>;
@@ -269,6 +345,7 @@ export function NodeFields({
               field={field}
               value={config[field.path]}
               variables={workflow.variables}
+              draft={draft}
               disabled={readOnly}
               onChange={(value) => setConfig({ [field.path]: value })}
             />
@@ -668,4 +745,11 @@ export function NodeFields({
         </label>
       );
   }
+  })();
+  return (
+    <>
+      {nameField}
+      {body}
+    </>
+  );
 }

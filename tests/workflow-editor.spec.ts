@@ -93,3 +93,26 @@ test("migrated widget tasks are editable in the graph", async ({ page }) => {
   await task.selectOption({ label: "Datenblatt" });
   await expect(page.getByRole("textbox", { name: "Thema" })).toBeVisible();
 });
+
+test("every element is fully configurable", async ({ page }) => {
+  await login(page);
+  await page
+    .getByRole("button", { name: "Ablauf anlegen", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Aktion", exact: true }).click();
+
+  // The node name is editable for every element.
+  await page.getByLabel("Bezeichnung").last().fill("Task A");
+  await expect(page.locator(".wf-node").filter({ hasText: "Task A" })).toBeVisible();
+
+  // Enum task config renders as a select, not a free-text field.
+  await page
+    .getByRole("combobox", { name: "Aufgabe", exact: true })
+    .selectOption({ label: "Kamera" });
+  await page.getByRole("combobox", { name: "Quelle", exact: true }).selectOption({
+    label: "Offline",
+  });
+  await expect(
+    page.getByRole("combobox", { name: "Quelle", exact: true }),
+  ).toHaveValue("offline");
+});

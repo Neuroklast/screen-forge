@@ -79,3 +79,5 @@
 | W70 | Stabilize the React Flow test flake (measurable canvas, visibility waits, retries) | done |
 | W71 | Mission location set visually on a map (click to place, zones as circles) | done |
 | W72 | Persisted `station.surface` + authoring control; runtime states win; unit tests | done |
+| W73 | Every element fully configurable: node name + typed enum/reference fields; missing task fields added | done |
+| W74 | Document task completion → success/failure port transition (interaction model) | done |
