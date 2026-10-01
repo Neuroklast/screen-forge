@@ -13,7 +13,7 @@ import { type Workflow } from "../../core/workflow";
 import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
 import { uid, type PrepareSectionProps } from "./shared";
-import { Panel } from "../../ui/primitives";
+import { WorkspaceShell } from "../../ui/WorkspaceShell";
 import { FlowPalette, type AdvancedNodeType } from "./flow/FlowPalette";
 import { FlowTimeline } from "./flow/FlowTimeline";
 import { FlowInspector } from "./flow/FlowInspector";
@@ -129,73 +129,84 @@ export function FlowSection({
   };
 
   return (
-    <Panel className="prepare">
-      <h2>
-        <Term id="nav.flow" />
-      </h2>
-      <div className="flow-workspace">
-        <FlowPalette
-          workflows={draft.workflows}
-          workflowId={workflow?.id ?? ""}
-          readOnly={readOnly}
-          onSelectWorkflow={selectWorkflow}
-          onAddWorkflow={addWorkflow}
-          onAddNode={addNode}
-          onAddAdvancedNode={addAdvancedNode}
-          onAddEvent={addEvent}
-        />
-
-        <div className="flow-center">
-          <div className="flow-canvas">
-            {workflow ? (
-              <Suspense
-                fallback={<p className="builder-hint">{t("builder.loading")}</p>}
-              >
-                <WorkflowCanvas
-                  workflow={workflow}
-                  findings={findings}
-                  readOnly={readOnly}
-                  selectedNodeId={selectedNode?.id ?? ""}
-                  onSelectNode={(id) =>
-                    setSelection(id ? { kind: "node", id } : null)
-                  }
-                  onPatch={patchWorkflow}
-                  variant="human"
-                  highlightNodeId={highlightNodeId}
-                />
-              </Suspense>
-            ) : (
-              <p className="builder-hint">{t("builder.noWorkflow")}</p>
-            )}
+    <section className="sf-flow-workspace">
+      <WorkspaceShell
+        label={t("prep.flow.workspace")}
+        toolbar={
+          <div className="sf-flow-toolbar">
+            <h2>
+              <Term id="nav.flow" />
+            </h2>
           </div>
-          <FlowTimeline
-            events={draft.injects}
-            links={links}
+        }
+        navigator={
+          <FlowPalette
             workflows={draft.workflows}
-            selectedId={selection?.kind === "event" ? selection.id : ""}
-            onSelect={(id) => setSelection({ kind: "event", id })}
+            workflowId={workflow?.id ?? ""}
+            readOnly={readOnly}
+            onSelectWorkflow={selectWorkflow}
+            onAddWorkflow={addWorkflow}
+            onAddNode={addNode}
+            onAddAdvancedNode={addAdvancedNode}
+            onAddEvent={addEvent}
           />
-        </div>
-
-        <FlowInspector
-          draft={draft}
-          workflow={workflow}
-          caps={caps}
-          readOnly={readOnly}
-          selectedNode={selectedNode}
-          selectedEvent={selectedEvent}
-          linkedWorkflow={eventLink ? workflow : undefined}
-          findings={findings}
-          onSelectNode={(id) =>
-            setSelection(id ? { kind: "node", id } : null)
-          }
-          onSelectEvent={(id) => setSelection({ kind: "event", id })}
-          onPatchWorkflow={patchWorkflow}
-          onPatchInject={patchInject}
-          onDeleteWorkflow={deleteWorkflow}
-          onDeleteEvent={deleteEvent}
-        />
-      </div>
-    </Panel>
+        }
+        canvas={
+          <div className="flow-center">
+            <div className="flow-canvas">
+              {workflow ? (
+                <Suspense
+                  fallback={
+                    <p className="builder-hint">{t("builder.loading")}</p>
+                  }
+                >
+                  <WorkflowCanvas
+                    workflow={workflow}
+                    findings={findings}
+                    readOnly={readOnly}
+                    selectedNodeId={selectedNode?.id ?? ""}
+                    onSelectNode={(id) =>
+                      setSelection(id ? { kind: "node", id } : null)
+                    }
+                    onPatch={patchWorkflow}
+                    variant="human"
+                    highlightNodeId={highlightNodeId}
+                  />
+                </Suspense>
+              ) : (
+                <p className="builder-hint">{t("builder.noWorkflow")}</p>
+              )}
+            </div>
+            <FlowTimeline
+              events={draft.injects}
+              links={links}
+              workflows={draft.workflows}
+              selectedId={selection?.kind === "event" ? selection.id : ""}
+              onSelect={(id) => setSelection({ kind: "event", id })}
+            />
+          </div>
+        }
+        inspector={
+          <FlowInspector
+            draft={draft}
+            workflow={workflow}
+            caps={caps}
+            readOnly={readOnly}
+            selectedNode={selectedNode}
+            selectedEvent={selectedEvent}
+            linkedWorkflow={eventLink ? workflow : undefined}
+            findings={findings}
+            onSelectNode={(id) =>
+              setSelection(id ? { kind: "node", id } : null)
+            }
+            onSelectEvent={(id) => setSelection({ kind: "event", id })}
+            onPatchWorkflow={patchWorkflow}
+            onPatchInject={patchInject}
+            onDeleteWorkflow={deleteWorkflow}
+            onDeleteEvent={deleteEvent}
+          />
+        }
+      />
+    </section>
   );
 }

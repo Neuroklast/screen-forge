@@ -1070,6 +1070,7 @@ export const de: Record<string, string> = {
   "prep.review.warnings": "Warnungen",
   "prep.review.fixNext": "Nächsten Punkt beheben",
   "prep.review.details": "Details",
+  "prep.flow.workspace": "Ablauf-Arbeitsfläche",
   "workspace.navigator": "Navigator",
   "workspace.inspector": "Inspector",
 

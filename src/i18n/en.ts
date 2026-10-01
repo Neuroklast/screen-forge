@@ -1059,6 +1059,7 @@ export const en: Record<string, string> = {
   "prep.review.warnings": "warnings",
   "prep.review.fixNext": "Fix next issue",
   "prep.review.details": "Details",
+  "prep.flow.workspace": "Flow workspace",
   "workspace.navigator": "Navigator",
   "workspace.inspector": "Inspector",
 

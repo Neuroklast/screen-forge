@@ -169,12 +169,22 @@
   line-height: 1.5;
 }
 
-.flow-workspace {
+.sf-flow-workspace {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr) 320px;
-  gap: 12px;
-  min-height: 520px;
-  height: min(760px, calc(100dvh - 200px));
+  height: 100%;
+  min-height: 0;
+}
+
+.sf-flow-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.sf-flow-toolbar h2 {
+  margin: 0;
+  font-size: 15px;
 }
 
 .flow-center {
@@ -312,15 +322,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 1100px) {
-  .flow-workspace {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  .flow-canvas {
-    height: 460px;
-  }
-}
+
 
 /* Mission location summary and review launch gate. */
 .location-readout {
