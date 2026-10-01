@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { execSync, spawn, type ChildProcess } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 // Artifact-level guarantee: a control surface running a stale cached app shell
@@ -90,13 +90,19 @@ test("a stale control client is blocked and recovers after reload", async ({
       }),
     ).toBeVisible({ timeout: 30000 });
 
-    // Recovery: the control shell drops the worker; reload reaches build B.
+    // Recovery: the control shell drops the worker; reload reaches build B and
+    // the gate is gone. The trainer session resumes from sessionStorage, so the
+    // app is usable again without a fresh login.
     await page.getByRole("button", { name: /Neu laden|Reload/i }).click();
+    await expect(page.getByRole("alertdialog")).toHaveCount(0);
     await expect(
-      page.getByLabel(/Trainer-Schlüssel|Trainer key/i),
+      page.getByRole("button", { name: /Übersicht|Overview/i }),
     ).toBeVisible({ timeout: 30000 });
   } finally {
-    writeFileSync(buildPath, original);
     await stopServer();
+    // The mid-test `npm run build` replaced the client bundle. Restoring only
+    // `build.json` would leave the bundle and the served identity mismatched for
+    // later artifact tests, so rebuild once more for a consistent `dist`.
+    execSync("npm run build", { stdio: "ignore" });
   }
 });

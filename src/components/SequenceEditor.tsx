@@ -76,22 +76,28 @@ export function SequenceEditor({
     const withEnd = ensureEndNode(show);
     const take = newStep(next);
     let draft = addNode(withEnd.show, take);
+    // Chain the new take instead of orphaning it: prefer the selected node when
+    // its success port is free, otherwise append after whatever currently feeds
+    // the end terminal (or the entry when the show has no chain yet). Connecting
+    // on the same port replaces the existing edge, so the chain stays intact and
+    // the linter's unreachable-take error cannot be introduced by adding a take.
+    const feeder = draft.edges.find((edge) => edge.target === withEnd.endId);
     const from =
-      item && !edgeForOutput(draft, item.id, "success") ? item.id : show.entry;
-    if (!edgeForOutput(draft, from, "success"))
-      draft = connect(draft, {
-        id: graphUid("e"),
-        source: from,
-        output: "success",
-        target: take.id,
-      });
-    if (!edgeForOutput(draft, take.id, "success"))
-      draft = connect(draft, {
-        id: graphUid("e"),
-        source: take.id,
-        output: "success",
-        target: withEnd.endId,
-      });
+      item && !edgeForOutput(draft, item.id, "success")
+        ? item.id
+        : feeder?.source ?? show.entry;
+    draft = connect(draft, {
+      id: graphUid("e"),
+      source: from,
+      output: "success",
+      target: take.id,
+    });
+    draft = connect(draft, {
+      id: graphUid("e"),
+      source: take.id,
+      output: "success",
+      target: withEnd.endId,
+    });
     onChange(draft);
     setSelected(take.id);
   };

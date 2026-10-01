@@ -17,6 +17,7 @@ Product concept: [../konzept/usability/12-terminology.md](../konzept/usability/1
 
 - Visible control chrome resolves through the terminology layer or `t()`; never a raw literal in a component.
 - English is the canonical language for code and schema; German is resolved through profiles. Element content (scenes, blocks, field consoles) is English; the studio/training control chrome is German.
+- The boundary is enforced in the resolver, not per component: `t()` always resolves English for the in-world namespaces `scene.*`, `terminal.*`, `field.*`, `ordnance.*`, `beacon.*`, `camera.*` and non-preset `device.*`, so a locale switch can never translate a scene name or a device console. `device.preset.*` is trainer chrome and stays translated (`src/i18n/index.ts`).
 - `t()` never falls back to another language; a missing key is a bug, not a silent English fallback.
 - Literal `t("key")` keys must exist in both dictionaries (`src/i18n/keys.test.ts`), and dictionaries must have parity (`src/i18n/i18n.test.ts`).
 - Scene/module ids are functional (`intranet`, `terminal`, `countdown`); brand names are identities, never scene names.

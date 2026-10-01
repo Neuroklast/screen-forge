@@ -56,13 +56,34 @@ export function subscribeLocale(fn: () => void): () => void {
   };
 }
 
+// In-world content is art direction and must stay English in every locale
+// (AGENTS.md: "Element content (scenes, blocks, field consoles) MUST be
+// English"; concept U12 §7). These namespaces are never auto-translated:
+// scenes, the operator/field shell, and the fictional device consoles.
+// `device.preset.*` is trainer chrome even though it shares the `device.`
+// prefix, so it stays translated.
+const CONTENT_PREFIXES = [
+  "scene.",
+  "terminal.",
+  "field.",
+  "ordnance.",
+  "beacon.",
+  "camera.",
+];
+function isContentKey(key: string): boolean {
+  if (key.startsWith("device.") && !key.startsWith("device.preset.")) return true;
+  return CONTENT_PREFIXES.some((prefix) => key.startsWith(prefix));
+}
+
 // English is the default. Every locale must define the same keys (guarded by
 // i18n.test.ts); a missing key falls back to the key itself so a gap is visible
 // instead of silently mixing languages.
 export function t(key: string, params?: Params): string {
   // Never fall back to another language: that would mix locales. A missing key
-  // shows the key so the gap is obvious and testable.
-  const template = dictionaries[current][key] ?? key;
+  // shows the key so the gap is obvious and testable. In-world content always
+  // resolves English regardless of the active locale.
+  const locale = isContentKey(key) ? "en" : current;
+  const template = dictionaries[locale][key] ?? key;
   if (!params) return template;
   return template.replace(/\{(\w+)\}/g, (_, name: string) =>
     String(params[name] ?? `{${name}}`),
