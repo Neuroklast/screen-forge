@@ -30,7 +30,7 @@ function TextField({
   onCommit: (value: string) => void;
 }) {
   return (
-    <label className="device-field">
+    <label className="sf-device-field">
       {label}
       <input
         key={value}
@@ -100,14 +100,14 @@ export function DeviceInspector({
   onRemoveProp: () => void;
 }) {
   if (selection?.kind === "prop") {
-    if (!prop) return <div className="device-inspector" />;
+    if (!prop) return <div className="sf-device-inspector" />;
     return (
-      <div className="device-inspector">
-        <header className="device-inspector-head">
+      <div className="sf-device-inspector">
+        <header className="sf-device-inspector-head">
           <span className="eyebrow">{t("prep.devices.props")}</span>
           <h3>{prop.name}</h3>
         </header>
-        <label className="device-field">
+        <label className="sf-device-field">
           {t("prep.devices.propKind")}
           <select
             value={prop.kind}
@@ -124,7 +124,7 @@ export function DeviceInspector({
           </select>
         </label>
         {prop.kind === "ordnance" && (
-          <label className="device-field">
+          <label className="sf-device-field">
             {t("prep.devices.ordnanceType")}
             <select
               value={prop.ordnanceId ?? ""}
@@ -148,7 +148,7 @@ export function DeviceInspector({
           disabled={readOnly}
           onCommit={(value) => onUpdateProp({ name: value })}
         />
-        <label className="device-field">
+        <label className="sf-device-field">
           {t("prep.devices.propStates")}
           <input
             key={prop.states.join(",")}
@@ -173,7 +173,7 @@ export function DeviceInspector({
             }}
           />
         </label>
-        <label className="device-field">
+        <label className="sf-device-field">
           {t("prep.devices.propInitial")}
           <select
             value={prop.initial}
@@ -189,7 +189,7 @@ export function DeviceInspector({
         </label>
         <button
           type="button"
-          className="device-inspector-remove"
+          className="sf-device-inspector-remove"
           disabled={readOnly}
           onClick={onRemoveProp}
         >
@@ -201,8 +201,8 @@ export function DeviceInspector({
 
   if (!station)
     return (
-      <div className="device-inspector">
-        <p className="device-inspector-empty">{t("prep.devices.noSelection")}</p>
+      <div className="sf-device-inspector">
+        <p className="sf-device-inspector-empty">{t("prep.devices.noSelection")}</p>
       </div>
     );
 
@@ -210,8 +210,8 @@ export function DeviceInspector({
   const config = station.presentation?.config;
 
   return (
-    <div className="device-inspector">
-      <header className="device-inspector-head">
+    <div className="sf-device-inspector">
+      <header className="sf-device-inspector-head">
         <span className="eyebrow">
           {element ? t("prep.devices.selected") : t("prep.devices.inspector")}
         </span>
@@ -266,7 +266,7 @@ export function DeviceInspector({
             disabled={readOnly}
             onCommit={(value) => onUpdate({ name: value })}
           />
-          <label className="device-field">
+          <label className="sf-device-field">
             {t("prep.devices.preset")}
             <select
               value={station.module}
@@ -290,7 +290,7 @@ export function DeviceInspector({
             </select>
           </label>
           {hasOwnershipOptions && (
-            <label className="device-field">
+            <label className="sf-device-field">
               {t("prep.devices.owner")}
               <select
                 value={ownerOf(station)}
@@ -318,7 +318,7 @@ export function DeviceInspector({
 
           <details className="prepare-advanced">
             <summary>{t("prep.devices.advanced")}</summary>
-            <label className="device-field">
+            <label className="sf-device-field">
               {t("prep.devices.role")}
               <select
                 value={station.role}
@@ -338,7 +338,7 @@ export function DeviceInspector({
             </label>
 
             {caps.patients && station.module === "medical" && (
-              <label className="device-field">
+              <label className="sf-device-field">
                 {t("cap.patients")}
                 <select
                   value={station.bindings.patient}
@@ -359,7 +359,7 @@ export function DeviceInspector({
 
             {caps.props &&
               (station.module === "ordnance" || station.module === "beacon") && (
-                <label className="device-field">
+                <label className="sf-device-field">
                   {t("cap.props")}
                   <select
                     value={station.bindings.prop}
@@ -382,7 +382,7 @@ export function DeviceInspector({
 
             {CODE_MODULES.includes(station.module) && (
               <>
-                <label className="device-field">
+                <label className="sf-device-field">
                   {t("prep.devices.duration")}
                   <input
                     type="number"
@@ -393,7 +393,7 @@ export function DeviceInspector({
                     }
                   />
                 </label>
-                <label className="device-field">
+                <label className="sf-device-field">
                   {t("prep.devices.code")}
                   <input
                     inputMode="numeric"
@@ -408,7 +408,7 @@ export function DeviceInspector({
               </>
             )}
 
-            <h4 className="device-group">{t("presentation.heading")}</h4>
+            <h4 className="sf-device-group">{t("presentation.heading")}</h4>
             <TextField
               label={t("presentation.title")}
               value={config?.title ?? ""}
@@ -431,7 +431,7 @@ export function DeviceInspector({
                 onPresentation({ config: { identifier: value } })
               }
             />
-            <label className="device-field">
+            <label className="sf-device-field">
               {t("presentation.scene")}
               <select
                 value={station.presentation?.scene ?? ""}
@@ -450,7 +450,7 @@ export function DeviceInspector({
                 ))}
               </select>
             </label>
-            <label className="device-field">
+            <label className="sf-device-field">
               {t("presentation.accent")}
               <input
                 type="color"
@@ -461,7 +461,7 @@ export function DeviceInspector({
                 }
               />
             </label>
-            <label className="device-field">
+            <label className="sf-device-field">
               {t("studio.mood")}
               <select
                 value={config?.mood ?? "clinical"}
@@ -483,7 +483,7 @@ export function DeviceInspector({
 
           <button
             type="button"
-            className="device-inspector-remove"
+            className="sf-device-inspector-remove"
             disabled={readOnly}
             onClick={onRemove}
           >

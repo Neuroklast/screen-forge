@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { presentationConfig } from "../../core/config";
+import { lintMission } from "../../core/missionLint";
 import type { TrainingStation } from "../../core/training";
 import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
@@ -7,12 +9,12 @@ import { Panel } from "../../ui/primitives";
 import type { PrepareSectionProps } from "./shared";
 import { devicePresetsFor, type DevicePreset } from "./devicePresets";
 import { DeviceNavigator } from "./devices/DeviceNavigator";
-import { DevicePreview } from "./devices/DevicePreview";
+import { DevicePreview, effectiveScene } from "./devices/DevicePreview";
 import { DeviceInspector } from "./devices/DeviceInspector";
 import { DeviceStatusBar } from "./devices/DeviceStatusBar";
 import { ProvisioningPanel } from "./devices/ProvisioningPanel";
 import type { DeviceSelection } from "./devices/selection";
-import type { PreviewState } from "./devices/preview";
+import { previewStates, type PreviewState } from "./devices/preview";
 import {
   addDevice,
   addProp,
@@ -48,8 +50,8 @@ const TOOLS: WorkspaceTool[] = ["build", "provision", "test"];
 
 // Devices: one persistent workspace. Structure in the navigator (devices, props),
 // work in the canvas (live preview / provisioning), properties in the contextual
-// inspector, and Build/Provision/Test as workspace tools. No stacked panels and
-// no per-item controls in the navigator.
+// inspector, and Build/Provision/Test as workspace tools. Selection is explicit:
+// once the user picks something, exactly that object drives the canvas.
 export function DevicesSection({
   draft,
   change,
@@ -65,7 +67,10 @@ export function DevicesSection({
   invitationUrl,
   onNotice,
 }: DevicesSectionProps) {
-  const [selection, setSelection] = useState<DeviceSelection>(null);
+  // The first open selects the first device; after that, selection is explicit.
+  const [selection, setSelection] = useState<DeviceSelection>(() =>
+    draft.stations[0] ? { kind: "device", id: draft.stations[0].id } : null,
+  );
   const [preview, setPreview] = useState<PreviewState>("normal");
   const [tool, setTool] = useState<WorkspaceTool>("build");
   const [addOpen, setAddOpen] = useState(false);
@@ -76,6 +81,9 @@ export function DevicesSection({
     caps.teams &&
     (teams.length > 0 || participants.some((row) => row.team !== ""));
 
+  // The selection is an explicit id. If the object does not exist (e.g. it was
+  // just undone), the canvas and inspector show their empty state — never
+  // another device. When it reappears (redo) the same id resolves again.
   const selectedDevice =
     selection?.kind === "device" || selection?.kind === "element"
       ? draft.stations.find((station) => station.id === selection.id)
@@ -87,25 +95,35 @@ export function DevicesSection({
   const boundStation = selectedProp
     ? draft.stations.find((station) => station.bindings.prop === selectedProp.id)
     : undefined;
-  // The canvas always previews a device; a prop selection previews its bound
-  // device. The inspector follows the selection, defaulting to the active device.
-  const activeStation = selectedDevice ?? boundStation ?? draft.stations[0];
-  const inspectorSelection: DeviceSelection =
-    selection ??
-    (activeStation ? { kind: "device", id: activeStation.id } : null);
-  const inspectorStation =
-    inspectorSelection?.kind === "device" ||
-    inspectorSelection?.kind === "element"
-      ? draft.stations.find((station) => station.id === inspectorSelection.id)
-      : undefined;
+  // A bound prop previews its interface; an unbound prop gets an explicit state.
+  const canvasStation = selectedDevice ?? boundStation;
+  const unboundProp =
+    selection?.kind === "prop" && !boundStation ? selectedProp : undefined;
+  const inspectorStation = selectedDevice;
   const anchor =
-    inspectorSelection?.kind === "element" ? inspectorSelection.anchor : "";
+    selection?.kind === "element" ? selection.anchor : "";
   const canvasAnchor =
-    selection?.kind === "element" && selection.id === activeStation?.id
+    selection?.kind === "element" && selection.id === canvasStation?.id
       ? selection.anchor
       : "";
-  const selectionLabel =
-    inspectorStation?.name ?? selectedProp?.name ?? activeStation?.name ?? "";
+  const format = canvasStation
+    ? presentationConfig(
+        effectiveScene(canvasStation),
+        canvasStation.presentation,
+      ).format
+    : "";
+
+  const deviceFindings = lintMission(draft).filter(
+    (finding) =>
+      (finding.path.collection === "stations" ||
+        finding.path.collection === "props") &&
+      finding.severity !== "info",
+  );
+  const unboundCount = draft.props.filter(
+    (prop) =>
+      !draft.stations.some((station) => station.bindings.prop === prop.id),
+  ).length;
+  const actionable = deviceFindings.length > 0 || unboundCount > 0;
 
   const ownerOf = (station: TrainingStation): string => {
     if (station.player) return "participant";
@@ -140,6 +158,25 @@ export function DevicesSection({
     change(removeDevice(draft, inspectorStation.id));
     setSelection(null);
   };
+  const linkProp = (stationId: string) => {
+    if (!unboundProp) return;
+    change(setDeviceBinding(draft, stationId, { prop: unboundProp.id }));
+    setSelection({ kind: "device", id: stationId });
+  };
+  const createInterface = (preset: DevicePreset) => {
+    if (!unboundProp) return;
+    const result = addDevice(draft, preset, "scenario");
+    change(setDeviceBinding(result.scenario, result.id, { prop: unboundProp.id }));
+    setSelection({ kind: "device", id: result.id });
+  };
+
+  const linkCandidates = draft.stations.filter(
+    (station) =>
+      !station.player && !station.bindings.prop && station.role === "element",
+  );
+  const createPreset = unboundProp
+    ? presets.find((preset) => preset.module === unboundProp.kind)
+    : undefined;
 
   const canvas =
     tool === "provision" ? (
@@ -155,42 +192,72 @@ export function DevicesSection({
         invitationUrl={invitationUrl}
         onNotice={onNotice}
       />
-    ) : activeStation ? (
+    ) : canvasStation ? (
       <DevicePreview
-        station={activeStation}
+        station={canvasStation}
         scenario={draft}
         preview={preview}
-        onPreviewState={setPreview}
         selectedAnchor={canvasAnchor}
         onSelectAnchor={(next) =>
-          setSelection({ kind: "element", id: activeStation.id, anchor: next })
+          setSelection({ kind: "element", id: canvasStation.id, anchor: next })
         }
         readOnly={readOnly}
         onUpdateName={(name) =>
-          change(updateDevice(draft, activeStation.id, { name }))
+          change(updateDevice(draft, canvasStation.id, { name }))
         }
         onUpdatePresentation={(patch) =>
-          change(setPresentation(draft, activeStation.id, { config: patch }))
+          change(setPresentation(draft, canvasStation.id, { config: patch }))
         }
       />
+    ) : unboundProp ? (
+      <div className="sf-device-unbound">
+        <h3>{t("prep.devices.unboundTitle")}</h3>
+        <p className="prepare-hint">{t("prep.devices.unboundHint")}</p>
+        <div className="sf-device-unbound-actions">
+          {linkCandidates.length > 0 && (
+            <select
+              aria-label={t("prep.devices.linkExisting")}
+              value=""
+              disabled={readOnly}
+              onChange={(event) => linkProp(event.target.value)}
+            >
+              <option value="">{t("prep.devices.linkExisting")}</option>
+              {linkCandidates.map((station) => (
+                <option key={station.id} value={station.id}>
+                  {station.name}
+                </option>
+              ))}
+            </select>
+          )}
+          {createPreset && (
+            <button
+              type="button"
+              disabled={readOnly}
+              onClick={() => createInterface(createPreset)}
+            >
+              {t("prep.devices.createInterface")}
+            </button>
+          )}
+        </div>
+      </div>
     ) : (
-      <div className="device-canvas-empty">
+      <div className="sf-device-canvas-empty">
         <p>{t("prep.devices.noSelection")}</p>
         <p className="prepare-hint">{t("prep.devices.selectElement")}</p>
       </div>
     );
 
   return (
-    <Panel className="prepare">
+    <Panel className="prepare sf-device-workspace">
       <WorkspaceShell
         label={t("prep.devices.workspace")}
         focus={tool === "test"}
         toolbar={
-          <div className="device-toolbar">
+          <div className="sf-device-toolbar">
             <h2>
               <Term id="nav.assets" />
             </h2>
-            <div className="device-add">
+            <div className="sf-device-add">
               <button
                 type="button"
                 aria-expanded={addOpen}
@@ -200,7 +267,7 @@ export function DevicesSection({
                 <span aria-hidden="true">＋</span> {t("prep.devices.add")}
               </button>
               {addOpen && (
-                <div className="device-add-menu">
+                <div className="sf-device-add-menu">
                   {presets.map((preset) => (
                     <button
                       key={preset.id}
@@ -214,7 +281,7 @@ export function DevicesSection({
                 </div>
               )}
             </div>
-            <div className="device-tools" role="tablist">
+            <div className="sf-device-tools" role="tablist">
               {TOOLS.map((id) => (
                 <button
                   key={id}
@@ -228,6 +295,32 @@ export function DevicesSection({
                 </button>
               ))}
             </div>
+            <span className="sf-device-toolbar-spacer" />
+            {tool !== "provision" && (
+              <div className="sf-device-preview-controls">
+                <div
+                  className="sf-device-preview-states"
+                  role="group"
+                  aria-label={t("prep.devices.previewState")}
+                >
+                  {previewStates.map((state) => (
+                    <button
+                      key={state}
+                      type="button"
+                      className={preview === state ? "active" : ""}
+                      onClick={() => setPreview(state)}
+                    >
+                      {t(`prep.devices.state.${state}`)}
+                    </button>
+                  ))}
+                </div>
+                {format && (
+                  <span className="sf-device-viewport-caption">
+                    {format} · {t("prep.devices.fit")}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         }
         navigator={
@@ -235,7 +328,7 @@ export function DevicesSection({
             devices={draft.stations}
             props={draft.props}
             showProps={caps.props}
-            selection={inspectorSelection}
+            selection={selection}
             onSelectDevice={(id) => setSelection({ kind: "device", id })}
             onSelectProp={(id) => setSelection({ kind: "prop", id })}
             onAddProp={() => {
@@ -249,7 +342,7 @@ export function DevicesSection({
         canvas={canvas}
         inspector={
           <DeviceInspector
-            selection={inspectorSelection}
+            selection={selection}
             station={inspectorStation}
             prop={selectedProp}
             anchor={anchor}
@@ -292,11 +385,12 @@ export function DevicesSection({
           />
         }
         status={
-          <DeviceStatusBar
-            count={draft.stations.length}
-            selectionLabel={selectionLabel}
-            preview={preview}
-          />
+          actionable ? (
+            <DeviceStatusBar
+              findings={deviceFindings}
+              unbound={unboundCount}
+            />
+          ) : undefined
         }
       />
     </Panel>

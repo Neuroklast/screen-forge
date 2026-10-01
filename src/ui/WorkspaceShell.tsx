@@ -1,11 +1,12 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { t } from "../i18n";
 import "./workspace.css";
 
 // The shared editor shell (docs/architecture/workspace.md): a toolbar, a
-// navigator, a canvas, a contextual inspector and a status bar. Panes are
-// collapsible; on constrained widths they become overlay drawers so the canvas
-// stays visible instead of collapsing into a vertical form stack.
+// navigator, a canvas, a contextual inspector and a status bar. On wide desktop
+// the side panes are open by default and collapse via small edge handles; under
+// 1100px they become overlay drawers and only one drawer is open at a time, so
+// the canvas never collapses into a vertical form stack.
 function wideViewport(): boolean {
   try {
     return window.matchMedia("(min-width: 1100px)").matches;
@@ -33,6 +34,35 @@ export function WorkspaceShell({
 }) {
   const [navOpen, setNavOpen] = useState(wideViewport);
   const [inspectorOpen, setInspectorOpen] = useState(wideViewport);
+
+  // When the viewport narrows with both drawers open, keep only the navigator.
+  useEffect(() => {
+    let media: MediaQueryList;
+    try {
+      media = window.matchMedia("(min-width: 1100px)");
+    } catch {
+      return;
+    }
+    const onChange = () => {
+      if (!media.matches) setInspectorOpen(false);
+    };
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  const toggleNav = () =>
+    setNavOpen((open) => {
+      const next = !open;
+      if (next && !wideViewport()) setInspectorOpen(false);
+      return next;
+    });
+  const toggleInspector = () =>
+    setInspectorOpen((open) => {
+      const next = !open;
+      if (next && !wideViewport()) setNavOpen(false);
+      return next;
+    });
+
   return (
     <section
       className="workspace-shell"
@@ -41,27 +71,33 @@ export function WorkspaceShell({
       data-inspector-open={!focus && inspectorOpen}
       data-focus={focus}
     >
-      <div className="workspace-shell-toolbar">
-        <div className="workspace-shell-tools">{toolbar}</div>
-        <div className="workspace-shell-panes">
-          <button
-            type="button"
-            aria-pressed={navOpen}
-            onClick={() => setNavOpen((value) => !value)}
-          >
-            {t("workspace.navigator")}
-          </button>
-          <button
-            type="button"
-            aria-pressed={inspectorOpen}
-            onClick={() => setInspectorOpen((value) => !value)}
-          >
-            {t("workspace.inspector")}
-          </button>
-        </div>
-      </div>
+      <div className="workspace-shell-toolbar">{toolbar}</div>
       <aside className="workspace-shell-nav">{navigator}</aside>
-      <div className="workspace-shell-canvas">{canvas}</div>
+      <div className="workspace-shell-canvas">
+        {!focus && (
+          <>
+            <button
+              type="button"
+              className="workspace-shell-handle is-nav"
+              aria-label={t("workspace.navigator")}
+              aria-pressed={navOpen}
+              onClick={toggleNav}
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              className="workspace-shell-handle is-inspector"
+              aria-label={t("workspace.inspector")}
+              aria-pressed={inspectorOpen}
+              onClick={toggleInspector}
+            >
+              ›
+            </button>
+          </>
+        )}
+        {canvas}
+      </div>
       <aside className="workspace-shell-inspector">{inspector}</aside>
       {status && <div className="workspace-shell-status">{status}</div>}
     </section>

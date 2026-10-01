@@ -12,12 +12,11 @@ import { AnchorOverlay } from "./AnchorOverlay";
 import {
   previewCue,
   previewExercise,
-  previewStates,
   previewTrainingState,
   type PreviewState,
 } from "./preview";
 
-function effectiveScene(station: TrainingStation): SceneId {
+export function effectiveScene(station: TrainingStation): SceneId {
   if (station.presentation?.scene) return station.presentation.scene;
   return (sceneIds as readonly string[]).includes(station.module)
     ? (station.module as SceneId)
@@ -26,13 +25,13 @@ function effectiveScene(station: TrainingStation): SceneId {
 
 // Canvas pane: the live preview. It renders the shared runtime surface with a
 // synthetic, inert exercise value derived from the draft, and adds editor-only
-// chrome (a compact preview-state control, selection overlay). No second
-// renderer, no preview model (docs/architecture/previews.md).
+// chrome (selection overlay, state chrome). The preview-state control lives in
+// the workspace toolbar, outside the runtime area, so it can never overlap the
+// rendered interface (docs/architecture/previews.md).
 export function DevicePreview({
   station,
   scenario,
   preview,
-  onPreviewState,
   selectedAnchor,
   onSelectAnchor,
   readOnly,
@@ -42,7 +41,6 @@ export function DevicePreview({
   station: TrainingStation;
   scenario: Scenario;
   preview: PreviewState;
-  onPreviewState: (preview: PreviewState) => void;
   selectedAnchor: string;
   onSelectAnchor: (anchor: string) => void;
   readOnly: boolean;
@@ -98,8 +96,8 @@ export function DevicePreview({
 
   return (
     <ExerciseValueProvider value={value}>
-      <div className="device-preview" data-preview-state={preview}>
-        <div className="device-preview-stage" ref={stageRef} key={stageKey}>
+      <div className="sf-device-preview" data-preview-state={preview}>
+        <div className="sf-device-preview-stage" ref={stageRef} key={stageKey}>
           <DeviceSurface
             station={station.id}
             host="preview"
@@ -115,37 +113,20 @@ export function DevicePreview({
             onCommit={onCommit}
           />
           {preview === "offline" && (
-            <div className="device-preview-scrim" role="status">
+            <div className="sf-device-preview-scrim" role="status">
               {t("prep.devices.signalLost")}
             </div>
           )}
           {preview === "critical" && (
-            <span className="device-preview-badge is-critical">
+            <span className="sf-device-preview-badge is-critical">
               {t("prep.devices.criticalBadge")}
             </span>
           )}
           {preview === "safe" && (
-            <span className="device-preview-badge is-safe">
+            <span className="sf-device-preview-badge is-safe">
               {t("prep.devices.safeBadge")}
             </span>
           )}
-          {/* Rendered last so editor chrome stays clickable above the scrim. */}
-          <div
-            className="device-preview-state-control"
-            role="group"
-            aria-label={t("prep.devices.previewState")}
-          >
-            {previewStates.map((state) => (
-              <button
-                key={state}
-                type="button"
-                className={preview === state ? "active" : ""}
-                onClick={() => onPreviewState(state)}
-              >
-                {t(`prep.devices.state.${state}`)}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
     </ExerciseValueProvider>

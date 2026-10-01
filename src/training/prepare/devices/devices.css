@@ -1,26 +1,34 @@
 /* Device Builder workspace (docs/konzept/usability/13-editor-workspace.md).
-   One workspace: toolbar, structure-only navigator, dominant canvas, contextual
-   inspector, status bar. Grid only; no raw z-index; scroll regions hide their
-   scrollbar. */
+   Namespaced under `sf-device-*` so it cannot collide with generic control
+   classes elsewhere (the old `.device-tools`/`.device-status` collisions).
+   Grid only; no raw z-index; scroll regions hide their scrollbar. */
+
+.sf-device-workspace {
+  display: grid;
+}
 
 /* Toolbar --------------------------------------------------------------- */
-.device-toolbar {
+.sf-device-toolbar {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-columns: auto auto auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
 }
 
-.device-toolbar h2 {
+.sf-device-toolbar h2 {
   margin: 0;
   font-size: 15px;
 }
 
-.device-add {
+.sf-device-toolbar-spacer {
+  min-width: 0;
+}
+
+.sf-device-add {
   position: relative;
 }
 
-.device-add > button {
+.sf-device-add > button {
   padding: 5px 10px;
   border: 1px solid #1e2a33;
   background: #0e171f;
@@ -28,7 +36,7 @@
   cursor: pointer;
 }
 
-.device-add-menu {
+.sf-device-add-menu {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
@@ -42,7 +50,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-.device-add-menu button {
+.sf-device-add-menu button {
   padding: 5px 8px;
   border: 1px solid #1e2a33;
   background: #0e171f;
@@ -52,18 +60,17 @@
   cursor: pointer;
 }
 
-.device-add-menu button:hover:not(:disabled) {
+.sf-device-add-menu button:hover:not(:disabled) {
   border-color: #80dce5;
 }
 
-.device-tools {
-  justify-self: end;
+.sf-device-tools {
   display: grid;
   grid-auto-flow: column;
   gap: 2px;
 }
 
-.device-tools button {
+.sf-device-tools button {
   padding: 5px 10px;
   border: 1px solid #1e2a33;
   background: #0e171f;
@@ -75,111 +82,29 @@
   cursor: pointer;
 }
 
-.device-tools button.active {
+.sf-device-tools button.active {
   border-color: #80dce5;
   color: #d6e2e5;
   background: #10212a;
 }
 
-/* Navigator: structure only --------------------------------------------- */
-.device-nav {
+.sf-device-preview-controls {
   display: grid;
-  gap: 12px;
-  padding: 10px;
-  align-content: start;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 8px;
 }
 
-.device-nav-block {
-  display: grid;
-  gap: 6px;
-}
-
-.device-nav-block h3 {
-  margin: 0;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #4f6570;
-}
-
-.device-nav-item {
-  display: grid;
-  gap: 2px;
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #1e2a33;
-  background: #0e171f;
-  color: #d6e2e5;
-  text-align: left;
-  cursor: pointer;
-}
-
-.device-nav-item:hover {
-  border-color: #3a4a55;
-}
-
-.device-nav-item.is-selected {
-  border-color: #80dce5;
-  background: #10212a;
-}
-
-.device-nav-item .eyebrow {
-  color: #4f6570;
-}
-
-.device-nav-empty {
-  margin: 0;
-  color: #4f6570;
-  font-size: 12px;
-}
-
-/* Canvas / preview ------------------------------------------------------ */
-.device-preview {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr);
-  height: 100%;
-  min-height: 0;
-}
-
-.device-preview-stage {
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
-  display: grid;
-  background: #05080b;
-}
-
-.device-preview-stage > * {
-  min-height: 0;
-  min-width: 0;
-}
-
-.device-preview[data-preview-state="warning"] .device-preview-stage {
-  box-shadow: inset 0 0 0 2px #e8b563;
-}
-
-.device-preview[data-preview-state="critical"] .device-preview-stage {
-  box-shadow: inset 0 0 0 2px #f36c75;
-}
-
-.device-preview[data-preview-state="safe"] .device-preview-stage {
-  box-shadow: inset 0 0 0 2px #76fa96;
-}
-
-.device-preview-state-control {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+.sf-device-preview-states {
   display: grid;
   grid-auto-flow: column;
   gap: 2px;
   padding: 3px;
   border: 1px solid #263038;
-  background: rgba(5, 8, 11, 0.85);
+  background: #0e171f;
 }
 
-.device-preview-state-control button {
+.sf-device-preview-states button {
   padding: 3px 7px;
   border: 1px solid transparent;
   background: transparent;
@@ -191,41 +116,170 @@
   cursor: pointer;
 }
 
-.device-preview-state-control button.active {
+.sf-device-preview-states button.active {
   border-color: #80dce5;
   color: #d6e2e5;
   background: #10212a;
 }
 
-.device-preview-anchors {
+.sf-device-viewport-caption {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  color: #4f6570;
+  white-space: nowrap;
+}
+
+/* Navigator: structure only --------------------------------------------- */
+.sf-device-nav {
+  display: grid;
+  gap: 12px;
+  padding: 10px;
+  align-content: start;
+}
+
+.sf-device-nav-block {
+  display: grid;
+  gap: 6px;
+}
+
+.sf-device-nav-block h3 {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4f6570;
+}
+
+.sf-device-nav-item {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sf-device-nav-item:hover {
+  border-color: #3a4a55;
+}
+
+.sf-device-nav-item.is-selected {
+  border-color: #80dce5;
+  background: #10212a;
+}
+
+.sf-device-nav-item .eyebrow {
+  color: #4f6570;
+}
+
+.sf-device-nav-children {
+  display: grid;
+  gap: 4px;
+  margin-left: 10px;
+  padding-left: 8px;
+  border-left: 1px solid #1e2a33;
+}
+
+.sf-device-nav-child {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #1e2a33;
+  background: #0b131a;
+  color: #d6e2e5;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sf-device-nav-child.is-selected {
+  border-color: #80dce5;
+}
+
+.sf-device-nav-child.is-empty {
+  color: #4f6570;
+  cursor: default;
+}
+
+.sf-device-nav-empty {
+  margin: 0;
+  color: #4f6570;
+  font-size: 12px;
+}
+
+/* Canvas / preview ------------------------------------------------------ */
+.sf-device-preview {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+}
+
+.sf-device-preview-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #05080b;
+}
+
+.sf-device-preview-stage > * {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* A recognizable frame around the actual runtime viewport. */
+.sf-device-preview-stage .role-stage {
+  border: 1px solid #263038;
+}
+
+.sf-device-preview[data-preview-state="warning"] .sf-device-preview-stage {
+  box-shadow: inset 0 0 0 2px #e8b563;
+}
+
+.sf-device-preview[data-preview-state="critical"] .sf-device-preview-stage {
+  box-shadow: inset 0 0 0 2px #f36c75;
+}
+
+.sf-device-preview[data-preview-state="safe"] .sf-device-preview-stage {
+  box-shadow: inset 0 0 0 2px #76fa96;
+}
+
+.sf-device-preview-anchors {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-.device-preview-anchor,
-.device-preview-inline {
+.sf-device-preview-anchor,
+.sf-device-preview-inline {
   position: absolute;
   pointer-events: auto;
 }
 
-.device-preview-anchor {
+.sf-device-preview-anchor {
   border: 0;
   background: transparent;
   cursor: pointer;
 }
 
-.device-preview-anchor:hover {
+.sf-device-preview-anchor:hover {
   outline: 1px dashed #80dce5;
   background: rgba(128, 220, 229, 0.08);
 }
 
-.device-preview-anchor.is-selected {
+.sf-device-preview-anchor.is-selected {
   outline: 2px solid #80dce5;
   background: rgba(128, 220, 229, 0.12);
 }
 
-.device-preview-inline {
+.sf-device-preview-inline {
   border: 1px solid #80dce5;
   background: #0a1016;
   color: #d6e2e5;
@@ -233,7 +287,7 @@
   padding: 2px 4px;
 }
 
-.device-preview-scrim {
+.sf-device-preview-scrim {
   position: absolute;
   inset: 0;
   display: grid;
@@ -245,7 +299,7 @@
   text-transform: uppercase;
 }
 
-.device-preview-badge {
+.sf-device-preview-badge {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -258,42 +312,65 @@
   background: rgba(5, 8, 11, 0.8);
 }
 
-.device-preview-badge.is-critical {
+.sf-device-preview-badge.is-critical {
   color: #f36c75;
 }
 
-.device-preview-badge.is-safe {
+.sf-device-preview-badge.is-safe {
   color: #76fa96;
 }
 
-.device-canvas-empty {
+.sf-device-canvas-empty,
+.sf-device-unbound {
   display: grid;
   place-content: center;
   gap: 6px;
   height: 100%;
+  padding: 16px;
   text-align: center;
   color: #8a9aa2;
 }
 
+.sf-device-unbound h3 {
+  margin: 0;
+  color: #d6e2e5;
+}
+
+.sf-device-unbound-actions {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sf-device-unbound-actions select,
+.sf-device-unbound-actions button {
+  padding: 5px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
 /* Inspector ------------------------------------------------------------- */
-.device-inspector {
+.sf-device-inspector {
   display: grid;
   gap: 10px;
   padding: 10px;
   align-content: start;
 }
 
-.device-inspector-head {
+.sf-device-inspector-head {
   display: grid;
   gap: 2px;
 }
 
-.device-inspector-head h3 {
+.sf-device-inspector-head h3 {
   margin: 0;
   font-size: 15px;
 }
 
-.device-inspector-head button {
+.sf-device-inspector-head button {
   justify-self: start;
   border: 0;
   background: transparent;
@@ -303,15 +380,15 @@
   cursor: pointer;
 }
 
-.device-field {
+.sf-device-field {
   display: grid;
   gap: 3px;
   font-size: 12px;
   color: #8a9aa2;
 }
 
-.device-field input,
-.device-field select {
+.sf-device-field input,
+.sf-device-field select {
   padding: 5px 7px;
   border: 1px solid #1e2a33;
   border-radius: 0;
@@ -320,7 +397,7 @@
   min-width: 0;
 }
 
-.device-group {
+.sf-device-group {
   margin: 4px 0 0;
   font-family: "IBM Plex Mono", monospace;
   font-size: 10px;
@@ -329,12 +406,12 @@
   color: #4f6570;
 }
 
-.device-inspector-empty {
+.sf-device-inspector-empty {
   color: #4f6570;
   font-size: 12px;
 }
 
-.device-inspector-remove {
+.sf-device-inspector-remove {
   justify-self: start;
   border: 1px solid #3a2328;
   background: #1a0f12;
@@ -343,8 +420,8 @@
   cursor: pointer;
 }
 
-/* Status bar ------------------------------------------------------------ */
-.device-status {
+/* Status bar: actionable status only ------------------------------------ */
+.sf-device-status {
   display: grid;
   grid-auto-flow: column;
   justify-content: start;
@@ -354,8 +431,16 @@
   color: #8a9aa2;
 }
 
+.sf-device-status .is-error {
+  color: #f36c75;
+}
+
+.sf-device-status .is-warning {
+  color: #e8b563;
+}
+
 /* Provision tool -------------------------------------------------------- */
-.device-provision {
+.sf-device-provision {
   display: grid;
   gap: 10px;
   padding: 12px;
@@ -364,10 +449,10 @@
   scrollbar-width: none;
 }
 
-.device-provision::-webkit-scrollbar {
+.sf-device-provision::-webkit-scrollbar {
   display: none;
 }
 
-.device-provision h3 {
+.sf-device-provision h3 {
   margin: 0;
 }

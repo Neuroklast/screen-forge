@@ -39,3 +39,15 @@
 | W34 | Props as first-class selectable entities; delete `PropsPanel` | done |
 | W35 | Dominant preview + compact preview-state control | done |
 | W36 | Placement rule documented (U13 §6) | done |
+
+## Device workspace stabilization (Phase 13)
+
+| id | Task | Status |
+| --- | --- | --- |
+| W40 | Truthful selection: no silent fallback; unbound prop empty/link state; bound prop previews its interface | done |
+| W41 | Group prop + bound interface in the navigator; participant-owned station shown as its asset | done |
+| W42 | Namespace Device Builder CSS `sf-device-*`; remove the `.device-tools`/`.device-status` collisions | done |
+| W43 | Preview-state control moved to the workspace toolbar (outside the runtime) | done |
+| W44 | Pane edge handles; one overlay drawer at a time under 1100px; no persistent text toggles | done |
+| W45 | Language/terminology/density moved into the header `Einstellungen` popover | done |
+| W46 | Status bar shows actionable status only | done |

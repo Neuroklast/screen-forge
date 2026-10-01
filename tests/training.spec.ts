@@ -90,7 +90,7 @@ test('station presentation is pushed to the assigned field device', async ({page
     .locator('strong')
     .click();
   await page.getByText('Erweitert').click();
-  const title = page.locator('.device-inspector').getByLabel('Titel',{exact:true});
+  const title = page.locator('.sf-device-inspector').getByLabel('Titel',{exact:true});
   await title.fill('RELAY-07');
   await title.press('Enter');
   await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();

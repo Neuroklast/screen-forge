@@ -643,3 +643,32 @@
 .message-compose input {
   flex: 1;
 }
+/* Preferences popover: language / terminology / density behind one control so
+   the trainer header stays calm. */
+.preferences {
+  position: relative;
+}
+
+.preferences summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
+.preferences summary::-webkit-details-marker {
+  display: none;
+}
+
+.preferences-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: var(--sf-z-float);
+  padding: 10px;
+  border: 1px solid #263038;
+  background: #0a1016;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}

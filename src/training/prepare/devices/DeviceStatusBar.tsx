@@ -1,27 +1,30 @@
+import type { Finding } from "../../../core/missionLint";
 import { t } from "../../../i18n";
-import type { PreviewState } from "./preview";
 
-// Status bar: selection, device state and the active preview state. Status only,
-// never controls.
+// Status bar: actionable status only. Selection and preview state are already
+// visible in the workspace, so they are not repeated here.
 export function DeviceStatusBar({
-  count,
-  selectionLabel,
-  preview,
+  findings,
+  unbound,
 }: {
-  count: number;
-  selectionLabel: string;
-  preview: PreviewState;
+  findings: Finding[];
+  unbound: number;
 }) {
   return (
-    <div className="device-status">
-      <span>{t("prep.devices.deviceCount", { n: count })}</span>
-      <span>
-        {t("prep.devices.selected")}:{" "}
-        {selectionLabel || t("prep.devices.noSelection")}
-      </span>
-      <span>
-        {t("prep.devices.previewState")}: {t(`prep.devices.state.${preview}`)}
-      </span>
+    <div className="sf-device-status">
+      {findings.map((finding) => (
+        <span
+          key={finding.id}
+          className={finding.severity === "error" ? "is-error" : "is-warning"}
+        >
+          {finding.message}
+        </span>
+      ))}
+      {unbound > 0 && (
+        <span className="is-warning">
+          {t("prep.devices.unboundCount", { n: unbound })}
+        </span>
+      )}
     </div>
   );
 }

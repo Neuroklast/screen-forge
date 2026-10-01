@@ -84,7 +84,7 @@ export function AnchorOverlay({
   }, [measure, revisionKey]);
 
   return (
-    <div className="device-preview-anchors">
+      <div className="sf-device-preview-anchors">
       {rects.map((rect) => {
         const spec = anchorSpec(rect.id);
         if (!spec) return null;
@@ -101,7 +101,7 @@ export function AnchorOverlay({
           return (
             <input
               key={rect.id}
-              className="device-preview-inline"
+              className="sf-device-preview-inline"
               style={style}
               autoFocus
               defaultValue={valueOf(rect.id)}
@@ -122,7 +122,7 @@ export function AnchorOverlay({
           <button
             key={rect.id}
             type="button"
-            className={`device-preview-anchor ${
+            className={`sf-device-preview-anchor ${
               selectedAnchor === rect.id ? "is-selected" : ""
             }`}
             style={style}

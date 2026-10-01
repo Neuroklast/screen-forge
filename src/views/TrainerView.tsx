@@ -369,7 +369,17 @@ export function TrainerView({ room }: { room: string }) {
         >
           {t("trainer.abort")}
         </Button>
-        <TerminologySettings />
+        <details className="preferences">
+          <summary
+            title={t("preferences.title")}
+            aria-label={t("preferences.title")}
+          >
+            ⚙
+          </summary>
+          <div className="preferences-panel">
+            <TerminologySettings />
+          </div>
+        </details>
       </header>
       <Tabs
         items={(live ? (["live"] as const) : PREP_SECTIONS).map(

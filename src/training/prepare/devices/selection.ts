@@ -6,7 +6,3 @@ export type DeviceSelection =
   | { kind: "element"; id: string; anchor: string }
   | { kind: "prop"; id: string }
   | null;
-
-export function selectionId(selection: DeviceSelection): string {
-  return selection?.id ?? "";
-}

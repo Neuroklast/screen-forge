@@ -35,7 +35,7 @@ export function ProvisioningPanel({
   onNotice: (message: string) => void;
 }) {
   return (
-    <div className="device-provision">
+    <div className="sf-device-provision">
       <h3>{t("prep.devices.tool.provision")}</h3>
       <p className="prepare-hint">{t("trainer.qrNote")}</p>
       <label>

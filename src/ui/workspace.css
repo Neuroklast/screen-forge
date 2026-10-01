@@ -1,7 +1,8 @@
 /* Shared editor shell (docs/architecture/workspace.md). Grid only, no
    flex-wrap, no raw z-index; internal scroll regions hide their scrollbar.
-   Panes are collapsible; under 1100px they become overlay drawers so the canvas
-   never collapses into a vertical form stack. */
+   Side panes collapse via small edge handles; under 1100px they become overlay
+   drawers and only one is open at a time, so the canvas never collapses into a
+   vertical form stack. */
 .workspace-shell {
   position: relative;
   display: grid;
@@ -33,40 +34,9 @@
 
 .workspace-shell-toolbar {
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
   border: 1px solid #1e2a33;
   background: #0a1016;
   padding: 6px 10px;
-}
-
-.workspace-shell-tools {
-  min-width: 0;
-}
-
-.workspace-shell-panes {
-  display: grid;
-  grid-auto-flow: column;
-  gap: 4px;
-}
-
-.workspace-shell-panes button {
-  padding: 4px 8px;
-  border: 1px solid #1e2a33;
-  background: #0e171f;
-  color: #8a9aa2;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.workspace-shell-panes button[aria-pressed="true"] {
-  border-color: #80dce5;
-  color: #d6e2e5;
 }
 
 .workspace-shell-nav,
@@ -90,10 +60,41 @@
   display: none;
 }
 
-/* One filling cell: the canvas content owns its own toolbar/stage split. */
+/* One filling cell: the canvas content owns its own layout. */
 .workspace-shell-canvas {
+  position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
+}
+
+.workspace-shell-handle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--sf-z-float);
+  width: 16px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #8a9aa2;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.workspace-shell-handle.is-nav {
+  left: 0;
+  border-left: 0;
+}
+
+.workspace-shell-handle.is-inspector {
+  right: 0;
+  border-right: 0;
+}
+
+.workspace-shell-handle[aria-pressed="true"] {
+  color: #d6e2e5;
+  border-color: #263038;
 }
 
 .workspace-shell-status {
@@ -130,7 +131,7 @@
     right: 0;
   }
 
-  .workspace-shell[data-focus="true"] .workspace-shell-panes {
+  .workspace-shell[data-focus="true"] .workspace-shell-handle {
     display: none;
   }
 }
