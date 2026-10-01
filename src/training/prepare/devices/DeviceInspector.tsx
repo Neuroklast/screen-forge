@@ -4,6 +4,7 @@ import { propKinds, type Scenario, type TrainingStation } from "../../../core/tr
 import { labelFor } from "../../../core/labels";
 import { ordnanceTypes } from "../../../core/ordnance";
 import { t } from "../../../i18n";
+import { assetView } from "../assetView";
 import { presetLabel, type DevicePreset } from "../devicePresets";
 import type { DeviceSelection } from "./selection";
 
@@ -215,7 +216,7 @@ export function DeviceInspector({
         <span className="eyebrow">
           {element ? t("prep.devices.selected") : t("prep.devices.inspector")}
         </span>
-        <h3>{station.name}</h3>
+        <h3>{assetView(station).name}</h3>
         {element && (
           <button type="button" onClick={onSelectDevice}>
             {t("prep.devices.inspector")}

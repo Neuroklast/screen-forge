@@ -11,6 +11,7 @@ import {
   splitPresets,
   type DevicePreset,
 } from "./devicePresets";
+import { assetView } from "./assetView";
 import { DeviceNavigator } from "./devices/DeviceNavigator";
 import { DevicePreview, effectiveScene } from "./devices/DevicePreview";
 import { DeviceInspector } from "./devices/DeviceInspector";
