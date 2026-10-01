@@ -20,7 +20,7 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 
 The three editors share one model ([13-editor-workspace.md](13-editor-workspace.md), [../../architecture/workspace.md](../../architecture/workspace.md)):
 
-- **Mission** (`"Szenario"`): identity, profile, location and objectives; the capability matrix and raw `lat`/`lng`/`zoom`/tile/attribution are expert detail. Edits go through `scenarioCommands`.
+- **Mission** (`"Szenario"`): identity, profile, location and objectives. The location is set by clicking the map (zones render as circles); the capability matrix and raw `lat`/`lng`/`zoom`/tile/attribution are expert detail. Edits go through `scenarioCommands`.
 - **Forces** (`"Teilnehmer"`): navigator (teams, participants, actors, patients), roster + dossiers in the centre, the selected person/team in the inspector. Edits go through `forceCommands`. A participant's device is shown as its asset, never as the person.
 - **Assets** (`"Geräte"`): see the device workspace below.
 - **Flow** (`"Ablauf"`): the flow workspace is the second consumer of the shared shell (palette / graph+timeline / inspector).

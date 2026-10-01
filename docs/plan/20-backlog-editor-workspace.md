@@ -77,3 +77,4 @@
 | W68 | Add-device catalog: profile descriptions + hover preview in the canvas | done |
 | W69 | Header phase grouping: reset hidden while the exercise runs | done |
 | W70 | Stabilize the React Flow test flake (measurable canvas, visibility waits, retries) | done |
+| W71 | Mission location set visually on a map (click to place, zones as circles) | done |

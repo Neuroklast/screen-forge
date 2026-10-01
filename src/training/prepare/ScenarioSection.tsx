@@ -2,6 +2,7 @@ import { capabilityKeys, scenarioTypes } from "../../core/capabilities";
 import { labelFor } from "../../core/labels";
 import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
+import { MissionMap } from "./MissionMap";
 import type { PrepareSectionProps } from "./shared";
 import { Panel } from "../../ui/primitives";
 import {
@@ -80,6 +81,16 @@ export function ScenarioSection({
 
       <section className="prepare-block">
         <h3>{t("prep.scenario.location")}</h3>
+        <MissionMap
+          lat={draft.map.lat}
+          lng={draft.map.lng}
+          zoom={draft.map.zoom}
+          tiles={draft.map.tiles}
+          attribution={draft.map.attribution}
+          zones={draft.zones}
+          readOnly={readOnly}
+          onPick={(lat, lng) => change(setMap(draft, { lat, lng }))}
+        />
         <div className="location-readout">
           <span>
             {draft.map.lat.toFixed(3)}, {draft.map.lng.toFixed(3)}
