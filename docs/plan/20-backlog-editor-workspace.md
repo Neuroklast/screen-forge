@@ -86,7 +86,8 @@
 | W82 | Schema: `team.templateId/callsign/parentTeamId`, `station.roleId/qualifications` (additive) | done |
 | W83 | Forces: `"Team aus Vorlage"` picker + staffing inspector | done |
 | W84 | Equipment capability packs (capability-based, template suggestions, status) | done |
-| W88 | Equipment `linkedDeviceId` picker + readiness roll-up + person assignment | todo |
+| W88 | Equipment `linkedDeviceId` picker + team readiness roll-up | done |
+| W89 | Equipment person-level assignment + scenario-wide readiness roll-up | todo |
 | W85 | Next: scenario templates with variants (`base + overrides`) | todo |
 | W86 | Next: MSEL event metadata (inject, expected observation, linked objective) | todo |
 | W87 | Next: guided integration (team kind → recommended composition → deviations) | todo |

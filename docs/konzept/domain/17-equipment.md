@@ -46,13 +46,14 @@ A team template references packs (`equipmentPacks`). Creating a team turns them 
 
 ## 4. Authoring UX
 
-- The team inspector lists the team's equipment with its status (`Bereit` / `Eingeschränkt` / `Nicht verfügbar`).
+- The team inspector lists the team's equipment with an editable status (`Bereit` / `Eingeschränkt` / `Nicht verfügbar`) and a **device picker** that ties the item to a ScreenForge device (`linkedDeviceId`).
+- A **readiness roll-up** shows `"Ausrüstung bereit"` or `"{n} erforderliche Ausrüstung nicht bereit"`, counting required items whose status is not `ready`.
 - Equipment is edited through `forceCommands.updateEquipment` (pure `Scenario → Scenario`), so undo/redo covers it.
 
 ## 5. Planned (not yet implemented)
 
-- A person-level assignment view and a `linkedDeviceId` picker that ties an item to a device in the Assets workspace.
-- A readiness roll-up: a team or scenario is only "ready" when required equipment is `ready`.
+- A person-level assignment view (equipment assigned to a person rather than a team).
+- A scenario-wide readiness roll-up that includes equipment (the team-level one exists).
 - Guided integration: choose a team kind, accept the recommended packs, then only ask about deviations.
 
 ## Acceptance criteria
@@ -61,3 +62,4 @@ A team template references packs (`equipmentPacks`). Creating a team turns them 
 - [x] Creating a team from a template creates its equipment items assigned to the team.
 - [x] Removing a team unassigns its equipment (no dangling reference).
 - [x] Equipment status is editable and localized.
+- [x] An item can be linked to a ScreenForge device, and the team shows an equipment readiness roll-up.

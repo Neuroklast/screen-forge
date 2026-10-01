@@ -210,12 +210,30 @@
   font-size: 12px;
 }
 
-.sf-force-staffing li,
-.sf-force-equipment li {
+.sf-force-staffing li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
+}
+
+.sf-force-equipment li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.sf-force-equipment .is-ok {
+  color: #76fa96;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+}
+
+.sf-force-equipment .is-warning {
+  color: #e8b563;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
 }
 
 .sf-force-staffing b {

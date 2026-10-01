@@ -418,15 +418,23 @@ export function ParticipantsSection({
                     (item) => item.assignedTo.teamId === selectedTeam.id,
                   );
                   if (!equipment.length) return null;
+                  const missing = equipment.filter(
+                    (item) => item.required && item.status !== "ready",
+                  ).length;
                   return (
                     <div className="sf-force-equipment">
                       <strong>{t("prep.people.equipment")}</strong>
+                      <span className={missing ? "is-warning" : "is-ok"}>
+                        {missing
+                          ? t("prep.people.equipmentMissing", { n: missing })
+                          : t("prep.people.equipmentReady")}
+                      </span>
                       <ul>
                         {equipment.map((item) => (
                           <li key={item.id}>
                             <span>{item.name}</span>
                             <select
-                              aria-label={`${item.name} ${t("prep.people.equipment")}`}
+                              aria-label={`${item.name} ${t("prep.people.equipmentStatus")}`}
                               value={item.status}
                               disabled={readOnly}
                               onChange={(event) =>
@@ -447,6 +455,27 @@ export function ParticipantsSection({
                               <option value="unavailable">
                                 {t("equipment.status.unavailable")}
                               </option>
+                            </select>
+                            <select
+                              aria-label={`${item.name} ${t("prep.people.equipmentDevice")}`}
+                              value={item.linkedDeviceId}
+                              disabled={readOnly}
+                              onChange={(event) =>
+                                change(
+                                  updateEquipment(draft, item.id, {
+                                    linkedDeviceId: event.target.value,
+                                  }),
+                                )
+                              }
+                            >
+                              <option value="">
+                                {t("prep.people.equipmentNoDevice")}
+                              </option>
+                              {draft.stations.map((station) => (
+                                <option key={station.id} value={station.id}>
+                                  {station.name}
+                                </option>
+                              ))}
                             </select>
                           </li>
                         ))}

@@ -293,8 +293,10 @@ test("a team can be created from a template with staffing", async ({ page }) => 
   await expect(
     page.locator(".sf-force-item").filter({ hasText: "Fernmeldespezialist" }),
   ).toHaveCount(1);
-  // The template's equipment packs become suggestions for the team.
+  // The template's equipment packs become suggestions for the team, with a
+  // readiness roll-up and a link to a ScreenForge device.
   await expect(page.locator(".sf-force-equipment")).toContainText(
-    "Ausrüstung",
+    "Ausrüstung bereit",
   );
+  await expect(page.locator(".sf-force-equipment select").last()).toBeVisible();
 });
