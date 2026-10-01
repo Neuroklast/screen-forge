@@ -17,7 +17,7 @@ import { DeviceInspector } from "./devices/DeviceInspector";
 import { DeviceStatusBar } from "./devices/DeviceStatusBar";
 import { ProvisioningPanel } from "./devices/ProvisioningPanel";
 import type { DeviceSelection } from "./devices/selection";
-import { previewStates, type PreviewState } from "./devices/preview";
+import { previewScenarios, previewStateFor } from "./devices/preview";
 import {
   addDevice,
   addProp,
@@ -76,7 +76,7 @@ export function DevicesSection({
   const [selection, setSelection] = useState<DeviceSelection>(() =>
     draft.stations[0] ? { kind: "device", id: draft.stations[0].id } : null,
   );
-  const [preview, setPreview] = useState<PreviewState>("normal");
+  const [previewId, setPreviewId] = useState<string>("normal");
   const [tool, setTool] = useState<WorkspaceTool>("edit");
   const [connect, setConnect] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
@@ -120,6 +120,15 @@ export function DevicesSection({
         canvasStation.presentation,
       ).format
     : "";
+  const scenarios = previewScenarios(
+    canvasStation?.module ?? "",
+    canvasStation?.presentation?.scene,
+  );
+  const preview = previewStateFor(
+    canvasStation?.module ?? "",
+    canvasStation?.presentation?.scene,
+    previewId,
+  );
 
   const deviceFindings = lintMission(draft).filter(
     (finding) =>
@@ -347,22 +356,19 @@ export function DevicesSection({
             <span className="sf-device-toolbar-spacer" />
             {tool === "edit" && !connect && (
               <div className="sf-device-preview-controls">
-                <div
-                  className="sf-device-preview-states"
-                  role="group"
-                  aria-label={t("prep.devices.previewState")}
-                >
-                  {previewStates.map((state) => (
-                    <button
-                      key={state}
-                      type="button"
-                      className={preview === state ? "active" : ""}
-                      onClick={() => setPreview(state)}
-                    >
-                      {t(`prep.devices.state.${state}`)}
-                    </button>
-                  ))}
-                </div>
+                <label className="sf-device-preview-scenario">
+                  {t("prep.devices.previewScenario")}
+                  <select
+                    value={previewId}
+                    onChange={(event) => setPreviewId(event.target.value)}
+                  >
+                    {scenarios.map((scenario) => (
+                      <option key={scenario.id} value={scenario.id}>
+                        {t(scenario.labelKey)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 {format && (
                   <span className="sf-device-viewport-caption">
                     {format} · {t("prep.devices.fit")}

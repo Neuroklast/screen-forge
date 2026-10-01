@@ -34,15 +34,16 @@ test("device builder: workspace, preview states, direct selection and undo", asy
   await expect(page.locator(".prepare-device")).toHaveCount(initial + 1);
 
   // Preview states are transient and reach the renderer.
-  await page.getByRole("button", { name: "Warnung", exact: true }).click();
+  const preview = page.getByLabel("Vorschau-Szenario");
+  await preview.selectOption({ label: "Warnung" });
   await expect(
     page.locator('.sf-device-preview[data-preview-state="warning"]'),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Offline", exact: true }).click();
+  await preview.selectOption({ label: "Offline" });
   await expect(page.locator(".sf-device-preview-scrim")).toBeVisible();
-  await page.getByRole("button", { name: "Sicher", exact: true }).click();
+  await preview.selectOption({ label: "Sicher" });
   await expect(page.locator(".sf-device-preview-badge.is-safe")).toBeVisible();
-  await page.getByRole("button", { name: "Normal", exact: true }).click();
+  await preview.selectOption({ label: "Normal" });
   await expect(page.locator(".sf-device-preview-scrim")).toHaveCount(0);
 
   // Direct selection from the preview, then inline editing.

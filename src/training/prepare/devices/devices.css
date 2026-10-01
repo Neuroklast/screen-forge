@@ -116,31 +116,21 @@
   gap: 8px;
 }
 
-.sf-device-preview-states {
+.sf-device-preview-scenario {
   display: grid;
   grid-auto-flow: column;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid #263038;
-  background: #0e171f;
-}
-
-.sf-device-preview-states button {
-  padding: 3px 7px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #8a9aa2;
+  align-items: center;
+  gap: 6px;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
+  font-size: 10px;
+  color: #8a9aa2;
 }
 
-.sf-device-preview-states button.active {
-  border-color: #80dce5;
+.sf-device-preview-scenario select {
+  padding: 3px 6px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
   color: #d6e2e5;
-  background: #10212a;
 }
 
 .sf-device-viewport-caption {

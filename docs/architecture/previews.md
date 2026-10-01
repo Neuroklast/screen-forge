@@ -18,6 +18,7 @@ The editor preview shows the real result. Preview, runtime and editor use the sa
 - The preview sandbox is inert: its `send` is a no-op and it never touches the exercise server, the journal or persisted state.
 - Side-effectful leaves (Leaflet map, WebRTC camera) MUST NOT run inside the editor preview; the preview renders their scene surface instead.
 - Preview states are transient editor state (`NORMAL`, `WARNING`, `CRITICAL`, `OFFLINE`, `SAFE`). They are never persisted.
+- A **preview scenario** is a labelled situation. The generic states are always available; a surface may add situations that mean something specific for it (tracking: `Signal lost`, `Objective reached`; medical: `Critical condition`; countdown: `Time expired`). The editor exposes **one** `Preview scenario` control (not one control per state), and a scenario maps back to a generic state for the cue and chrome — there is still one preview model.
 - Cue delivery is **scene-surface only**: `WARNING`/`CRITICAL` map to the renderer `Cue` `warning`, `SAFE` to `complete`, `NORMAL`/`OFFLINE` to `idle`. Console surfaces (terminal, ordnance, beacon, datasheet) do not consume a cue; their preview state appears as editor chrome (frame/badge/scrim). Do not invent a cue prop for a console to satisfy the mapping.
 - A new capability ships with a preview path through the shared renderer; a preview-only renderer is forbidden.
 
