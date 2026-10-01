@@ -90,6 +90,51 @@
   cursor: pointer;
 }
 
+.gallery-intent {
+  color: #80dce5 !important;
+  font-size: 12px;
+}
+
+.gallery-sections summary {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f6570;
+  cursor: pointer;
+}
+
+.gallery-sections dl {
+  margin: 6px 0 0;
+}
+
+.gallery-sections dt {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4f6570;
+}
+
+.gallery-sections dd {
+  margin: 0 0 4px;
+  font-size: 11px;
+  color: #8a9aa2;
+}
+
+.gallery-defaults {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #8a9aa2;
+}
+
+.gallery-defaults span {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4f6570;
+}
+
 .gallery-variants {
   display: flex;
   flex-wrap: wrap;

@@ -278,6 +278,8 @@ const clarity: GuidedRule = {
   },
 };
 
+// Medical scenarios disable the `teams` capability, so the organization step is
+// deliberately not wired in here (a team would be invisible in the workspace).
 export const medicalPack: DomainPack = {
   id: "medical",
   token: "med",

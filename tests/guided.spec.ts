@@ -105,3 +105,29 @@ test("guided film sequence branches on reactions", async ({ page }) => {
     3,
   );
 });
+
+test("guided organization offers a team and asks only about deviations", async ({
+  page,
+}) => {
+  await login(page, "guided-org");
+  await startGuided(page, "Search & Rescue");
+
+  // Clear the structural questions so the organization step becomes active.
+  const card = page.locator(".guided-card");
+  await card.getByRole("button", { name: "Nein", exact: true }).click();
+  await card.getByRole("button", { name: "Wiederholen", exact: true }).click();
+  await card.getByRole("button", { name: "Person", exact: true }).click();
+
+  // Team kind -> recommended composition, then a deviation question.
+  await card
+    .getByRole("button", { name: "Suche-und-Rettung-Trupp", exact: true })
+    .click();
+  await apply(page, "nach Vorlage");
+  await card.getByRole("button", { name: "Kleiner", exact: true }).click();
+  await apply(page, "nach Vorlage");
+
+  // The generated team is real content, not a guided-only copy.
+  await page.getByRole("button", { name: "Schließen", exact: true }).click();
+  await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
+  await expect(page.locator(".sf-force-nav")).toContainText("RAVEN 1");
+});

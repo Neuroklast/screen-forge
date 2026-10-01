@@ -120,6 +120,9 @@ export type GuidedQuestion = {
   priority: GuidedPriority;
   dependsOn: readonly string[];
   appliesWhen: (facts: GuidedFacts) => boolean;
+  // Optional scenario-level gate, for questions whose answer only makes sense
+  // when the scenario can show the result (e.g. teams when the capability is off).
+  appliesToScenario?: (scenario: Scenario) => boolean;
   isAnswered?: (session: GuidedSession) => boolean;
   options: readonly GuidedOption[];
   multi?: boolean;

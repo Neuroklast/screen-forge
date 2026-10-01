@@ -330,3 +330,47 @@ test("a template variant loads its overrides onto the base", async ({ page }) =>
     page.getByRole("button", { name: /Radio link drops/ }),
   ).toBeVisible();
 });
+
+test("the gallery shows what each section of a template starts with", async ({
+  page,
+}) => {
+  await login(page, "prep-sections");
+  await page.getByRole("button", { name: "Vorlage laden" }).click();
+  const card = page
+    .locator(".gallery-card")
+    .filter({ hasText: "Search & Rescue" });
+  await expect(card.locator(".gallery-intent")).toContainText("stabilise");
+  await card.locator(".gallery-sections summary").click();
+  await expect(card.locator(".gallery-sections")).toContainText(
+    "Empfohlene Trupps",
+  );
+});
+
+test("equipment is assigned to a person and rolls up across the scenario", async ({
+  page,
+}) => {
+  await login(page, "prep-equip-person");
+  await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Team aus Vorlage", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Kompakter Feldtrupp", exact: true })
+    .click();
+
+  // Scenario-wide roll-up, next to the per-team one.
+  const overall = page.locator(".sf-force-readiness");
+  await expect(overall).toContainText("Ausrüstung gesamt");
+
+  // A physical asset can be assigned to a named person, not just the team.
+  const person = page.getByLabel(/ Person$/).first();
+  await expect(person).toHaveValue("");
+  await person.selectOption({ index: 1 });
+  await expect(person).not.toHaveValue("");
+
+  // A required item going unavailable shows up in the scenario roll-up.
+  await page.locator(".sf-force-equipment select").first().selectOption(
+    "unavailable",
+  );
+  await expect(overall).toContainText("nicht bereit");
+});

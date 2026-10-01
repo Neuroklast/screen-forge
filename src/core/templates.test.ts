@@ -1,7 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { applyVariant, buildMission, missionTemplates } from "./templates";
+import {
+  applyVariant,
+  buildMission,
+  missionSectionKeys,
+  missionTemplates,
+} from "./templates";
 import { scenarioSchema, template } from "./training";
 import { lintMission } from "./missionLint";
+import { equipmentPack } from "./equipment";
+import { teamTemplate } from "./teamTemplates";
+import { de } from "../i18n/de";
+import { en } from "../i18n/en";
 
 const MEL_TEMPLATES = [
   "relay-recovery",
@@ -45,6 +54,37 @@ describe("mission templates", () => {
     expect(mission.name).toBe(found?.name);
     expect(mission).not.toBe(found?.scenario);
     expect(() => buildMission("nope")).toThrow(/Unknown/);
+  });
+});
+
+describe("sectioned templates", () => {
+  const sectioned = missionTemplates.filter((tpl) => tpl.sections);
+
+  it("describes every sectioned template with known keys and a goal", () => {
+    const known = new Set<string>(missionSectionKeys);
+    expect(sectioned.length).toBeGreaterThan(0);
+    for (const tpl of sectioned) {
+      expect(tpl.intent, tpl.id).toBeTruthy();
+      const keys = Object.keys(tpl.sections ?? {});
+      expect(keys.length, tpl.id).toBeGreaterThan(0);
+      for (const key of keys) expect(known.has(key), `${tpl.id}.${key}`).toBe(true);
+    }
+  });
+
+  it("resolves every section label in both dictionaries", () => {
+    for (const key of missionSectionKeys) {
+      expect(de[`template.section.${key}`], key).toBeTruthy();
+      expect(en[`template.section.${key}`], key).toBeTruthy();
+    }
+  });
+
+  it("only recommends real team templates and equipment packs", () => {
+    for (const tpl of missionTemplates) {
+      for (const id of tpl.defaults?.teamTemplates ?? [])
+        expect(teamTemplate(id), `${tpl.id}.${id}`).toBeDefined();
+      for (const id of tpl.defaults?.equipmentPacks ?? [])
+        expect(equipmentPack(id), `${tpl.id}.${id}`).toBeDefined();
+    }
   });
 });
 

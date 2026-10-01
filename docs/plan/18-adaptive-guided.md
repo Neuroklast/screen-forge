@@ -40,6 +40,7 @@ Replace the fixed five-step wizard with a constraint-driven scenario interview: 
 | G2 | Guided UI + wizard replacement | interview column + live `WorkflowCanvas`, accept/modify/skip, reconciliation panel, `TrainerView` wiring, `ScenarioWizard` deleted, preparation/journeys/training/artifact E2E migrated | XL | done |
 | G3 | Remaining packs | technical, disposal, film, free packs; per-domain unit journeys + guided E2E journeys | L | done |
 | G4 | Docs & cleanup | dead wizard keys, doc pass, lessons | S | done |
+| G5 | Organization integration | `organization.ts`: team kind → recommended composition → deviation only; `withOrganization` on every non-free pack whose scenario type can show a team (`medical`/`film` are excluded, and the rule + questions additionally gate on the `teams` capability); question dedupe in `nextQuestionCards`; rule/reconcile/invariant tests + guided E2E | M | done |
 
 ## G0/G1 acceptance (met)
 
@@ -67,6 +68,14 @@ Replace the fixed five-step wizard with a constraint-driven scenario interview: 
 
 - Removed dead wizard copy from `de`/`en` (only `wizard.name`, `wizard.lat`, `wizard.lng`, `wizard.zoom` remain) and the unused legacy `prep.scenario.advanced` labels.
 - Concept set updated to the adaptive surface: README U2, catalog training-controls, templates mapping and mission-builder defaults.
+
+## G5 delivered
+
+- `src/core/guided/domains/organization.ts`: shared `organizationQuestions(domain)` + `organizationRule(domain)`, applied through `withOrganization(pack)` on team-capable packs only. The rule is deterministic and idempotent (fixed subject, facts-only fingerprint) and emits `add-team` + one `add-station` per recommended role slot. Entity ids are keyed by kind and role slot, so growing a team appends and a kind change never rewrites an existing participant.
+- Reconciliation: an accepted suggestion whose content is missing again (a reverted deviation) is re-offered as a **restore of only the missing parts** (never re-emitting existing rows), and a dismissal always wins. A full preview that fails because a generated row was edited by hand no longer makes that row look stale.
+- Ownership: a manual edit of guided-generated content (team, participant) marks it `generated-modified` via `forceCommands`, so reconciliation reports a conflict instead of overwriting it.
+- Question dedupe: a question id is one question even when several enabled packs contribute it; a question may also gate on the scenario via `appliesToScenario`.
+- Tests: `organization.test.ts` (rule, deviation gating, composition/superset, graph invariant, reversion restore, dismissal) + `tests/guided.spec.ts` organization journey.
 
 ## G2 UI contract
 

@@ -82,7 +82,12 @@ function refLabel(scenario: Scenario, ref: ElementRef): string {
   const parsed = parseElementRef(ref);
   if (!parsed) return ref;
   if (parsed.kind === "entity") {
-    const rows = scenario[parsed.collection] as { id: string; name?: string }[];
+    // Conflicts may carry a synthetic ref (e.g. `suggestion:<id>`) that names
+    // no collection; fall back to the id instead of throwing.
+    const rows = scenario[parsed.collection] as
+      | { id: string; name?: string }[]
+      | undefined;
+    if (!Array.isArray(rows)) return parsed.id;
     return rows.find((row) => row.id === parsed.id)?.name ?? parsed.id;
   }
   if (parsed.kind === "workflow")
@@ -128,7 +133,15 @@ export function GuidedBuilder({
   const model = useMemo(() => {
     if (!session) return null;
     const ctx = contextFor(draft, session);
-    const allQuestions = ctx.packs.flatMap((pack) => pack.questions);
+    // A shared question (e.g. the organization step) appears in several packs;
+    // the interview must show it once.
+    const allQuestions = [
+      ...new Map(
+        ctx.packs
+          .flatMap((pack) => pack.questions)
+          .map((question) => [question.id, question]),
+      ).values(),
+    ];
     const cards = nextQuestionCards(ctx, includeOptional);
     const result = reconcile(draft, session);
     return { ctx, allQuestions, cards, result };

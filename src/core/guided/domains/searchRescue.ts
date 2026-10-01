@@ -6,6 +6,7 @@ import {
 } from "../../workflow.ts";
 import { factBoolean, factString } from "../facts.ts";
 import { generatedId, makeSuggestionId } from "../meta.ts";
+import { withOrganization } from "./organization.ts";
 import type {
   DomainPack,
   GeneratedMeta,
@@ -641,10 +642,10 @@ const condition: GuidedRule = {
   },
 };
 
-export const searchRescuePack: DomainPack = {
+export const searchRescuePack: DomainPack = withOrganization({
   id: "search-rescue",
   token: "sar",
   scenarioType: "sar",
   questions,
   rules: [locate, recover, sources, condition],
-};
+});

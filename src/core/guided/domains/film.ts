@@ -302,6 +302,8 @@ const props: GuidedRule = {
   },
 };
 
+// Film scenarios disable the `teams` capability, so the organization step is
+// deliberately not wired in here (a team would be invisible in the workspace).
 export const filmPack: DomainPack = {
   id: "film",
   token: "film",

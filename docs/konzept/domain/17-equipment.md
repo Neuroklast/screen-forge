@@ -46,15 +46,14 @@ A team template references packs (`equipmentPacks`). Creating a team turns them 
 
 ## 4. Authoring UX
 
-- The team inspector lists the team's equipment with an editable status (`Bereit` / `Eingeschränkt` / `Nicht verfügbar`) and a **device picker** that ties the item to a ScreenForge device (`linkedDeviceId`).
-- A **readiness roll-up** shows `"Ausrüstung bereit"` or `"{n} erforderliche Ausrüstung nicht bereit"`, counting required items whose status is not `ready`.
+- The team inspector lists the team's equipment with an editable status (`Bereit` / `Eingeschränkt` / `Nicht verfügbar`), a **person picker** (`assignedTo.personId`, members of that team) and a **device picker** that ties the item to a ScreenForge device (`linkedDeviceId`).
+- A **readiness roll-up** shows `"Ausrüstung bereit"` or `"{n} erforderliche Ausrüstung nicht bereit"`, counting required items whose status is not `ready`. The same `equipmentReadiness()` helper drives the per-team line and the **scenario-wide** line (`"Ausrüstung gesamt — {ready} / {total} bereit"`), so the two can never disagree.
 - Equipment is edited through `forceCommands.updateEquipment` (pure `Scenario → Scenario`), so undo/redo covers it.
+- Referential integrity: removing a team unassigns its equipment (`removeTeam`); removing a participant or moving them to another team clears `assignedTo.personId` (`removeParticipant`/`updateParticipant`, and the guided `cleanReferences` path). Clearing a now-invalid pointer is a deliberate exception to the "generated-unmodified only" rule — the item itself is never deleted or otherwise edited.
 
-## 5. Planned (not yet implemented)
+## 5. Guided integration
 
-- A person-level assignment view (equipment assigned to a person rather than a team).
-- A scenario-wide readiness roll-up that includes equipment (the team-level one exists).
-- Guided integration: choose a team kind, accept the recommended packs, then only ask about deviations.
+Guided mode asks for the team kind, offers the template's recommended composition (one participant per recommended role slot), and only asks about deviations afterwards (`Wie empfohlen` / `Kleiner` / `Größer`). See [16-team-templates.md](16-team-templates.md) §7.
 
 ## Acceptance criteria
 
@@ -63,3 +62,5 @@ A team template references packs (`equipmentPacks`). Creating a team turns them 
 - [x] Removing a team unassigns its equipment (no dangling reference).
 - [x] Equipment status is editable and localized.
 - [x] An item can be linked to a ScreenForge device, and the team shows an equipment readiness roll-up.
+- [x] An item can be assigned to a person within its team.
+- [x] A scenario-wide readiness roll-up uses the same helper as the per-team roll-up.

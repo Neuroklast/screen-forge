@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { applyVariant, missionTemplates } from "../core/templates";
+import {
+  applyVariant,
+  missionSectionKeys,
+  missionTemplates,
+} from "../core/templates";
+import { equipmentPack } from "../core/equipment";
+import { teamTemplateLabel } from "../core/teamTemplates";
 import type { Scenario } from "../core/training";
 import { t } from "../i18n";
 import "./gallery.css";
@@ -61,6 +67,41 @@ export function TemplateGallery({
                 level: tpl.difficulty,
               })}
             </span>
+            {tpl.intent && <span className="gallery-intent">{tpl.intent}</span>}
+            {tpl.sections && (
+              <details className="gallery-sections">
+                <summary>{t("gallery.sections")}</summary>
+                <dl>
+                  {missionSectionKeys
+                    .filter((key) => key !== "intent" && tpl.sections?.[key])
+                    .map((key) => (
+                      <div key={key}>
+                        <dt>{t(`template.section.${key}`)}</dt>
+                        <dd>{tpl.sections?.[key]}</dd>
+                      </div>
+                    ))}
+                </dl>
+                {tpl.defaults?.teamTemplates?.length ? (
+                  <p className="gallery-defaults">
+                    <span>{t("gallery.defaultTeams")}</span>
+                    {tpl.defaults.teamTemplates
+                      .map((id) => teamTemplateLabel(id))
+                      .join(" · ")}
+                  </p>
+                ) : null}
+                {tpl.defaults?.equipmentPacks?.length ? (
+                  <p className="gallery-defaults">
+                    <span>{t("gallery.defaultPacks")}</span>
+                    {tpl.defaults.equipmentPacks
+                      .map((id) => {
+                        const pack = equipmentPack(id);
+                        return pack ? t(pack.labelKey) : id;
+                      })
+                      .join(" · ")}
+                  </p>
+                ) : null}
+              </details>
+            )}
             <button onClick={() => onSelect(structuredClone(tpl.scenario))}>
               {t("gallery.load")}
             </button>

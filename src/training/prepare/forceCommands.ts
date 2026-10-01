@@ -10,6 +10,8 @@ import { randomCallsignRoot, renderCallsign } from "../../core/callsigns";
 import { equipmentItemsForPacks } from "../../core/equipment";
 import { teamRoleLabel } from "../../core/roles";
 import { teamTemplate } from "../../core/teamTemplates";
+import { markGeneratedModified } from "../../core/guided/meta";
+import type { GeneratedMeta } from "../../core/guided/types";
 import { t } from "../../i18n";
 import { uid } from "./shared";
 
@@ -97,6 +99,12 @@ export function addTeamFromTemplate(
   };
 }
 
+// A manual edit of guided-generated content freezes it: reconciliation may
+// then only report a conflict, never overwrite or delete it.
+function edited<T extends { origin?: GeneratedMeta }>(row: T): T {
+  return markGeneratedModified(row);
+}
+
 export function updateTeam(
   scenario: Scenario,
   id: string,
@@ -105,7 +113,7 @@ export function updateTeam(
   return {
     ...scenario,
     teams: scenario.teams.map((team) =>
-      team.id === id ? { ...team, ...patch } : team,
+      team.id === id ? edited({ ...team, ...patch }) : team,
     ),
   };
 }
@@ -159,10 +167,21 @@ export function updateParticipant(
   id: string,
   patch: Partial<Station>,
 ): Scenario {
-  return {
+  const next: Scenario = {
     ...scenario,
     stations: scenario.stations.map((station) =>
-      station.id === id ? { ...station, ...patch } : station,
+      station.id === id ? edited({ ...station, ...patch }) : station,
+    ),
+  };
+  // Moving a person to another team unassigns equipment that stays behind, so
+  // the item never points at someone who is no longer in its team.
+  if (patch.team === undefined) return next;
+  return {
+    ...next,
+    equipment: next.equipment.map((item) =>
+      item.assignedTo.personId === id && item.assignedTo.teamId !== patch.team
+        ? { ...item, assignedTo: { ...item.assignedTo, personId: "" } }
+        : item,
     ),
   };
 }
@@ -171,6 +190,12 @@ export function removeParticipant(scenario: Scenario, id: string): Scenario {
   return {
     ...scenario,
     stations: scenario.stations.filter((station) => station.id !== id),
+    // Referential integrity: equipment assigned to the removed person is unassigned.
+    equipment: scenario.equipment.map((item) =>
+      item.assignedTo.personId === id
+        ? { ...item, assignedTo: { ...item.assignedTo, personId: "" } }
+        : item,
+    ),
   };
 }
 

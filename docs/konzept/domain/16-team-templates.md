@@ -89,16 +89,18 @@ All fields are optional, so existing scenarios parse unchanged.
 - `"Team aus Vorlage"` opens a picker: scenario-relevant templates first, the rest behind `"Mehr…"`, each with size and core roles.
 - Creating a team from a template generates a fictional callsign and one participant per recommended role slot; the team inspector shows `staffed / recommended` and per-role staffing.
 
-## 7. Planned (not yet implemented)
+## 7. Delivered
 
-- **Equipment**: capability packs, `status` and `linkedDeviceId` (physical asset → ScreenForge device) and the team readiness roll-up are implemented; still open are person-level assignment (`assignedTo`) and a scenario-wide readiness roll-up.
-- **Scenario templates** with `intent`, `environment`, `organization`, `assets`, `scenario`, `flow`, `evaluation`, `control`, `review`, `defaults`. Variants are implemented as `base + overrides`: a `MissionVariant` carries a `ScenarioPatch`, `applyVariant(base, variant)` merges id-keyed entity arrays by id (replace existing, append new), merges nested objects shallowly and replaces scalars, then re-parses through `scenarioSchema`; nothing is ever deleted. The gallery lists each variant under its base card. Full sectioned templates remain open.
-- **Guided integration**: ask for the team kind, offer the recommended composition, then only ask about deviations.
+- **Equipment**: capability packs (`src/core/equipment.ts`), per-item `status`, `linkedDeviceId` (physical asset → ScreenForge device), `assignedTo.personId` (person-level assignment) and one shared `equipmentReadiness()` roll-up used per team and scenario-wide. `docs/konzept/domain/17-equipment.md`.
+- **Scenario templates**: `intent` + `sections` (`intent`, `environment`, `organization`, `assets`, `scenario`, `flow`, `evaluation`, `control`, `review`) + `defaults` (`teamTemplates`, `equipmentPacks`), described in `src/core/templateSections.ts` and shown in the gallery. **Variants** are `base + overrides`: a `MissionVariant` carries a `ScenarioPatch`; `applyVariant(base, variant)` merges id-keyed entity arrays by id (replace existing, append new), merges nested objects shallowly and replaces scalars, then re-parses through `scenarioSchema`. Nothing is ever deleted and the base is never mutated.
+- **Guided integration** (`src/core/guided/domains/organization.ts`): asks for the team kind, offers the template's recommended composition, and only asks about deviations (`as recommended` / `smaller` / `larger`) afterwards. The rule emits `add-team` + participant stations, keyed by kind and role slot, so growing a team appends and switching the kind never rewrites an existing participant. Only team-capable packs are wired in, and both the questions and the rule gate on the `teams` capability. A deviation change reconciles only the difference; a reverted deviation is re-offered as a restore of the missing parts, and a manual edit of generated content marks it `generated-modified` so it is never overwritten. See [../plan/18-adaptive-guided.md](../plan/18-adaptive-guided.md).
 
 ## Acceptance criteria
 
-- [ ] A team can be created from a template with one click and a fictional callsign.
-- [ ] The team inspector shows staffing against the template's recommended composition.
-- [ ] No template invents a role outside the catalog.
-- [ ] Role and template labels resolve through the i18n layer.
-- [ ] Existing scenarios parse unchanged (all new fields optional).
+- [x] A team can be created from a template with one click and a fictional callsign.
+- [x] The team inspector shows staffing against the template's recommended composition.
+- [x] No template invents a role outside the catalog.
+- [x] Role and template labels resolve through the i18n layer.
+- [x] Existing scenarios parse unchanged (all new fields optional).
+- [x] Equipment can be assigned to a person and rolls up per team and scenario-wide.
+- [x] Guided mode asks for the team kind, offers the recommended composition, and only asks about deviations.

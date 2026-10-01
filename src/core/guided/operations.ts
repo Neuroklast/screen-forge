@@ -226,6 +226,7 @@ function cleanReferences(
   let injects = scenario.injects;
   let stations = scenario.stations;
   let actors = scenario.actors;
+  let equipment = scenario.equipment;
 
   const failReferenced = (what: string): { ok: false; error: string } => ({
     ok: false,
@@ -360,7 +361,31 @@ function cleanReferences(
     }
   }
 
-  return { ok: true, scenario: { ...scenario, workflows, injects, stations, actors } };
+  // Deliberate exception to the "generated-unmodified only" rule: clearing a
+  // now-invalid assignment is not a content edit, it is the same referential
+  // cleanup `removeTeam` already performs unconditionally. Equipment created by
+  // `addTeamFromTemplate` is user-owned, so failing here would block removing a
+  // participant. Only the pointer is cleared; the item itself is never deleted.
+  if (collection === "stations")
+    equipment = equipment.map((item) =>
+      item.assignedTo.personId === id
+        ? { ...item, assignedTo: { ...item.assignedTo, personId: "" } }
+        : item,
+    );
+  if (collection === "teams")
+    equipment = equipment.map((item) =>
+      item.assignedTo.teamId === id
+        ? {
+            ...item,
+            assignedTo: { ...item.assignedTo, teamId: "", personId: "" },
+          }
+        : item,
+    );
+
+  return {
+    ok: true,
+    scenario: { ...scenario, workflows, injects, stations, actors, equipment },
+  };
 }
 
 function applyOperation(scenario: Scenario, operation: ScenarioOperation): OpResult {

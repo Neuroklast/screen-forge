@@ -1,6 +1,7 @@
 import { workflowSchema, type Workflow } from "../../workflow.ts";
 import { factBoolean, factString } from "../facts.ts";
 import { generatedId, makeSuggestionId } from "../meta.ts";
+import { withOrganization } from "./organization.ts";
 import type {
   DomainPack,
   GeneratedMeta,
@@ -354,10 +355,10 @@ const consequence: GuidedRule = {
   },
 };
 
-export const disposalPack: DomainPack = {
+export const disposalPack: DomainPack = withOrganization({
   id: "disposal",
   token: "eod",
   scenarioType: "disposal",
   questions,
   rules: [setup, cordon, consequence],
-};
+});

@@ -1,4 +1,5 @@
 import { scenarioSchema, template, type Scenario } from "./training";
+import { missionTemplateMeta } from "./templateSections";
 
 const map = { lat: 51.23, lng: 6.78, zoom: 15, tiles: "", attribution: "" };
 const route = [
@@ -40,6 +41,29 @@ export type MissionVariant = {
   patch: ScenarioPatch;
 };
 
+// The preparation sections a template can describe itself against. These mirror
+// the workspace tabs, so a template is transparent before it is loaded.
+export const missionSectionKeys = [
+  "intent",
+  "environment",
+  "organization",
+  "assets",
+  "scenario",
+  "flow",
+  "evaluation",
+  "control",
+  "review",
+] as const;
+export type MissionSectionKey = (typeof missionSectionKeys)[number];
+export type MissionSections = Partial<Record<MissionSectionKey, string>>;
+
+// Recommended starting points for the sections that are not part of the
+// scenario payload itself (team composition and equipment capability packs).
+export type MissionDefaults = {
+  teamTemplates?: string[];
+  equipmentPacks?: string[];
+};
+
 export type MissionTemplate = {
   id: string;
   name: string;
@@ -49,6 +73,9 @@ export type MissionTemplate = {
   durationMin: number;
   scenario: Scenario;
   variants?: MissionVariant[];
+  intent?: string;
+  sections?: MissionSections;
+  defaults?: MissionDefaults;
 };
 
 // Scenario fields that hold id-keyed entity lists; a variant merges these by id.
@@ -96,7 +123,7 @@ export function applyVariant(base: Scenario, variant: MissionVariant): Scenario 
   return scenarioSchema.parse(merged);
 }
 
-export const missionTemplates: MissionTemplate[] = [
+const baseTemplates: MissionTemplate[] = [
   {
     id: "blank",
     name: "Blank Mission",
@@ -799,6 +826,22 @@ export const missionTemplates: MissionTemplate[] = [
     }),
   },
 ];
+
+// Sectioned templates: the scenario payload plus the human-readable description
+// of what each preparation section starts with. Section text is optional, so a
+// template without an entry behaves exactly as before.
+export const missionTemplates: MissionTemplate[] = baseTemplates.map(
+  (template) => {
+    const meta = missionTemplateMeta[template.id];
+    if (!meta) return template;
+    return {
+      ...template,
+      intent: meta.intent,
+      sections: meta.sections,
+      defaults: meta.defaults,
+    };
+  },
+);
 
 export function buildMission(id: string): Scenario {
   const found = missionTemplates.find((t) => t.id === id);

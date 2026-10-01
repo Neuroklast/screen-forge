@@ -261,6 +261,39 @@ export function generatedElementRefs(
   return out;
 }
 
+// The element an additive operation targets, when it has one. Used to restore
+// only the missing parts of an accepted suggestion without rewriting the rest.
+export function operationElementRef(
+  operation: ScenarioOperation,
+): ElementRef | undefined {
+  switch (operation.op) {
+    case "add-station":
+      return entityRef("stations", operation.station.id);
+    case "add-team":
+      return entityRef("teams", operation.team.id);
+    case "add-patient":
+      return entityRef("patients", operation.patient.id);
+    case "add-prop":
+      return entityRef("props", operation.prop.id);
+    case "add-actor":
+      return entityRef("actors", operation.actor.id);
+    case "add-zone":
+      return entityRef("zones", operation.zone.id);
+    case "add-objective":
+      return entityRef("objectives", operation.objective.id);
+    case "add-dossier":
+      return entityRef("dossiers", operation.dossier.id);
+    case "add-event":
+      return eventRef(operation.inject.id);
+    case "add-workflow":
+      return workflowRef(operation.workflow.id);
+    case "add-node":
+      return nodeRef(operation.workflowId, operation.node.id);
+    default:
+      return undefined;
+  }
+}
+
 // The typed removal for a generated element. Reconciliation never invents a
 // generic delete; this is the single mapping used everywhere.
 export function removalOperationFor(

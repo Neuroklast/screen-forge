@@ -186,4 +186,33 @@ describe("guided operations", () => {
     const result = applyOperations(withEdit, locateEnd.operations);
     expect(result.ok).toBe(false);
   });
+
+  it("unassigns equipment when its generated person is removed", () => {
+    const org = suggestionFor("org-team", {
+      "q.org.team-kind": ["search-rescue"],
+      "q.org.deviation": ["as-recommended"],
+    });
+    const withTeam = apply(blankScenario("sar"), org.operations);
+    const person = withTeam.stations.find((row) => row.player);
+    expect(person).toBeDefined();
+    if (!person) return;
+    const withEquipment = scenarioSchema.parse({
+      ...withTeam,
+      equipment: [
+        {
+          id: "equip-1",
+          packId: "",
+          name: "Radio",
+          category: "comms",
+          assignedTo: { teamId: person.team, personId: person.id },
+        },
+      ],
+    });
+    const result = applyOperations(withEquipment, [
+      { op: "remove-generated-entity", collection: "stations", id: person.id },
+    ]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.scenario.equipment[0].assignedTo.personId).toBe("");
+  });
 });

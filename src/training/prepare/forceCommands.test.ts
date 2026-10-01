@@ -9,6 +9,8 @@ import {
   removeParticipant,
   removeTeam,
   updateActor,
+  updateEquipment,
+  updateParticipant,
   updateTeam,
 } from "./forceCommands";
 
@@ -53,6 +55,35 @@ describe("forceCommands", () => {
     expect(
       removed.equipment.every((item) => item.assignedTo.teamId === ""),
     ).toBe(true);
+  });
+
+  it("unassigns equipment when its person is removed or moved", () => {
+    const created = addTeamFromTemplate(blankScenario("custom"), "compact-field");
+    const teamId = created.scenario.teams[0].id;
+    const person = created.scenario.stations.find(
+      (station) => station.team === teamId && station.player,
+    )!;
+    const item = created.scenario.equipment.find(
+      (row) => row.assignedTo.teamId === teamId,
+    )!;
+    const assigned = updateEquipment(created.scenario, item.id, {
+      assignedTo: { teamId, personId: person.id },
+    });
+    expect(
+      assigned.equipment.find((row) => row.id === item.id)?.assignedTo.personId,
+    ).toBe(person.id);
+
+    // Removing the person clears the reference instead of leaving it dangling.
+    const removed = removeParticipant(assigned, person.id);
+    expect(
+      removed.equipment.find((row) => row.id === item.id)?.assignedTo.personId,
+    ).toBe("");
+
+    // Moving the person to another team also unassigns the equipment.
+    const moved = updateParticipant(assigned, person.id, { team: "other-team" });
+    expect(
+      moved.equipment.find((row) => row.id === item.id)?.assignedTo.personId,
+    ).toBe("");
   });
 
   it("updates and removes entities", () => {

@@ -87,9 +87,9 @@
 | W83 | Forces: `"Team aus Vorlage"` picker + staffing inspector | done |
 | W84 | Equipment capability packs (capability-based, template suggestions, status) | done |
 | W88 | Equipment `linkedDeviceId` picker + team readiness roll-up | done |
-| W89 | Equipment person-level assignment + scenario-wide readiness roll-up | todo |
+| W89 | Equipment person-level assignment + scenario-wide readiness roll-up | done |
 | W85 | Scenario templates with variants (`base + overrides`) | done |
-| W91 | Sectioned scenario templates (intent/environment/… sections) | todo |
+| W91 | Sectioned scenario templates (intent/environment/… sections) | done |
 | W86 | MSEL event metadata: objective link + editor exposure + summary | done |
 | W90 | MSEL evidence in the AAR/debrief + per-event objective reporting | todo |
-| W87 | Next: guided integration (team kind → recommended composition → deviations) | todo |
+| W87 | Guided integration (team kind → recommended composition → deviations) | done |

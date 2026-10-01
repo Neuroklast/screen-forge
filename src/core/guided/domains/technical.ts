@@ -1,6 +1,7 @@
 import { workflowSchema, type Workflow } from "../../workflow.ts";
 import { factString } from "../facts.ts";
 import { generatedId, makeSuggestionId } from "../meta.ts";
+import { withOrganization } from "./organization.ts";
 import type {
   DomainPack,
   GeneratedMeta,
@@ -332,10 +333,10 @@ const escalate: GuidedRule = {
   },
 };
 
-export const technicalPack: DomainPack = {
+export const technicalPack: DomainPack = withOrganization({
   id: "technical",
   token: "tech",
   scenarioType: "technical",
   questions,
   rules: [diagnose, access, escalate],
-};
+});

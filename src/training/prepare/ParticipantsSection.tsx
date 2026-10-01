@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { kinds, type Scenario } from "../../core/training";
+import { equipmentReadiness } from "../../core/equipment";
 import { labelFor } from "../../core/labels";
 import { teamRoleLabel } from "../../core/roles";
 import {
@@ -90,6 +91,10 @@ export function ParticipantsSection({
   };
   const teams = draft.teams;
   const participants = draft.stations.filter((station) => station.player);
+  // Scenario-wide readiness: one roll-up across every team's equipment.
+  const scenarioReadiness = equipmentReadiness(draft.equipment);
+  const teamMembers = (teamId: string) =>
+    draft.stations.filter((station) => station.player && station.team === teamId);
   const teamDevices = (team: string) =>
     teams.some((row) => row.id === team)
       ? draft.stations.filter((station) => !station.player && station.team === team)
@@ -251,6 +256,24 @@ export function ParticipantsSection({
                 </button>
               )}
             </div>
+            {scenarioReadiness.total > 0 && (
+              <p className="sf-force-readiness">
+                <span>{t("prep.people.equipmentScenario")}</span>
+                <b>
+                  {t("prep.people.equipmentScenarioReady", {
+                    ready: scenarioReadiness.ready,
+                    total: scenarioReadiness.total,
+                  })}
+                </b>
+                {scenarioReadiness.missing > 0 && (
+                  <em className="is-warning">
+                    {t("prep.people.equipmentMissing", {
+                      n: scenarioReadiness.missing,
+                    })}
+                  </em>
+                )}
+              </p>
+            )}
           </div>
         }
         navigator={
@@ -418,9 +441,8 @@ export function ParticipantsSection({
                     (item) => item.assignedTo.teamId === selectedTeam.id,
                   );
                   if (!equipment.length) return null;
-                  const missing = equipment.filter(
-                    (item) => item.required && item.status !== "ready",
-                  ).length;
+                  const { missing } = equipmentReadiness(equipment);
+                  const members = teamMembers(selectedTeam.id);
                   return (
                     <div className="sf-force-equipment">
                       <strong>{t("prep.people.equipment")}</strong>
@@ -455,6 +477,30 @@ export function ParticipantsSection({
                               <option value="unavailable">
                                 {t("equipment.status.unavailable")}
                               </option>
+                            </select>
+                            <select
+                              aria-label={`${item.name} ${t("prep.people.equipmentPerson")}`}
+                              value={item.assignedTo.personId}
+                              disabled={readOnly}
+                              onChange={(event) =>
+                                change(
+                                  updateEquipment(draft, item.id, {
+                                    assignedTo: {
+                                      ...item.assignedTo,
+                                      personId: event.target.value,
+                                    },
+                                  }),
+                                )
+                              }
+                            >
+                              <option value="">
+                                {t("prep.people.equipmentUnassigned")}
+                              </option>
+                              {members.map((member) => (
+                                <option key={member.id} value={member.id}>
+                                  {member.name}
+                                </option>
+                              ))}
                             </select>
                             <select
                               aria-label={`${item.name} ${t("prep.people.equipmentDevice")}`}

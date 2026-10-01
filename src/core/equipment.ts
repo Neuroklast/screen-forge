@@ -128,6 +128,39 @@ export function equipmentPack(id: string): EquipmentPack | undefined {
   return equipmentPacks.find((pack) => pack.id === id);
 }
 
+export type EquipmentReadiness = {
+  total: number;
+  required: number;
+  ready: number;
+  limited: number;
+  unavailable: number;
+  // Required items that are not `ready` — the number that actually blocks.
+  missing: number;
+};
+
+// One roll-up shape for both the per-team and the scenario-wide view, so the two
+// can never disagree about what "ready" means.
+export function equipmentReadiness(
+  items: readonly { required: boolean; status: EquipmentStatus }[],
+): EquipmentReadiness {
+  const summary: EquipmentReadiness = {
+    total: items.length,
+    required: 0,
+    ready: 0,
+    limited: 0,
+    unavailable: 0,
+    missing: 0,
+  };
+  for (const item of items) {
+    if (item.required) summary.required += 1;
+    if (item.status === "ready") summary.ready += 1;
+    else if (item.status === "limited") summary.limited += 1;
+    else summary.unavailable += 1;
+    if (item.required && item.status !== "ready") summary.missing += 1;
+  }
+  return summary;
+}
+
 export function equipmentItemsForPacks(packIds: string[]): {
   packId: string;
   spec: EquipmentItemSpec;

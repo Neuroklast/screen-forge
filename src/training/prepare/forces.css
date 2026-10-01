@@ -26,6 +26,25 @@
   gap: 6px;
 }
 
+.sf-force-readiness {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  color: #8a9aa2;
+}
+
+.sf-force-readiness b {
+  color: #d6e2e5;
+}
+
+.sf-force-readiness .is-warning {
+  color: #e5c07b;
+  font-style: normal;
+}
+
 .sf-force-add button {
   padding: 5px 10px;
   border: 1px solid #1e2a33;

@@ -180,10 +180,17 @@ export function nextQuestionCards(
   includeOptional = false,
 ): QuestionCard[] {
   const applicable: GuidedQuestion[] = [];
+  // Shared questions (e.g. the organization step) appear in several packs; a
+  // question id is one question, never one per enabled pack.
+  const seen = new Set<string>();
   for (const pack of ctx.packs)
     for (const question of pack.questions) {
+      if (seen.has(question.id)) continue;
+      seen.add(question.id);
       if (isAnswered(question, ctx.session)) continue;
       if (!question.appliesWhen(ctx.facts)) continue;
+      if (question.appliesToScenario && !question.appliesToScenario(ctx.scenario))
+        continue;
       if (!includeOptional && question.priority === "optional") continue;
       applicable.push(question);
     }
@@ -236,10 +243,14 @@ export function applySuggestion(
   session: GuidedSession,
   suggestion: Suggestion,
 ): ApplySuggestionResult {
-  if (session.accepted.includes(suggestion.id))
-    return { ok: true, scenario, session };
   const result = applyOperations(scenario, suggestion.operations);
   if (!result.ok) return result;
+  // An already-accepted suggestion is applied again so reconciliation can
+  // restore content the user removed afterwards (e.g. reverting a deviation).
+  // Operations are idempotent, so an accept with nothing missing is a no-op and
+  // the audit log is never duplicated.
+  if (session.accepted.includes(suggestion.id))
+    return { ok: true, scenario: result.scenario, session };
   return {
     ok: true,
     scenario: result.scenario,
