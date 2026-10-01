@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTraining } from "../core/useExercise";
+import { labelFor } from "../core/labels";
 import { t } from "../i18n";
 import "../training/roles.css";
 
@@ -17,7 +18,7 @@ export function AssessorView({ room }: { room: string }) {
         <b>{t("assessor.title", { room })}</b>
         <span>
           {t(ex.online ? "common.connected" : "common.offline")} ·{" "}
-          {ex.state.phase}
+          {labelFor("phase", ex.state.phase)}
         </span>
       </header>
       {ex.state.phase === "aborted" && (

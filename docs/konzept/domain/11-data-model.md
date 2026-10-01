@@ -88,7 +88,7 @@ Template = Mission without room state, in `presets/missions/`
 
 ## Show (film)
 
-- Unchanged from v1: `{version, name, steps[]}` with `Step = {id, name, config, cue, operation, trigger, duration, value, next, onFail, timeout}`.
+- v3 graph: `{version: 3, name, entry, nodes[], edges[]}`. A `take` node is `{kind:"take", id, name, config, cue, operation?, trigger, duration, value, timeout?, position?}`; an `end` node is a terminal. Edges are `{id, source, output, target}` with `output ∈ success|fail|timeout`. v1/v2 `{steps, next, onFail}` are migrated into edges on load.
 - `config` embeds the full film `Config` (scenes, theme, media, overlays, tokens).
 - Stage targets are runtime state, not persisted in the show (per device, ephemeral).
 

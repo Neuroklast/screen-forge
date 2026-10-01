@@ -6,6 +6,7 @@ import {
   teamSchema,
   type Scenario,
 } from "../../core/training";
+import { labelFor } from "../../core/labels";
 import { t } from "../../i18n";
 import { DossierEditor } from "../Dossiers";
 import { uid, type PrepareSectionProps } from "./shared";
@@ -385,7 +386,7 @@ export function ParticipantsSection({
                     >
                       {kinds.map((kind) => (
                         <option key={kind} value={kind}>
-                          {kind}
+                          {labelFor("patientKind", kind)}
                         </option>
                       ))}
                     </select>
@@ -410,7 +411,7 @@ export function ParticipantsSection({
                     >
                       {["green", "yellow", "red", "black"].map((level) => (
                         <option key={level} value={level}>
-                          {level}
+                          {labelFor("triage", level)}
                         </option>
                       ))}
                     </select>

@@ -6,6 +6,17 @@ export default defineConfig({
   testDir: "./tests",
   use: {
     baseURL: "http://127.0.0.1:5173",
+    // The app defaults to English; the existing suite asserts the German
+    // chrome, so pin the locale to German for these tests.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: "http://127.0.0.1:5173",
+          localStorage: [{ name: "screenforge.locale", value: "de" }],
+        },
+      ],
+    },
     headless: true,
     launchOptions: process.env.CHROMIUM_PATH
       ? {

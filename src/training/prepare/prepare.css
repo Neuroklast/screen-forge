@@ -305,6 +305,13 @@
   color: #4f6570;
 }
 
+.wizard-graph {
+  height: 420px;
+  border: 1px solid #263038;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
 @media (max-width: 1100px) {
   .flow-workspace {
     grid-template-columns: 1fr;

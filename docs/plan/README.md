@@ -41,6 +41,8 @@
 | V2 | Scene rework | [11-scene-rework-v2.md](11-scene-rework-v2.md) | 1–3 | XL | OS/Terminal split, all scenes/blocks to V2 specs, new blocks |
 | 8 | Durable engine | [12-durable-engine.md](12-durable-engine.md) | 1–4 | XL | Command/event durability, MEL v2, profiles, templates |
 | 9 | Interaction engine | [14-interaction-engine.md](14-interaction-engine.md) | 1–4, 8 | XL | Workflow schema + deterministic interpreter, vertical pilot, graph editor, surfaces |
+| 10 | Runtime identity | [16-runtime-identity.md](16-runtime-identity.md) | any | M | Build identity + control-surface gate, PWA split, single-language boundary |
+| 11 | Legacy parity | [17-legacy-parity.md](17-legacy-parity.md) | 10 | M | Parity checklist for the legacy MissionBuilder, then removal |
 
 - Parallelizable: 2 and 3 after 1; 5 and 6 after 1; 7 throughout.
 - Every phase ships independently: no phase may leave the app in a non-building state.

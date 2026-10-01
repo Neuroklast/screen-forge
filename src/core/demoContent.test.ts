@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { seedDemoState } from "./demoContent";
-import { showSchema } from "./director";
+import { showOrder, showSchema } from "./director";
 import { scenarioSchema } from "./training";
 
 describe("demo seed content", () => {
@@ -8,7 +8,7 @@ describe("demo seed content", () => {
     const state = seedDemoState();
     expect(showSchema.safeParse(state.show).success).toBe(true);
     expect(scenarioSchema.safeParse(state.mission).success).toBe(true);
-    expect(state.show.steps.length).toBeGreaterThan(0);
+    expect(showOrder(state.show).length).toBeGreaterThan(0);
     expect(state.mission.stations.length).toBeGreaterThan(0);
     expect(state.mission.injects.length).toBeGreaterThan(0);
   });

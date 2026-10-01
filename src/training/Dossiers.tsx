@@ -8,13 +8,13 @@ export function DossierCards({ dossiers }: { dossiers: TrainingDossier[] }) {
   if (!d)
     return (
       <section className="panel">
-        <h2>Personnel files</h2>
-        <p>No files released.</p>
+        <h2>{t("dossiers.title")}</h2>
+        <p>{t("dossiers.none")}</p>
       </section>
     );
   return (
     <section className="panel dossier-reader">
-      <h2>Personnel files</h2>
+      <h2>{t("dossiers.title")}</h2>
       <nav className="tab-bar">
         {dossiers.map((row) => (
           <button key={row.id} onClick={() => setSelected(row.id)}>

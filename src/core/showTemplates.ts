@@ -1,10 +1,10 @@
 import { identityOf, withScene, type Config } from "./config";
-import { gate, type Show, type Step } from "./director";
+import { gate, showSchema, type Show, type ShowEdge, type Take } from "./director";
 function node(
   name: string,
   config: Config,
-  extra: Partial<Step> = {},
-): Omit<Step, "id" | "next"> {
+  extra: Partial<Take> = {},
+): Omit<Take, "id" | "kind"> {
   return {
     name,
     config,
@@ -13,21 +13,39 @@ function node(
     trigger: "key",
     duration: 12,
     value: "Enter",
-    onFail: "",
     timeout: 0,
     ...extra,
   };
 }
-function chain(name: string, parts: Omit<Step, "id" | "next">[]): Show {
-  const steps: Step[] = parts.map((p) => ({
+function chain(name: string, parts: Omit<Take, "id" | "kind">[]): Show {
+  const nodes: Take[] = parts.map((p, index) => ({
     ...p,
+    kind: "take",
     id: crypto.randomUUID(),
-    next: "",
+    position: { x: index * 280, y: 0 },
   }));
-  steps.forEach((s, i) => {
-    s.next = i === steps.length - 1 ? "end" : steps[i + 1].id;
+  const endId = "end";
+  const edges: ShowEdge[] = nodes.map((step, index) => ({
+    id: `e${index}`,
+    source: step.id,
+    output: "success" as const,
+    target: index === nodes.length - 1 ? endId : nodes[index + 1].id,
+  }));
+  return showSchema.parse({
+    version: 3,
+    name,
+    entry: nodes[0].id,
+    nodes: [
+      ...nodes,
+      {
+        kind: "end",
+        id: endId,
+        name: "",
+        position: { x: nodes.length * 280, y: 0 },
+      },
+    ],
+    edges,
   });
-  return { version: 2, name, steps };
 }
 function scene(
   base: Config,

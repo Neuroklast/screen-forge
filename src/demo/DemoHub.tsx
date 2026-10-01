@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { StageFrame } from "../views/StageFrame";
 import { MissionBuilder } from "../builder/MissionBuilder";
 import { seedDemoState, type DemoState } from "../core/demoContent";
+import { showOrder } from "../core/director";
 import type { Scenario } from "../core/training";
 import { t } from "../i18n";
 import { Tour, type TourStop } from "./Tour";
@@ -110,7 +111,9 @@ export function DemoHub({ kiosk }: { kiosk: boolean }) {
             state={state}
             step={showStep}
             onStep={(next) =>
-              setShowStep(Math.max(0, Math.min(state.show.steps.length - 1, next)))
+              setShowStep(
+                Math.max(0, Math.min(showOrder(state.show).length - 1, next)),
+              )
             }
           />
         )}
@@ -174,7 +177,8 @@ function DemoFilm({
   step: number;
   onStep: (step: number) => void;
 }) {
-  const current = state.show.steps[step];
+  const takes = showOrder(state.show);
+  const current = takes[step];
   if (!current)
     return <p className="demo-empty">{t("demo.notAvailable")}</p>;
   return (
@@ -185,11 +189,11 @@ function DemoFilm({
           {t("demo.back")}
         </button>
         <span>
-          {step + 1} / {state.show.steps.length} · {current.name}
+          {step + 1} / {takes.length} · {current.name}
         </span>
         <button
           type="button"
-          disabled={step >= state.show.steps.length - 1}
+          disabled={step >= takes.length - 1}
           onClick={() => onStep(step + 1)}
         >
           {t("demo.filmCue")}

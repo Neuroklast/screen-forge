@@ -16,7 +16,7 @@ function initialLocale(): Locale {
   } catch {
     /* no DOM / private mode */
   }
-  return "de";
+  return "en";
 }
 
 let current: Locale = initialLocale();
@@ -56,11 +56,13 @@ export function subscribeLocale(fn: () => void): () => void {
   };
 }
 
-// German chrome is the default; missing keys fall back to German, then to the
-// key itself so a gap is visible instead of silently empty.
+// English is the default. Every locale must define the same keys (guarded by
+// i18n.test.ts); a missing key falls back to the key itself so a gap is visible
+// instead of silently mixing languages.
 export function t(key: string, params?: Params): string {
-  const template =
-    dictionaries[current][key] ?? dictionaries.de[key] ?? key;
+  // Never fall back to another language: that would mix locales. A missing key
+  // shows the key so the gap is obvious and testable.
+  const template = dictionaries[current][key] ?? key;
   if (!params) return template;
   return template.replace(/\{(\w+)\}/g, (_, name: string) =>
     String(params[name] ?? `{${name}}`),

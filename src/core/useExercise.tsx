@@ -11,6 +11,7 @@ import {
 import { newState, type TrainingState } from "./training";
 import { applyEvent, domainEventSchema, type DomainEvent } from "./events";
 import { isCommandType, newEventId, PROTOCOL } from "./protocol";
+import { buildInfo, buildsCompatible } from "./build";
 import { ServerClock } from "./clock";
 import { TelemetryStore } from "./telemetry";
 import * as outbox from "./outbox";
@@ -50,6 +51,8 @@ export function useExercise(role: Role, room: string, station: string) {
   const [state, setState] = useState<TrainingState>(() => newState(room));
   const [serverSeq, setServerSeq] = useState(0);
   const [clockRevision, setClockRevision] = useState(0);
+  const [serverBuild, setServerBuild] = useState<string | null>(null);
+  const [serverProtocol, setServerProtocol] = useState<number | null>(null);
   const lastSeq = useRef(0);
   const clockRef = useRef(new ServerClock());
   const telemetryRef = useRef(new TelemetryStore());
@@ -138,6 +141,10 @@ export function useExercise(role: Role, room: string, station: string) {
             attempt = 0;
             lastSeq.current = Number(msg.serverSeq) || 0;
             setServerSeq(lastSeq.current);
+            setServerBuild(typeof msg.build === "string" ? msg.build : null);
+            setServerProtocol(
+              typeof msg.protocol === "number" ? msg.protocol : null,
+            );
             clockRef.current.observe(Number(msg.serverNow));
             setClockRevision(Number(msg.clockRevision) || 0);
             void flushOutbox();
@@ -305,6 +312,10 @@ export function useExercise(role: Role, room: string, station: string) {
     setToken("");
     setAuthenticated(false);
   };
+  const buildMismatch = !buildsCompatible(buildInfo, {
+    id: serverBuild,
+    protocol: serverProtocol,
+  });
   return {
     state,
     online,
@@ -320,6 +331,8 @@ export function useExercise(role: Role, room: string, station: string) {
     savedRevision,
     serverSeq,
     clockRevision,
+    serverBuild,
+    buildMismatch,
     serverNow: () => clockRef.current.now(),
     telemetry: telemetryRef.current,
     pendingCount,

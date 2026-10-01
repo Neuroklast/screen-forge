@@ -1,4 +1,5 @@
 import { taskBlock } from "./taskBlocks.ts";
+import * as graph from "./graphEdit.ts";
 import {
   workflowNodePorts,
   workflowSchema,
@@ -255,7 +256,7 @@ function ensureNumberVariable(workflow: Workflow): {
 }
 
 export function addNode(workflow: Workflow, node: WorkflowNode): Workflow {
-  return { ...workflow, nodes: [...workflow.nodes, node] };
+  return graph.addNode(workflow, node);
 }
 
 export function addNodeOfType(
@@ -368,14 +369,7 @@ export function addNodeOfType(
 }
 
 export function removeNode(workflow: Workflow, nodeId: string): Workflow {
-  if (nodeId === workflow.entry) return workflow;
-  return {
-    ...workflow,
-    nodes: workflow.nodes.filter((node) => node.id !== nodeId),
-    edges: workflow.edges.filter(
-      (edge) => edge.source !== nodeId && edge.target !== nodeId,
-    ),
-  };
+  return graph.removeNode(workflow, nodeId);
 }
 
 export function replaceNode(workflow: Workflow, node: WorkflowNode): Workflow {
@@ -407,23 +401,15 @@ export function setNodePosition(
   nodeId: string,
   position: { x: number; y: number },
 ): Workflow {
-  return {
-    ...workflow,
-    nodes: workflow.nodes.map((node) =>
-      node.id === nodeId ? { ...node, position } : node,
-    ),
-  };
+  return graph.moveNode(workflow, nodeId, position);
 }
 
 export function addEdge(workflow: Workflow, edge: WorkflowEdge): Workflow {
-  return { ...workflow, edges: [...workflow.edges, edge] };
+  return graph.connect(workflow, edge);
 }
 
 export function removeEdge(workflow: Workflow, edgeId: string): Workflow {
-  return {
-    ...workflow,
-    edges: workflow.edges.filter((edge) => edge.id !== edgeId),
-  };
+  return graph.disconnect(workflow, edgeId);
 }
 
 export function edgeForOutput(
@@ -431,9 +417,7 @@ export function edgeForOutput(
   nodeId: string,
   output: string,
 ): WorkflowEdge | undefined {
-  return workflow.edges.find(
-    (edge) => edge.source === nodeId && edge.output === output,
-  );
+  return graph.edgeForOutput(workflow, nodeId, output);
 }
 
 // Accessible alternative to dragging a connection: pick a target per output.
@@ -443,23 +427,9 @@ export function setOutputTarget(
   output: string,
   target: string,
 ): Workflow {
-  const existing = edgeForOutput(workflow, nodeId, output);
-  const edges = workflow.edges.filter(
-    (edge) => !(edge.source === nodeId && edge.output === output),
+  return graph.setOutputTarget(workflow, nodeId, output, target, () =>
+    workflowUid("e"),
   );
-  if (!target) return { ...workflow, edges };
-  return {
-    ...workflow,
-    edges: [
-      ...edges,
-      {
-        id: existing?.id ?? workflowUid("e"),
-        source: nodeId,
-        output,
-        target,
-      },
-    ],
-  };
 }
 
 export function addVariable(

@@ -332,12 +332,36 @@ export async function startExercise({
     disconnectStation(room, station);
     dirty = true;
   };
+  // Build identity of the served artifact. Missing file means an unbundled or
+  // pre-identity build; clients treat that as compatible and never block on it.
+  let build = null;
+  try {
+    build = JSON.parse(await readFile(resolve(dist, "build.json"), "utf8"));
+  } catch {
+    /* no build.json */
+  }
   const server = http.createServer(async (req, res) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Referrer-Policy", "same-origin");
     if (req.url === "/health") {
       res.writeHead(200, { "content-type": "text/plain" });
       res.end("ok");
+      return;
+    }
+    if (req.url === "/version") {
+      res.writeHead(200, {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+      });
+      res.end(
+        JSON.stringify({
+          build: build?.id ?? null,
+          commit: build?.commit ?? null,
+          builtAt: build?.builtAt ?? null,
+          version: build?.version ?? null,
+          protocol: PROTOCOL,
+        }),
+      );
       return;
     }
     if (req.method !== "GET" && req.method !== "HEAD") {
@@ -500,6 +524,7 @@ export async function startExercise({
             role: meta.role,
             station: meta.station,
             protocol: PROTOCOL,
+            build: build?.id ?? null,
             serverSeq: roomSeq.get(meta.room) || 0,
             serverNow: Date.now(),
             clockRevision: clockRevision.get(meta.room) || 0,

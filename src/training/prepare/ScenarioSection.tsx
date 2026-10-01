@@ -1,4 +1,5 @@
 import { capabilityKeys, withCapability } from "../../core/capabilities";
+import { labelFor } from "../../core/labels";
 import { scenarioTypes } from "../../core/capabilities";
 import type { Scenario } from "../../core/training";
 import { MissionBuilder } from "../../builder/MissionBuilder";
@@ -35,8 +36,8 @@ export function ScenarioSection({
               patch({ mode: e.target.value as Scenario["mode"] })
             }
           >
-            <option>LIVE</option>
-            <option>PLAYBACK</option>
+            <option value="LIVE">{labelFor("mode", "LIVE")}</option>
+            <option value="PLAYBACK">{labelFor("mode", "PLAYBACK")}</option>
           </select>
         </label>
         <label>

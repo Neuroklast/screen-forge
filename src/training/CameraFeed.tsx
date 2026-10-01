@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTraining, type Signal } from "../core/useExercise";
+import { t } from "../i18n";
 // Supply private STUN/TURN credentials through deployment configuration when crossing NAT.
 function iceServers(): RTCIceServer[] {
   try {
@@ -188,27 +189,26 @@ export function CameraFeed({
         <video ref={video} autoPlay playsInline muted hidden={offline} />
         {offline && <strong>SIGNAL LOST</strong>}
         <span>
-          {station} · {offline ? "Trainer: Signal unterbrochen" : status}
+          {station} ·{" "}
+          {offline ? t("camera.signalInterrupted") : status}
         </span>
       </div>
       {publish && (
         <div className="button-row">
           <select
-            aria-label="Webcam"
+            aria-label={t("camera.webcam")}
             value={device}
             onChange={(e) => setDevice(e.target.value)}
           >
-              <option value="">Default camera</option>
+              <option value="">{t("camera.default")}</option>
             {devices.map((d) => (
               <option key={d.deviceId} value={d.deviceId}>
                 {d.label}
               </option>
             ))}
           </select>
-          <button onClick={() => void start()}>
-            Start / switch camera
-          </button>
-          <button onClick={stop}>Stoppen</button>
+          <button onClick={() => void start()}>{t("camera.startSwitch")}</button>
+          <button onClick={stop}>{t("camera.stop")}</button>
         </div>
       )}
     </section>

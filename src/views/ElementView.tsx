@@ -12,6 +12,8 @@ import { TrainingTerminal } from "../training/TrainingTerminal";
 import { OrdnanceConsole } from "../training/OrdnanceConsole";
 import { OrdnanceDatasheet } from "../training/OrdnanceDatasheet";
 import { BeaconControl } from "../training/BeaconControl";
+import { labelFor } from "../core/labels";
+import { t } from "../i18n";
 import "../training/roles.css";
 import "./field.css";
 
@@ -35,10 +37,10 @@ function isInstrument(
 }
 
 const MEDICAL_ACTIONS: [string, string][] = [
-  ["treated", "Report treatment"],
-  ["tourniquet", "Tourniquet reported"],
-  ["oxygen", "Oxygen reported"],
-  ["evacuated", "Evacuation reported"],
+  ["treated", "field.reportTreatment"],
+  ["tourniquet", "field.tourniquet"],
+  ["oxygen", "field.oxygen"],
+  ["evacuated", "field.evacuated"],
 ];
 
 export function ElementView({ station }: { station: string }) {
@@ -64,8 +66,8 @@ export function ElementView({ station }: { station: string }) {
     return (
       <main className="training-app field-app">
         <div className="field-empty">
-          <h1>Station no longer available</h1>
-          <p>Ask the trainer for a new QR code.</p>
+          <h1>{t("field.stationUnavailable")}</h1>
+          <p>{t("field.requestQr")}</p>
         </div>
       </main>
     );
@@ -85,11 +87,12 @@ export function ElementView({ station }: { station: string }) {
   const aborted = ex.state.phase === "aborted";
   const allMessages = ex.state.messages;
   const messages = allMessages.slice(-6).reverse();
+  const phaseState = aborted ? "aborted" : ex.state.frozen ? "paused" : "live";
   const phaseLabel = aborted
-    ? "ABORTED"
+    ? t("common.aborted")
     : ex.state.frozen
-      ? "PAUSED"
-      : "LIVE";
+      ? t("common.paused")
+      : t("field.live");
 
   const surface = instance ? (
     <WorkflowSurface
@@ -104,23 +107,26 @@ export function ElementView({ station }: { station: string }) {
     />
   ) : connectState ? (
     <section className="field-connect">
-      <h2>Device link</h2>
-      <p>Attach the cable to start the device session.</p>
+      <h2>{t("field.deviceLink")}</h2>
+      <p>{t("field.attachCable")}</p>
       <button
         disabled={!ex.online || ex.state.frozen}
         onClick={() => ex.send({ type: "prop", state: connectState })}
       >
-        Connect device
+        {t("field.connectDevice")}
       </button>
     </section>
   ) : row.module === "tracking" ? (
     <div className="field-map">
       <TacticalMap />
       <div className="field-overlay-panel">
-        <h2>Tasking</h2>
+        <h2>{t("field.tasking")}</h2>
         {ex.state.scenario.objectives.map((o) => (
           <p key={o.id}>
-            {ex.state.completed.includes(o.id) ? "Complete" : "Open"}: {o.name}
+            {ex.state.completed.includes(o.id)
+              ? t("field.complete")
+              : t("field.open")}
+            : {o.name}
           </p>
         ))}
       </div>
@@ -173,7 +179,7 @@ export function ElementView({ station }: { station: string }) {
             }
             onClick={() => ex.send({ type: "intervention", value })}
           >
-            {label}
+            {t(label)}
           </button>
         ))}
       </div>
@@ -191,41 +197,37 @@ export function ElementView({ station }: { station: string }) {
           })
         }
       >
-        {row.module === "intranet"
-          ? "Report identity check"
-          : "Report analysis complete"}
+        {row.module === "intranet" ? t("field.identity") : t("field.analysis")}
       </button>
     </div>
   ) : null;
 
   const drawerTitle =
     drawer === "messages"
-      ? "Messages"
+      ? t("field.messages")
       : drawer === "files"
-        ? "Personnel files"
-        : "Device";
+        ? t("field.personnelFiles")
+        : t("field.device");
 
   return (
     <main className="training-app field-app">
       {aborted && (
         <div className="abort-banner field-abort" role="alert">
-          EXERCISE ABORTED
+          {t("common.aborted")}
         </div>
       )}
       <header className="field-status">
         <div className="field-identity">
           <b>{row.name}</b>
           <span>
-            {row.team} · {ex.state.scenario.mode}
+            {row.team} · {labelFor("mode", ex.state.scenario.mode)}
           </span>
         </div>
         <div className="field-marks">
-          <span className="field-exercise">EXERCISE</span>
-          <span className={`field-phase is-${phaseLabel.toLowerCase()}`}>
-            {phaseLabel}
-          </span>
+          <span className="field-exercise">{t("common.exercise")}</span>
+          <span className={`field-phase is-${phaseState}`}>{phaseLabel}</span>
           <span className={`field-link ${ex.online ? "is-up" : "is-down"}`}>
-            {ex.online ? "LINK" : "OFFLINE"}
+            {ex.online ? t("field.link") : t("field.offline")}
           </span>
         </div>
         <div className="field-tools">
@@ -235,21 +237,22 @@ export function ElementView({ station }: { station: string }) {
               setDrawer(drawer === "messages" ? null : "messages")
             }
           >
-            Messages{allMessages.length ? ` · ${allMessages.length}` : ""}
+            {t("field.messages")}
+            {allMessages.length ? ` · ${allMessages.length}` : ""}
           </button>
           {row.module === "os" && (
             <button
               className={drawer === "files" ? "active" : ""}
               onClick={() => setDrawer(drawer === "files" ? null : "files")}
             >
-              Files
+              {t("field.files")}
             </button>
           )}
           <button
             className={drawer === "device" ? "active" : ""}
             onClick={() => setDrawer(drawer === "device" ? null : "device")}
           >
-            Device
+            {t("field.device")}
           </button>
         </div>
       </header>
@@ -259,7 +262,7 @@ export function ElementView({ station }: { station: string }) {
         <div className="field-drawer" role="dialog" aria-label={drawerTitle}>
           <header>
             <b>{drawerTitle}</b>
-            <button aria-label="Close" onClick={() => setDrawer(null)}>
+            <button aria-label={t("common.close")} onClick={() => setDrawer(null)}>
               ×
             </button>
           </header>
@@ -275,7 +278,7 @@ export function ElementView({ station }: { station: string }) {
                   ))}
                 </ul>
               ) : (
-                <p>No messages.</p>
+                <p>{t("field.noMessages")}</p>
               )
             ) : drawer === "files" ? (
               <DossierCards dossiers={ex.state.scenario.dossiers} />

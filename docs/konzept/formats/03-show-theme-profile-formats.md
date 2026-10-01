@@ -7,13 +7,15 @@
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `version` | `1` / `2` | existing schema; v2 target |
+| `version` | `3` | graph schema; v1/v2 `{steps, next, onFail}` are migrated on load |
 | `name` | string | show name |
-| `steps` | Step[1..60] | take graph |
+| `entry` | string | id of the entry take |
+| `nodes` | Node[1..60] | `take` nodes and `end` terminals |
+| `edges` | Edge[] | `{id, source, output, target}`, `output ∈ success|fail|timeout` |
 
-Step fields: `id, name, config (film Config), cue, operation?, trigger (time|key|pin|signal), duration, value, next?, onFail?, timeout?`.
+Take fields: `kind: "take", id, name, config (film Config), cue, operation?, trigger (time|key|pin|signal), duration, value, timeout?, position?`. Terminal: `kind: "end", id, name?, position?`.
 
-- v2 adds: `targets[]` (stage device ids), `rehearsal` flag, optional `missionRef` for training rehearsals.
+- v3 adds: `targets[]` (stage device ids), `rehearsal` flag, optional `missionRef` for training rehearsals.
 - Import cap 12 MB; invalid files never modify the current show.
 - `operation` MUST be exposed in the editor UI (exists in schema, not in UI today).
 

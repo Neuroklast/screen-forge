@@ -27,6 +27,7 @@ import {
   withScene,
 } from "./core/config";
 import { formatTime, useSceneClock, type Cue } from "./core/runtime";
+import { labelFor } from "./core/labels";
 import { setSoundEnabled } from "./core/sound";
 import { t } from "./i18n";
 import { TokenEditor } from "./components/TokenEditor";
@@ -35,9 +36,12 @@ import { MediaManager } from "./components/MediaManager";
 import { SequenceEditor } from "./components/SequenceEditor";
 import { terminalScript, terminalScripts } from "./core/terminalScripts";
 import {
+  entryStep,
   failStep,
   loadShow,
   nextStep,
+  stepById,
+  timeoutStep,
   triggerMatches,
   type Step,
 } from "./core/director";
@@ -112,7 +116,7 @@ export default function App() {
   };
   const advanceShow = () => {
     if (!running) return;
-    const step = show.steps.find((s) => s.id === running);
+    const step = stepById(show, running);
     noteTake("ok", step?.value || step?.name || running);
     const next = nextStep(show, running);
     if (next) applyStep(next);
@@ -123,7 +127,7 @@ export default function App() {
   };
   const failShow = () => {
     if (!running) return;
-    const step = show.steps.find((s) => s.id === running);
+    const step = stepById(show, running);
     noteTake("fail", step?.value || step?.name || running);
     const next = failStep(show, running);
     if (next) applyStep(next);
@@ -144,7 +148,7 @@ export default function App() {
   }, [config.pinEnabled, config.pin, take]);
   useEffect(() => {
     if (!running || !clock.playing) return;
-    const step = show.steps.find((s) => s.id === running);
+    const step = stepById(show, running);
     if (step && triggerMatches(step, clock.elapsed)) advanceShow();
     if (
       step &&
@@ -153,7 +157,7 @@ export default function App() {
       step.trigger !== "time"
     ) {
       noteTake("timeout", step.value || step.name);
-      const next = failStep(show, running);
+      const next = timeoutStep(show, running);
       if (next) applyStep(next);
       else {
         setRunning(null);
@@ -164,7 +168,7 @@ export default function App() {
   useEffect(() => {
     const input = (e: Event) => {
       const detail = (e as CustomEvent<{ type: string; value: string }>).detail;
-      const step = show.steps.find((s) => s.id === running);
+      const step = running ? stepById(show, running) : undefined;
       if (step && clock.playing && triggerMatches(step, clock.elapsed, detail))
         advanceShow();
     };
@@ -361,8 +365,10 @@ export default function App() {
           </nav>
           <div className="project-label">
             <span className="tiny-dot" />
-            {rehearsal ? "TRAINING" : "FILM / TV"}{" "}
-            <span className="version">V.01</span>
+            {t("studio.filmTv")}{" "}
+            <span className="version">
+              {t(rehearsal ? "studio.training" : "studio.film")}
+            </span>
           </div>
           <button className="primary-button" onClick={fullscreen}>
             <Monitor size={15} /> {t("studio.startStage")} <ArrowUpRight size={15} />
@@ -378,7 +384,7 @@ export default function App() {
                 className={scene.id === config.scene ? "active" : ""}
                 onClick={() => select(scene.id)}
               >
-                {scene.name}
+                {labelFor("scene", scene.id)}
               </button>
             ))}
           <em>{t("studio.blocks")}</em>
@@ -390,7 +396,7 @@ export default function App() {
                 className={scene.id === config.scene ? "active" : ""}
                 onClick={() => select(scene.id)}
               >
-                {scene.name}
+                {labelFor("scene", scene.id)}
               </button>
             ))}
           <span>{running ? t("studio.sequenceActive") : t("studio.manualDirection")}</span>
@@ -404,8 +410,10 @@ export default function App() {
         <main className="workspace">
           <div className="workspace-heading">
             <div>
-              <span className="eyebrow">SCENE {selected.code}</span>
-              <h1>{selected.name}</h1>
+              <span className="eyebrow">
+                {t("studio.sceneEyebrow", { code: selected.code })}
+              </span>
+              <h1>{labelFor("scene", selected.id)}</h1>
             </div>
             <button
               className={`icon-button ${settings ? "selected" : ""}`}
@@ -419,10 +427,10 @@ export default function App() {
             <div className="stage-topline">
               <span>
                 <span className="tiny-dot" />
-                {clock.playing ? "PLAYING" : "STANDBY"}
+                {t(clock.playing ? "studio.playing" : "studio.standby")}
               </span>
               <span>
-                LIVE PREVIEW / {stageFmt.width} × {stageFmt.height}
+                {t("studio.livePreview")} / {stageFmt.width} × {stageFmt.height}
               </span>
               <button onClick={fullscreen} aria-label={t("studio.fullscreen")}>
                 <Maximize size={14} />
@@ -478,7 +486,7 @@ export default function App() {
                   config={config}
                   operation={
                     running
-                      ? show.steps.find((s) => s.id === running)?.operation
+                      ? stepById(show, running)?.operation
                       : undefined
                   }
                   time={clock.elapsed}
@@ -507,10 +515,12 @@ export default function App() {
               </div>
             </div>
             <div className="stage-bottomline">
-              <span>POINTER + MULTITOUCH</span>
+              <span>{t("studio.pointerTouch")}</span>
               <span>
-                TAKE {take.toString().padStart(2, "0")} /{" "}
-                {config.mood.toUpperCase()}
+                {t("studio.take", {
+                  n: take.toString().padStart(2, "0"),
+                  mood: t(`studio.mood.${config.mood}`),
+                })}
               </span>
             </div>
           </div>
@@ -521,8 +531,9 @@ export default function App() {
               config={config}
               running={running}
               onStart={() => {
-                if (show.steps[0]) {
-                  applyStep(show.steps[0]);
+                const first = entryStep(show);
+                if (first) {
+                  applyStep(first);
                   setDirectorTab("monitor");
                 }
               }}
@@ -549,7 +560,7 @@ export default function App() {
               </button>
               <div className="transport-time">
                 {formatTime(clock.elapsed)}
-                <small>SCENE TIME</small>
+                <small>{t("studio.sceneTime")}</small>
               </div>
             </div>
             <div className="cue-buttons">
@@ -821,11 +832,11 @@ export default function App() {
                   {
                     (
                       {
-                        scanlines: "Scanlines",
-                        glow: "CRT Glow",
+                        scanlines: t("studio.overlay.scanlines"),
+                        glow: t("studio.overlay.crtGlow"),
                         grid: t("studio.overlay.technoGrid"),
                         grain: t("studio.overlay.grain"),
-                        vignette: "Vignette",
+                        vignette: t("studio.overlay.vignette"),
                         glitch: t("studio.overlay.glitch"),
                         chromatic: t("studio.overlay.chromatic"),
                       } as Record<string, string>

@@ -43,7 +43,14 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 
 - Five steps: `"Zweck"` (type + template + name), `"Teilnehmer"`, `"Geräte"`, `"Ablauf"`, `"Prüfen"`.
 - Creates a valid draft without module, role, binding, id or inject knowledge; advanced settings stay collapsed; `"Im Expertenmodus öffnen"` remains reachable.
-- After creation the shell opens on `"Geräte"`; the wizard never remains the editor.
+- The `"Ablauf"` step embeds the real workflow graph, so the graph created here is the same graph edited later under `"Ablauf"`.
+- After creation the shell opens on the first incomplete section, or `"Prüfen"` when the draft is complete — never blindly on `"Geräte"`; the wizard never remains the editor.
+
+## Navigation state
+
+- Preparation navigation is an explicit `PreparationLocation { section, guidedStep?, returnTo?, focus? }`, mirrored in the URL (`?section=…&guided=…`), not a set of local booleans.
+- Close, Cancel, Back, browser Back and Reload have deterministic behavior; guided setup is a state inside a section and can never trap the user.
+- Readiness is one model: every section reports `complete / warning / blocking`; `"Übersicht"` derives the next recommended action from it, and review findings carry a target `{ section, entity/node, field }`.
 
 ## Expert mode and legacy
 

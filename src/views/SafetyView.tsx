@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTraining } from "../core/useExercise";
+import { labelFor } from "../core/labels";
 import { t } from "../i18n";
 import "../training/roles.css";
 
@@ -13,7 +14,7 @@ export function SafetyView({ room }: { room: string }) {
         <b>{t("safety.title", { room })}</b>
         <span>
           {t(ex.online ? "common.connected" : "common.offline")} ·{" "}
-          {ex.state.phase}
+          {labelFor("phase", ex.state.phase)}
         </span>
       </header>
       {aborted && (
@@ -63,7 +64,7 @@ export function SafetyView({ room }: { room: string }) {
           {t("safety.statusLine", {
             stations: ex.state.scenario.stations.length,
             patients: ex.state.scenario.patients.length,
-            phase: ex.state.phase,
+            phase: labelFor("phase", ex.state.phase),
           })}
         </p>
         <ul className="presence-list">

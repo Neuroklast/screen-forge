@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import {
   actorSchema,
   patientSchema,
@@ -18,6 +18,13 @@ import { missionTemplates } from "../core/templates";
 import { devicePresets, devicePresetsFor } from "./prepare/devicePresets";
 import { buildDevice, uid } from "./prepare/shared";
 import { t } from "../i18n";
+
+// React Flow loads only when the guided Ablauf step renders.
+const WorkflowCanvas = lazy(() =>
+  import("../builder/WorkflowCanvas").then((module) => ({
+    default: module.WorkflowCanvas,
+  })),
+);
 
 const map = { lat: 51.23, lng: 6.78, zoom: 15, tiles: "", attribution: "" };
 
@@ -54,6 +61,7 @@ export function ScenarioWizard({
   const [step, setStep] = useState(0),
     [draft, setDraft] = useState(() => blankScenario("field")),
     [presetId, setPresetId] = useState(devicePresets[0].id),
+    [selectedNode, setSelectedNode] = useState(""),
     [error, setError] = useState("");
   const caps = scenarioCapabilities(draft);
   const presets = devicePresetsFor(caps);
@@ -332,11 +340,27 @@ export function ScenarioWizard({
             {t("builder.newWorkflow")}
           </button>
           {draft.workflows.length > 0 && (
-            <ul>
-              {draft.workflows.map((w) => (
-                <li key={w.id}>{w.name}</li>
-              ))}
-            </ul>
+            <div className="wizard-graph">
+              <Suspense
+                fallback={<p className="builder-hint">{t("builder.loading")}</p>}
+              >
+                <WorkflowCanvas
+                  workflow={draft.workflows[0]}
+                  findings={findings}
+                  readOnly={false}
+                  selectedNodeId={selectedNode}
+                  onSelectNode={setSelectedNode}
+                  onPatch={(next) =>
+                    update({
+                      workflows: draft.workflows.map((row) =>
+                        row.id === next.id ? next : row,
+                      ),
+                    })
+                  }
+                  variant="human"
+                />
+              </Suspense>
+            </div>
           )}
         </>
       )}

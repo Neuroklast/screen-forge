@@ -4,6 +4,7 @@ import { CameraFeed } from "../training/CameraFeed";
 import { DossierCards } from "../training/Dossiers";
 import { DeviceTools } from "../training/DeviceTools";
 import { vitalsOf } from "../core/patient";
+import { labelFor } from "../core/labels";
 import { t } from "../i18n";
 export function HqView({ room }: { room: string }) {
   const ex = useTraining();
@@ -11,12 +12,14 @@ export function HqView({ room }: { room: string }) {
     <main className="training-app hq-view">
       <header className="training-header">
         <div>
-          <span className="eyebrow">OPERATIONS / HQ · {room}</span>
+          <span className="eyebrow">{t("hq.eyebrow", { room })}</span>
           <h1>{ex.state.scenario.name}</h1>
         </div>
         <span>
           {t(ex.online ? "common.connectedTitle" : "common.offlineTitle")} ·{" "}
-          {ex.state.frozen ? t("common.paused") : ex.state.scenario.mode}
+          {ex.state.frozen
+            ? t("common.paused")
+            : labelFor("mode", ex.state.scenario.mode)}
         </span>
       </header>
       <div className="training-columns">
@@ -52,7 +55,7 @@ export function HqView({ room }: { room: string }) {
             return (
               <div className="hq-patient-card" key={p.id}>
                 <h3>
-                  {p.name} · {p.triage}
+                  {p.name} · {labelFor("triage", p.triage)}
                 </h3>
                 <p>
                   HR {v.hr} · SpO₂ {v.spo2}% · NIBP {v.sys}/{v.dia}

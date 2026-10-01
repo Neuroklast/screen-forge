@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import type { TrainingStation } from "../core/training";
 import { useTraining } from "../core/useExercise";
+import { labelFor } from "../core/labels";
+import { t } from "../i18n";
 import "./device.css";
 
 export function BeaconControl({ station }: { station: TrainingStation }) {
@@ -30,9 +32,11 @@ export function BeaconControl({ station }: { station: TrainingStation }) {
     <section className="device-panel">
       <header className="device-head">
         <h2>{station.name}</h2>
-        <span className={`device-state is-${state}`}>{state}</span>
+        <span className={`device-state is-${state}`}>
+          {labelFor("propState", state)}
+        </span>
       </header>
-      <p className="device-note">Signal device. Hold three seconds to activate.</p>
+      <p className="device-note">{t("beacon.note")}</p>
       <button
         className="device-hold"
         disabled={locked || state === "active"}

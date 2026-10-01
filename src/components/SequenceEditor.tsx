@@ -1,8 +1,33 @@
 import { useState } from "react";
-import { scenes, defaults, type Config } from "../core/config";
-import { newStep, showSchema, type Show, type Step } from "../core/director";
+import { scenes, defaults, withScene, type Config } from "../core/config";
+import {
+  ensureEndNode,
+  entryStep,
+  lintShow,
+  newStep,
+  showNodePorts,
+  showSchema,
+  stepById,
+  type Show,
+  type Take,
+} from "../core/director";
+import {
+  addNode,
+  connect,
+  edgeForOutput,
+  graphUid,
+  removeNode,
+  replaceNode,
+  setOutputTarget,
+} from "../core/graphEdit";
+import { labelFor } from "../core/labels";
 import { showTemplateLabels, showTemplates } from "../core/showTemplates";
+import { ShowGraph } from "./ShowGraph";
 import { t } from "../i18n";
+
+// Film sequence editor: a real graph. Every take is a node with visible
+// success/fail/timeout ports; edges are edited by dragging or, accessibly, by
+// picking a target in the inspector. No pagination, no dropdown-only topology.
 export function SequenceEditor({
   show,
   onChange,
@@ -22,32 +47,58 @@ export function SequenceEditor({
   onAdvance: () => void;
   onFail: () => void;
 }) {
-  const [selected, setSelected] = useState(show.steps[0]?.id ?? ""),
-    [page, setPage] = useState(0),
-    [status, setStatus] = useState("");
-  const item = show.steps.find((s) => s.id === selected);
-  const set = (patch: Partial<Step>) =>
-    onChange({
-      ...show,
-      steps: show.steps.map((s) =>
-        s.id === selected ? { ...s, ...patch } : s,
-      ),
-    });
-  const add = (config: Config, index = show.steps.length) => {
-    if (show.steps.length >= 60) return;
-    const step = newStep(config);
-    const steps = [...show.steps];
-    steps.splice(index, 0, step);
-    onChange({ ...show, steps });
-    setSelected(step.id);
-    setPage(Math.floor(index / 5));
+  const [selected, setSelected] = useState(show.entry);
+  const [status, setStatus] = useState("");
+  const item = stepById(show, selected);
+  const findings = lintShow(show);
+  const errors = findings.filter((finding) => finding.severity === "error");
+  const targets = show.nodes.filter(
+    (node) => node.id !== selected && node.id !== show.entry,
+  );
+  const takeCount = show.nodes.filter((node) => node.kind === "take").length;
+
+  const set = (patch: Partial<Take>) => {
+    if (!item) return;
+    onChange(replaceNode(show, { ...item, ...patch }, showNodePorts));
   };
-  const move = (id: string, index: number) => {
-    const steps = show.steps.filter((s) => s.id !== id),
-      step = show.steps.find((s) => s.id === id);
-    if (!step) return;
-    steps.splice(Math.max(0, index), 0, step);
-    onChange({ ...show, steps });
+  const setTarget = (
+    output: "success" | "fail" | "timeout",
+    target: string,
+  ) => {
+    if (!item) return;
+    onChange(setOutputTarget(show, item.id, output, target, () => graphUid("e")));
+  };
+  const add = (next: Config) => {
+    if (takeCount >= 59) {
+      setStatus(t("sequence.limitReached"));
+      return;
+    }
+    const withEnd = ensureEndNode(show);
+    const take = newStep(next);
+    let draft = addNode(withEnd.show, take);
+    const from =
+      item && !edgeForOutput(draft, item.id, "success") ? item.id : show.entry;
+    if (!edgeForOutput(draft, from, "success"))
+      draft = connect(draft, {
+        id: graphUid("e"),
+        source: from,
+        output: "success",
+        target: take.id,
+      });
+    if (!edgeForOutput(draft, take.id, "success"))
+      draft = connect(draft, {
+        id: graphUid("e"),
+        source: take.id,
+        output: "success",
+        target: withEnd.endId,
+      });
+    onChange(draft);
+    setSelected(take.id);
+  };
+  const remove = () => {
+    if (!item) return;
+    onChange(removeNode(show, item.id));
+    setSelected("");
   };
   const exportShow = () => {
     const url = URL.createObjectURL(
@@ -59,6 +110,7 @@ export function SequenceEditor({
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
+  const readOnly = !!running;
   return (
     <section className="sequence-editor">
       <header>
@@ -69,7 +121,8 @@ export function SequenceEditor({
         />
         <button
           onClick={running ? onStop : onStart}
-          disabled={!show.steps.length}
+          disabled={!takeCount || errors.length > 0}
+          title={errors.length ? t("sequence.blockedStart") : ""}
         >
           {running ? t("sequence.stop") : t("sequence.start")}
         </button>
@@ -88,13 +141,12 @@ export function SequenceEditor({
             accept=".json"
             onChange={async (e) => {
               try {
-                const f = e.target.files?.[0];
-                if (!f) return;
-                if (f.size > 12_000_000) throw Error();
-                const loaded = showSchema.parse(JSON.parse(await f.text()));
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (file.size > 12_000_000) throw Error();
+                const loaded = showSchema.parse(JSON.parse(await file.text()));
                 onChange(loaded);
-                setSelected(loaded.steps[0]?.id ?? "");
-                setPage(0);
+                setSelected(loaded.entry);
                 setStatus(t("sequence.loaded"));
               } catch {
                 setStatus(t("sequence.invalid"));
@@ -113,8 +165,7 @@ export function SequenceEditor({
               const tpl = showTemplates(config)[Number(e.target.value)];
               if (!tpl) return;
               onChange(tpl.show);
-              setSelected(tpl.show.steps[0]?.id ?? "");
-              setPage(0);
+              setSelected(tpl.show.entry);
               setStatus(t("sequence.templateLoaded", { name: tpl.name }));
               e.target.value = "";
             }}
@@ -122,8 +173,8 @@ export function SequenceEditor({
             <option value="" disabled>
               {t("sequence.chooseTemplate")}
             </option>
-            {showTemplateLabels.map((name, i) => (
-              <option key={name} value={i}>
+            {showTemplateLabels.map((name, index) => (
+              <option key={name} value={index}>
                 {name}
               </option>
             ))}
@@ -131,112 +182,58 @@ export function SequenceEditor({
         </label>
         <span>{t("sequence.scenes")}</span>
         {scenes
-          .filter((s) => s.kind === "scene")
-          .map((s) => (
-            <button
-              key={s.id}
-              draggable
-              onDragStart={(e) =>
-                e.dataTransfer.setData("application/screenforge-scene", s.id)
-              }
-              onClick={() => add(defaults(s.id))}
-            >
-              + {s.name}
+          .filter((scene) => scene.kind === "scene")
+          .map((scene) => (
+            <button key={scene.id} onClick={() => add(defaults(scene.id))}>
+              + {labelFor("scene", scene.id)}
             </button>
           ))}
         <span>{t("sequence.blocks")}</span>
         {scenes
-          .filter((s) => s.kind === "block")
-          .map((s) => (
-            <button
-              key={s.id}
-              draggable
-              onDragStart={(e) =>
-                e.dataTransfer.setData("application/screenforge-scene", s.id)
-              }
-              onClick={() => add(defaults(s.id))}
-            >
-              + {s.name}
+          .filter((scene) => scene.kind === "block")
+          .map((scene) => (
+            <button key={scene.id} onClick={() => add(defaults(scene.id))}>
+              + {labelFor("scene", scene.id)}
             </button>
           ))}
         <button onClick={() => add(config)}>{t("sequence.currentConfig")}</button>
       </div>
       <div className="sequence-body">
         <div className="sequence-chain">
-          {show.steps.slice(page * 5, page * 5 + 5).map((s, i) => (
-            <article
-              key={s.id}
-              draggable
-              onDragStart={(e) =>
-                e.dataTransfer.setData("application/screenforge-node", s.id)
-              }
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                const id = e.dataTransfer.getData(
-                  "application/screenforge-node",
-                );
-                const scene = e.dataTransfer.getData(
-                  "application/screenforge-scene",
-                );
-                if (id) move(id, page * 5 + i);
-                else if (scenes.some((s) => s.id === scene))
-                  add(defaults(scene as Config["scene"]), page * 5 + i);
-              }}
-              className={`${s.id === selected ? "selected" : ""} ${s.id === running ? "running" : ""}`}
-            >
-              <button
-                className="sequence-node"
-                onClick={() => setSelected(s.id)}
-              >
-                <span>{String(page * 5 + i + 1).padStart(2, "0")}</span>
-                <strong>{s.name}</strong>
-                <small>
-                  {s.config.scene} ·{" "}
-                  {s.trigger === "time"
-                    ? `${s.duration}s`
-                    : s.trigger + " : " + s.value}
-                </small>
-              </button>
-              <div className="sequence-node-actions">
-                <button
-                  aria-label={`Move ${s.name} up`}
-                  disabled={page * 5 + i === 0}
-                  onClick={() => move(s.id, page * 5 + i - 1)}
-                >
-                  ↑
-                </button>
-                <button
-                  aria-label={`Move ${s.name} down`}
-                  disabled={page * 5 + i === show.steps.length - 1}
-                  onClick={() => move(s.id, page * 5 + i + 1)}
-                >
-                  ↓
-                </button>
-              </div>
-              <div className="sequence-link">
-                →{" "}
-                {s.next === "end"
-                  ? t("sequence.end")
-                  : s.next
-                    ? show.steps.find((n) => n.id === s.next)?.name
-                    : t("sequence.nextNode")}
-              </div>
-            </article>
-          ))}
-          <div className="sequence-page">
-            <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-              {t("common.back")}
-            </button>
-            <span>
-              {page + 1}/{Math.max(1, Math.ceil(show.steps.length / 5))}
-            </span>
-            <button
-              disabled={(page + 1) * 5 >= show.steps.length}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              {t("common.next")}
-            </button>
+          <p className="sequence-hint">{t("sequence.graphHint")}</p>
+          <div className="sequence-graph">
+            <ShowGraph
+              show={show}
+              findings={findings}
+              readOnly={readOnly}
+              selectedId={item?.id ?? ""}
+              onSelect={setSelected}
+              onChange={onChange}
+              highlightId={item?.id ?? ""}
+            />
+          </div>
+          <div className="sequence-findings">
+            <b>{t("sequence.findings")}</b>
+            {errors.length || findings.length ? (
+              <ul>
+                {findings.map((finding) => (
+                  <li
+                    key={finding.id}
+                    className={finding.severity === "error" ? "is-error" : ""}
+                  >
+                    <button
+                      onClick={() => {
+                        if (finding.nodeId) setSelected(finding.nodeId);
+                      }}
+                    >
+                      {finding.message}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <span>{t("sequence.noFindings")}</span>
+            )}
           </div>
         </div>
         <div className="sequence-properties">
@@ -254,24 +251,26 @@ export function SequenceEditor({
                 <select
                   value={item.config.scene}
                   onChange={(e) =>
-                    set({ config: defaults(e.target.value as Config["scene"]) })
+                    set({ config: withScene(item.config, e.target.value as Config["scene"]) })
                   }
                 >
-                  {scenes.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
+                  {scenes.map((scene) => (
+                    <option key={scene.id} value={scene.id}>
+                      {labelFor("scene", scene.id)}
                     </option>
                   ))}
                 </select>
               </label>
               <label>
-                Cue
+                {t("sequence.cue")}
                 <select
                   value={item.cue}
-                  onChange={(e) => set({ cue: e.target.value as Step["cue"] })}
+                  onChange={(e) => set({ cue: e.target.value as Take["cue"] })}
                 >
-                  {["idle", "active", "warning", "complete"].map((c) => (
-                    <option key={c}>{c}</option>
+                  {["idle", "active", "warning", "complete"].map((cue) => (
+                    <option key={cue} value={cue}>
+                      {labelFor("cue", cue)}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -309,7 +308,7 @@ export function SequenceEditor({
                       ] as const
                     ).map((id) => (
                       <option key={id} value={id}>
-                        {id}
+                        {labelFor("osApp", id)}
                       </option>
                     ))}
                   </select>
@@ -322,7 +321,7 @@ export function SequenceEditor({
                   value={item.trigger}
                   onChange={(e) =>
                     set({
-                      trigger: e.target.value as Step["trigger"],
+                      trigger: e.target.value as Take["trigger"],
                       value:
                         e.target.value === "pin" ? item.config.pin : "Enter",
                     })
@@ -384,57 +383,62 @@ export function SequenceEditor({
                 />
               </label>
               <label>
-                {t("sequence.onFail")}
-                <select
-                  aria-label={t("sequence.onFailAria")}
-                  value={item.onFail}
-                  onChange={(e) => set({ onFail: e.target.value })}
-                >
-                  <option value="">{t("sequence.endSequence")}</option>
-                  <option value="end">{t("sequence.endSequence")}</option>
-                  {show.steps
-                    .filter((s) => s.id !== item.id)
-                    .map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                </select>
-              </label>
-              <label>
                 {t("sequence.link")}
                 <select
                   aria-label={t("sequence.nextAria")}
-                  value={item.next}
-                  onChange={(e) => set({ next: e.target.value })}
+                  value={edgeForOutput(show, item.id, "success")?.target ?? ""}
+                  onChange={(e) => setTarget("success", e.target.value)}
                 >
-                  <option value="">{t("sequence.nextInOrder")}</option>
-                  <option value="end">{t("sequence.endSequence")}</option>
-                  {show.steps
-                    .filter((s) => s.id !== item.id)
-                    .map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
+                  <option value="">{t("sequence.endSequence")}</option>
+                  {targets.map((node) => (
+                    <option key={node.id} value={node.id}>
+                      {node.kind === "end"
+                        ? t("sequence.node.end")
+                        : node.name || node.id}
+                    </option>
+                  ))}
                 </select>
               </label>
+              <label>
+                {t("sequence.onFail")}
+                <select
+                  aria-label={t("sequence.onFailAria")}
+                  value={edgeForOutput(show, item.id, "fail")?.target ?? ""}
+                  onChange={(e) => setTarget("fail", e.target.value)}
+                >
+                  <option value="">{t("sequence.endSequence")}</option>
+                  {targets.map((node) => (
+                    <option key={node.id} value={node.id}>
+                      {node.kind === "end"
+                        ? t("sequence.node.end")
+                        : node.name || node.id}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {item.timeout > 0 && (
+                <label>
+                  {t("sequence.timeoutTarget")}
+                  <select
+                    aria-label={t("sequence.timeoutTarget")}
+                    value={edgeForOutput(show, item.id, "timeout")?.target ?? ""}
+                    onChange={(e) => setTarget("timeout", e.target.value)}
+                  >
+                    <option value="">{t("sequence.onFailFallback")}</option>
+                    {targets.map((node) => (
+                      <option key={node.id} value={node.id}>
+                        {node.kind === "end"
+                          ? t("sequence.node.end")
+                          : node.name || node.id}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <button onClick={() => set({ config: structuredClone(config) })}>
                 {t("sequence.applyCurrent")}
               </button>
-              <button
-                onClick={() => {
-                  onChange({
-                    ...show,
-                    steps: show.steps
-                      .filter((s) => s.id !== selected)
-                      .map((s) =>
-                        s.next === selected ? { ...s, next: "" } : s,
-                      ),
-                  });
-                  setSelected("");
-                }}
-              >
+              <button disabled={item.id === show.entry} onClick={remove}>
                 {t("sequence.removeNode")}
               </button>
             </>

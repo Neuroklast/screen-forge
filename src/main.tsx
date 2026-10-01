@@ -13,6 +13,7 @@ import App from "./App";
 import { sessionFromSearch } from "./core/session";
 import { ExerciseProvider } from "./core/useExercise";
 import { ConnectionGate } from "./training/ConnectionGate";
+import { BuildGate } from "./training/BuildGate";
 import "./training/training.css";
 import { TrainerView } from "./views/TrainerView";
 import { HqView } from "./views/HqView";
@@ -27,6 +28,27 @@ import "./styles.css";
 import "./scenes/corporate.css";
 import "./scenes/os/os.css";
 const session = sessionFromSearch(location.search);
+// Field/output shells may run offline and keep a service worker. Control and
+// editor surfaces never do: a stale cached app shell must be impossible there.
+const fieldShell =
+  session.demo || session.kiosk || session.role === "element" || session.role === "hq";
+async function configureServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  if (fieldShell && import.meta.env.PROD) {
+    const { registerSW } = await import("virtual:pwa-register");
+    registerSW({ immediate: true });
+    return;
+  }
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map((registration) => registration.unregister()));
+    if (typeof caches !== "undefined")
+      await Promise.all((await caches.keys()).map((key) => caches.delete(key)));
+  } catch {
+    /* service workers unsupported or blocked */
+  }
+}
+void configureServiceWorker();
 function Root() {
   if (session.demo) return <DemoHub kiosk={session.kiosk} />;
   if (!session.explicit) return <StartPage />;
@@ -34,13 +56,15 @@ function Root() {
   if (session.role === "safety" || session.role === "assessor")
     return (
       <ExerciseProvider role={session.role} room={session.room} station="">
-        <ConnectionGate>
-          {session.role === "safety" ? (
-            <SafetyView room={session.room} />
-          ) : (
-            <AssessorView room={session.room} />
-          )}
-        </ConnectionGate>
+        <BuildGate>
+          <ConnectionGate>
+            {session.role === "safety" ? (
+              <SafetyView room={session.room} />
+            ) : (
+              <AssessorView room={session.room} />
+            )}
+          </ConnectionGate>
+        </BuildGate>
       </ExerciseProvider>
     );
   return (
@@ -49,15 +73,17 @@ function Root() {
       room={session.room}
       station={session.station}
     >
-      <ConnectionGate>
-        {session.role === "trainer" ? (
-          <TrainerView room={session.room} />
-        ) : session.role === "hq" ? (
-          <HqView room={session.room} />
-        ) : (
-          <ElementView station={session.station} />
-        )}
-      </ConnectionGate>
+      <BuildGate>
+        <ConnectionGate>
+          {session.role === "trainer" ? (
+            <TrainerView room={session.room} />
+          ) : session.role === "hq" ? (
+            <HqView room={session.room} />
+          ) : (
+            <ElementView station={session.station} />
+          )}
+        </ConnectionGate>
+      </BuildGate>
     </ExerciseProvider>
   );
 }

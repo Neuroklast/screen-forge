@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useTraining } from "../core/useExercise";
 import { scenarioSchema, dueAt, type Scenario } from "../core/training";
 import { scenarioCapabilities } from "../core/capabilities";
+import {
+  PREP_SECTIONS,
+  nextIncomplete,
+  prepareReadiness,
+  type PrepSection,
+} from "../core/readiness";
 import { stationUrl } from "../core/session";
 import { ScenarioWizard } from "../training/ScenarioWizard";
 import { TemplateGallery } from "../training/TemplateGallery";
@@ -14,6 +20,7 @@ import { DevicesSection } from "../training/prepare/DevicesSection";
 import { FlowSection } from "../training/prepare/FlowSection";
 import { ReviewSection } from "../training/prepare/ReviewSection";
 import { t } from "../i18n";
+import { Tabs } from "../ui/primitives";
 import "../training/roles.css";
 import "../training/prepare/prepare.css";
 
@@ -29,10 +36,36 @@ const PREP_TABS = [
   ["review", "prep.tab.review"],
 ] as const;
 
+// Explicit preparation navigation state. Guided setup is a state inside the
+// section, not an isolated boolean modal, so Close/Back/Reload are deterministic
+// and the user can never be trapped.
+type PrepSectionView = PrepSection | "live";
+type PreparationFocus = { nodeId?: string; entityId?: string; field?: string };
+type PreparationLocation = {
+  section: PrepSectionView;
+  guidedStep?: number;
+  returnTo?: PrepSectionView;
+  focus?: PreparationFocus;
+};
+
+function isSection(value: string | null): value is PrepSection {
+  return !!value && (PREP_SECTIONS as string[]).includes(value);
+}
+
+function readPreparationLocation(): PreparationLocation {
+  const query = new URLSearchParams(location.search);
+  const section = isSection(query.get("section"))
+    ? (query.get("section") as PrepSection)
+    : "overview";
+  const raw = query.get("guided");
+  const guidedStep =
+    raw === null ? undefined : Math.max(0, Math.min(4, Number(raw) || 0));
+  return { section, guidedStep };
+}
+
 export function TrainerView({ room }: { room: string }) {
   const ex = useTraining(),
-    [tab, setTab] = useState<string>("overview"),
-    [wizard, setWizard] = useState(false),
+    [loc, setLoc] = useState<PreparationLocation>(readPreparationLocation),
     [draft, setDraft] = useState<Scenario>(() =>
       structuredClone(ex.state.scenario),
     ),
@@ -43,6 +76,27 @@ export function TrainerView({ room }: { room: string }) {
     [gallery, setGallery] = useState(false),
     [msgTo, setMsgTo] = useState("all"),
     [msgText, setMsgText] = useState("");
+  const tab = loc.section;
+  const wizard = loc.guidedStep !== undefined;
+  const navigate = (next: PreparationLocation, replace = false) => {
+    setLoc(next);
+    const query = new URLSearchParams(location.search);
+    query.set("section", next.section);
+    if (next.guidedStep !== undefined) query.set("guided", String(next.guidedStep));
+    else query.delete("guided");
+    history[replace ? "replaceState" : "pushState"](
+      null,
+      "",
+      `${location.pathname}?${query.toString()}`,
+    );
+  };
+  const setTab = (section: string) =>
+    navigate({ ...loc, section: section as PrepSectionView });
+  useEffect(() => {
+    const onPop = () => setLoc(readPreparationLocation());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   useEffect(() => {
     if (!dirty) {
       setDraft(structuredClone(ex.state.scenario));
@@ -86,9 +140,9 @@ export function TrainerView({ room }: { room: string }) {
   // relevant; preparation surfaces disappear and the surface switches to live.
   const live = ex.state.phase === "running";
   useEffect(() => {
-    if (live && tab !== "live") setTab("live");
-    if (!live && tab === "live") setTab("overview");
-  }, [live, tab]);
+    if (live && loc.section !== "live") setLoc({ section: "live" });
+    if (!live && loc.section === "live") setLoc({ section: "overview" });
+  }, [live, loc.section]);
   const connected = Object.values(ex.state.presence).filter(
     (p) => p.online,
   ).length;
@@ -123,7 +177,8 @@ export function TrainerView({ room }: { room: string }) {
             caps={caps}
             connected={connected}
             onGuided={() => {
-              if (ex.state.frozen) setWizard(true);
+              if (ex.state.frozen)
+                navigate({ ...loc, guidedStep: 0, returnTo: loc.section });
               else setMessage(t("trainer.pauseFirst"));
             }}
             onGallery={() => setGallery(true)}
@@ -208,7 +263,9 @@ export function TrainerView({ room }: { room: string }) {
       <header className="training-header">
         <a href="/">SCREENFORGE</a>
         <div>
-          <span className="eyebrow">EXERCISE CONTROL · {room}</span>
+          <span className="eyebrow">
+            {t("trainer.controlEyebrow")} · {room}
+          </span>
           <h1>{ex.state.scenario.name}</h1>
         </div>
         <span className={ex.online ? "status-up" : "status-down"}>
@@ -253,20 +310,14 @@ export function TrainerView({ room }: { room: string }) {
           {t("trainer.abort")}
         </button>
       </header>
-      <nav className="training-nav">
-        {(live
+      <Tabs
+        items={(live
           ? ([["live", "trainer.tab.live"]] as const)
           : PREP_TABS
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            className={tab === id ? "active" : ""}
-            onClick={() => setTab(id)}
-          >
-            {t(label)}
-          </button>
-        ))}
-      </nav>
+        ).map(([id, label]) => [id, t(label)] as const)}
+        active={tab}
+        onSelect={setTab}
+      />
       {message && (
         <p className="notice" role="status">
           {message}
@@ -295,12 +346,18 @@ export function TrainerView({ room }: { room: string }) {
       )}
       {wizard ? (
         <ScenarioWizard
-          onClose={() => setWizard(false)}
+          onClose={() =>
+            navigate(
+              {
+                section: loc.returnTo ?? loc.section,
+                focus: loc.focus,
+              },
+              true,
+            )
+          }
           onSave={(s) => {
-            if (save(s)) {
-              setWizard(false);
-              setTab("devices");
-            }
+            if (save(s))
+              navigate({ section: nextIncomplete(prepareReadiness(s)) });
           }}
         />
       ) : (

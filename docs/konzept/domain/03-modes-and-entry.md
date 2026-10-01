@@ -7,13 +7,14 @@
 
 | Mode | UI label | Controller | Runs | Content unit | Runtime |
 | --- | --- | --- | --- | --- | --- |
-| `film` | `"Film & TV"` | `director` | locally (browser) | show/take over scenes | scene clock, cues |
-| `training` | `"Training"` | `excon` | LAN server | mission + injects | exercise clock, server tick |
+| `film` | `"Filmstudio"` | `director` | locally (browser) | show/take over scenes | scene clock, cues |
+| `training` | `"Übungsleitung"` | `excon` | LAN server | mission + injects | exercise clock, server tick |
 | `demo` | `"Demo"` | `presenter` | locally, offline | seeded mission + show | demo tour driver |
 
 - A mode is a **product surface**, not a data source. `LIVE`/`PLAYBACK` is a mission property usable in any mode.
 - Film and training share scenes, modules, theming, and stage rendering; training adds server, roles, and entities.
 - Demo is a sandbox: same engine, no auth, no persistence, reset on demand.
+- **No second "Training" product inside Filmstudio.** Production vs. rehearsal is a state inside Filmstudio (`"Dreh"` / `"Probe"`), not a mode and not a product ([09-film-tv.md](09-film-tv.md)). The only exercise product is Übungsleitung (`training`).
 
 ## Depth levels (orthogonal)
 
@@ -45,7 +46,7 @@
 ## Start page structure (summary)
 
 1. **Header:** product mark, language (DE), version, connection status (`Offline` / `Server erreichbar`).
-2. **Mode cards:** `Film & TV`, `Training`, `Demo` — one line each, primary action.
+2. **Mode cards:** `Filmstudio`, `Übungsleitung`, `Demo` — one line each, primary action.
 3. **Resume:** last session per mode (studio config, mission draft, demo stop) with timestamp.
 4. **Role shortcuts:** `"Gerät verbinden"` (invite code/QR), `"Übungsleitung"`, `"HQ"`.
 5. **Depth toggle:** `Geführt` / `Experte`, default `Geführt` for new users.
@@ -53,9 +54,9 @@
 
 ## Mode selection flows (concept)
 
-- **Training (guided):** start page → Training → template gallery → wizard → mission created (paused) → devices tab.
-- **Training (advanced):** start page → Training → `"Einsatz bauen"` → empty builder → assemble → check → save.
-- **Film:** start page → Film & TV → studio (guided: show templates; advanced: sequence editor).
+- **Übungsleitung (guided):** start page → Übungsleitung → template gallery → wizard → mission created (paused) → devices tab.
+- **Übungsleitung (advanced):** start page → Übungsleitung → `"Einsatz bauen"` → empty builder → assemble → check → save.
+- **Filmstudio:** start page → Filmstudio → studio (guided: show templates; advanced: sequence editor). Production/rehearsal is a state inside the studio, never a mode.
 - **Demo:** start page → Demo → tour starts immediately; `"Sandbox"` enters the builder with seeded content.
 
 ## Feature availability by mode

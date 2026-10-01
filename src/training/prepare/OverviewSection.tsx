@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useTraining } from "../../core/useExercise";
+import { nextIncomplete, prepareReadiness } from "../../core/readiness";
 import { t } from "../../i18n";
 import { TacticalMap } from "../TacticalMap";
 import type { PrepareSectionProps } from "./shared";
@@ -21,12 +22,8 @@ export function OverviewSection({
   onGo: (tab: string) => void;
 }) {
   const ex = useTraining();
-  const nextSection =
-    caps.participants || caps.patients
-      ? "participants"
-      : caps.devices
-        ? "devices"
-        : "scenario";
+  const readiness = prepareReadiness(draft);
+  const nextSection = nextIncomplete(readiness);
   const exportFile = (value: unknown, filename: string, type: string) => {
     const url = URL.createObjectURL(
       new Blob([JSON.stringify(value, null, 2)], { type }),

@@ -253,11 +253,32 @@ body,
 .config-menu .system-profiles label {
   margin: var(--sf-space-9px) 0;
 }
-.director-sequence .stage-shell {
-  display: none;
-}
+/* The stage preview stays visible while editing the show graph. */
 .director-sequence .workspace-heading {
   display: none;
+}
+.sequence-hint {
+  margin: 0;
+  font-size: var(--sf-type-10px);
+  opacity: var(--sf-opacity-6);
+}
+.sequence-graph {
+  flex: 1;
+  min-height: 320px;
+  border: var(--sf-stroke-1px) solid var(--sf-color-35423c);
+}
+.sequence-findings {
+  font-size: var(--sf-type-10px);
+  max-height: 120px;
+  overflow: auto;
+}
+.sequence-findings ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+.sequence-findings li.is-error button {
+  color: #e06a6a;
 }
 .sequence-editor {
   flex: 1;

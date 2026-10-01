@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { TrainingStation } from "../core/training";
 import { useTraining } from "../core/useExercise";
 import { resolveOrdnanceType } from "../core/ordnance";
+import { t } from "../i18n";
 import "./device.css";
 
 // Element content is English by contract. The stage list and failure modes come
@@ -97,14 +98,14 @@ export function OrdnanceConsole({ station }: { station: TrainingStation }) {
         </ul>
       )}
       {state === "tampered" && (
-        <p className="device-alert">Tampered. Stages reset.</p>
+        <p className="device-alert">{t("ordnance.tampered")}</p>
       )}
       {state === "disarmed" && (
-        <p className="device-ok">Disarmed. Document the task.</p>
+        <p className="device-ok">{t("ordnance.disarmed")}</p>
       )}
       {entry && entry.failures.length > 0 && (
         <details className="device-failures">
-          <summary>Failure modes</summary>
+          <summary>{t("ordnance.failureModes")}</summary>
           <ul>
             {entry.failures.map((f) => (
               <li key={f.id}>

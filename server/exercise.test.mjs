@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { WebSocket } from "ws";
@@ -88,6 +88,51 @@ test("play is rejected while the mission linter reports blocking errors", async 
       ).reason,
       /blocking error/,
     );
+  } finally {
+    for (const cl of clients) cl.ws.terminate();
+    await app?.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("serves the build identity on /version and in the ready message", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "screenforge-"));
+  await writeFile(
+    join(dir, "build.json"),
+    JSON.stringify({
+      id: "abc-123",
+      commit: "abc",
+      builtAt: "2026-01-01T00:00:00.000Z",
+      version: "1.2.3",
+      protocol: 2,
+    }),
+  );
+  let app;
+  const clients = [];
+  try {
+    app = await startExercise({
+      port: 0,
+      secret: "test-secret",
+      dataDir: dir,
+      dist: dir,
+    });
+    const version = await (
+      await fetch(`http://127.0.0.1:${app.port}/version`)
+    ).json();
+    assert.equal(version.build, "abc-123");
+    assert.equal(version.version, "1.2.3");
+    assert.equal(version.protocol, 2);
+    const c = client(app.port);
+    clients.push(c);
+    await c.ready;
+    c.send({
+      type: "hello",
+      role: "trainer",
+      room: "room",
+      station: "",
+      token: "test-secret",
+    });
+    assert.equal((await c.next(type("ready"))).build, "abc-123");
   } finally {
     for (const cl of clients) cl.ws.terminate();
     await app?.close();

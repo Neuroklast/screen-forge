@@ -2,6 +2,7 @@ import { useState } from "react";
 import { kinds, vitalSchema, type TrainingPatient } from "../core/training";
 import { vitalsOf, type Vitals } from "../core/patient";
 import { useTraining } from "../core/useExercise";
+import { labelFor } from "../core/labels";
 import { t } from "../i18n";
 export function PatientControl({ patient: p }: { patient: TrainingPatient }) {
   const ex = useTraining(),
@@ -79,7 +80,9 @@ export function PatientControl({ patient: p }: { patient: TrainingPatient }) {
           }
         >
           {["green", "yellow", "red", "black"].map((tri) => (
-            <option key={tri}>{tri}</option>
+            <option key={tri} value={tri}>
+              {labelFor("triage", tri)}
+            </option>
           ))}
         </select>
       </label>
