@@ -26,8 +26,8 @@ function effectiveScene(station: TrainingStation): SceneId {
 
 // Canvas pane: the live preview. It renders the shared runtime surface with a
 // synthetic, inert exercise value derived from the draft, and adds editor-only
-// chrome (preview states, selection overlay). No second renderer, no preview
-// model (docs/architecture/previews.md).
+// chrome (a compact preview-state control, selection overlay). No second
+// renderer, no preview model (docs/architecture/previews.md).
 export function DevicePreview({
   station,
   scenario,
@@ -87,7 +87,7 @@ export function DevicePreview({
   }:${station.presentation?.revision ?? 0}:${preview}`;
   const onCommit = (anchor: string, next: string) => {
     const trimmed = next.trim();
-    if (!trimmed) return;
+    if (!trimmed || trimmed === valueOf(anchor)) return;
     if (anchor === "station.name") onUpdateName(trimmed);
     else if (anchor === "presentation.title") onUpdatePresentation({ title: trimmed });
     else if (anchor === "presentation.subtitle")
@@ -99,18 +99,6 @@ export function DevicePreview({
   return (
     <ExerciseValueProvider value={value}>
       <div className="device-preview" data-preview-state={preview}>
-        <div className="device-preview-toolbar" role="group" aria-label={t("prep.devices.previewState")}>
-          {previewStates.map((state) => (
-            <button
-              key={state}
-              type="button"
-              className={preview === state ? "active" : ""}
-              onClick={() => onPreviewState(state)}
-            >
-              {t(`prep.devices.state.${state}`)}
-            </button>
-          ))}
-        </div>
         <div className="device-preview-stage" ref={stageRef} key={stageKey}>
           <DeviceSurface
             station={station.id}
@@ -141,6 +129,23 @@ export function DevicePreview({
               {t("prep.devices.safeBadge")}
             </span>
           )}
+          {/* Rendered last so editor chrome stays clickable above the scrim. */}
+          <div
+            className="device-preview-state-control"
+            role="group"
+            aria-label={t("prep.devices.previewState")}
+          >
+            {previewStates.map((state) => (
+              <button
+                key={state}
+                type="button"
+                className={preview === state ? "active" : ""}
+                onClick={() => onPreviewState(state)}
+              >
+                {t(`prep.devices.state.${state}`)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </ExerciseValueProvider>

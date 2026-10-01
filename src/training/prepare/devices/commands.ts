@@ -99,18 +99,16 @@ export function setPresentation(
   };
 }
 
-export function addProp(scenario: Scenario): Scenario {
-  return {
-    ...scenario,
-    props: [
-      ...scenario.props,
-      propSchema.parse({
-        id: uid("prop"),
-        kind: "custom",
-        name: t("prep.devices.propName", { n: scenario.props.length + 1 }),
-      }),
-    ],
-  };
+export function addProp(scenario: Scenario): {
+  scenario: Scenario;
+  id: string;
+} {
+  const prop = propSchema.parse({
+    id: uid("prop"),
+    kind: "custom",
+    name: t("prep.devices.propName", { n: scenario.props.length + 1 }),
+  });
+  return { scenario: { ...scenario, props: [...scenario.props, prop] }, id: prop.id };
 }
 
 export function updateProp(

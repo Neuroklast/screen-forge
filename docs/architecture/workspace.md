@@ -5,18 +5,22 @@
 ScreenForge authoring is **workspace-based, not page-based**. Every major editor uses one persistent shell:
 
 ```text
-┌──────────────┬──────────────────────────────┬────────────────────┐
+┌──────────────────────────────────────────────────────────────────┐
+│ Toolbar: title · primary action · workspace tools · pane toggles │
+├──────────────┬──────────────────────────────┬────────────────────┤
 │ Navigator    │  Canvas / live preview       │ Inspector          │
 ├──────────────┴──────────────────────────────┴────────────────────┤
 │ Status bar                                                        │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-- Navigator / structure on the left.
-- Primary canvas or preview in the centre.
-- Contextual inspector on the right.
+- Toolbar: title, the primary create action, the workspace tools (`Build`/`Provision`/`Test` style) and the pane toggles.
+- Navigator / structure on the left. Structure and selection only — no repeated per-item property controls.
+- Primary canvas or preview in the centre; it is the dominant pane.
+- Contextual inspector on the right; it shows only the selected object's properties.
 - Optional bottom status/timeline area.
-- Secondary tools (preview, datasheet, logs, simulator, help) may appear as docked or floating panels.
+- Secondary modes are **workspace tools** (tabs), not stacked page panels: the user stays in the same editor.
+- Panes are collapsible; `focus` hides both side panes. Under 1100px the side panes become overlay drawers and the canvas stays visible.
 
 Product principles: [../konzept/usability/13-editor-workspace.md](../konzept/usability/13-editor-workspace.md). Section IA: [../konzept/usability/11-preparation-ia.md](../konzept/usability/11-preparation-ia.md).
 

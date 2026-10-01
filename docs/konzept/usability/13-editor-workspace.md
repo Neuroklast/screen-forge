@@ -44,9 +44,12 @@ ScreenForge editors behave like interactive creative tools, not administration f
 ## 4. Structure
 
 - **Fixed three-pane workspace.** Navigator/structure on the left, canvas/preview in the centre, contextual inspector on the right, optional status bar below. The inspector content changes with the selection.
+- **The workspace is the page.** A workspace section is one persistent shell, not a shell followed by stacked legacy panels. Secondary concerns are workspace tools, not page content.
+- **Workspace tools switch the context without navigating away.** e.g. `Build` / `Provision` / `Test`. The user stays spatially in the same editor.
+- **Panes are collapsible.** The navigator and inspector can be hidden; the canvas stays visible and dominant.
 - **No long vertical forms.** If building requires constant scrolling, the information architecture is wrong.
 - **Canvas-first for spatial, logical or visual things.** Workflows become graphs, device surfaces become visual layouts, scenarios become a structured visual builder. Forms support; they are not the main metaphor.
-- **Responsive workspace, not responsive chaos.** Desktop keeps a stable multi-pane structure. Small screens may switch or drawer panels, but the workspace must not collapse into a long vertical stack.
+- **Responsive workspace, not responsive chaos.** Desktop keeps a stable multi-pane structure. Constrained widths collapse the navigator/inspector into overlay drawers and keep the canvas visible; the workspace must not collapse into a long vertical stack.
 
 ## 5. Model and performance
 
@@ -55,6 +58,20 @@ ScreenForge editors behave like interactive creative tools, not administration f
 - **Transient interaction state is not domain state.** Dragging may use local transient state; on drop a single command commits to the model, so one gesture is one undo step.
 - **One implementation per capability.** Editor and runtime share the same `ResourceGauge`, `Timer`, `StatusPanel`, `MetricGrid`; they differ only by mode. A second renderer for convenience is forbidden.
 - **Performance by design.** Stable ids, fine-grained selectors, memoisation where it matters, virtualised large lists; a local property change must not re-render the whole workspace.
+
+## 6. Placement rule
+
+Every UI element answers exactly one question and lives in exactly one place:
+
+| Question | Place |
+| --- | --- |
+| Is it structure? | Navigator |
+| Is it direct work? | Canvas |
+| Is it a property of the selection? | Inspector |
+| Is it a secondary operating mode? | Workspace tool / tab |
+| Is it status? | Status bar |
+
+If an element fits none of these, the information architecture is wrong — do not add a panel outside this model.
 
 ## Acceptance criteria
 

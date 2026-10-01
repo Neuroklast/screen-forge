@@ -4,8 +4,8 @@ import { t } from "../../../i18n";
 import { Term } from "../../../ui/terminology/Term";
 import { presetLabel } from "../devicePresets";
 
-// Secondary panel: QR provisioning. Preserved as its own tool so the workspace
-// canvas stays focused on the device being built.
+// Secondary workspace tool: provisioning. It is not persistent page content; the
+// user switches to it from the workspace toolbar and stays in the same editor.
 export function ProvisioningPanel({
   draft,
   presence,
@@ -35,8 +35,8 @@ export function ProvisioningPanel({
   onNotice: (message: string) => void;
 }) {
   return (
-    <details className="prepare-advanced" open>
-      <summary>{t("trainer.prepare")}</summary>
+    <div className="device-provision">
+      <h3>{t("prep.devices.tool.provision")}</h3>
       <p className="prepare-hint">{t("trainer.qrNote")}</p>
       <label>
         {t("trainer.address")}
@@ -106,6 +106,6 @@ export function ProvisioningPanel({
           </button>
         </section>
       )}
-    </details>
+    </div>
   );
 }

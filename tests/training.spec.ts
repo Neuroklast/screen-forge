@@ -5,6 +5,8 @@ async function login(page: Page) {
 }
 async function assign(page: Page, browser: Browser, name: string) {
   await page.getByRole('button',{name:'Geräte',exact:true}).click();
+  // Provisioning is a secondary workspace tool, not persistent page content.
+  await page.getByRole('tab',{name:'Bereitstellen',exact:true}).click();
   const card = page.locator('.device-card').filter({has: page.getByRole('heading',{name,exact:true})});
   await card.getByRole('button',{name:'QR-Code anzeigen'}).click();
   await expect(page.locator('.qr-panel h3')).toHaveText(name);
@@ -87,8 +89,10 @@ test('station presentation is pushed to the assigned field device', async ({page
     .filter({hasText:'Intelligence'})
     .locator('strong')
     .click();
-  await page.getByText('Darstellung am Gerät').click();
-  await page.locator('.device-inspector').getByLabel('Titel',{exact:true}).fill('RELAY-07');
+  await page.getByText('Erweitert').click();
+  const title = page.locator('.device-inspector').getByLabel('Titel',{exact:true});
+  await title.fill('RELAY-07');
+  await title.press('Enter');
   await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();
   await expect(page.locator('.notice[role="status"]')).toContainText('Szenario gespeichert');
   const {ctx,device} = await assign(page,browser,'Intelligence');

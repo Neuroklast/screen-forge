@@ -27,3 +27,15 @@
 | W19 | i18n keys (both dictionaries) | done |
 | W20 | Update existing e2e selectors; add `tests/device-builder.spec.ts` | done |
 | W21 | Docs: U11 Geräte section, gap analysis, previews deviation | done |
+
+## Device workspace IA refactor (Phase 13)
+
+| id | Task | Status |
+| --- | --- | --- |
+| W30 | `WorkspaceShell`: toolbar, collapsible panes, focus, overlay drawers <1100px | done |
+| W31 | Workspace tools `Build`/`Provision`/`Test`; remove stacked `PropsPanel`/`ProvisioningPanel` from page flow | done |
+| W32 | Navigator structure-only (devices + props); remove per-item owner selects | done |
+| W33 | Contextual inspector (device / element / prop); ownership moved into the inspector | done |
+| W34 | Props as first-class selectable entities; delete `PropsPanel` | done |
+| W35 | Dominant preview + compact preview-state control | done |
+| W36 | Placement rule documented (U13 §6) | done |

@@ -20,12 +20,13 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 
 ## Device workspace (`"Geräte"`)
 
-- The section is a persistent workspace ([13-editor-workspace.md](13-editor-workspace.md)): navigator (one-click presets, device list, inline owner) left, live preview centre, contextual inspector right, status bar below — not a long form.
-- The preview renders the shared runtime surface (`DeviceSurface`) with a synthetic, inert sandbox derived from the draft; it never opens the exercise connection ([../../architecture/previews.md](../../architecture/previews.md)).
-- Preview states `Normal`, `Warnung`, `Kritisch`, `Offline`, `Sicher` are transient. `Warnung`/`Kritisch`/`Sicher` reach the scene renderer as a cue where the surface supports one; `Kritisch`/`Offline` also add editor-only chrome, and console surfaces show the state as chrome only.
-- Clicking an element in the preview selects it (`data-sf-anchor` measured by the editor overlay); the inspector then shows only that element's property. Names and identity fields are directly editable inline.
-- All device edits go through the command module; undo/redo covers them. Look/identity fields (`"Darstellung am Gerät"`) live in the inspector.
-- Props (`"Requisiten"`) and QR provisioning remain as secondary panels, not pages.
+- The section is **one persistent workspace** ([13-editor-workspace.md](13-editor-workspace.md)): a toolbar (title, `"＋ Gerät hinzufügen"`, the workspace tools `"Aufbau"` / `"Bereitstellen"` / `"Test"`, pane toggles), a structure-only navigator, a dominant live preview, a contextual inspector and a status bar. It is not a page with stacked panels.
+- **Navigator = structure only**: the device list and the prop list (`"Requisiten"`). Ownership and configuration live in the inspector; the navigator never repeats per-item property controls.
+- **Canvas = work**: the preview renders the shared runtime surface (`DeviceSurface`) with a synthetic, inert sandbox derived from the draft; it never opens the exercise connection ([../../architecture/previews.md](../../architecture/previews.md)). It is the dominant pane; `"Test"` is a focus mode.
+- **Inspector = properties of the selection**: a device shows name, type and assignment with an `"Erweitert"` disclosure (role, bindings, runtime/code, look); a prop shows its own fields; a selected preview element shows only that element's property. Names and identity fields are directly editable inline in the preview.
+- Preview states `Normal`, `Warnung`, `Kritisch`, `Offline`, `Sicher` are transient and live in a compact control in the preview (not a full-width toolbar). `Warnung`/`Kritisch`/`Sicher` reach the scene renderer as a cue where the surface supports one; `Kritisch`/`Offline` also add editor-only chrome, and console surfaces show the state as chrome only.
+- All edits go through the command module; undo/redo covers them.
+- `"Bereitstellen"` (QR, address, presence) is a **workspace tool**, not persistent page content. Props are first-class selectable entities in the same workspace, not a form section below it.
 
 **Hard rule:** No new top-level preparation navigation item may be introduced for a domain entity, implementation concept or output format. New functionality MUST fit one of the six sections; if it does not, reconsider the information architecture before adding navigation.
 

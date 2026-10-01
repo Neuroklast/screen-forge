@@ -1,19 +1,97 @@
 /* Device Builder workspace (docs/konzept/usability/13-editor-workspace.md).
-   Grid only; no raw z-index; internal scroll regions hide their scrollbar. */
+   One workspace: toolbar, structure-only navigator, dominant canvas, contextual
+   inspector, status bar. Grid only; no raw z-index; scroll regions hide their
+   scrollbar. */
 
-/* Navigator ------------------------------------------------------------- */
+/* Toolbar --------------------------------------------------------------- */
+.device-toolbar {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.device-toolbar h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.device-add {
+  position: relative;
+}
+
+.device-add > button {
+  padding: 5px 10px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  cursor: pointer;
+}
+
+.device-add-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--sf-z-float);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid #263038;
+  background: #0a1016;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.device-add-menu button {
+  padding: 5px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.device-add-menu button:hover:not(:disabled) {
+  border-color: #80dce5;
+}
+
+.device-tools {
+  justify-self: end;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 2px;
+}
+
+.device-tools button {
+  padding: 5px 10px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #8a9aa2;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.device-tools button.active {
+  border-color: #80dce5;
+  color: #d6e2e5;
+  background: #10212a;
+}
+
+/* Navigator: structure only --------------------------------------------- */
 .device-nav {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 10px;
+  gap: 12px;
   padding: 10px;
-  min-height: 0;
+  align-content: start;
 }
 
 .device-nav-block {
   display: grid;
-  gap: 8px;
-  min-height: 0;
+  gap: 6px;
 }
 
 .device-nav-block h3 {
@@ -25,87 +103,43 @@
   color: #4f6570;
 }
 
-.device-presets {
+.device-nav-item {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-  gap: 4px;
-}
-
-.device-preset {
-  padding: 6px 8px;
+  gap: 2px;
+  width: 100%;
+  padding: 8px;
   border: 1px solid #1e2a33;
   background: #0e171f;
   color: #d6e2e5;
-  font-size: 12px;
   text-align: left;
   cursor: pointer;
 }
 
-.device-preset:hover:not(:disabled) {
-  border-color: #80dce5;
+.device-nav-item:hover {
+  border-color: #3a4a55;
 }
 
-.device-preset:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.device-nav-owner {
-  display: grid;
-  gap: 3px;
-  font-size: 11px;
-  color: #8a9aa2;
-}
-
-.device-nav-owner select {
-  padding: 4px 6px;
-  border: 1px solid #1e2a33;
-  background: #0e171f;
-  color: #d6e2e5;
-}
-
-.prepare-device {
-  cursor: pointer;
-}
-
-.prepare-device.is-selected {
+.device-nav-item.is-selected {
   border-color: #80dce5;
   background: #10212a;
+}
+
+.device-nav-item .eyebrow {
+  color: #4f6570;
+}
+
+.device-nav-empty {
+  margin: 0;
+  color: #4f6570;
+  font-size: 12px;
 }
 
 /* Canvas / preview ------------------------------------------------------ */
 .device-preview {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
   height: 100%;
-}
-
-.device-preview-toolbar {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  gap: 2px;
-  padding: 6px;
-  border-bottom: 1px solid #1e2a33;
-}
-
-.device-preview-toolbar button {
-  padding: 5px 6px;
-  border: 1px solid #1e2a33;
-  background: #0e171f;
-  color: #8a9aa2;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.device-preview-toolbar button.active {
-  border-color: #80dce5;
-  color: #d6e2e5;
-  background: #10212a;
+  min-height: 0;
 }
 
 .device-preview-stage {
@@ -131,6 +165,36 @@
 
 .device-preview[data-preview-state="safe"] .device-preview-stage {
   box-shadow: inset 0 0 0 2px #76fa96;
+}
+
+.device-preview-state-control {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #263038;
+  background: rgba(5, 8, 11, 0.85);
+}
+
+.device-preview-state-control button {
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #8a9aa2;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.device-preview-state-control button.active {
+  border-color: #80dce5;
+  color: #d6e2e5;
+  background: #10212a;
 }
 
 .device-preview-anchors {
@@ -184,7 +248,7 @@
 .device-preview-badge {
   position: absolute;
   top: 8px;
-  right: 8px;
+  left: 8px;
   padding: 3px 8px;
   border: 1px solid currentColor;
   font-family: "IBM Plex Mono", monospace;
@@ -256,6 +320,15 @@
   min-width: 0;
 }
 
+.device-group {
+  margin: 4px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4f6570;
+}
+
 .device-inspector-empty {
   color: #4f6570;
   font-size: 12px;
@@ -281,6 +354,20 @@
   color: #8a9aa2;
 }
 
-.device-props {
-  margin-top: 12px;
+/* Provision tool -------------------------------------------------------- */
+.device-provision {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  align-content: start;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.device-provision::-webkit-scrollbar {
+  display: none;
+}
+
+.device-provision h3 {
+  margin: 0;
 }

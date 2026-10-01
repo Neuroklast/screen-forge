@@ -113,6 +113,6 @@ describe("device commands", () => {
 
   it("adds a prop", () => {
     const scenario = blankScenario("custom");
-    expect(addProp(scenario).props).toHaveLength(1);
+    expect(addProp(scenario).scenario.props).toHaveLength(1);
   });
 });

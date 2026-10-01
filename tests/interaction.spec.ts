@@ -20,6 +20,8 @@ test("workflow pilot links, challenges the code and shows diagnostics", async ({
   await loadTemplate(page, "Device Link & Diagnostics", "Link test");
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  // Provisioning is a secondary workspace tool.
+  await page.getByRole("tab", { name: "Bereitstellen", exact: true }).click();
   const card = page
     .locator(".device-card")
     .filter({ has: page.getByRole("heading", { name: "Device Console", exact: true }) });

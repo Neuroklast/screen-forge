@@ -1045,6 +1045,12 @@ export const de: Record<string, string> = {
   "prep.devices.criticalBadge": "Kritisch",
   "prep.devices.safeBadge": "Sicher",
   "prep.devices.signalLost": "Signal verloren",
+  "prep.devices.tool.build": "Aufbau",
+  "prep.devices.tool.provision": "Bereitstellen",
+  "prep.devices.tool.test": "Test",
+  "prep.devices.advanced": "Erweitert",
+  "workspace.navigator": "Navigator",
+  "workspace.inspector": "Inspector",
 
   "flow.palette": "Bausteine",
   "flow.node": "Baustein",

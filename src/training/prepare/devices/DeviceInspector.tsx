@@ -1,11 +1,21 @@
-import type { Scenario, TrainingStation } from "../../../core/training";
+import { sceneIds, type SceneId, type ScenePreset } from "../../../core/config";
 import type { ScenarioCapabilities } from "../../../core/capabilities";
+import { propKinds, type Scenario, type TrainingStation } from "../../../core/training";
+import { labelFor } from "../../../core/labels";
+import { ordnanceTypes } from "../../../core/ordnance";
 import { t } from "../../../i18n";
-import { PresentationFields } from "../../PresentationFields";
-import type { DevicePreset } from "../devicePresets";
-import { presetLabel } from "../devicePresets";
+import { presetLabel, type DevicePreset } from "../devicePresets";
+import type { DeviceSelection } from "./selection";
 
 const CODE_MODULES = ["countdown", "access", "lock", "terminal"];
+const MOODS = ["clinical", "tense", "damaged"] as const;
+const PROP_KIND_LABELS: Record<string, string> = {
+  ordnance: "prop.kind.ordnance",
+  beacon: "prop.kind.beacon",
+  payload: "prop.kind.payload",
+  keycard: "prop.kind.keycard",
+  custom: "prop.kind.custom",
+};
 
 // Commit on blur/Enter so one edit is one undo step (docs/architecture/editor-state.md).
 function TextField({
@@ -38,40 +48,157 @@ function TextField({
   );
 }
 
-// Contextual inspector: derives entirely from the selection. It shows the
-// selected element's property, or the selected device's properties. It holds no
-// state of its own (docs/architecture/editor-state.md).
+// Contextual inspector: derives entirely from the selection. It shows only the
+// selected object's properties — a device (identity first, advanced collapsed),
+// a preview element, or a prop. No state of its own.
 export function DeviceInspector({
+  selection,
   station,
+  prop,
   anchor,
   scenario,
   caps,
   readOnly,
   presets,
+  teams,
+  participants,
+  hasOwnershipOptions,
+  ownerOf,
   onUpdate,
   onSetBinding,
+  onSetOwner,
+  onPresentation,
   onRemove,
   onSelectDevice,
   onUpdateName,
-  onUpdatePresentation,
+  onUpdateProp,
+  onRemoveProp,
 }: {
+  selection: DeviceSelection;
   station: TrainingStation | undefined;
+  prop: Scenario["props"][number] | undefined;
   anchor: string;
   scenario: Scenario;
   caps: ScenarioCapabilities;
   readOnly: boolean;
   presets: DevicePreset[];
+  teams: Scenario["teams"];
+  participants: Scenario["stations"];
+  hasOwnershipOptions: boolean;
+  ownerOf: (station: TrainingStation) => string;
   onUpdate: (patch: Partial<TrainingStation>) => void;
   onSetBinding: (binding: Partial<TrainingStation["bindings"]>) => void;
+  onSetOwner: (value: string) => void;
+  onPresentation: (patch: {
+    scene?: SceneId | null;
+    config?: Partial<ScenePreset> | null;
+  }) => void;
   onRemove: () => void;
   onSelectDevice: () => void;
   onUpdateName: (name: string) => void;
-  onUpdatePresentation: (patch: {
-    title?: string;
-    subtitle?: string;
-    identifier?: string;
-  }) => void;
+  onUpdateProp: (patch: Partial<Scenario["props"][number]>) => void;
+  onRemoveProp: () => void;
 }) {
+  if (selection?.kind === "prop") {
+    if (!prop) return <div className="device-inspector" />;
+    return (
+      <div className="device-inspector">
+        <header className="device-inspector-head">
+          <span className="eyebrow">{t("prep.devices.props")}</span>
+          <h3>{prop.name}</h3>
+        </header>
+        <label className="device-field">
+          {t("prep.devices.propKind")}
+          <select
+            value={prop.kind}
+            disabled={readOnly}
+            onChange={(event) =>
+              onUpdateProp({ kind: event.target.value as typeof prop.kind })
+            }
+          >
+            {propKinds.map((kind) => (
+              <option key={kind} value={kind}>
+                {t(PROP_KIND_LABELS[kind] ?? kind)}
+              </option>
+            ))}
+          </select>
+        </label>
+        {prop.kind === "ordnance" && (
+          <label className="device-field">
+            {t("prep.devices.ordnanceType")}
+            <select
+              value={prop.ordnanceId ?? ""}
+              disabled={readOnly}
+              onChange={(event) =>
+                onUpdateProp({ ordnanceId: event.target.value })
+              }
+            >
+              <option value="">{t("prep.devices.bindingNone")}</option>
+              {[...ordnanceTypes(), ...scenario.ordnanceTypes].map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.designation}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <TextField
+          label={t("editor.name")}
+          value={prop.name}
+          disabled={readOnly}
+          onCommit={(value) => onUpdateProp({ name: value })}
+        />
+        <label className="device-field">
+          {t("prep.devices.propStates")}
+          <input
+            key={prop.states.join(",")}
+            defaultValue={prop.states.join(", ")}
+            disabled={readOnly}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.currentTarget.blur();
+            }}
+            onBlur={(event) => {
+              const states = event.currentTarget.value
+                .split(",")
+                .map((value) => value.trim())
+                .filter(Boolean)
+                .slice(0, 20);
+              if (!states.length) return;
+              onUpdateProp({
+                states,
+                initial: states.includes(prop.initial)
+                  ? prop.initial
+                  : states[0],
+              });
+            }}
+          />
+        </label>
+        <label className="device-field">
+          {t("prep.devices.propInitial")}
+          <select
+            value={prop.initial}
+            disabled={readOnly}
+            onChange={(event) => onUpdateProp({ initial: event.target.value })}
+          >
+            {prop.states.map((state) => (
+              <option key={state} value={state}>
+                {labelFor("propState", state)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          className="device-inspector-remove"
+          disabled={readOnly}
+          onClick={onRemoveProp}
+        >
+          {t("prep.people.remove")}
+        </button>
+      </div>
+    );
+  }
+
   if (!station)
     return (
       <div className="device-inspector">
@@ -80,6 +207,8 @@ export function DeviceInspector({
     );
 
   const element = anchor.startsWith("presentation.") || anchor === "station.name";
+  const config = station.presentation?.config;
+
   return (
     <div className="device-inspector">
       <header className="device-inspector-head">
@@ -105,25 +234,27 @@ export function DeviceInspector({
       {anchor === "presentation.title" && (
         <TextField
           label={t("presentation.title")}
-          value={station.presentation?.config?.title ?? ""}
+          value={config?.title ?? ""}
           disabled={readOnly}
-          onCommit={(value) => onUpdatePresentation({ title: value })}
+          onCommit={(value) => onPresentation({ config: { title: value } })}
         />
       )}
       {anchor === "presentation.subtitle" && (
         <TextField
           label={t("presentation.subtitle")}
-          value={station.presentation?.config?.subtitle ?? ""}
+          value={config?.subtitle ?? ""}
           disabled={readOnly}
-          onCommit={(value) => onUpdatePresentation({ subtitle: value })}
+          onCommit={(value) => onPresentation({ config: { subtitle: value } })}
         />
       )}
       {anchor === "presentation.identifier" && (
         <TextField
           label={t("presentation.identifier")}
-          value={station.presentation?.config?.identifier ?? ""}
+          value={config?.identifier ?? ""}
           disabled={readOnly}
-          onCommit={(value) => onUpdatePresentation({ identifier: value })}
+          onCommit={(value) =>
+            onPresentation({ config: { identifier: value } })
+          }
         />
       )}
 
@@ -158,121 +289,196 @@ export function DeviceInspector({
               ))}
             </select>
           </label>
-          <label className="device-field">
-            {t("prep.devices.role")}
-            <select
-              value={station.role}
-              disabled={readOnly}
-              onChange={(event) => {
-                const role = event.target.value as "hq" | "element";
-                onUpdate({
-                  role,
-                  module: role === "hq" ? "tracking" : station.module,
-                  player: role === "hq" ? false : station.player,
-                });
-              }}
-            >
-              <option value="element">{t("prep.devices.roleField")}</option>
-              <option value="hq">{t("prep.devices.roleHq")}</option>
-            </select>
-          </label>
-
-          {caps.patients && station.module === "medical" && (
+          {hasOwnershipOptions && (
             <label className="device-field">
-              {t("cap.patients")}
+              {t("prep.devices.owner")}
               <select
-                value={station.bindings.patient}
+                value={ownerOf(station)}
+                disabled={readOnly}
+                onChange={(event) => onSetOwner(event.target.value)}
+              >
+                <option value="scenario">
+                  {t("prep.devices.ownerScenario")}
+                </option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+                {participants
+                  .filter((row) => row.team !== "")
+                  .map((row) => (
+                    <option key={row.id} value={`participant:${row.id}`}>
+                      {row.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          )}
+
+          <details className="prepare-advanced">
+            <summary>{t("prep.devices.advanced")}</summary>
+            <label className="device-field">
+              {t("prep.devices.role")}
+              <select
+                value={station.role}
+                disabled={readOnly}
+                onChange={(event) => {
+                  const role = event.target.value as "hq" | "element";
+                  onUpdate({
+                    role,
+                    module: role === "hq" ? "tracking" : station.module,
+                    player: role === "hq" ? false : station.player,
+                  });
+                }}
+              >
+                <option value="element">{t("prep.devices.roleField")}</option>
+                <option value="hq">{t("prep.devices.roleHq")}</option>
+              </select>
+            </label>
+
+            {caps.patients && station.module === "medical" && (
+              <label className="device-field">
+                {t("cap.patients")}
+                <select
+                  value={station.bindings.patient}
+                  disabled={readOnly}
+                  onChange={(event) =>
+                    onSetBinding({ patient: event.target.value })
+                  }
+                >
+                  <option value="">{t("prep.devices.bindingNone")}</option>
+                  {scenario.patients.map((patient) => (
+                    <option key={patient.id} value={patient.id}>
+                      {patient.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+
+            {caps.props &&
+              (station.module === "ordnance" || station.module === "beacon") && (
+                <label className="device-field">
+                  {t("cap.props")}
+                  <select
+                    value={station.bindings.prop}
+                    disabled={readOnly}
+                    onChange={(event) =>
+                      onSetBinding({ prop: event.target.value })
+                    }
+                  >
+                    <option value="">{t("prep.devices.bindingNone")}</option>
+                    {scenario.props
+                      .filter((row) => row.kind === station.module)
+                      .map((row) => (
+                        <option key={row.id} value={row.id}>
+                          {row.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              )}
+
+            {CODE_MODULES.includes(station.module) && (
+              <>
+                <label className="device-field">
+                  {t("prep.devices.duration")}
+                  <input
+                    type="number"
+                    value={station.duration}
+                    disabled={readOnly}
+                    onChange={(event) =>
+                      onUpdate({ duration: Number(event.target.value) })
+                    }
+                  />
+                </label>
+                <label className="device-field">
+                  {t("prep.devices.code")}
+                  <input
+                    inputMode="numeric"
+                    value={station.code}
+                    disabled={readOnly}
+                    onChange={(event) => {
+                      if (/^\d{0,12}$/.test(event.target.value))
+                        onUpdate({ code: event.target.value });
+                    }}
+                  />
+                </label>
+              </>
+            )}
+
+            <h4 className="device-group">{t("presentation.heading")}</h4>
+            <TextField
+              label={t("presentation.title")}
+              value={config?.title ?? ""}
+              disabled={readOnly}
+              onCommit={(value) => onPresentation({ config: { title: value } })}
+            />
+            <TextField
+              label={t("presentation.subtitle")}
+              value={config?.subtitle ?? ""}
+              disabled={readOnly}
+              onCommit={(value) =>
+                onPresentation({ config: { subtitle: value } })
+              }
+            />
+            <TextField
+              label={t("presentation.identifier")}
+              value={config?.identifier ?? ""}
+              disabled={readOnly}
+              onCommit={(value) =>
+                onPresentation({ config: { identifier: value } })
+              }
+            />
+            <label className="device-field">
+              {t("presentation.scene")}
+              <select
+                value={station.presentation?.scene ?? ""}
                 disabled={readOnly}
                 onChange={(event) =>
-                  onSetBinding({ patient: event.target.value })
+                  onPresentation({
+                    scene: (event.target.value || null) as SceneId | null,
+                  })
                 }
               >
-                <option value="">{t("prep.devices.bindingNone")}</option>
-                {scenario.patients.map((patient) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.name}
+                <option value="">{t("presentation.auto")}</option>
+                {sceneIds.map((id) => (
+                  <option key={id} value={id}>
+                    {labelFor("scene", id)}
                   </option>
                 ))}
               </select>
             </label>
-          )}
-
-          {caps.props && station.module === "ordnance" && (
             <label className="device-field">
-              {t("cap.props")}
-              <select
-                value={station.bindings.prop}
+              {t("presentation.accent")}
+              <input
+                type="color"
+                value={config?.accent ?? "#80dce5"}
                 disabled={readOnly}
-                onChange={(event) => onSetBinding({ prop: event.target.value })}
+                onChange={(event) =>
+                  onPresentation({ config: { accent: event.target.value } })
+                }
+              />
+            </label>
+            <label className="device-field">
+              {t("studio.mood")}
+              <select
+                value={config?.mood ?? "clinical"}
+                disabled={readOnly}
+                onChange={(event) =>
+                  onPresentation({
+                    config: { mood: event.target.value as (typeof MOODS)[number] },
+                  })
+                }
               >
-                <option value="">{t("prep.devices.bindingNone")}</option>
-                {scenario.props
-                  .filter((prop) => prop.kind === "ordnance")
-                  .map((prop) => (
-                    <option key={prop.id} value={prop.id}>
-                      {prop.name}
-                    </option>
-                  ))}
+                {MOODS.map((mood) => (
+                  <option key={mood} value={mood}>
+                    {t(`studio.mood.${mood}`)}
+                  </option>
+                ))}
               </select>
             </label>
-          )}
-
-          {caps.props && station.module === "beacon" && (
-            <label className="device-field">
-              {t("cap.props")}
-              <select
-                value={station.bindings.prop}
-                disabled={readOnly}
-                onChange={(event) => onSetBinding({ prop: event.target.value })}
-              >
-                <option value="">{t("prep.devices.bindingNone")}</option>
-                {scenario.props
-                  .filter((prop) => prop.kind === "beacon")
-                  .map((prop) => (
-                    <option key={prop.id} value={prop.id}>
-                      {prop.name}
-                    </option>
-                  ))}
-              </select>
-            </label>
-          )}
-
-          {CODE_MODULES.includes(station.module) && (
-            <>
-              <label className="device-field">
-                {t("prep.devices.duration")}
-                <input
-                  type="number"
-                  value={station.duration}
-                  disabled={readOnly}
-                  onChange={(event) =>
-                    onUpdate({ duration: Number(event.target.value) })
-                  }
-                />
-              </label>
-              <label className="device-field">
-                {t("prep.devices.code")}
-                <input
-                  inputMode="numeric"
-                  value={station.code}
-                  disabled={readOnly}
-                  onChange={(event) => {
-                    if (/^\d{0,12}$/.test(event.target.value))
-                      onUpdate({ code: event.target.value });
-                  }}
-                />
-              </label>
-            </>
-          )}
-
-          <details className="prepare-advanced">
-            <summary>{t("presentation.heading")}</summary>
-            <PresentationFields
-              station={station}
-              readOnly={readOnly}
-              hideLegend
-              onChange={(presentation) => onUpdate({ presentation })}
-            />
           </details>
 
           <button

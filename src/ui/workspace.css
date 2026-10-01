@@ -1,12 +1,72 @@
-/* Shared editor shell layout (docs/architecture/workspace.md). Grid only, no
-   flex-wrap, no raw z-index; internal scroll regions hide their scrollbar. */
+/* Shared editor shell (docs/architecture/workspace.md). Grid only, no
+   flex-wrap, no raw z-index; internal scroll regions hide their scrollbar.
+   Panes are collapsible; under 1100px they become overlay drawers so the canvas
+   never collapses into a vertical form stack. */
 .workspace-shell {
+  position: relative;
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) 340px;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-columns:
+    var(--ws-nav, 220px)
+    minmax(0, 1fr)
+    var(--ws-inspector, 340px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 10px;
   min-height: 520px;
-  height: min(720px, calc(100dvh - 220px));
+  height: min(760px, calc(100dvh - 200px));
+}
+
+.workspace-shell[data-nav-open="false"] {
+  --ws-nav: 0px;
+}
+
+.workspace-shell[data-nav-open="false"] .workspace-shell-nav {
+  display: none;
+}
+
+.workspace-shell[data-inspector-open="false"] {
+  --ws-inspector: 0px;
+}
+
+.workspace-shell[data-inspector-open="false"] .workspace-shell-inspector {
+  display: none;
+}
+
+.workspace-shell-toolbar {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #1e2a33;
+  background: #0a1016;
+  padding: 6px 10px;
+}
+
+.workspace-shell-tools {
+  min-width: 0;
+}
+
+.workspace-shell-panes {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 4px;
+}
+
+.workspace-shell-panes button {
+  padding: 4px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #8a9aa2;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.workspace-shell-panes button[aria-pressed="true"] {
+  border-color: #80dce5;
+  color: #d6e2e5;
 }
 
 .workspace-shell-nav,
@@ -30,9 +90,7 @@
   display: none;
 }
 
-/* One filling cell: the canvas content (e.g. DevicePreview) owns its own
-   toolbar/stage split. Without a definite row the preview gets content height
-   and a scene stage grows to 100vh and is clipped. */
+/* One filling cell: the canvas content owns its own toolbar/stage split. */
 .workspace-shell-canvas {
   display: grid;
   grid-template-rows: minmax(0, 1fr);
@@ -45,10 +103,34 @@
   padding: 6px 10px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1099px) {
   .workspace-shell {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     height: auto;
+    min-height: 0;
+  }
+
+  .workspace-shell-nav,
+  .workspace-shell-inspector {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: min(320px, 82vw);
+    z-index: var(--sf-z-overlay);
+    border: 1px solid #263038;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .workspace-shell-nav {
+    left: 0;
+  }
+
+  .workspace-shell-inspector {
+    right: 0;
+  }
+
+  .workspace-shell[data-focus="true"] .workspace-shell-panes {
+    display: none;
   }
 }

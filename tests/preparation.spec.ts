@@ -5,6 +5,7 @@ import {
   DOMAIN,
   loadTemplate,
   login,
+  openAddDevice,
   save,
 } from "./support/prep";
 
@@ -24,6 +25,7 @@ test("disposal setup hides patient controls and offers ordnance devices", async 
   await expect(page.getByText("Spieler hinzufügen")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await openAddDevice(page);
   await expect(
     page.getByRole("button", { name: "Medizingerät", exact: true }),
   ).toHaveCount(0);
@@ -48,6 +50,7 @@ test("medical setup shows patient controls and hides ordnance", async ({
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await openAddDevice(page);
   await expect(
     page.getByRole("button", { name: "Sprengkörper-Konsole", exact: true }),
   ).toHaveCount(0);
@@ -160,12 +163,9 @@ test("device assignment links equipment to a participant", async ({ page }) => {
     .click();
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
-  await page
-    .locator(".device-nav-block")
-    .first()
-    .getByLabel("Zuordnung")
-    .selectOption({ label: "Teilnehmer 2" });
+  // Adding selects the new device; ownership is assigned in the inspector.
   await addDevice(page, "Funkgerät");
+  await page.getByLabel("Zuordnung").selectOption({ label: "Teilnehmer 2" });
 
   await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await expect(
@@ -250,6 +250,7 @@ test("start validation blocks a medical scenario without a patient", async ({
     .locator(".prepare-device")
     .filter({ hasText: "Medizingerät 1" })
     .click();
+  await page.getByText("Erweitert").click();
   await page.getByLabel("Patienten").selectOption({ label: "Patient 1" });
   await save(page);
 

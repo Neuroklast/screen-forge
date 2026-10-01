@@ -33,12 +33,12 @@ test("journey: disposal setup, branched flow, event, assignment and start", asyn
     .getByRole("button", { name: "Teilnehmer hinzufügen", exact: true })
     .click();
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
-  const consoleCard = page
+  // Ownership lives in the contextual inspector now.
+  await page
     .locator(".prepare-device")
-    .filter({ hasText: "Console 01" });
-  await consoleCard
-    .getByLabel("Zuordnung")
-    .selectOption({ label: "Teilnehmer 1" });
+    .filter({ hasText: "Console 01" })
+    .click();
+  await page.getByLabel("Zuordnung").selectOption({ label: "Teilnehmer 1" });
 
   // Branched flow on a prop trigger plus a linked timed event.
   await page.getByRole("button", { name: "Ablauf", exact: true }).click();

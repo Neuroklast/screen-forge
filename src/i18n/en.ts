@@ -1034,6 +1034,12 @@ export const en: Record<string, string> = {
   "prep.devices.criticalBadge": "Critical",
   "prep.devices.safeBadge": "Safe",
   "prep.devices.signalLost": "Signal lost",
+  "prep.devices.tool.build": "Build",
+  "prep.devices.tool.provision": "Provision",
+  "prep.devices.tool.test": "Test",
+  "prep.devices.advanced": "Advanced",
+  "workspace.navigator": "Navigator",
+  "workspace.inspector": "Inspector",
 
   "flow.palette": "Blocks",
   "flow.node": "Block",
