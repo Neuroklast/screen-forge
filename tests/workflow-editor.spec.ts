@@ -116,3 +116,23 @@ test("every element is fully configurable", async ({ page }) => {
     page.getByRole("combobox", { name: "Quelle", exact: true }),
   ).toHaveValue("offline");
 });
+
+test("every task type is configurable in the graph editor", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await login(page);
+  await page
+    .getByRole("button", { name: "Ablauf anlegen", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Aktion", exact: true }).click();
+  const taskSelect = page.getByRole("combobox", { name: "Aufgabe", exact: true });
+  const labels = await taskSelect.locator("option").allTextContents();
+  expect(labels.length).toBeGreaterThan(5);
+  for (const label of labels) {
+    await taskSelect.selectOption({ label });
+    // The node name and the task type stay editable for every task.
+    await expect(page.getByLabel("Bezeichnung").last()).toBeVisible();
+    await expect(taskSelect).toBeVisible();
+  }
+  expect(errors).toEqual([]);
+});
