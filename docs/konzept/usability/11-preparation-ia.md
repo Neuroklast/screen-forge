@@ -3,18 +3,18 @@
 > ScreenForge concept set · Usability concept · Language: EN, UI labels DE
 > Related: [02-guided.md](02-guided.md) · [03-advanced.md](03-advanced.md) · [../domain/15-scenario-capabilities.md](../domain/15-scenario-capabilities.md)
 
-The trainer preparation surface (EXCON, paused exercise) is one shell with a fixed six-section navigation.
+The trainer preparation surface (EXCON, paused exercise) is one shell with a fixed five-section editor navigation. `"Übersicht"` is the **project/start page** — status, entry actions (guided setup, template, import) and readiness — reachable from the header, not a sixth editor area.
 
 ## Sections
 
 | # | Section (DE) | Content |
 | --- | --- | --- |
-| 1 | `"Übersicht"` | status, entry actions (guided setup, template, import), readiness |
-| 2 | `"Szenario"` | mission name, scenario profile, location, zones, objectives; capabilities and raw map fields behind Advanced |
-| 3 | `"Teilnehmer"` | forces workspace: teams, participants, actors (with dossier), patients |
-| 4 | `"Geräte"` | assets workspace: devices, props, interfaces; provisioning as a tool |
-| 5 | `"Ablauf"` | flow workspace: workflow graph, event timeline, inspector |
-| 6 | `"Prüfen"` | launch gate: blockers/warnings, fix-next, start; briefing and exports secondary |
+| — | `"Übersicht"` (project page) | status, entry actions (guided setup, template, import), readiness; the default landing and the return point |
+| 1 | `"Szenario"` | mission name, scenario profile, location, zones, objectives; capabilities and raw map fields behind Advanced |
+| 2 | `"Teilnehmer"` | forces workspace: teams, participants, actors (with dossier), patients |
+| 3 | `"Geräte"` | assets workspace: devices, props, interfaces; provisioning as a context action |
+| 4 | `"Ablauf"` | flow workspace: workflow graph, event timeline, inspector |
+| 5 | `"Prüfen"` | launch gate: blockers/warnings, fix-next, start; briefing and exports secondary |
 
 ## Workspace adoption
 
@@ -41,7 +41,7 @@ The three editors share one model ([13-editor-workspace.md](13-editor-workspace.
 - All edits go through the command module; undo/redo covers them. Language, terminology and density live behind the header `"Einstellungen"` (Preferences) control.
 - `"Geräte verbinden"` opens provisioning (QR, address, presence) over the canvas as a context action, not persistent page content and not a third mode. Props are first-class selectable entities in the same workspace, not a form section below it.
 
-**Hard rule:** No new top-level preparation navigation item may be introduced for a domain entity, implementation concept or output format. New functionality MUST fit one of the six sections; if it does not, reconsider the information architecture before adding navigation.
+**Hard rule:** No new top-level preparation navigation item may be introduced for a domain entity, implementation concept or output format. New functionality MUST fit one of the five editor sections (or the Overview project page); if it does not, reconsider the information architecture before adding navigation.
 
 - While the exercise runs, the preparation sections are hidden and only live control is shown.
 - The guided setup is an action in Übersicht/Szenario, never a navigation item.
@@ -78,13 +78,13 @@ The three editors share one model ([13-editor-workspace.md](13-editor-workspace.
 
 ## Expert mode and legacy
 
-- The legacy preparation canvas (`MissionBuilder` plan view) is **removed from preparation**. Every capability is editable through the six sections (undo/redo, ordnance type and device bindings included); there is no second way to edit scenario topology.
+- The legacy preparation canvas (`MissionBuilder` plan view) is **removed from preparation**. Every capability is editable through the five editor sections (undo/redo, ordnance type and device bindings included); there is no second way to edit scenario topology.
 - `MissionBuilder` survives only as the **demo sandbox builder** (`/?demo=1` → Sandbox), which is an offline showcase, not a preparation surface.
 - The classic form editor is no longer part of the preparation path.
 
 ## Acceptance criteria
 
-- [ ] The preparation navigation contains exactly the six sections.
+- [ ] The preparation navigation contains exactly the five editor sections.
 - [ ] No domain entity or output format has its own top-level item.
 - [ ] The flow workspace occupies the majority of the viewport and contains workflows and events.
 - [ ] The guided setup produces a startable draft without schema knowledge.

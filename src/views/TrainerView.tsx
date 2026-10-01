@@ -8,6 +8,7 @@ import {
 } from "../core/training";
 import { scenarioCapabilities } from "../core/capabilities";
 import {
+  EDITOR_SECTIONS,
   PREP_SECTIONS,
   nextIncomplete,
   prepareReadiness,
@@ -326,6 +327,9 @@ export function TrainerView({ room }: { room: string }) {
             <Term id={ex.state.frozen ? "paused" : "running"} />
           </small>
         </div>
+        <Button onClick={() => setTab("overview")}>
+          {term(sectionTermId("overview"))}
+        </Button>
         {!live && (
           <>
             <Button
@@ -387,7 +391,7 @@ export function TrainerView({ room }: { room: string }) {
         </details>
       </header>
       <Tabs
-        items={(live ? (["live"] as const) : PREP_SECTIONS).map(
+        items={(live ? (["live"] as const) : EDITOR_SECTIONS).map(
           (id) => [id, term(sectionTermId(id))] as const,
         )}
         active={tab}

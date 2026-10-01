@@ -22,6 +22,11 @@ export const PREP_SECTIONS: PrepSection[] = [
   "review",
 ];
 
+// The editor tabs: Overview is the project/start page, not a sixth editor area.
+export const EDITOR_SECTIONS: PrepSection[] = PREP_SECTIONS.filter(
+  (section) => section !== "overview",
+);
+
 const SECTION_OF: Record<string, PrepSection> = {
   stations: "devices",
   props: "devices",
