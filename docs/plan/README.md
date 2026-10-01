@@ -7,7 +7,7 @@
 
 1. Read [00-guardrails.md](00-guardrails.md) first — non-negotiables for every change.
 2. Read the phase file you are implementing (01–07) plus [08-tests-and-dod.md](08-tests-and-dod.md).
-3. Pick the next task from the matching backlog: [09-backlog-foundation-to-catalog.md](09-backlog-foundation-to-catalog.md), [10-backlog-runtime-to-cleanup.md](10-backlog-runtime-to-cleanup.md), [13-backlog-durable-engine.md](13-backlog-durable-engine.md) or [15-backlog-interaction-engine.md](15-backlog-interaction-engine.md).
+3. Pick the next task from the matching backlog: [09-backlog-foundation-to-catalog.md](09-backlog-foundation-to-catalog.md), [10-backlog-runtime-to-cleanup.md](10-backlog-runtime-to-cleanup.md), [13-backlog-durable-engine.md](13-backlog-durable-engine.md), [15-backlog-interaction-engine.md](15-backlog-interaction-engine.md) or [20-backlog-editor-workspace.md](20-backlog-editor-workspace.md).
 4. Update the concept gap analysis in the same change; add a lesson if something surprised you ([../lessons/README.md](../lessons/README.md)).
 
 - Tasks have stable ids (`F1`, `B3`, `R2`, `T4`, `D5`, `X9`); the backlog is the working order.
@@ -44,6 +44,7 @@
 | 10 | Runtime identity | [16-runtime-identity.md](16-runtime-identity.md) | any | M | Build identity + control-surface gate, PWA split, single-language boundary |
 | 11 | Legacy parity | [17-legacy-parity.md](17-legacy-parity.md) | 10 | M | Parity checklist for the legacy MissionBuilder, then removal |
 | 12 | Adaptive guided | [18-adaptive-guided.md](18-adaptive-guided.md) | 1–4, 9 | XL | Constraint-driven scenario interview, suggestion engine, live graph, wizard replacement |
+| 13 | Editor workspace | [19-editor-workspace.md](19-editor-workspace.md) | 1, 9, 12 | L | Shared workspace shell + contracts, Device Builder vertical slice, architecture gate |
 
 - Parallelizable: 2 and 3 after 1; 5 and 6 after 1; 7 throughout.
 - Every phase ships independently: no phase may leave the app in a non-building state.

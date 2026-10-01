@@ -48,6 +48,7 @@
 | U10 | [usability/10-experience-profiles.md](usability/10-experience-profiles.md) | Easy/Advanced/Professional density, provenance, degradation |
 | U11 | [usability/11-preparation-ia.md](usability/11-preparation-ia.md) | Preparation navigation (six sections), flow workspace, legacy expert mode |
 | U12 | [usability/12-terminology.md](usability/12-terminology.md) | Semantic tactical terminology: language, terminology profile, density, fallback |
+| U13 | [usability/13-editor-workspace.md](usability/13-editor-workspace.md) | Any authoring surface: direct manipulation, live preview, contextual inspector, commands, preview states |
 
 ## Catalog (scenes, components, assets)
 

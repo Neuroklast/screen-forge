@@ -16,6 +16,7 @@ jobs:
       - run: npm run build
       - run: npm run check:i18n
       - run: npm run check:layout
+      - run: npm run check:arch
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:e2e:artifact

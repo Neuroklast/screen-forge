@@ -13,6 +13,7 @@
     "check": "tsc --noEmit",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:layout": "node scripts/check-layout.mjs",
+    "check:arch": "node scripts/check-architecture.mjs",
     "gen:sounds": "node scripts/gen-os-sounds.mjs"
   },
   "keywords": [],

@@ -37,7 +37,8 @@
 
 ## CI gates
 
-- Existing: `npm ci` → `npm test` → `npm run build` → `npm run check:i18n` → `npm run check:layout` → `npx playwright install` → `npm run test:e2e`.
+- Existing: `npm ci` → `npm test` → `npm run build` → `npm run check:i18n` → `npm run check:layout` → `npm run check:arch` → `npx playwright install` → `npm run test:e2e`.
+- `check:arch` tolerates allowlisted existing debt (warnings) and fails on **new** violations of the architecture contracts ([../architecture/README.md](../architecture/README.md)); the allowlist only shrinks.
 - `npm test` runs Vitest over `src/core` and `src/map` (the map adapter tests are part of the gate), then the Node server lifecycle tests.
 - Add when ready: a docs link/budget check for `docs/` (≤150 lines per file, links resolve), and a guard that `secret data/` is not tracked.
 - CI MUST NOT be fixed by disabling a check.
@@ -53,10 +54,12 @@
 
 - [ ] Task acceptance criteria met and covered by tests where testable.
 - [ ] `npm run check` green.
+- [ ] `npm run check:arch` green (new architecture violations are zero).
 - [ ] `npm test` green (with new tests).
 - [ ] `npm run build` green.
 - [ ] `npm run test:e2e` green (or explicitly deferred with a reason).
 - [ ] Concept file(s) updated; gap analysis updated; links valid.
+- [ ] Editor features: use the shared workspace primitives, have no duplicated domain logic or renderer, are undoable through commands, preview through the runtime renderer, are keyboard reachable, have empty/loading/error states, and have no hardcoded terminology.
 - [ ] No new dependency without a recorded reason; no secrets/media master committed.
 - [ ] Backlog task marked done; lesson added if something surprised you.
 - [ ] One purpose per commit; conventional message.

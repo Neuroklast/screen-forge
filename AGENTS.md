@@ -17,7 +17,7 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 | Stack | React 19, TypeScript 7, Vite 8, Zod 4, motion, three, Leaflet, `ws` exercise server |
 | Package manager | npm (`package-lock.json`) |
 | Node | >= 24 |
-| Check | `npm run check` |
+| Check | `npm run check` (TypeScript), `npm run check:arch` (architecture contracts) |
 | Unit/server tests | `npm test` |
 | Build | `npm run build` |
 | E2E | `npm run test:e2e` |
@@ -34,6 +34,12 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 - Mission edits only while `draft`/`ready`/`paused`; every save bumps `revision`; stale saves are rejected, never merged.
 - Guided mode is a projection over the scenario model: rules return suggestions (never mutate), derived state is recomputed, generated content carries `origin`, and user-authored content is never silently overwritten or deleted ([docs/plan/18-adaptive-guided.md](docs/plan/18-adaptive-guided.md)).
 - Abort MUST be reachable in ≤ 2 taps and independent of EXCON availability.
+- Authoring is workspace-based, not page-based: navigator / canvas-or-live-preview / contextual inspector, no long scrolling form as the primary interaction model ([docs/konzept/usability/13-editor-workspace.md](docs/konzept/usability/13-editor-workspace.md), [docs/architecture/workspace.md](docs/architecture/workspace.md)).
+- Editor mutations go through commands only; one model, one selection, no editor-only copy of scenario state, no direct deep mutation ([docs/architecture/commands.md](docs/architecture/commands.md), [docs/architecture/editor-state.md](docs/architecture/editor-state.md)).
+- Preview uses the runtime renderer; never a second mock renderer; preview states are transient and never persisted ([docs/architecture/previews.md](docs/architecture/previews.md)).
+- One owner per responsibility: no second workspace shell, graph implementation, renderer for a known capability, or label table ([docs/architecture/ownership.md](docs/architecture/ownership.md)).
+- Replacements need a removal condition; never add features to a deprecated path ([docs/architecture/deprecation.md](docs/architecture/deprecation.md)).
+- Existing architecture debt is allowlisted and may only shrink; new violations fail `npm run check:arch`.
 - Smallest change that fully solves the task; no drive-by refactors, no unrequested UX, no new dependency without a recorded reason.
 - NEVER treat a symptom: always find and fix the root cause, without exception. A patch that hides the defect (clipping, magic-number tuning, swallowed errors) is not a fix; if the root cause is out of scope, record it instead of masking it.
 - NEVER `as any`, `@ts-ignore`, or blanket disables; keep validation, auth, and redaction.
@@ -50,6 +56,9 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 | Phase work / task order | [docs/plan/README.md](docs/plan/README.md), [docs/plan/09-backlog-foundation-to-catalog.md](docs/plan/09-backlog-foundation-to-catalog.md), [docs/plan/10-backlog-runtime-to-cleanup.md](docs/plan/10-backlog-runtime-to-cleanup.md) |
 | Product behavior / features | [docs/konzept/README.md](docs/konzept/README.md), [docs/konzept/domain/12-gap-analysis.md](docs/konzept/domain/12-gap-analysis.md) |
 | UI / UX work | [docs/konzept/usability/00-principles.md](docs/konzept/usability/00-principles.md), [docs/konzept/usability/06-copy-jargon.md](docs/konzept/usability/06-copy-jargon.md) |
+| Editor / workspace work | [docs/konzept/usability/13-editor-workspace.md](docs/konzept/usability/13-editor-workspace.md), [docs/architecture/workspace.md](docs/architecture/workspace.md), [docs/architecture/editor-state.md](docs/architecture/editor-state.md), [docs/architecture/commands.md](docs/architecture/commands.md), [docs/architecture/previews.md](docs/architecture/previews.md), [docs/architecture/ownership.md](docs/architecture/ownership.md) |
+| Architecture contracts | [docs/architecture/README.md](docs/architecture/README.md) |
+| Deprecation / legacy removal | [docs/architecture/deprecation.md](docs/architecture/deprecation.md) |
 | Layout / overflow / z-index | [docs/konzept/usability/09-layout-contracts.md](docs/konzept/usability/09-layout-contracts.md) — grid over flex, viewport prison, z registry, truncation, aspect lock |
 | Scenes / blocks / components | [docs/konzept/catalog/](docs/konzept/catalog/19-themes.md) |
 | Tasks / workflows / interaction | [docs/konzept/domain/14-interaction-model.md](docs/konzept/domain/14-interaction-model.md), [docs/plan/14-interaction-engine.md](docs/plan/14-interaction-engine.md) |
@@ -66,7 +75,7 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 
 ## Session closeout
 
-1. Implement → 2. run checks (`npm run check`, `npm test`, `npm run build`, `npm run test:e2e`) → 3. update docs → 4. report.
+1. Implement → 2. run checks (`npm run check`, `npm run check:arch`, `npm test`, `npm run build`, `npm run test:e2e`) → 3. update docs → 4. report.
 Checklist: [docs/checklists/session.md](docs/checklists/session.md). Definition of Done: [docs/plan/08-tests-and-dod.md](docs/plan/08-tests-and-dod.md).
 
 ## Multi-agent

@@ -13,6 +13,7 @@
 ## 2. Checks
 
 - [ ] `npm run check` green (TypeScript).
+- [ ] `npm run check:arch` green (architecture contracts; no new violations).
 - [ ] `npm test` green (Vitest `src/core` + server lifecycle), with new/updated tests.
 - [ ] `npm run build` green.
 - [ ] `npm run test:e2e` green for changed flows (or explicitly deferred with a reason).

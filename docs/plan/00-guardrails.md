@@ -31,6 +31,16 @@
 - Keep validation, auth, and redaction checks — never strip them to reduce lines.
 - NEVER `as any`, `@ts-ignore`, or blanket disables.
 
+## Editor and workspace rules
+
+- Authoring is workspace-based: navigator / canvas-or-preview / contextual inspector; no long scrolling form as the primary model ([../konzept/usability/13-editor-workspace.md](../konzept/usability/13-editor-workspace.md)).
+- One model, one selection; no editor-only copy of scenario state; no direct deep mutation.
+- All editor mutations go through commands ([../architecture/commands.md](../architecture/commands.md)); every command is undoable.
+- Preview uses the runtime renderer; no second mock renderer; preview states are transient and never persisted ([../architecture/previews.md](../architecture/previews.md)).
+- One owner per responsibility: no second workspace shell, graph implementation, renderer for a known capability, or label table ([../architecture/ownership.md](../architecture/ownership.md)).
+- Replacements need a removal condition; never add features to a deprecated path ([../architecture/deprecation.md](../architecture/deprecation.md)).
+- Existing architecture debt is allowlisted and may only shrink; new violations fail `npm run check:arch`.
+
 ## Runtime and state rules
 
 - The server is authoritative for exercise state; clients never invent state.
@@ -51,6 +61,7 @@
 | Command | Purpose |
 | --- | --- |
 | `npm run check` | TypeScript |
+| `npm run check:arch` | Architecture contracts (workspace, commands, previews, ownership) |
 | `npm test` | Unit (`src/core`) + server lifecycle |
 | `npm run build` | Production build |
 | `npm run test:e2e` | Playwright user flows |
