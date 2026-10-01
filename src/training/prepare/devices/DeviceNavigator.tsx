@@ -1,6 +1,6 @@
 import type { Scenario, TrainingStation } from "../../../core/training";
 import { t } from "../../../i18n";
-import { presetLabel } from "../devicePresets";
+import { assetDetail, assetView } from "../assetView";
 import type { DeviceSelection } from "./selection";
 
 const PROP_KIND_LABELS: Record<string, string> = {
@@ -10,19 +10,6 @@ const PROP_KIND_LABELS: Record<string, string> = {
   keycard: "prop.kind.keycard",
   custom: "prop.kind.custom",
 };
-
-// The device identity is the asset, not the person. A player station is a GPS
-// unit assigned to a participant, so the participant identity is never shown as
-// the device name.
-function assetLabel(station: TrainingStation): string {
-  return station.player ? t(presetLabel(station.module)) : station.name;
-}
-
-function assetDetail(station: TrainingStation): string {
-  return station.player
-    ? t("prep.devices.assignedTo", { name: station.name })
-    : t(presetLabel(station.module));
-}
 
 // Navigator pane: structure and selection only. A prop and its bound interface
 // are grouped as one logical thing; the prop's own facet and its console are
@@ -51,19 +38,22 @@ export function DeviceNavigator({
     !!station.bindings.prop && propIds.has(station.bindings.prop);
   const ungrouped = devices.filter((station) => !boundToProp(station));
 
-  const deviceRow = (station: TrainingStation, child: boolean) => (
-    <button
-      key={station.id}
-      type="button"
-      className={`sf-device-nav-item prepare-device ${
-        child ? "sf-device-nav-child" : ""
-      } ${selection?.kind === "device" && selection.id === station.id ? "is-selected" : ""}`}
-      onClick={() => onSelectDevice(station.id)}
-    >
-      <strong>{assetLabel(station)}</strong>
-      <span className="eyebrow">{assetDetail(station)}</span>
-    </button>
-  );
+  const deviceRow = (station: TrainingStation, child: boolean) => {
+    const view = assetView(station);
+    return (
+      <button
+        key={station.id}
+        type="button"
+        className={`sf-device-nav-item prepare-device ${
+          child ? "sf-device-nav-child" : ""
+        } ${selection?.kind === "device" && selection.id === station.id ? "is-selected" : ""}`}
+        onClick={() => onSelectDevice(station.id)}
+      >
+        <strong>{view.name}</strong>
+        <span className="eyebrow">{assetDetail(view)}</span>
+      </button>
+    );
+  };
 
   return (
     <div className="sf-device-nav">

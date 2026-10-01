@@ -15,6 +15,7 @@ Each contract states: purpose, owner, allowed dependencies, forbidden dependenci
 | [commands.md](commands.md) | The only write path for editor mutations |
 | [previews.md](previews.md) | Live preview, runtime renderer reuse, preview states |
 | [ownership.md](ownership.md) | One owner per responsibility (renderer, domain, validator, terminology, graph, workspace) |
+| [devices.md](devices.md) | Person / Asset / Prop / Interface view model and the device profile + surface target |
 | [terminology.md](terminology.md) | Semantic label resolution and the i18n boundary |
 | [deprecation.md](deprecation.md) | Replacement, removal criteria and the no-new-features rule |
 

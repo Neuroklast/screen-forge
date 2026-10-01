@@ -10,11 +10,21 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 | # | Section (DE) | Content |
 | --- | --- | --- |
 | 1 | `"Übersicht"` | status, entry actions (guided setup, template, import), readiness |
-| 2 | `"Szenario"` | name, type, capability switches, terrain, zones, objectives, expert mode |
-| 3 | `"Teilnehmer"` | teams, participants (operators), actors with their dossier, patients |
-| 4 | `"Geräte"` | devices with owner, props, QR provisioning |
-| 5 | `"Ablauf"` | workflow graph, event timeline, inspector |
-| 6 | `"Prüfen"` | scenario validation, device readiness, briefing, template export, start |
+| 2 | `"Szenario"` | mission name, scenario profile, location, zones, objectives; capabilities and raw map fields behind Advanced |
+| 3 | `"Teilnehmer"` | forces workspace: teams, participants, actors (with dossier), patients |
+| 4 | `"Geräte"` | assets workspace: devices, props, interfaces; provisioning as a tool |
+| 5 | `"Ablauf"` | flow workspace: workflow graph, event timeline, inspector |
+| 6 | `"Prüfen"` | launch gate: blockers/warnings, fix-next, start; briefing and exports secondary |
+
+## Workspace adoption
+
+The three editors share one model ([13-editor-workspace.md](13-editor-workspace.md), [../../architecture/workspace.md](../../architecture/workspace.md)):
+
+- **Mission** (`"Szenario"`): identity, profile, location and objectives; the capability matrix and raw `lat`/`lng`/`zoom`/tile/attribution are expert detail. Edits go through `scenarioCommands`.
+- **Forces** (`"Teilnehmer"`): navigator (teams, participants, actors, patients), roster + dossiers in the centre, the selected person/team in the inspector. Edits go through `forceCommands`. A participant's device is shown as its asset, never as the person.
+- **Assets** (`"Geräte"`): see the device workspace below.
+- **Flow** (`"Ablauf"`): the flow workspace is the second consumer of the shared shell (palette / graph+timeline / inspector).
+- **Review** (`"Prüfen"`): a launch gate — blocker/warning counts, one `"Nächsten Punkt beheben"` action and the start button; findings and briefing are secondary detail.
 
 - Ownership is offered only when it can be meaningful (teams or participants exist); otherwise the device is a scenario task by definition. Domain values in the chrome are German (`"Sprengkörper"`, `"Bake"`, `"Datenkern"`, …), never raw enum ids.
 

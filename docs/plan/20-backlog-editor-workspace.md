@@ -61,4 +61,12 @@
 | W52 | Workspace pages edge-to-edge (remove the `Panel` wrapper) | done |
 | W53 | Panes are the only scroll contexts with a visible scrollbar | done |
 | W54 | Phase-based header: undo/redo hidden while running; density summary removed | done |
-| W55 | Next: Mission, Forces and Assets onto the same interaction model (nav/canvas/inspector, no capability matrix, no raw coordinates) | todo |
+| W55 | Mission: name/profile/location/objectives; capabilities + raw map behind Advanced; `scenarioCommands` | done |
+| W56 | Forces workspace (navigator / roster / inspector) + `forceCommands` | done |
+| W57 | Review as a launch gate | done |
+| W58 | Add-device catalog: recommended first, rest behind More… | done |
+| W59 | Flow workspace on the shared `WorkspaceShell` | done |
+| W60 | Derived authoring view (`assetView`) + device profile/surface contract doc | done |
+| W61 | Next: device profile+surface migration in `DeviceSurface` | todo |
+| W62 | Next: guided mode as an assistant pane in the normal workspace | todo |
+| W63 | Next: surface-specific preview scenarios (generic states + per-surface demo scenarios) | todo |
