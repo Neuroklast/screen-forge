@@ -1,0 +1,286 @@
+/* Device Builder workspace (docs/konzept/usability/13-editor-workspace.md).
+   Grid only; no raw z-index; internal scroll regions hide their scrollbar. */
+
+/* Navigator ------------------------------------------------------------- */
+.device-nav {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+  min-height: 0;
+}
+
+.device-nav-block {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+}
+
+.device-nav-block h3 {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4f6570;
+}
+
+.device-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 4px;
+}
+
+.device-preset {
+  padding: 6px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.device-preset:hover:not(:disabled) {
+  border-color: #80dce5;
+}
+
+.device-preset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.device-nav-owner {
+  display: grid;
+  gap: 3px;
+  font-size: 11px;
+  color: #8a9aa2;
+}
+
+.device-nav-owner select {
+  padding: 4px 6px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+}
+
+.prepare-device {
+  cursor: pointer;
+}
+
+.prepare-device.is-selected {
+  border-color: #80dce5;
+  background: #10212a;
+}
+
+/* Canvas / preview ------------------------------------------------------ */
+.device-preview {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  height: 100%;
+}
+
+.device-preview-toolbar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 1px solid #1e2a33;
+}
+
+.device-preview-toolbar button {
+  padding: 5px 6px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #8a9aa2;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.device-preview-toolbar button.active {
+  border-color: #80dce5;
+  color: #d6e2e5;
+  background: #10212a;
+}
+
+.device-preview-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  background: #05080b;
+}
+
+.device-preview-stage > * {
+  min-height: 0;
+  min-width: 0;
+}
+
+.device-preview[data-preview-state="warning"] .device-preview-stage {
+  box-shadow: inset 0 0 0 2px #e8b563;
+}
+
+.device-preview[data-preview-state="critical"] .device-preview-stage {
+  box-shadow: inset 0 0 0 2px #f36c75;
+}
+
+.device-preview[data-preview-state="safe"] .device-preview-stage {
+  box-shadow: inset 0 0 0 2px #76fa96;
+}
+
+.device-preview-anchors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.device-preview-anchor,
+.device-preview-inline {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.device-preview-anchor {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.device-preview-anchor:hover {
+  outline: 1px dashed #80dce5;
+  background: rgba(128, 220, 229, 0.08);
+}
+
+.device-preview-anchor.is-selected {
+  outline: 2px solid #80dce5;
+  background: rgba(128, 220, 229, 0.12);
+}
+
+.device-preview-inline {
+  border: 1px solid #80dce5;
+  background: #0a1016;
+  color: #d6e2e5;
+  font: inherit;
+  padding: 2px 4px;
+}
+
+.device-preview-scrim {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 8, 11, 0.72);
+  color: #f36c75;
+  font-family: "IBM Plex Mono", monospace;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.device-preview-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border: 1px solid currentColor;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: rgba(5, 8, 11, 0.8);
+}
+
+.device-preview-badge.is-critical {
+  color: #f36c75;
+}
+
+.device-preview-badge.is-safe {
+  color: #76fa96;
+}
+
+.device-canvas-empty {
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  height: 100%;
+  text-align: center;
+  color: #8a9aa2;
+}
+
+/* Inspector ------------------------------------------------------------- */
+.device-inspector {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  align-content: start;
+}
+
+.device-inspector-head {
+  display: grid;
+  gap: 2px;
+}
+
+.device-inspector-head h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.device-inspector-head button {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: #80dce5;
+  font-size: 11px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.device-field {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+  color: #8a9aa2;
+}
+
+.device-field input,
+.device-field select {
+  padding: 5px 7px;
+  border: 1px solid #1e2a33;
+  border-radius: 0;
+  background: #0e171f;
+  color: #d6e2e5;
+  min-width: 0;
+}
+
+.device-inspector-empty {
+  color: #4f6570;
+  font-size: 12px;
+}
+
+.device-inspector-remove {
+  justify-self: start;
+  border: 1px solid #3a2328;
+  background: #1a0f12;
+  color: #f36c75;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Status bar ------------------------------------------------------------ */
+.device-status {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 16px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: #8a9aa2;
+}
+
+.device-props {
+  margin-top: 12px;
+}

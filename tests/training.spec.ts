@@ -82,9 +82,13 @@ test('dossiers synchronize and trainer patient changes reach the assigned monito
 test('station presentation is pushed to the assigned field device', async ({page,browser}) => {
   await login(page);
   await page.getByRole('button',{name:'Geräte',exact:true}).click();
-  const card = page.locator('.prepare-device').filter({hasText:'Intelligence'});
-  await card.getByText('Darstellung am Gerät').click();
-  await card.getByLabel('Titel',{exact:true}).fill('RELAY-07');
+  await page
+    .locator('.prepare-device')
+    .filter({hasText:'Intelligence'})
+    .locator('strong')
+    .click();
+  await page.getByText('Darstellung am Gerät').click();
+  await page.locator('.device-inspector').getByLabel('Titel',{exact:true}).fill('RELAY-07');
   await page.getByRole('button',{name:'Szenario speichern',exact:true}).click();
   await expect(page.locator('.notice[role="status"]')).toContainText('Szenario gespeichert');
   const {ctx,device} = await assign(page,browser,'Intelligence');

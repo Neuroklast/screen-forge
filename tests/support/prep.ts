@@ -59,12 +59,7 @@ export async function loadTemplate(page: Page, template: string, name: string) {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
 }
 
+// The Device Builder creates a device with one click on a preset.
 export async function addDevice(page: Page, label: string) {
-  const addBlock = page.locator(".prepare-block").filter({
-    has: page.getByRole("heading", { name: "Gerät hinzufügen", exact: true }),
-  });
-  await addBlock.getByLabel("Gerätetyp").selectOption({ label });
-  await addBlock
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
+  await page.getByRole("button", { name: label, exact: true }).click();
 }

@@ -30,8 +30,18 @@ export type SceneProps = {
   operation?: string;
   onTimelineExtend?: (end: number) => void;
 };
-function Label({ children }: { children: React.ReactNode }) {
-  return <div className="micro">{children}</div>;
+function Label({
+  children,
+  anchor,
+}: {
+  children: React.ReactNode;
+  anchor?: string;
+}) {
+  return (
+    <div className="micro" data-sf-anchor={anchor}>
+      {children}
+    </div>
+  );
 }
 export function Wave({ seed = 1, time = 0 }: { seed?: number; time?: number }) {
   return (
@@ -62,14 +72,16 @@ export function SceneHeader({ config, tag }: { config: Config; tag: string }) {
           <BrandMark config={config} />
         </div>
         <div>
-          <strong>{config.title}</strong>
-          <Label>{config.subtitle}</Label>
+          <strong data-sf-anchor="presentation.title">{config.title}</strong>
+          <Label anchor="presentation.subtitle">{config.subtitle}</Label>
         </div>
       </div>
       <div className="header-status">
         <span className="status-dot" />
         {tag}
-        <small>{config.identifier}</small>
+        <small data-sf-anchor="presentation.identifier">
+          {config.identifier}
+        </small>
       </div>
     </header>
   );

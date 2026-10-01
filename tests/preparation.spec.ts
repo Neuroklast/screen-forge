@@ -24,11 +24,8 @@ test("disposal setup hides patient controls and offers ordnance devices", async 
   await expect(page.getByText("Spieler hinzufügen")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
-  const addBlock = page.locator(".prepare-block").filter({
-    has: page.getByRole("heading", { name: "Gerät hinzufügen", exact: true }),
-  });
   await expect(
-    addBlock.getByLabel("Gerätetyp").locator("option", { hasText: "Medizingerät" }),
+    page.getByRole("button", { name: "Medizingerät", exact: true }),
   ).toHaveCount(0);
   await addDevice(page, "Sprengkörper-Konsole");
   await expect(page.locator(".prepare-device")).toContainText(
@@ -51,13 +48,8 @@ test("medical setup shows patient controls and hides ordnance", async ({
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
-  const addBlock = page.locator(".prepare-block").filter({
-    has: page.getByRole("heading", { name: "Gerät hinzufügen", exact: true }),
-  });
   await expect(
-    addBlock
-      .getByLabel("Gerätetyp")
-      .locator("option", { hasText: "Sprengkörper-Konsole" }),
+    page.getByRole("button", { name: "Sprengkörper-Konsole", exact: true }),
   ).toHaveCount(0);
   await addDevice(page, "Medizingerät");
   await save(page);
@@ -168,16 +160,12 @@ test("device assignment links equipment to a participant", async ({ page }) => {
     .click();
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
-  const addBlock = page.locator(".prepare-block").filter({
-    has: page.getByRole("heading", { name: "Gerät hinzufügen", exact: true }),
-  });
-  await addBlock.getByLabel("Gerätetyp").selectOption({ label: "Funkgerät" });
-  await addBlock
+  await page
+    .locator(".device-nav-block")
+    .first()
     .getByLabel("Zuordnung")
     .selectOption({ label: "Teilnehmer 2" });
-  await addBlock
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
+  await addDevice(page, "Funkgerät");
 
   await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await expect(
@@ -258,10 +246,11 @@ test("start validation blocks a medical scenario without a patient", async ({
     .getByRole("button", { name: "Patient hinzufügen", exact: true })
     .click();
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
-  const card = page
+  await page
     .locator(".prepare-device")
-    .filter({ hasText: "Medizingerät 1" });
-  await card.getByLabel("Patienten").selectOption({ label: "Patient 1" });
+    .filter({ hasText: "Medizingerät 1" })
+    .click();
+  await page.getByLabel("Patienten").selectOption({ label: "Patient 1" });
   await save(page);
 
   await page.getByRole("button", { name: "Prüfen", exact: true }).click();

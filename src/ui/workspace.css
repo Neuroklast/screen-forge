@@ -1,0 +1,54 @@
+/* Shared editor shell layout (docs/architecture/workspace.md). Grid only, no
+   flex-wrap, no raw z-index; internal scroll regions hide their scrollbar. */
+.workspace-shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) 340px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 520px;
+  height: min(720px, calc(100dvh - 220px));
+}
+
+.workspace-shell-nav,
+.workspace-shell-canvas,
+.workspace-shell-inspector {
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid #1e2a33;
+  background: #0a1016;
+  overflow: hidden;
+}
+
+.workspace-shell-nav,
+.workspace-shell-inspector {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.workspace-shell-nav::-webkit-scrollbar,
+.workspace-shell-inspector::-webkit-scrollbar {
+  display: none;
+}
+
+/* One filling cell: the canvas content (e.g. DevicePreview) owns its own
+   toolbar/stage split. Without a definite row the preview gets content height
+   and a scene stage grows to 100vh and is clipped. */
+.workspace-shell-canvas {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.workspace-shell-status {
+  grid-column: 1 / -1;
+  border: 1px solid #1e2a33;
+  background: #0a1016;
+  padding: 6px 10px;
+}
+
+@media (max-width: 1100px) {
+  .workspace-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    height: auto;
+  }
+}

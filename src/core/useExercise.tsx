@@ -342,9 +342,22 @@ export function useExercise(role: Role, room: string, station: string) {
     room,
   };
 }
-const ExerciseCtx = createContext<ReturnType<typeof useExercise> | null>(null);
+export type ExerciseValue = ReturnType<typeof useExercise>;
+const ExerciseCtx = createContext<ExerciseValue | null>(null);
 export function useTelemetryVersion(store: TelemetryStore): number {
   return useSyncExternalStore(store.subscribe, store.getSnapshot);
+}
+// Additive: lets the editor preview feed the real module components a synthetic,
+// inert sandbox value instead of a live exercise connection
+// (docs/architecture/previews.md).
+export function ExerciseValueProvider({
+  value,
+  children,
+}: {
+  value: ExerciseValue;
+  children: ReactNode;
+}) {
+  return <ExerciseCtx.Provider value={value}>{children}</ExerciseCtx.Provider>;
 }
 export function ExerciseProvider({
   role,

@@ -21,7 +21,6 @@ Legacy code does not accumulate forever. Every replacement has an owner, a remov
 | Deprecated | Replacement | Owner | Removal condition | Target |
 | --- | --- | --- | --- | --- |
 | `src/builder/MissionBuilder.tsx` | Preparation six sections + Device Builder | preparation | demo sandbox parity / sandbox removal | after Device Builder slice |
-| `src/training/prepare/DevicesSection.tsx` long-form layout | `src/training/prepare/devices/**` workspace | preparation | Device Builder slice ships and tests pass | this phase |
 | Inline `TrainerView` live-control patches | section command modules | preparation | live-control section migrates | next editor |
 | `src/builder/WorkflowGraph.tsx` legacy canvas | `src/training/prepare/FlowSection.tsx` | flow | already superseded in preparation | keep for demo sandbox only |
 

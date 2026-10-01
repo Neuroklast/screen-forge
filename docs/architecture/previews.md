@@ -17,7 +17,8 @@ The editor preview shows the real result. Preview, runtime and editor use the sa
 - Editor-only overlays are allowed: selection outline, hitboxes/handles, rulers, diagnostics, preview-state chrome.
 - The preview sandbox is inert: its `send` is a no-op and it never touches the exercise server, the journal or persisted state.
 - Side-effectful leaves (Leaflet map, WebRTC camera) MUST NOT run inside the editor preview; the preview renders their scene surface instead.
-- Preview states are transient editor state (`NORMAL`, `WARNING`, `CRITICAL`, `OFFLINE`, `SAFE`). `WARNING`/`SAFE` map to the renderer `Cue` (`warning`/`complete`); `CRITICAL`/`OFFLINE` add editor-only chrome. Preview states are never persisted.
+- Preview states are transient editor state (`NORMAL`, `WARNING`, `CRITICAL`, `OFFLINE`, `SAFE`). They are never persisted.
+- Cue delivery is **scene-surface only**: `WARNING`/`CRITICAL` map to the renderer `Cue` `warning`, `SAFE` to `complete`, `NORMAL`/`OFFLINE` to `idle`. Console surfaces (terminal, ordnance, beacon, datasheet) do not consume a cue; their preview state appears as editor chrome (frame/badge/scrim). Do not invent a cue prop for a console to satisfy the mapping.
 - A new capability ships with a preview path through the shared renderer; a preview-only renderer is forbidden.
 
 ## Allowed dependencies

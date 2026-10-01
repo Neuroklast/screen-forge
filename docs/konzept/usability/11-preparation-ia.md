@@ -16,8 +16,16 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 | 5 | `"Ablauf"` | workflow graph, event timeline, inspector |
 | 6 | `"Prüfen"` | scenario validation, device readiness, briefing, template export, start |
 
-- Device cards show the operational fields only; the look/identity fields (`"Darstellung am Gerät"`) are collapsed per device.
 - Ownership is offered only when it can be meaningful (teams or participants exist); otherwise the device is a scenario task by definition. Domain values in the chrome are German (`"Sprengkörper"`, `"Bake"`, `"Datenkern"`, …), never raw enum ids.
+
+## Device workspace (`"Geräte"`)
+
+- The section is a persistent workspace ([13-editor-workspace.md](13-editor-workspace.md)): navigator (one-click presets, device list, inline owner) left, live preview centre, contextual inspector right, status bar below — not a long form.
+- The preview renders the shared runtime surface (`DeviceSurface`) with a synthetic, inert sandbox derived from the draft; it never opens the exercise connection ([../../architecture/previews.md](../../architecture/previews.md)).
+- Preview states `Normal`, `Warnung`, `Kritisch`, `Offline`, `Sicher` are transient. `Warnung`/`Kritisch`/`Sicher` reach the scene renderer as a cue where the surface supports one; `Kritisch`/`Offline` also add editor-only chrome, and console surfaces show the state as chrome only.
+- Clicking an element in the preview selects it (`data-sf-anchor` measured by the editor overlay); the inspector then shows only that element's property. Names and identity fields are directly editable inline.
+- All device edits go through the command module; undo/redo covers them. Look/identity fields (`"Darstellung am Gerät"`) live in the inspector.
+- Props (`"Requisiten"`) and QR provisioning remain as secondary panels, not pages.
 
 **Hard rule:** No new top-level preparation navigation item may be introduced for a domain entity, implementation concept or output format. New functionality MUST fit one of the six sections; if it does not, reconsider the information architecture before adding navigation.
 

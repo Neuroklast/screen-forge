@@ -51,7 +51,7 @@ export function OrdnanceConsole({ station }: { station: TrainingStation }) {
   return (
     <section className="device-panel">
       <header className="device-head">
-        <h2>{station.name}</h2>
+        <h2 data-sf-anchor="station.name">{station.name}</h2>
         <span className={`device-state is-${state}`}>{state}</span>
       </header>
       {entry && (

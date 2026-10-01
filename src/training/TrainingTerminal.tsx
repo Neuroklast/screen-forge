@@ -29,7 +29,7 @@ export function TrainingTerminal({
                 : t("terminal.state.active")}
         </b>
       </header>
-      <h1>{st.name}</h1>
+      <h1 data-sf-anchor="station.name">{st.name}</h1>
       {st.module === "countdown" && (
         <Timer
           remaining={remaining}

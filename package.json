@@ -7,7 +7,7 @@
     "exercise": "node server/exercise.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "vitest run src/core src/map src/i18n && node --test server/*.test.mjs",
+    "test": "vitest run src/core src/map src/i18n src/training && node --test server/*.test.mjs",
     "test:e2e": "playwright test",
     "test:e2e:artifact": "playwright test --config playwright.artifact.config.ts",
     "check": "tsc --noEmit",

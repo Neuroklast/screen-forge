@@ -23,7 +23,7 @@ Authoring has drifted into section pages and long vertical forms; selection and 
 - [ ] `npm run check:arch` fails on a new workspace shell, graph implementation, preview-only renderer, business rule in React, direct domain mutation outside commands, deprecated-path import, or hardcoded migrated terminology; allowlisted existing debt only shrinks.
 - [ ] The Device Builder is a fixed workspace: navigator (presets + device list), live runtime-backed preview, contextual inspector, status bar.
 - [ ] The preview derives from the draft and reuses the runtime renderer (`DeviceSurface`); no preview-only renderer; no duplicated preview state.
-- [ ] Preview states `NORMAL`, `WARNING`, `CRITICAL`, `OFFLINE`, `SAFE` are switchable; `WARNING`/`SAFE` reach the renderer as a cue; states are transient.
+- [ ] Preview states `NORMAL`, `WARNING`, `CRITICAL`, `OFFLINE`, `SAFE` are switchable and transient; `WARNING`/`CRITICAL`/`SAFE` reach the scene renderer as a cue where the surface supports one (consoles show chrome only).
 - [ ] Clicking an element in the preview selects it; the inspector shows only that element's properties; at least one element is directly editable inline.
 - [ ] All device mutations go through `devices/commands.ts`; undo/redo (buttons + Ctrl+Z/Y) covers them.
 - [ ] No modal is required for ordinary editing; no long scrolling form remains for devices.

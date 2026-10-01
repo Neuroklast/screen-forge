@@ -18,12 +18,18 @@ export function StageFrame({
   presentation,
   station,
   native = false,
+  cue: forcedCue,
+  preview = false,
 }: {
   scene: SceneId;
   mark?: boolean;
   presentation?: TrainingStation["presentation"];
   station?: string;
   native?: boolean;
+  // Preview host: drive the cue from the editor preview state and run the
+  // local scene clock instead of the exercise clock (docs/architecture/previews.md).
+  cue?: Cue;
+  preview?: boolean;
 }) {
   const ex = useExerciseMaybe();
   const [config] = useState<Config>(() => ({
@@ -36,17 +42,19 @@ export function StageFrame({
     ex && station ? authoritativeCue(ex.state, station) : "idle",
   );
   const clock = useSceneClock();
-  const time = ex ? ex.state.clock : clock.elapsed;
+  const time = preview ? clock.elapsed : ex ? ex.state.clock : clock.elapsed;
   // Server-recorded completion outranks transient local UI state, so a remount
-  // or reconnect never re-opens an already completed task.
-  const effectiveCue: Cue =
-    ex && station && authoritativeCue(ex.state, station) === "complete"
+  // or reconnect never re-opens an already completed task. In preview the
+  // editor owns the cue; nothing is recorded.
+  const effectiveCue: Cue = preview
+    ? forcedCue ?? "idle"
+    : ex && station && authoritativeCue(ex.state, station) === "complete"
       ? "complete"
       : cue;
   const stage = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 1280, height: 720 });
   useEffect(() => {
-    clock.setPlaying(!ex);
+    clock.setPlaying(preview || !ex);
   }, []);
   useEffect(() => {
     if (!stage.current) return;
