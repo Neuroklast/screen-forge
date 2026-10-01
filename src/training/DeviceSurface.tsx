@@ -59,6 +59,7 @@ export function DeviceSurface({
   const preview = host === "preview";
   const kind = deviceSurfaceKind({
     module: row.module,
+    surface: row.surface,
     host,
     hasInstance: !!instance,
     hasConnect: !!connectState,

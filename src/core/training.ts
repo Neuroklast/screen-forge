@@ -26,6 +26,7 @@ import {
   type ScenePreset,
 } from "./config.ts";
 import { generatedMetaSchema, guidedSessionSchema } from "./guided/types.ts";
+import { deviceSurfaceIds } from "./devices.ts";
 
 // Shared by the browser and Node 24. No browser-only imports in this module.
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,40}$/);
@@ -186,6 +187,9 @@ export const stationSchema = z.object({
     .regex(/^\d{4,12}$/)
     .default("7392"),
   route: z.array(pointSchema).max(20).default([]),
+  // Explicit visible surface; when unset it is derived from the module
+  // (docs/architecture/devices.md).
+  surface: z.enum(deviceSurfaceIds).optional(),
   presentation: presentationSchema.optional(),
   origin: generatedMetaSchema.optional(),
 });

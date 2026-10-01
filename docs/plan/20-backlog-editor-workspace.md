@@ -78,3 +78,4 @@
 | W69 | Header phase grouping: reset hidden while the exercise runs | done |
 | W70 | Stabilize the React Flow test flake (measurable canvas, visibility waits, retries) | done |
 | W71 | Mission location set visually on a map (click to place, zones as circles) | done |
+| W72 | Persisted `station.surface` + authoring control; runtime states win; unit tests | done |

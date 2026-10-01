@@ -58,6 +58,7 @@ Template = Mission without room state, in `presets/missions/`
 | `team` | string? | Team id |
 | `player` | boolean | GPS sharing enabled |
 | `route` | `{lat,lng}[]?` | PLAYBACK movement |
+| `surface` | SurfaceId? | Explicit visible surface (`scene`/`console`/`map`/`camera`/`ordnance`/`beacon`/`datasheet`); absent → derived from `module`. Runtime states (`workflow`, `connect`) are not authoring choices ([../../architecture/devices.md](../../architecture/devices.md)) |
 | `config` | object | Module-specific (duration, code, stages, window) |
 | `presentation` | `{scene?, config?, revision}`? | Look/identity pushed to the field device. `scene` overrides the module-derived scene; `config` is a partial `Config` preset (title, subtitle, identifier, accent, mood, density, format, effects, overlays, sceneOptions, tokens, …; no `mediaIds`/`brand` logo, which stay in the author's browser); `revision` bumps on edit so the device remounts. Absent → scene defaults ([05-modules.md](05-modules.md)) |
 

@@ -1,4 +1,5 @@
 import { sceneIds, type SceneId, type ScenePreset } from "../../../core/config";
+import { deviceSurfaceIds } from "../../../core/devices";
 import type { ScenarioCapabilities } from "../../../core/capabilities";
 import { propKinds, type Scenario, type TrainingStation } from "../../../core/training";
 import { labelFor } from "../../../core/labels";
@@ -335,6 +336,27 @@ export function DeviceInspector({
               >
                 <option value="element">{t("prep.devices.roleField")}</option>
                 <option value="hq">{t("prep.devices.roleHq")}</option>
+              </select>
+            </label>
+
+            <label className="sf-device-field">
+              {t("prep.devices.surface")}
+              <select
+                value={station.surface ?? ""}
+                disabled={readOnly}
+                onChange={(event) =>
+                  onUpdate({
+                    surface: (event.target.value ||
+                      undefined) as TrainingStation["surface"],
+                  })
+                }
+              >
+                <option value="">{t("prep.devices.surfaceAuto")}</option>
+                {deviceSurfaceIds.map((id) => (
+                  <option key={id} value={id}>
+                    {t(`surface.${id}`)}
+                  </option>
+                ))}
               </select>
             </label>
 
