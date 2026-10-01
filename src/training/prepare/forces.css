@@ -185,7 +185,8 @@
   cursor: pointer;
 }
 
-.sf-force-staffing {
+.sf-force-staffing,
+.sf-force-equipment {
   display: grid;
   gap: 4px;
   padding: 8px;
@@ -199,7 +200,8 @@
   color: #8a9aa2;
 }
 
-.sf-force-staffing ul {
+.sf-force-staffing ul,
+.sf-force-equipment ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -208,12 +210,21 @@
   font-size: 12px;
 }
 
-.sf-force-staffing li {
+.sf-force-staffing li,
+.sf-force-equipment li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
+  align-items: center;
 }
 
 .sf-force-staffing b {
   color: #8a9aa2;
+}
+
+.sf-force-equipment select {
+  padding: 3px 6px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
 }

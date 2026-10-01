@@ -220,6 +220,25 @@ export const teamSchema = z.object({
   parentTeamId: z.string().max(40).optional(),
   origin: generatedMetaSchema.optional(),
 });
+// Capability-based equipment (docs/konzept/domain/17-equipment.md). An item may
+// link a physical asset to a ScreenForge device via `linkedDeviceId`.
+export const equipmentItemSchema = z.object({
+  id,
+  packId: z.string().max(40).default(""),
+  name: label,
+  category: z.string().max(40).default(""),
+  quantity: z.number().int().min(1).max(999).default(1),
+  assignedTo: z
+    .object({
+      teamId: z.string().max(40).default(""),
+      personId: z.string().max(40).default(""),
+    })
+    .default({ teamId: "", personId: "" }),
+  required: z.boolean().default(false),
+  status: z.enum(["ready", "limited", "unavailable"]).default("ready"),
+  linkedDeviceId: z.string().max(40).default(""),
+  origin: generatedMetaSchema.optional(),
+});
 export const actorSchema = z.object({
   id,
   name: label,
@@ -343,6 +362,7 @@ const scenarioV2Schema = z
     props: z.array(propSchema).max(40).default([]),
     dossiers: z.array(dossierSchema).max(40).default([]),
     teams: z.array(teamSchema).max(20).default([]),
+    equipment: z.array(equipmentItemSchema).max(200).default([]),
     actors: z.array(actorSchema).max(20).default([]),
     zones: z.array(zoneSchema).max(40).default([]),
     injects: z.array(injectSchema).max(100).default([]),

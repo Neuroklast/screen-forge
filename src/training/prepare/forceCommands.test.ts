@@ -5,7 +5,9 @@ import {
   addParticipant,
   addPatient,
   addTeam,
+  addTeamFromTemplate,
   removeParticipant,
+  removeTeam,
   updateActor,
   updateTeam,
 } from "./forceCommands";
@@ -31,6 +33,26 @@ describe("forceCommands", () => {
     addActor(scenario);
     addPatient(scenario);
     expect(scenario).toEqual(before);
+  });
+
+  it("creates a team from a template with role staffing and equipment", () => {
+    const result = addTeamFromTemplate(blankScenario("custom"), "compact-field");
+    const team = result.scenario.teams[0];
+    expect(team.templateId).toBe("compact-field");
+    expect(team.callsign).toBeTruthy();
+    const staff = result.scenario.stations.filter(
+      (station) => station.team === team.id && station.player,
+    );
+    expect(staff.length).toBeGreaterThanOrEqual(4);
+    const equipment = result.scenario.equipment.filter(
+      (item) => item.assignedTo.teamId === team.id,
+    );
+    expect(equipment.length).toBeGreaterThan(0);
+    // Removing the team unassigns its equipment instead of orphaning it.
+    const removed = removeTeam(result.scenario, team.id);
+    expect(
+      removed.equipment.every((item) => item.assignedTo.teamId === ""),
+    ).toBe(true);
   });
 
   it("updates and removes entities", () => {

@@ -31,6 +31,7 @@
 | 14 | [domain/14-interaction-model.md](domain/14-interaction-model.md) | Tasks, workflows, surfaces, interaction runtime |
 | 15 | [domain/15-scenario-capabilities.md](domain/15-scenario-capabilities.md) | Scenario type, capability matrix, capability validation |
 | 16 | [domain/16-team-templates.md](domain/16-team-templates.md) | Team templates, role catalog, callsigns, scenario identity |
+| 17 | [domain/17-equipment.md](domain/17-equipment.md) | Equipment capability packs, status, device link |
 
 ## Usability concept
 

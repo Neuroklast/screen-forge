@@ -24,6 +24,7 @@ import {
   removePatient,
   removeTeam,
   updateActor,
+  updateEquipment,
   updateParticipant,
   updatePatient,
   updateTeam,
@@ -406,6 +407,47 @@ export function ParticipantsSection({
                               }{" "}
                               / {roleSlot.recommended}
                             </b>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })()}
+                {(() => {
+                  const equipment = draft.equipment.filter(
+                    (item) => item.assignedTo.teamId === selectedTeam.id,
+                  );
+                  if (!equipment.length) return null;
+                  return (
+                    <div className="sf-force-equipment">
+                      <strong>{t("prep.people.equipment")}</strong>
+                      <ul>
+                        {equipment.map((item) => (
+                          <li key={item.id}>
+                            <span>{item.name}</span>
+                            <select
+                              aria-label={`${item.name} ${t("prep.people.equipment")}`}
+                              value={item.status}
+                              disabled={readOnly}
+                              onChange={(event) =>
+                                change(
+                                  updateEquipment(draft, item.id, {
+                                    status: event.target
+                                      .value as typeof item.status,
+                                  }),
+                                )
+                              }
+                            >
+                              <option value="ready">
+                                {t("equipment.status.ready")}
+                              </option>
+                              <option value="limited">
+                                {t("equipment.status.limited")}
+                              </option>
+                              <option value="unavailable">
+                                {t("equipment.status.unavailable")}
+                              </option>
+                            </select>
                           </li>
                         ))}
                       </ul>

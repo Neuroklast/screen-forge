@@ -1,11 +1,13 @@
 import {
   actorSchema,
+  equipmentItemSchema,
   patientSchema,
   stationSchema,
   teamSchema,
   type Scenario,
 } from "../../core/training";
 import { randomCallsignRoot, renderCallsign } from "../../core/callsigns";
+import { equipmentItemsForPacks } from "../../core/equipment";
 import { teamRoleLabel } from "../../core/roles";
 import { teamTemplate } from "../../core/teamTemplates";
 import { t } from "../../i18n";
@@ -71,11 +73,25 @@ export function addTeamFromTemplate(
       );
     }
   }
+  // The template's equipment packs become suggestions assigned to the team.
+  const equipment = equipmentItemsForPacks(template.equipmentPacks ?? []).map(
+    ({ packId, spec }) =>
+      equipmentItemSchema.parse({
+        id: uid("equip"),
+        packId,
+        name: t(spec.nameKey),
+        category: t(spec.categoryKey),
+        quantity: spec.quantity,
+        required: spec.required,
+        assignedTo: { teamId: team.id, personId: "" },
+      }),
+  );
   return {
     scenario: {
       ...scenario,
       teams: [...scenario.teams, team],
       stations: [...scenario.stations, ...stations],
+      equipment: [...scenario.equipment, ...equipment],
     },
     teamId: team.id,
   };
@@ -95,7 +111,29 @@ export function updateTeam(
 }
 
 export function removeTeam(scenario: Scenario, id: string): Scenario {
-  return { ...scenario, teams: scenario.teams.filter((team) => team.id !== id) };
+  return {
+    ...scenario,
+    teams: scenario.teams.filter((team) => team.id !== id),
+    // Referential integrity: equipment assigned to the removed team is unassigned.
+    equipment: scenario.equipment.map((item) =>
+      item.assignedTo.teamId === id
+        ? { ...item, assignedTo: { ...item.assignedTo, teamId: "" } }
+        : item,
+    ),
+  };
+}
+
+export function updateEquipment(
+  scenario: Scenario,
+  id: string,
+  patch: Partial<Scenario["equipment"][number]>,
+): Scenario {
+  return {
+    ...scenario,
+    equipment: scenario.equipment.map((item) =>
+      item.id === id ? { ...item, ...patch } : item,
+    ),
+  };
 }
 
 export function addParticipant(scenario: Scenario): Scenario {

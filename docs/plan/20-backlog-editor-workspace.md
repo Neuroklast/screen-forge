@@ -85,7 +85,8 @@
 | W81 | Fictional callsign scheme/generator + scenario identity generator | done |
 | W82 | Schema: `team.templateId/callsign/parentTeamId`, `station.roleId/qualifications` (additive) | done |
 | W83 | Forces: `"Team aus Vorlage"` picker + staffing inspector | done |
-| W84 | Next: equipment capability packs (capability-based, device link) | todo |
+| W84 | Equipment capability packs (capability-based, template suggestions, status) | done |
+| W88 | Equipment `linkedDeviceId` picker + readiness roll-up + person assignment | todo |
 | W85 | Next: scenario templates with variants (`base + overrides`) | todo |
 | W86 | Next: MSEL event metadata (inject, expected observation, linked objective) | todo |
 | W87 | Next: guided integration (team kind → recommended composition → deviations) | todo |
