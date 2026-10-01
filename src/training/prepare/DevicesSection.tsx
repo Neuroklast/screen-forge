@@ -5,7 +5,6 @@ import type { TrainingStation } from "../../core/training";
 import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
 import { WorkspaceShell } from "../../ui/WorkspaceShell";
-import { Panel } from "../../ui/primitives";
 import type { PrepareSectionProps } from "./shared";
 import { devicePresetsFor, type DevicePreset } from "./devicePresets";
 import { DeviceNavigator } from "./devices/DeviceNavigator";
@@ -248,7 +247,7 @@ export function DevicesSection({
     );
 
   return (
-    <Panel className="prepare sf-device-workspace">
+    <section className="sf-device-workspace">
       <WorkspaceShell
         label={t("prep.devices.workspace")}
         focus={tool === "test"}
@@ -393,6 +392,6 @@ export function DevicesSection({
           ) : undefined
         }
       />
-    </Panel>
+    </section>
   );
 }

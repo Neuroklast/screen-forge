@@ -51,3 +51,14 @@
 | W44 | Pane edge handles; one overlay drawer at a time under 1100px; no persistent text toggles | done |
 | W45 | Language/terminology/density moved into the header `Einstellungen` popover | done |
 | W46 | Status bar shows actionable status only | done |
+
+## App shell simplification (Phase 13)
+
+| id | Task | Status |
+| --- | --- | --- |
+| W50 | Trainer fixed app viewport: chrome + single scrolling body (U9 updated) | done |
+| W51 | `WorkspaceShell` fills its container (`height: 100%`), no viewport arithmetic | done |
+| W52 | Workspace pages edge-to-edge (remove the `Panel` wrapper) | done |
+| W53 | Panes are the only scroll contexts with a visible scrollbar | done |
+| W54 | Phase-based header: undo/redo hidden while running; density summary removed | done |
+| W55 | Next: Mission, Forces and Assets onto the same interaction model (nav/canvas/inspector, no capability matrix, no raw coordinates) | todo |

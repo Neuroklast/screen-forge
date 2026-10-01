@@ -21,6 +21,8 @@ ScreenForge authoring is **workspace-based, not page-based**. Every major editor
 - Optional bottom status/timeline area.
 - Secondary modes are **workspace tools** (tabs), not stacked page panels: the user stays in the same editor.
 - Panes are collapsible; `focus` hides both side panes. Under 1100px the side panes become overlay drawers and the canvas stays visible.
+- The shell fills its container (`height: 100%`) inside a single app body; it never uses viewport arithmetic. A workspace page is edge-to-edge in the body — do not wrap it in a decorative `Panel`.
+- The navigator and inspector are the only scroll contexts inside the shell, and their scrollbar stays visible so content never appears to vanish.
 
 Product principles: [../konzept/usability/13-editor-workspace.md](../konzept/usability/13-editor-workspace.md). Section IA: [../konzept/usability/11-preparation-ia.md](../konzept/usability/11-preparation-ia.md).
 

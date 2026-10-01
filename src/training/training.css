@@ -1,3 +1,6 @@
+/* One fixed app viewport: header + navigation chrome, then a single body region
+   that owns scrolling. The page itself never scrolls, so an editor workspace can
+   fill the remaining space instead of being pushed below the fold. */
 .training-app {
   --train-bg: #0c1117;
   --train-panel: #141d27;
@@ -7,16 +10,28 @@
   --train-accent: #86d9c1;
   background: var(--train-bg);
   color: var(--train-text);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   height: 100dvh;
   min-height: 100dvh;
   padding: 24px;
+  gap: 0;
   font:
     15px/1.5 Inter,
     system-ui,
     sans-serif;
-  overflow: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+}
+.training-chrome {
+  min-width: 0;
+}
+.training-body {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .training-app * {
   box-sizing: border-box;

@@ -79,7 +79,7 @@ export function TrainerView({ room }: { room: string }) {
     [gallery, setGallery] = useState(false),
     [msgTo, setMsgTo] = useState("all"),
     [msgText, setMsgText] = useState("");
-  const { term, density } = useTerminology();
+  const { term } = useTerminology();
   const tab = loc.section;
   const wizard = loc.guidedStep !== undefined;
   const navigate = (next: PreparationLocation, replace = false) => {
@@ -297,6 +297,7 @@ export function TrainerView({ room }: { room: string }) {
   };
   return (
     <main className="training-app">
+      <div className="training-chrome">
       {ex.state.phase === "aborted" && (
         <div className="abort-banner" role="alert">
           {t("common.aborted")}
@@ -325,22 +326,26 @@ export function TrainerView({ room }: { room: string }) {
             <Term id={ex.state.frozen ? "paused" : "running"} />
           </small>
         </div>
-        <Button
-          disabled={!past.length}
-          aria-label={t("common.undo")}
-          title={t("common.undo")}
-          onClick={undo}
-        >
-          ↶
-        </Button>
-        <Button
-          disabled={!future.length}
-          aria-label={t("common.redo")}
-          title={t("common.redo")}
-          onClick={redo}
-        >
-          ↷
-        </Button>
+        {!live && (
+          <>
+            <Button
+              disabled={!past.length}
+              aria-label={t("common.undo")}
+              title={t("common.undo")}
+              onClick={undo}
+            >
+              ↶
+            </Button>
+            <Button
+              disabled={!future.length}
+              aria-label={t("common.redo")}
+              title={t("common.redo")}
+              onClick={redo}
+            >
+              ↷
+            </Button>
+          </>
+        )}
         <Button
           disabled={!ex.online || dirty}
           variant="primary"
@@ -388,24 +393,6 @@ export function TrainerView({ room }: { room: string }) {
         active={tab}
         onSelect={setTab}
       />
-      {density !== "simple" && (
-        <div className="density-detail" aria-label={t("terminology.density")}>
-          <span>
-            {t("trainer.devicesConnected")}: {connected}
-          </span>
-          <span>
-            {t("trainer.hiddenEvents")}: {ex.state.scenario.injects.length}
-          </span>
-          {density === "full" && nextInject && (
-            <span>
-              {t("trainer.nextAction", {
-                name: nextInject.inject.name,
-                seconds: nextInject.at.toFixed(0),
-              })}
-            </span>
-          )}
-        </div>
-      )}
       {message && (
         <p className="notice" role="status">
           {message}
@@ -432,6 +419,8 @@ export function TrainerView({ room }: { room: string }) {
           </button>
         </p>
       )}
+      </div>
+      <div className="training-body">
       {wizard ? (
         <GuidedBuilder
           draft={draft}
@@ -655,6 +644,7 @@ export function TrainerView({ room }: { room: string }) {
           )}
         </>
       )}
+      </div>
     </main>
   );
 }

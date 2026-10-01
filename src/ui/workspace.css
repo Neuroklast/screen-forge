@@ -12,8 +12,8 @@
     var(--ws-inspector, 340px);
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 10px;
-  min-height: 520px;
-  height: min(760px, calc(100dvh - 200px));
+  min-height: 0;
+  height: 100%;
 }
 
 .workspace-shell[data-nav-open="false"] {
@@ -49,15 +49,23 @@
   overflow: hidden;
 }
 
+/* Panes are the only scroll contexts here, and their scrollbar is visible so
+   content never appears to vanish. */
 .workspace-shell-nav,
 .workspace-shell-inspector {
   overflow-y: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
-.workspace-shell-nav::-webkit-scrollbar,
-.workspace-shell-inspector::-webkit-scrollbar {
-  display: none;
+.training-app .workspace-shell-nav::-webkit-scrollbar,
+.training-app .workspace-shell-inspector::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+
+.training-app .workspace-shell-nav::-webkit-scrollbar-thumb,
+.training-app .workspace-shell-inspector::-webkit-scrollbar-thumb {
+  background: #263038;
 }
 
 /* One filling cell: the canvas content owns its own layout. */

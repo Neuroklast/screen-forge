@@ -5,6 +5,8 @@
 
 .sf-device-workspace {
   display: grid;
+  height: 100%;
+  min-height: 0;
 }
 
 /* Toolbar --------------------------------------------------------------- */
