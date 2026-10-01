@@ -177,6 +177,15 @@ test("device assignment links equipment to a participant", async ({ page }) => {
   );
 });
 
+test("mission location is set by clicking the map", async ({ page }) => {
+  await login(page, "prep-map");
+  await page.getByRole("button", { name: "Szenario", exact: true }).click();
+  const readout = page.locator(".location-readout span").first();
+  const before = await readout.textContent();
+  await page.locator(".mission-map").click({ position: { x: 60, y: 60 } });
+  await expect(readout).not.toHaveText(before ?? "");
+});
+
 test("timed event appears on the timeline with a human sentence", async ({
   page,
 }) => {

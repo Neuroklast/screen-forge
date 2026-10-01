@@ -5,6 +5,8 @@ import { addDevice } from "./commands";
 import {
   previewCue,
   previewExercise,
+  previewScenarios,
+  previewStateFor,
   previewStates,
   previewTrainingState,
 } from "./preview";
@@ -70,6 +72,18 @@ describe("preview sandbox", () => {
     expect(
       previewTrainingState(withProp, "ord", "critical").propStates["prop-1"],
     ).toBe("tampered");
+  });
+
+  it("offers surface-specific scenarios before the generic states", () => {
+    const ids = previewScenarios("tracking", undefined).map((row) => row.id);
+    expect(ids[0]).toBe("tracking.signalLost");
+    expect(ids).toContain("normal");
+    expect(previewStateFor("tracking", undefined, "tracking.signalLost")).toBe(
+      "offline",
+    );
+    expect(previewStateFor("tracking", undefined, "normal")).toBe("normal");
+    // Unknown ids fall back to the generic normal state.
+    expect(previewStateFor("terminal", undefined, "bogus")).toBe("normal");
   });
 
   it("exposes an inert exercise value", () => {

@@ -166,3 +166,16 @@ test('instrument module renders as a native field surface, not a scaled stage', 
     await expect(device.locator('.field-native .instrument-frame')).toBeVisible();
   } finally { await ctx.close(); }
 });
+
+test('runtime controls are scoped to the exercise phase', async ({page}) => {
+  await login(page);
+  const reset = page.getByRole('button',{name:'Reset',exact:true});
+  await expect(reset).toBeVisible();
+  const start = page.getByRole('button',{name:'Übung starten',exact:true}).last();
+  await expect(start).toBeEnabled({ timeout: 15000 });
+  await start.click();
+  await expect(
+    page.getByRole('button',{name:'Pausieren',exact:true}),
+  ).toBeVisible({ timeout: 15000 });
+  await expect(reset).toHaveCount(0);
+});

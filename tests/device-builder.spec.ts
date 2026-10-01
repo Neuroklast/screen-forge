@@ -96,3 +96,18 @@ test("device builder: scaled scene preview exposes presentation anchors", async 
   await field.press("Enter");
   await expect(page.locator(".sf-device-preview-stage")).toContainText("RELAY-07");
 });
+
+test("device builder: the visible surface can be chosen under Advanced", async ({
+  page,
+}) => {
+  await login(page, "device-builder-surface");
+  await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await addDevice(page, "Terminal");
+  // The default surface for a terminal is the scene; choosing "Console"
+  // renders the shared device console instead.
+  await page.getByText("Erweitert").click();
+  await page.getByLabel("Oberfläche").selectOption({ label: "Konsole" });
+  await expect(
+    page.locator(".sf-device-preview-stage .training-terminal"),
+  ).toBeVisible();
+});
