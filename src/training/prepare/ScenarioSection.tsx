@@ -2,7 +2,6 @@ import { capabilityKeys, withCapability } from "../../core/capabilities";
 import { labelFor } from "../../core/labels";
 import { scenarioTypes } from "../../core/capabilities";
 import type { Scenario } from "../../core/training";
-import { MissionBuilder } from "../../builder/MissionBuilder";
 import { t } from "../../i18n";
 import { uid, type PrepareSectionProps } from "./shared";
 
@@ -250,11 +249,6 @@ export function ScenarioSection({
         </section>
       )}
 
-      <details className="prepare-advanced">
-        <summary>{t("prep.scenario.advanced")}</summary>
-        <p className="prepare-hint">{t("prep.scenario.advancedHint")}</p>
-        <MissionBuilder draft={draft} change={change} readOnly={readOnly} showFlow={false} />
-      </details>
     </section>
   );
 }

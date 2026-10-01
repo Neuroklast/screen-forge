@@ -54,9 +54,8 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 
 ## Expert mode and legacy
 
-- The legacy canvas (MissionBuilder plan view) stays reachable under Szenario → `"Expertenmodus (Legacy)"` for compatibility only.
-- It is not part of the normal preparation workflow and gets no further UX investment beyond compatibility fixes.
-- Once every capability is editable through the six sections and migrations/tests cover existing scenarios, the legacy preparation view is retired.
+- The legacy preparation canvas (`MissionBuilder` plan view) is **removed from preparation**. Every capability is editable through the six sections (undo/redo, ordnance type and device bindings included); there is no second way to edit scenario topology.
+- `MissionBuilder` survives only as the **demo sandbox builder** (`/?demo=1` → Sandbox), which is an offline showcase, not a preparation surface.
 - The classic form editor is no longer part of the preparation path.
 
 ## Acceptance criteria

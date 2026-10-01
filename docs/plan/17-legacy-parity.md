@@ -28,19 +28,22 @@ as a second mental model.
 | Raw MEL / inject structure | Ablauf → `"Rohdaten"` (collapsed) | — | done |
 | Multi-select / drag binding | — | drag chip → device | optional |
 
-## Exit condition
+## Status
 
-Remove `MissionBuilder`, `WorkflowGraph` and `builder.css` when:
+The legacy **preparation** surface is removed: `ScenarioSection` no longer embeds
+`MissionBuilder`. Preparation parity is complete (undo/redo, ordnance type and
+device bindings all editable in the six sections).
 
-1. ~~Undo/redo exists for preparation edits.~~ Done: `TrainerView` keeps a 50-step
-   draft history with header buttons and Ctrl+Z / Ctrl+Y.
-2. ~~The station role/module/code/duration and prop/ordnance bindings are editable
-   in Geräte.~~ Done (editable); still to verify by an e2e journey, not by
-   inspection.
-3. The demo sandbox no longer imports `MissionBuilder` (route it through the six
-   sections or a read-only plan summary).
+`MissionBuilder`, `WorkflowGraph` and `builder.css` remain in the repo **only as
+the demo sandbox builder** (`DemoHub`). Removing them is a demo-scope decision,
+not a preparation-parity blocker:
 
-Until then the legacy view stays read/write-compatible and gets no new UX.
+- Replace the demo sandbox with a read-only plan summary or a demo-scoped
+  builder, then delete the legacy components; **or**
+- keep them documented as demo-only.
+
+The e2e verification of the Geräte bindings is still pending (run the artifact
+suite).
 
 ## Hard rule
 
