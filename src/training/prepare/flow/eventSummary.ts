@@ -85,6 +85,16 @@ export function eventSummary(
       break;
   }
   const parts = [when, ...event.actions.map((a) => actionSummary(a, draft))];
+  if (event.objective) {
+    const objective = draft.objectives.find(
+      (row) => row.id === event.objective,
+    );
+    parts.push(
+      t("flow.summary.objective", {
+        name: objective?.name ?? event.objective,
+      }),
+    );
+  }
   if (linkedWorkflow)
     parts.push(t("flow.summary.starts", { name: linkedWorkflow.name }));
   return parts.join(" → ");

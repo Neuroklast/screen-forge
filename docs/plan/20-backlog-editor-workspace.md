@@ -89,5 +89,6 @@
 | W88 | Equipment `linkedDeviceId` picker + team readiness roll-up | done |
 | W89 | Equipment person-level assignment + scenario-wide readiness roll-up | todo |
 | W85 | Next: scenario templates with variants (`base + overrides`) | todo |
-| W86 | Next: MSEL event metadata (inject, expected observation, linked objective) | todo |
+| W86 | MSEL event metadata: objective link + editor exposure + summary | done |
+| W90 | MSEL evidence in the AAR/debrief + per-event objective reporting | todo |
 | W87 | Next: guided integration (team kind → recommended composition → deviations) | todo |

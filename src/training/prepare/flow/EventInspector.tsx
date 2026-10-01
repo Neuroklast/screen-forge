@@ -6,8 +6,16 @@ import { EVENT_TRIGGERS, triggerLabel } from "./triggers";
 import { eventSummary } from "./eventSummary";
 import { EventActions } from "./EventActions";
 
+const toLines = (value: string) =>
+  value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 10);
+
 // Humanized event editor: a sentence summary on top, then the trigger
-// configuration; the action list lives in EventActions.
+// configuration; the action list lives in EventActions, and the MSEL metadata
+// (purpose, objective, expected observation, evidence) is behind Advanced.
 export function EventInspector({
   event,
   draft,
@@ -178,6 +186,54 @@ export function EventInspector({
         readOnly={readOnly}
         onChange={(actions) => onChange({ actions })}
       />
+
+      {/* MSEL metadata: why the event exists and what the evaluator watches. */}
+      <details className="prepare-advanced">
+        <summary>{t("flow.mels")}</summary>
+        <label>
+          {t("flow.eventPurpose")}
+          <textarea
+            value={event.purpose}
+            disabled={readOnly}
+            maxLength={300}
+            onChange={(e) => onChange({ purpose: e.target.value })}
+          />
+        </label>
+        <label>
+          {t("flow.eventObjective")}
+          <select
+            aria-label={t("flow.eventObjective")}
+            value={event.objective}
+            disabled={readOnly}
+            onChange={(e) => onChange({ objective: e.target.value })}
+          >
+            <option value="">{t("builder.noneOption")}</option>
+            {draft.objectives.map((objective) => (
+              <option key={objective.id} value={objective.id}>
+                {objective.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {t("flow.eventExpected")}
+          <textarea
+            value={event.expectedOutcome.join("\n")}
+            disabled={readOnly}
+            onChange={(e) =>
+              onChange({ expectedOutcome: toLines(e.target.value) })
+            }
+          />
+        </label>
+        <label>
+          {t("flow.eventEvidence")}
+          <textarea
+            value={event.evidence.join("\n")}
+            disabled={readOnly}
+            onChange={(e) => onChange({ evidence: toLines(e.target.value) })}
+          />
+        </label>
+      </details>
 
       <button className="danger" disabled={readOnly} onClick={onRemove}>
         {t("flow.remove")}

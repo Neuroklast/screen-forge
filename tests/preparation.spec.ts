@@ -300,3 +300,15 @@ test("a team can be created from a template with staffing", async ({ page }) => 
   );
   await expect(page.locator(".sf-force-equipment select").last()).toBeVisible();
 });
+
+test("an event carries MSEL metadata", async ({ page }) => {
+  await login(page, "prep-mels");
+  await page.getByRole("button", { name: "Ablauf", exact: true }).click();
+  await page.getByRole("button", { name: "Zeitpunkt", exact: true }).click();
+  await page.getByText("Auswertung (MSEL)").click();
+  await page.getByLabel("Zweck").fill("Test information handling");
+  await page
+    .getByLabel("Trainingsziel", { exact: true })
+    .selectOption({ index: 1 });
+  await expect(page.locator(".flow-summary")).toContainText("Ziel:");
+});

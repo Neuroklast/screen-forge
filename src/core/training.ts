@@ -303,6 +303,7 @@ export const injectSchema = z.object({
   category: z.enum(injectCategories).default("inject"),
   status: z.enum(injectStatuses).default("planned"),
   purpose: z.string().max(300).default(""),
+  objective: z.string().max(40).default(""),
   expectedOutcome: z.array(z.string().max(120)).max(10).default([]),
   evidence: z.array(z.string().max(80)).max(10).default([]),
   failurePolicy: z.enum(failurePolicies).default("continue"),

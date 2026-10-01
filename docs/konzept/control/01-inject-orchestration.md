@@ -31,6 +31,7 @@ Beyond trigger + action, every MEL entry carries training intent and audit state
 | Field | Purpose |
 | --- | --- |
 | `purpose` | why the inject exists (no decorative injects) |
+| `objective` | the training objective the event serves (links to `objectives[]`) |
 | `expectedOutcome[]` | observable reaction |
 | `evidence[]` | which log event proves the outcome |
 | `failurePolicy` | `continue` / `degrade` / `hold` / `branch` / `trainerDecision` |
@@ -46,6 +47,7 @@ Beyond trigger + action, every MEL entry carries training intent and audit state
 | `status` | `planned` / `held` / `armed` / `fired` / `skipped` / `expired` / `replaced` |
 | `revision` | live-edit conflict control |
 
+- The event editor exposes `purpose`, `objective`, `expectedOutcome` and `evidence` under `"Auswertung (MSEL)"`; the linked objective is named in the event summary (`"… → Ziel: …"`), so the "why" is visible without opening Advanced.
 - Inject classes group the palette: Information, Communications, Resource, Human, Environment, Authority, Safety, Evaluation.
 - A reschedule is a command, not a field overwrite: `MSEL_RESCHEDULED { entryId, from, to, actor, reason, revision }`.
 - A fired inject is never "withdrawn" by moving its time; a new controller event is created instead.
