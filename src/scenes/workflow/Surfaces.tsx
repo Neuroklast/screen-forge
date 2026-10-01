@@ -207,6 +207,13 @@ function ConfirmSurface({
       >
         CONFIRM
       </button>
+      <button
+        className="wf-submit wf-wide is-secondary"
+        disabled={disabled}
+        onClick={() => onInput("failure")}
+      >
+        DECLINE
+      </button>
       <p className="wf-feedback" role="status">
         AWAITING CONFIRMATION
       </p>

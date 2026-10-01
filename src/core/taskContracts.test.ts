@@ -156,6 +156,40 @@ describe("task completion advances on the right port", () => {
     ).toBe("failure");
   });
 
+  it("every task that declares a failure port takes it", () => {
+    for (const block of taskBlocks()) {
+      if (!taskBlockPortsFor(block.type, configFor(block.type)).includes("failure"))
+        continue;
+      const workflow = buildWorkflow(block.type);
+      const events = evaluateWorkflow(
+        workflow,
+        instanceFor(workflow),
+        { type: "interaction", value: "failure" },
+        1,
+        "7392",
+      );
+      expect(outputOf(events), block.type).toBe("failure");
+    }
+  });
+
+  it("confirm follows success and failure separately", () => {
+    const workflow = buildWorkflow("confirm");
+    const success = evaluateWorkflow(
+      workflow,
+      instanceFor(workflow),
+      { type: "interaction", value: "confirm" },
+      1,
+    );
+    const failure = evaluateWorkflow(
+      workflow,
+      instanceFor(workflow),
+      { type: "interaction", value: "failure" },
+      1,
+    );
+    expect(outputOf(success)).toBe("success");
+    expect(outputOf(failure)).toBe("failure");
+  });
+
   it("choice ignores an unknown option instead of taking a wrong branch", () => {
     const workflow = buildWorkflow("choice");
     const events = evaluateWorkflow(

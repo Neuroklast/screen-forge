@@ -496,7 +496,9 @@ function taskOutput(
     const options = (parsed.data as { options: { id: string }[] }).options;
     return options.some((option) => option.id === value) ? value : null;
   }
-  if (node.task === "countdown")
+  // Any task that declares a `failure` port takes it on an explicit failure
+  // input; tasks without one always succeed.
+  if (taskBlockPortsFor(node.task, node.config).includes("failure"))
     return value === "failure" ? "failure" : "success";
   return "success";
 }

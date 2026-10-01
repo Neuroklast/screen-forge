@@ -58,7 +58,8 @@ Edge     { id, source, output, target }
 - A command for a node that is no longer active is rejected, never applied late.
 - Failure philosophy: a wrong input yields a new state (retry, counter, lockout, fallback), never a game-over.
 - A completed workflow is observable: injects MAY trigger on workflow events, workflows MAY react to inject and prop events.
-- **Completing a task advances to the next node on the task's output.** The interpreter maps the result to a port — a `code-entry` (keypad) yields `success`/`failure`, a `choice` yields the selected option id, a `countdown` deadline yields `success`/`failure`, prop tasks yield `out`/`success` — and follows the matching edge, then settles automatic nodes until the next waiting task. The surface shows the failure feedback from `instance.lastResult` and re-renders the new active task.
+- **Completing a task advances to the next node on the task's output.** The interpreter maps the result to a port — a `code-entry` (keypad) yields `success`/`failure`, a `choice` yields the selected option id, prop tasks yield `out`/`success` — and follows the matching edge, then settles automatic nodes until the next waiting task. The surface shows the failure feedback from `instance.lastResult` and re-renders the new active task.
+- **A declared `failure` port is always reachable.** Any task whose ports include `failure` takes it on an explicit failure input (`"failure"`); `confirm` surfaces expose both a primary `CONFIRM` and a secondary `DECLINE`. A task without a failure port always succeeds. The `failure` port of `confirm`/`medical`/`camera`/`tracking`/`hacking` is therefore live, not decorative.
 - **Every element is fully configurable.** The node inspector edits the node name for every type, and every task field (including the enum fields `difficulty`, `failurePolicy`, `assessment`, `feed`) is a typed control; no task schema field is hidden from the editor.
 
 ## Injects vs. workflows

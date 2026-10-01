@@ -245,3 +245,11 @@
   font-size: var(--sf-type-10px);
   opacity: 0.75;
 }
+
+/* Secondary action (e.g. decline a confirmation) stays visually quieter than the
+   primary submit. */
+.wf-submit.is-secondary {
+  background: transparent;
+  border-color: #2b3947;
+  color: #9bafbe;
+}
