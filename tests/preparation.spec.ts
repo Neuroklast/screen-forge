@@ -312,3 +312,21 @@ test("an event carries MSEL metadata", async ({ page }) => {
     .selectOption({ index: 1 });
   await expect(page.locator(".flow-summary")).toContainText("Ziel:");
 });
+
+test("a template variant loads its overrides onto the base", async ({ page }) => {
+  await login(page, "prep-variant");
+  await page.getByRole("button", { name: "Vorlage laden" }).click();
+  const card = page
+    .locator(".gallery-card")
+    .filter({ hasText: "Search & Rescue" });
+  // The variant keeps the base laydown but overrides the name and adds an
+  // objective + inject (id-keyed merge).
+  await card.getByRole("button", { name: "Comms degraded" }).click();
+  await expect(page.getByLabel("Szenarioname", { exact: true })).toHaveValue(
+    "Search & Rescue — Comms degraded",
+  );
+  await page.getByRole("button", { name: "Ablauf", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: /Radio link drops/ }),
+  ).toBeVisible();
+});

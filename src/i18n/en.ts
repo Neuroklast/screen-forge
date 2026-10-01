@@ -194,6 +194,7 @@ export const en: Record<string, string> = {
   "gallery.any": "any",
   "gallery.meta": "{count} devices · {duration} min · level {level}",
   "gallery.load": "Load",
+  "gallery.variants": "Variants",
   "gallery.empty": "No template matches the filters.",
 
   "patient.findings": "Findings",

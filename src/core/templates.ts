@@ -28,6 +28,18 @@ const build = (name: string, patch: Record<string, unknown>): Scenario =>
 // a low-level default factory (used by `newState`), not a second catalog.
 export type MissionCategory = "starter" | "airsoft" | "film" | "professional";
 
+// A patch may name any scenario field. Entity arrays accept partial entities
+// because `scenarioSchema.parse` fills the defaults on apply.
+type EntityPatch<T> = T extends Array<infer E> ? Partial<E>[] : T;
+export type ScenarioPatch = { [K in keyof Scenario]?: EntityPatch<Scenario[K]> };
+
+export type MissionVariant = {
+  id: string;
+  name: string;
+  summary: string;
+  patch: ScenarioPatch;
+};
+
 export type MissionTemplate = {
   id: string;
   name: string;
@@ -36,7 +48,53 @@ export type MissionTemplate = {
   difficulty: 1 | 2 | 3;
   durationMin: number;
   scenario: Scenario;
+  variants?: MissionVariant[];
 };
+
+// Scenario fields that hold id-keyed entity lists; a variant merges these by id.
+const ENTITY_KEYS = new Set([
+  "stations",
+  "patients",
+  "props",
+  "dossiers",
+  "teams",
+  "actors",
+  "zones",
+  "injects",
+  "objectives",
+  "equipment",
+]);
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+// A variant is a base scenario plus overrides. Id-keyed entity arrays merge by
+// id (an existing id is replaced, a new id is appended); nested objects merge
+// shallowly; scalars replace. Nothing is ever deleted, so a variant can only
+// add or refine — never silently drop base content.
+export function applyVariant(base: Scenario, variant: MissionVariant): Scenario {
+  const merged: Record<string, unknown> = { ...base };
+  for (const [key, value] of Object.entries(variant.patch)) {
+    if (value === undefined) continue;
+    const current = merged[key];
+    if (
+      ENTITY_KEYS.has(key) &&
+      Array.isArray(value) &&
+      Array.isArray(current)
+    ) {
+      const byId = new Map<string, unknown>();
+      for (const item of current)
+        byId.set((item as { id: string }).id, item);
+      for (const item of value) byId.set((item as { id: string }).id, item);
+      merged[key] = [...byId.values()];
+    } else if (isPlainObject(value) && isPlainObject(current)) {
+      merged[key] = { ...current, ...value };
+    } else {
+      merged[key] = value;
+    }
+  }
+  return scenarioSchema.parse(merged);
+}
 
 export const missionTemplates: MissionTemplate[] = [
   {
@@ -189,6 +247,56 @@ export const missionTemplates: MissionTemplate[] = [
     difficulty: 2,
     durationMin: 30,
     scenario: template("sar"),
+    variants: [
+      {
+        id: "night",
+        name: "Night operation",
+        summary: "Same laydown, different seed and a tighter search sector.",
+        patch: {
+          name: "Search & Rescue — Night",
+          seed: 7331,
+          zones: [
+            {
+              id: "zone-1",
+              name: "Search sector (night)",
+              lat: 51.233,
+              lng: 6.786,
+              radius: 60,
+            },
+          ],
+        },
+      },
+      {
+        id: "comms-degraded",
+        name: "Comms degraded",
+        summary: "Adds a radio failure and a reporting objective.",
+        patch: {
+          name: "Search & Rescue — Comms degraded",
+          objectives: [
+            { id: "objective-2", name: "Maintain reporting without radio" },
+          ],
+          injects: [
+            {
+              id: "rule-2",
+              name: "Radio link drops after 2 minutes",
+              trigger: "timer",
+              at: 120,
+              station: "hq",
+              actions: [
+                {
+                  type: "message",
+                  text: "Radio link degraded — switch to runner",
+                },
+              ],
+              purpose: "Force fallback communication",
+              objective: "objective-2",
+              expectedOutcome: ["runner used within 90 s"],
+              evidence: ["radio failure logged"],
+            },
+          ],
+        },
+      },
+    ],
   },
   {
     id: "medical-emergency",
@@ -213,6 +321,31 @@ export const missionTemplates: MissionTemplate[] = [
       patients: [{ id: "patient-1", name: "Patient 01", kind: "trauma", since: 0 }],
       objectives: [{ id: "obj-1", name: "Treat patient" }],
     }),
+    variants: [
+      {
+        id: "deterioration",
+        name: "Patient deteriorates",
+        summary: "Adds a timed deterioration inject linked to the objective.",
+        patch: {
+          name: "Medical Emergency — Deterioration",
+          injects: [
+            {
+              id: "rule-1",
+              name: "Condition worsens after 2 minutes",
+              trigger: "timer",
+              at: 120,
+              station: "med-1",
+              unless: "treated",
+              actions: [{ type: "patient", target: "patient-1", kind: "desat" }],
+              purpose: "Drive timely intervention",
+              objective: "obj-1",
+              expectedOutcome: ["intervention within 60 s"],
+              evidence: ["patient status change logged"],
+            },
+          ],
+        },
+      },
+    ],
   },
   {
     id: "access-lockdown",
@@ -235,6 +368,26 @@ export const missionTemplates: MissionTemplate[] = [
         { id: "obj-2", name: "Secure area" },
       ],
     }),
+    variants: [
+      {
+        id: "second-perimeter",
+        name: "Second perimeter",
+        summary: "Adds an outer zone and a containment objective.",
+        patch: {
+          name: "Access & Lockdown — Second perimeter",
+          zones: [
+            {
+              id: "zone-2",
+              name: "Outer perimeter",
+              lat: 51.236,
+              lng: 6.79,
+              radius: 90,
+            },
+          ],
+          objectives: [{ id: "obj-3", name: "Hold outer perimeter" }],
+        },
+      },
+    ],
   },
   {
     id: "milsim-skirmish",

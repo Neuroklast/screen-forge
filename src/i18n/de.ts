@@ -196,6 +196,7 @@ export const de: Record<string, string> = {
   "gallery.any": "egal",
   "gallery.meta": "{count} Geräte · {duration} min · Level {level}",
   "gallery.load": "Laden",
+  "gallery.variants": "Varianten",
   "gallery.empty": "Keine Vorlage passt zu den Filtern.",
 
   "patient.findings": "Befund",

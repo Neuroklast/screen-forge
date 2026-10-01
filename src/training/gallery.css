@@ -80,13 +80,37 @@
   color: #4f6570 !important;
 }
 
-.gallery-card button {
+.gallery-card > button {
   margin-top: auto;
   padding: 7px;
   border: 1px solid #80dce5;
   border-radius: 0;
   background: transparent;
   color: #80dce5;
+  cursor: pointer;
+}
+
+.gallery-variants {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.gallery-variants span {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f6570;
+}
+
+.gallery-variants button {
+  padding: 3px 8px;
+  border: 1px solid #1e2a33;
+  border-radius: 0;
+  background: #0a1016;
+  color: #d6e2e5;
+  font-size: 11px;
   cursor: pointer;
 }
 

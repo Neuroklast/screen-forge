@@ -91,9 +91,8 @@ All fields are optional, so existing scenarios parse unchanged.
 
 ## 7. Planned (not yet implemented)
 
-- **Equipment capability packs**: capability-based (`communications`, `medical`, `navigation`, …) rather than per-person item lists, with `assignedTo`, `status` and `linkedDeviceId` linking a physical asset to a ScreenForge device.
-- **Scenario templates** with `intent`, `environment`, `organization`, `assets`, `scenario`, `flow`, `evaluation`, `control`, `review`, `defaults` and **variants** (`base + variant overrides`).
-- **MSEL events** carrying `event`, `inject`, `expected observation` and `linked training objective`.
+- **Equipment**: capability packs, `status` and `linkedDeviceId` (physical asset → ScreenForge device) and the team readiness roll-up are implemented; still open are person-level assignment (`assignedTo`) and a scenario-wide readiness roll-up.
+- **Scenario templates** with `intent`, `environment`, `organization`, `assets`, `scenario`, `flow`, `evaluation`, `control`, `review`, `defaults`. Variants are implemented as `base + overrides`: a `MissionVariant` carries a `ScenarioPatch`, `applyVariant(base, variant)` merges id-keyed entity arrays by id (replace existing, append new), merges nested objects shallowly and replaces scalars, then re-parses through `scenarioSchema`; nothing is ever deleted. The gallery lists each variant under its base card. Full sectioned templates remain open.
 - **Guided integration**: ask for the team kind, offer the recommended composition, then only ask about deviations.
 
 ## Acceptance criteria

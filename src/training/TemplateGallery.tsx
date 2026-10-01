@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { missionTemplates } from "../core/templates";
+import { applyVariant, missionTemplates } from "../core/templates";
 import type { Scenario } from "../core/training";
 import { t } from "../i18n";
 import "./gallery.css";
@@ -64,6 +64,20 @@ export function TemplateGallery({
             <button onClick={() => onSelect(structuredClone(tpl.scenario))}>
               {t("gallery.load")}
             </button>
+            {tpl.variants?.length ? (
+              <div className="gallery-variants">
+                <span>{t("gallery.variants")}</span>
+                {tpl.variants.map((variant) => (
+                  <button
+                    key={variant.id}
+                    title={variant.summary}
+                    onClick={() => onSelect(applyVariant(tpl.scenario, variant))}
+                  >
+                    {variant.name}
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </article>
         ))}
         {!list.length && (
