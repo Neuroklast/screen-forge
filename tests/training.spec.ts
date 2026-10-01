@@ -5,8 +5,8 @@ async function login(page: Page) {
 }
 async function assign(page: Page, browser: Browser, name: string) {
   await page.getByRole('button',{name:'Geräte',exact:true}).click();
-  // Provisioning is a secondary workspace tool, not persistent page content.
-  await page.getByRole('tab',{name:'Bereitstellen',exact:true}).click();
+  // Provisioning is a context action, not persistent page content.
+  await page.getByRole('button',{name:'Geräte verbinden',exact:true}).click();
   const card = page.locator('.device-card').filter({has: page.getByRole('heading',{name,exact:true})});
   await card.getByRole('button',{name:'QR-Code anzeigen'}).click();
   await expect(page.locator('.qr-panel h3')).toHaveText(name);

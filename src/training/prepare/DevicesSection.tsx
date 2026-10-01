@@ -48,8 +48,10 @@ type DevicesSectionProps = PrepareSectionProps & {
   onNotice: (message: string) => void;
 };
 
-type WorkspaceTool = "build" | "provision" | "test";
-const TOOLS: WorkspaceTool[] = ["build", "provision", "test"];
+// Two modes, not three tabs: EDIT the interface, INTERACT with it. Connecting is
+// a context action that opens the provisioning tool over the canvas.
+type WorkspaceTool = "edit" | "interact";
+const TOOLS: WorkspaceTool[] = ["edit", "interact"];
 
 // Devices: one persistent workspace. Structure in the navigator (devices, props),
 // work in the canvas (live preview / provisioning), properties in the contextual
@@ -75,7 +77,8 @@ export function DevicesSection({
     draft.stations[0] ? { kind: "device", id: draft.stations[0].id } : null,
   );
   const [preview, setPreview] = useState<PreviewState>("normal");
-  const [tool, setTool] = useState<WorkspaceTool>("build");
+  const [tool, setTool] = useState<WorkspaceTool>("edit");
+  const [connect, setConnect] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [addMore, setAddMore] = useState(false);
   const presets = devicePresetsFor(caps);
@@ -184,19 +187,26 @@ export function DevicesSection({
     : undefined;
 
   const canvas =
-    tool === "provision" ? (
-      <ProvisioningPanel
-        draft={draft}
-        presence={presence}
-        online={online}
-        invitation={invitation}
-        onProvision={onProvision}
-        onRevoke={onRevoke}
-        publicOrigin={publicOrigin}
-        setPublicOrigin={setPublicOrigin}
-        invitationUrl={invitationUrl}
-        onNotice={onNotice}
-      />
+    connect ? (
+      <div className="sf-device-connect">
+        <div className="sf-device-connect-head">
+          <button type="button" onClick={() => setConnect(false)}>
+            {t("common.close")}
+          </button>
+        </div>
+        <ProvisioningPanel
+          draft={draft}
+          presence={presence}
+          online={online}
+          invitation={invitation}
+          onProvision={onProvision}
+          onRevoke={onRevoke}
+          publicOrigin={publicOrigin}
+          setPublicOrigin={setPublicOrigin}
+          invitationUrl={invitationUrl}
+          onNotice={onNotice}
+        />
+      </div>
     ) : canvasStation ? (
       <DevicePreview
         station={canvasStation}
@@ -256,7 +266,7 @@ export function DevicesSection({
     <section className="sf-device-workspace">
       <WorkspaceShell
         label={t("prep.devices.workspace")}
-        focus={tool === "test"}
+        focus={tool === "interact" && !connect}
         toolbar={
           <div className="sf-device-toolbar">
             <h2>
@@ -316,16 +326,26 @@ export function DevicesSection({
                   key={id}
                   type="button"
                   role="tab"
-                  aria-selected={tool === id}
-                  className={tool === id ? "active" : ""}
-                  onClick={() => setTool(id)}
+                  aria-selected={tool === id && !connect}
+                  className={tool === id && !connect ? "active" : ""}
+                  onClick={() => {
+                    setConnect(false);
+                    setTool(id);
+                  }}
                 >
                   {t(`prep.devices.tool.${id}`)}
                 </button>
               ))}
+              <button
+                type="button"
+                className={connect ? "active" : ""}
+                onClick={() => setConnect(true)}
+              >
+                {t("prep.devices.connect")}
+              </button>
             </div>
             <span className="sf-device-toolbar-spacer" />
-            {tool !== "provision" && (
+            {tool === "edit" && !connect && (
               <div className="sf-device-preview-controls">
                 <div
                   className="sf-device-preview-states"

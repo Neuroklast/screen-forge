@@ -460,7 +460,28 @@
   color: #e8b563;
 }
 
-/* Provision tool -------------------------------------------------------- */
+/* Connect (provisioning) tool ------------------------------------------- */
+.sf-device-connect {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.sf-device-connect-head {
+  display: grid;
+  justify-content: end;
+  padding: 6px;
+  border-bottom: 1px solid #1e2a33;
+}
+
+.sf-device-connect-head button {
+  padding: 4px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  cursor: pointer;
+}
+
 .sf-device-provision {
   display: grid;
   gap: 10px;
