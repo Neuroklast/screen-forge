@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTraining } from "../core/useExercise";
 import type { Position } from "../core/training";
+import { t } from "../i18n";
 export function DeviceTools() {
   const ex = useTraining(),
     [tracking, setTracking] = useState(false),
@@ -21,7 +22,7 @@ export function DeviceTools() {
   useEffect(() => {
     if (!tracking || ex.state.scenario.mode !== "LIVE") return;
     if (!navigator.geolocation || !isSecureContext) {
-      setNotice("GPS requires HTTPS and location permission.");
+      setNotice(t("device.gpsRequires"));
       setTracking(false);
       return;
     }
@@ -77,7 +78,7 @@ export function DeviceTools() {
         if (stopped) await acquired.release();
         else lock = acquired;
       } catch {
-        setNotice("Screen wake lock is not allowed on this device.");
+        setNotice(t("device.wakeNotAllowed"));
       }
     };
     void acquire();
@@ -90,7 +91,9 @@ export function DeviceTools() {
   }, [awake]);
   return (
     <details className="device-tools">
-      <summary>Device · {ex.online ? "online" : "offline"}</summary>
+      <summary>
+        {t("field.device")} · {ex.online ? t("field.online") : t("field.offline")}
+      </summary>
       <div>
         {st?.player && ex.state.scenario.mode === "LIVE" && (
           <button
@@ -107,34 +110,30 @@ export function DeviceTools() {
               setNotice("");
             }}
           >
-            {tracking ? "Stop sharing location" : "Share location"}
+            {tracking ? t("device.stopSharing") : t("device.shareLocation")}
           </button>
         )}
         <button
           onClick={() => {
-            if (!navigator.wakeLock) setNotice("Wake lock not available.");
+            if (!navigator.wakeLock) setNotice(t("device.wakeUnavailable"));
             else setAwake(!awake);
           }}
         >
-          {awake ? "Display normal" : "Keep display awake"}
+          {awake ? t("device.displayNormal") : t("device.keepAwake")}
         </button>
         <button
           onClick={() =>
             void document.documentElement
               .requestFullscreen?.()
-              .catch(() => setNotice("Fullscreen not available."))
+              .catch(() => setNotice(t("device.fullscreenUnavailable")))
           }
         >
-          Fullscreen
+          {t("device.fullscreen")}
         </button>
-        <p>
-          GPS is only reliable while the app is active. To lock the device use
-          Guided Access (iOS) or the operating system kiosk mode.
-          
-        </p>
+        <p>{t("device.gpsNote")}</p>
         {notice && <p role="status">{notice}</p>}
         <button onClick={() => ex.logout()}>
-          Remove assignment on this device
+          {t("device.removeAssignment")}
         </button>
       </div>
     </details>

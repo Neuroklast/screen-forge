@@ -4,6 +4,7 @@ import { scenarioTypes } from "../../core/capabilities";
 import type { Scenario } from "../../core/training";
 import { t } from "../../i18n";
 import { uid, type PrepareSectionProps } from "./shared";
+import { Panel } from "../../ui/primitives";
 
 // Scenario: identity, type, capability switches, terrain, zones and objectives.
 // The raw canvas lives behind the collapsed expert mode.
@@ -15,7 +16,7 @@ export function ScenarioSection({
 }: PrepareSectionProps) {
   const patch = (s: Partial<Scenario>) => change({ ...draft, ...s });
   return (
-    <section className="panel prepare">
+    <Panel className="prepare">
       <h2>{t("prep.tab.scenario")}</h2>
       <div className="form-grid">
         <label>
@@ -249,6 +250,6 @@ export function ScenarioSection({
         </section>
       )}
 
-    </section>
+    </Panel>
   );
 }

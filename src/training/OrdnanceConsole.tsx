@@ -5,14 +5,14 @@ import { resolveOrdnanceType } from "../core/ordnance";
 import { t } from "../i18n";
 import "./device.css";
 
-// Element content is English by contract. The stage list and failure modes come
-// from the mission's ordnance catalogue entry, so the console stays in sync with
-// the data sheet.
-const FALLBACK_STAGES = [
-  "Inspect casing",
-  "Read diagnostics",
-  "Set bypass",
-  "Disarm",
+// The stage list and failure modes come from the mission's ordnance catalogue
+// entry, so the console stays in sync with the data sheet. The fallback stages
+// are localized chrome.
+const FALLBACK_STAGE_KEYS = [
+  "ordnance.stage.casing",
+  "ordnance.stage.diagnostics",
+  "ordnance.stage.bypass",
+  "ordnance.stage.disarm",
 ];
 
 export function OrdnanceConsole({ station }: { station: TrainingStation }) {
@@ -24,7 +24,7 @@ export function OrdnanceConsole({ station }: { station: TrainingStation }) {
     prop?.ordnanceId || "",
     ex.state.scenario.ordnanceTypes,
   );
-  const stages = entry?.stages ?? FALLBACK_STAGES;
+  const stages = entry?.stages ?? FALLBACK_STAGE_KEYS.map((key) => t(key));
   const [step, setStep] = useState(0);
   const [methodId, setMethodId] = useState(entry?.methods[0]?.id ?? "");
   const method = entry?.methods.find((m) => m.id === methodId);

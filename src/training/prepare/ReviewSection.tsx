@@ -2,6 +2,7 @@ import { findingCounts, lintMission } from "../../core/missionLint";
 import { briefingFilename, missionBriefing } from "../../core/briefing";
 import { t } from "../../i18n";
 import type { PrepareSectionProps } from "./shared";
+import { Panel } from "../../ui/primitives";
 
 const SECTION_OF: Record<string, string> = {
   stations: "devices",
@@ -76,7 +77,7 @@ export function ReviewSection({
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   return (
-    <section className="panel prepare">
+    <Panel className="prepare">
       <h2>{t("prep.tab.review")}</h2>
 
       <section className="prepare-block">
@@ -167,6 +168,6 @@ export function ReviewSection({
           </button>
         </div>
       </section>
-    </section>
+    </Panel>
   );
 }

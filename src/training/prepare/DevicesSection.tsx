@@ -12,6 +12,7 @@ import { t } from "../../i18n";
 import { PresentationFields } from "../PresentationFields";
 import { devicePresets, devicePresetsFor, presetLabel } from "./devicePresets";
 import { buildDevice, uid, type PrepareSectionProps } from "./shared";
+import { Panel } from "../../ui/primitives";
 
 const CODE_MODULES = ["countdown", "access", "lock", "terminal"];
 
@@ -125,7 +126,7 @@ export function DevicesSection({
     });
 
   return (
-    <section className="panel prepare">
+    <Panel className="prepare">
       <h2>{t("prep.tab.devices")}</h2>
 
       <section className="prepare-block">
@@ -626,6 +627,6 @@ export function DevicesSection({
           </section>
         )}
       </details>
-    </section>
+    </Panel>
   );
 }

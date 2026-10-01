@@ -4,6 +4,7 @@ import { nextIncomplete, prepareReadiness } from "../../core/readiness";
 import { t } from "../../i18n";
 import { TacticalMap } from "../TacticalMap";
 import type { PrepareSectionProps } from "./shared";
+import { Panel } from "../../ui/primitives";
 
 // Overview: status, entry actions and readiness. No domain editing lives here.
 export function OverviewSection({
@@ -36,7 +37,7 @@ export function OverviewSection({
   };
   const fileRef = useRef<HTMLInputElement>(null);
   return (
-    <section className="panel prepare">
+    <Panel className="prepare">
       <span className="eyebrow">{t("prep.overview.eyebrow")}</span>
       <h2>{t("prep.overview.title")}</h2>
       <div className="template-grid">
@@ -145,6 +146,6 @@ export function OverviewSection({
           </button>
         </section>
       </div>
-    </section>
+    </Panel>
   );
 }

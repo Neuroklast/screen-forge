@@ -20,7 +20,7 @@ import { DevicesSection } from "../training/prepare/DevicesSection";
 import { FlowSection } from "../training/prepare/FlowSection";
 import { ReviewSection } from "../training/prepare/ReviewSection";
 import { t } from "../i18n";
-import { Tabs } from "../ui/primitives";
+import { Button, Tabs } from "../ui/primitives";
 import "../training/roles.css";
 import "../training/prepare/prepare.css";
 
@@ -316,25 +316,25 @@ export function TrainerView({ room }: { room: string }) {
             .padStart(2, "0")}
           <small>{t(ex.state.frozen ? "common.paused" : "trainer.running")}</small>
         </div>
-        <button
+        <Button
           disabled={!past.length}
           aria-label={t("common.undo")}
           title={t("common.undo")}
           onClick={undo}
         >
           ↶
-        </button>
-        <button
+        </Button>
+        <Button
           disabled={!future.length}
           aria-label={t("common.redo")}
           title={t("common.redo")}
           onClick={redo}
         >
           ↷
-        </button>
-        <button
+        </Button>
+        <Button
           disabled={!ex.online || dirty}
-          className="primary"
+          variant="primary"
           onClick={() =>
             ex.send({
               type: "transport",
@@ -343,8 +343,8 @@ export function TrainerView({ room }: { room: string }) {
           }
         >
           {t(ex.state.frozen ? "trainer.start" : "trainer.pause")}
-        </button>
-        <button
+        </Button>
+        <Button
           disabled={!ex.online}
           onClick={() => {
             if (confirm(t("trainer.resetConfirm")))
@@ -352,14 +352,14 @@ export function TrainerView({ room }: { room: string }) {
           }}
         >
           {t("trainer.reset")}
-        </button>
-        <button
-          className="danger"
+        </Button>
+        <Button
+          variant="danger"
           disabled={!ex.online || ex.state.phase === "aborted"}
           onClick={() => ex.send({ type: "abort" })}
         >
           {t("trainer.abort")}
-        </button>
+        </Button>
       </header>
       <Tabs
         items={(live

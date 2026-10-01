@@ -12,6 +12,7 @@ import {
 import { type Workflow } from "../../core/workflow";
 import { t } from "../../i18n";
 import { uid, type PrepareSectionProps } from "./shared";
+import { Panel } from "../../ui/primitives";
 import { FlowPalette, type AdvancedNodeType } from "./flow/FlowPalette";
 import { FlowTimeline } from "./flow/FlowTimeline";
 import { FlowInspector } from "./flow/FlowInspector";
@@ -127,7 +128,7 @@ export function FlowSection({
   };
 
   return (
-    <section className="panel prepare">
+    <Panel className="prepare">
       <h2>{t("prep.tab.flow")}</h2>
       <div className="flow-workspace">
         <FlowPalette
@@ -192,6 +193,6 @@ export function FlowSection({
           onDeleteEvent={deleteEvent}
         />
       </div>
-    </section>
+    </Panel>
   );
 }

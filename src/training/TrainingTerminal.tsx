@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTraining } from "../core/useExercise";
 import type { TrainingStation } from "../core/training";
 import { Timer } from "../components/Timer";
+import { t } from "../i18n";
 export function TrainingTerminal({
   station: st,
 }: {
@@ -17,15 +18,15 @@ export function TrainingTerminal({
   return (
     <section className="training-terminal">
       <header>
-        <span>MAINTENANCE / {st.id.toUpperCase()}</span>
+        <span>{t("terminal.header", { id: st.id.toUpperCase() })}</span>
         <b>
           {done
-            ? "ISOLATED"
+            ? t("terminal.state.isolated")
             : expired
-              ? "TIME EXPIRED"
+              ? t("terminal.state.expired")
               : ex.state.frozen
-                ? "STANDBY"
-                : "ACTIVE"}
+                ? t("terminal.state.standby")
+                : t("terminal.state.active")}
         </b>
       </header>
       <h1>{st.name}</h1>
@@ -37,30 +38,30 @@ export function TrainingTerminal({
         />
       )}
       <nav className="tab-bar">
-        <button onClick={() => setTab("status")}>STATUS</button>
-        <button onClick={() => setTab("diagnostics")}>DIAGNOSTICS</button>
-        <button onClick={() => setTab("isolation")}>ISOLATION</button>
+        <button onClick={() => setTab("status")}>{t("terminal.status")}</button>
+        <button onClick={() => setTab("diagnostics")}>
+          {t("terminal.diagnostics")}
+        </button>
+        <button onClick={() => setTab("isolation")}>
+          {t("terminal.isolation")}
+        </button>
       </nav>
       {tab === "status" && (
         <>
-          <h2>Service isolation required</h2>
-          <p>
-            Read the active shunt identifier in the current diagnostics report.
-            Enter that identifier in the isolation panel. Archived references
-            are invalid.
-          </p>
+          <h2>{t("terminal.serviceIsolation")}</h2>
+          <p>{t("terminal.instructions")}</p>
           <dl>
             <div>
-              <dt>Control source</dt>
-              <dd>EXERCISE SERVER</dd>
+              <dt>{t("terminal.controlSource")}</dt>
+              <dd>{t("terminal.exerciseServer")}</dd>
             </div>
             <div>
-              <dt>Interlock</dt>
-              <dd>{done ? "RELEASED" : "ENGAGED"}</dd>
+              <dt>{t("terminal.interlock")}</dt>
+              <dd>{done ? t("terminal.released") : t("terminal.engaged")}</dd>
             </div>
             <div>
-              <dt>Diagnostic report</dt>
-              <dd>{report ? "READ" : "NOT LOADED"}</dd>
+              <dt>{t("terminal.diagnosticReport")}</dt>
+              <dd>{report ? t("terminal.read") : t("terminal.notLoaded")}</dd>
             </div>
           </dl>
         </>
@@ -71,22 +72,22 @@ export function TrainingTerminal({
             disabled={!ex.online}
             onClick={() => ex.send({ type: "diagnostic" })}
           >
-            Read current diagnostics
+            {t("terminal.readDiagnostics")}
           </button>
           {report && (
             <table>
-              <caption>Shunt registry / current device</caption>
+              <caption>{t("terminal.shuntRegistry")}</caption>
               <thead>
                 <tr>
-                  <th>Channel</th>
-                  <th>State</th>
-                  <th>Reference</th>
+                  <th>{t("terminal.channel")}</th>
+                  <th>{t("terminal.stateLabel")}</th>
+                  <th>{t("terminal.reference")}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>SHUNT A</td>
-                  <td>ARCHIVED</td>
+                  <td>{t("terminal.shuntA")}</td>
+                  <td>{t("terminal.archived")}</td>
                   <td>
                     {(Number(report.code) + 17)
                       .toString()
@@ -94,14 +95,14 @@ export function TrainingTerminal({
                   </td>
                 </tr>
                 <tr>
-                  <td>SHUNT B</td>
-                  <td>ACTIVE</td>
+                  <td>{t("terminal.shuntB")}</td>
+                  <td>{t("terminal.state.active")}</td>
                   <td>{report.code}</td>
                 </tr>
                 <tr>
-                  <td>SHUNT C</td>
-                  <td>OFFLINE</td>
-                  <td>NO READOUT</td>
+                  <td>{t("terminal.shuntC")}</td>
+                  <td>{t("terminal.offlineState")}</td>
+                  <td>{t("terminal.noReadout")}</td>
                 </tr>
               </tbody>
             </table>
@@ -117,7 +118,7 @@ export function TrainingTerminal({
           }}
         >
           <label>
-            Active shunt identifier
+            {t("terminal.activeShunt")}
             <input
               value={code}
               onChange={(e) => setCode(e.target.value)}
@@ -130,20 +131,17 @@ export function TrainingTerminal({
             type="submit"
             disabled={!ex.online || ex.state.frozen || done || expired}
           >
-            Submit isolation request
+            {t("terminal.submit")}
           </button>
-          <p>
-            Incorrect entries cause a brief input lock. Opening a report does
-            not stop the timer.
-          </p>
+          <p>{t("terminal.hint")}</p>
         </form>
       )}
       {done && (
         <p className="success" role="status">
-          Isolation confirmed. Task completed.
+          {t("terminal.confirmed")}
         </p>
       )}
-      <footer>SIMULATED DEVICE / EXERCISE ONLY</footer>
+      <footer>{t("terminal.footer")}</footer>
     </section>
   );
 }

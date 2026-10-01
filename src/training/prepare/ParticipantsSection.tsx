@@ -10,6 +10,7 @@ import { labelFor } from "../../core/labels";
 import { t } from "../../i18n";
 import { DossierEditor } from "../Dossiers";
 import { uid, type PrepareSectionProps } from "./shared";
+import { Panel } from "../../ui/primitives";
 
 // Participants: people concepts only — participants (operators), teams, actors
 // (with their personnel file) and patients. Devices are managed in Devices.
@@ -30,7 +31,7 @@ export function ParticipantsSection({
       : [];
 
   return (
-    <section className="panel prepare">
+    <Panel className="prepare">
       <h2>{t("prep.tab.participants")}</h2>
 
       {caps.teams && (
@@ -468,6 +469,6 @@ export function ParticipantsSection({
           />
         </section>
       )}
-    </section>
+    </Panel>
   );
 }

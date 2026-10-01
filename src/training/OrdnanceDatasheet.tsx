@@ -1,9 +1,10 @@
 import type { OrdnanceType } from "../core/ordnance";
 import { resolveOrdnanceType } from "../core/ordnance";
+import { t } from "../i18n";
 import "./device.css";
 
-// English element content, rendered from the mission's ordnance catalogue so the
-// data sheet and the ordnance console never diverge.
+// Rendered from the mission's ordnance catalogue so the data sheet and the
+// ordnance console never diverge; chrome labels follow the active locale.
 export function OrdnanceDatasheet({
   ordnanceId,
   custom = [],
@@ -15,9 +16,7 @@ export function OrdnanceDatasheet({
   if (!entry)
     return (
       <section className="device-panel">
-        <p className="device-note">
-          No datasheet loaded. Assign an ordnance type to the bound prop.
-        </p>
+        <p className="device-note">{t("datasheet.none")}</p>
       </section>
     );
   return (
@@ -27,15 +26,15 @@ export function OrdnanceDatasheet({
         <span className="device-state">{entry.datasheetId || entry.category}</span>
       </header>
       {entry.summary && <p className="device-note">{entry.summary}</p>}
-      <h3>Type</h3>
+      <h3>{t("datasheet.type")}</h3>
       <p className="device-note">{entry.category}</p>
-      <h3>Stages</h3>
+      <h3>{t("datasheet.stages")}</h3>
       <ol className="device-stages">
         {entry.stages.map((stage) => (
           <li key={stage}>{stage}</li>
         ))}
       </ol>
-      <h3>Disposal methods</h3>
+      <h3>{t("datasheet.disposalMethods")}</h3>
       {entry.methods.map((method) => (
         <div key={method.id}>
           <b>{method.name}</b>
@@ -46,13 +45,13 @@ export function OrdnanceDatasheet({
           </ol>
         </div>
       ))}
-      <h3>Failure modes</h3>
+      <h3>{t("ordnance.failureModes")}</h3>
       <table>
         <thead>
           <tr>
-            <th>Failure</th>
-            <th>Trigger</th>
-            <th>Outcome</th>
+            <th>{t("datasheet.failure")}</th>
+            <th>{t("datasheet.trigger")}</th>
+            <th>{t("datasheet.outcome")}</th>
           </tr>
         </thead>
         <tbody>

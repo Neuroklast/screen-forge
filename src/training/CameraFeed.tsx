@@ -37,7 +37,7 @@ export function CameraFeed({
     current.current?.getTracks().forEach((t) => t.stop());
     current.current = null;
     setStream(null);
-    setStatus("Camera stopped");
+    setStatus(t("camera.stopped"));
   };
   const start = async () => {
     if (pending.current) return;
@@ -56,7 +56,7 @@ export function CameraFeed({
       current.current?.getTracks().forEach((t) => t.stop());
       current.current = next;
       setStream(next);
-      setStatus("Camera active");
+      setStatus(t("camera.active"));
       setDevices(
         (await navigator.mediaDevices.enumerateDevices()).filter(
           (d) => d.kind === "videoinput",
@@ -147,7 +147,7 @@ export function CameraFeed({
       } else if (data.type === "stop") {
         close(from);
         if (video.current && !publish) video.current.srcObject = null;
-        setStatus("Camera stopped");
+        setStatus(t("camera.stopped"));
       }
       const pc = peers.get(from);
       if (pc?.remoteDescription) {
