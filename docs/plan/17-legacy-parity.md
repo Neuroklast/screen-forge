@@ -24,7 +24,7 @@ as a second mental model.
 | Workflow graph + events | Ablauf | graph tab (demo only) | done (Ablauf owns topology) |
 | Validation findings | Prüfen | linter panel | done |
 | Briefing, template export, start | Prüfen | — | done |
-| **Undo / redo** | — | Ctrl+Z / Ctrl+Y, 50 steps | **gap** |
+| Undo / redo | header buttons + Ctrl+Z / Ctrl+Y, 50 steps | 50 steps | done |
 | Raw MEL / inject structure | Ablauf → `"Rohdaten"` (collapsed) | — | done |
 | Multi-select / drag binding | — | drag chip → device | optional |
 
@@ -32,8 +32,8 @@ as a second mental model.
 
 Remove `MissionBuilder`, `WorkflowGraph` and `builder.css` when:
 
-1. Undo/redo exists for preparation edits (draft history) **or** is explicitly
-   declared out of scope.
+1. ~~Undo/redo exists for preparation edits.~~ Done: `TrainerView` keeps a 50-step
+   draft history with header buttons and Ctrl+Z / Ctrl+Y.
 2. The station role/module/code/duration and prop/ordnance bindings are editable
    in Geräte (verified by an e2e journey, not by inspection).
 3. The demo sandbox no longer imports `MissionBuilder` (route it through the six

@@ -130,7 +130,7 @@ body,
   top: var(--sf-layout-70px);
   right: var(--sf-layout-20px);
   bottom: var(--sf-layout-20px);
-  width: min(var(--sf-layout-680px), calc(100vw - var(--sf-layout-40px)));
+  width: min(var(--config-width, var(--sf-layout-680px)), calc(100vw - var(--sf-layout-40px)));
   padding: 0;
   background: var(--sf-color-14191d);
   border: var(--sf-stroke-1px) solid var(--sf-color-47534f);
@@ -141,6 +141,20 @@ body,
 }
 .config-menu[hidden] {
   display: none !important;
+}
+.config-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+}
+.config-resize:hover,
+.config-resize:focus-visible {
+  background: var(--sf-color-47534f);
 }
 .config-header {
   display: flex;

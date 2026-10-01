@@ -103,10 +103,45 @@ export function TrainerView({ room }: { room: string }) {
       setRevision(ex.state.revision);
     }
   }, [ex.state.revision, dirty]);
+  const [past, setPast] = useState<Scenario[]>([]);
+  const [future, setFuture] = useState<Scenario[]>([]);
   const change = (s: Scenario) => {
+    setPast((stack) => [...stack.slice(-49), draft]);
+    setFuture([]);
     setDraft(s);
     setDirty(true);
   };
+  const undo = () => {
+    if (!past.length) return;
+    setFuture((stack) => [draft, ...stack]);
+    setDraft(past[past.length - 1]);
+    setPast((stack) => stack.slice(0, -1));
+    setDirty(true);
+  };
+  const redo = () => {
+    if (!future.length) return;
+    setPast((stack) => [...stack, draft]);
+    setDraft(future[0]);
+    setFuture((stack) => stack.slice(1));
+    setDirty(true);
+  };
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      const target = event.target as HTMLElement;
+      if (target.closest("input,textarea,select")) return;
+      const key = event.key.toLowerCase();
+      if (key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        undo();
+      } else if (key === "y" || (key === "z" && event.shiftKey)) {
+        event.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
   const save = (s = draft) => {
     const result = scenarioSchema.safeParse(s);
     if (!result.success) {
@@ -281,6 +316,22 @@ export function TrainerView({ room }: { room: string }) {
             .padStart(2, "0")}
           <small>{t(ex.state.frozen ? "common.paused" : "trainer.running")}</small>
         </div>
+        <button
+          disabled={!past.length}
+          aria-label={t("common.undo")}
+          title={t("common.undo")}
+          onClick={undo}
+        >
+          ↶
+        </button>
+        <button
+          disabled={!future.length}
+          aria-label={t("common.redo")}
+          title={t("common.redo")}
+          onClick={redo}
+        >
+          ↷
+        </button>
         <button
           disabled={!ex.online || dirty}
           className="primary"

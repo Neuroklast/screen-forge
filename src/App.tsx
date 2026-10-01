@@ -81,7 +81,15 @@ export default function App() {
     [timelineEnd, setTimelineEnd] = useState(0);
   const [configTab, setConfigTab] = useState("content"),
     [directorTab, setDirectorTab] = useState("monitor"),
-    [unlocked, setUnlocked] = useState(false);
+    [unlocked, setUnlocked] = useState(false),
+    [configWidth, setConfigWidth] = useState(() => {
+      try {
+        const stored = Number(localStorage.getItem("screenforge.inspectorWidth"));
+        return stored >= 360 && stored <= 900 ? stored : 560;
+      } catch {
+        return 560;
+      }
+    });
   const [show, setShow] = useState(loadShow),
     [running, setRunning] = useState<string | null>(null);
   const [takeLog, setTakeLog] = useState<TakeEvent[]>([]);
@@ -229,6 +237,33 @@ export default function App() {
     }
     setSoundEnabled(config.sound);
   }, [config]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "screenforge.inspectorWidth",
+        String(configWidth),
+      );
+    } catch {
+      /* private browsing */
+    }
+  }, [configWidth]);
+  const startInspectorResize = (event: React.PointerEvent) => {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = configWidth;
+    const onMove = (move: PointerEvent) => {
+      const max = Math.min(900, window.innerWidth - 40);
+      setConfigWidth(
+        Math.min(Math.max(360, startWidth + (startX - move.clientX)), max),
+      );
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
   useEffect(() => {
     if (!stage.current) return;
     const observer = new ResizeObserver((entries) => {
@@ -610,7 +645,15 @@ export default function App() {
           className={`inspector config-menu config-${configTab}`}
           hidden={!settings || clean}
           aria-label={t("studio.configuration")}
+          style={{ "--config-width": `${configWidth}px` } as CSSProperties}
         >
+          <div
+            className="config-resize"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={t("studio.resizeConfig")}
+            onPointerDown={startInspectorResize}
+          />
           <header className="config-header">
             <strong>{t("studio.configuration")}</strong>
             <button

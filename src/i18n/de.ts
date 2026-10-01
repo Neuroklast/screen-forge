@@ -9,6 +9,8 @@ export const de: Record<string, string> = {
   "common.delete": "Löschen",
   "common.add": "Hinzufügen",
   "common.none": "Keine",
+  "common.undo": "Rückgängig",
+  "common.redo": "Wiederholen",
 
   "field.stationUnavailable": "Station nicht mehr verfügbar",
   "field.requestQr": "Bitte bei der Übungsleitung ein neues Gerät anfordern.",
@@ -807,6 +809,7 @@ export const de: Record<string, string> = {
   "studio.noteTouch": "Interaktive Elemente reagieren direkt auf Berührung.",
   "studio.shortcuts": "SPACE Play / Pause · R Reset · H Ausgabe",
   "studio.closeConfig": "Konfiguration schließen",
+  "studio.resizeConfig": "Konfigurationsbereich skalieren",
   "studio.tab.content": "Inhalt",
   "studio.tab.systems": "Firmen",
   "studio.tab.design": "Gestaltung",

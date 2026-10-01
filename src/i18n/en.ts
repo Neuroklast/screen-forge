@@ -9,6 +9,8 @@ export const en: Record<string, string> = {
   "common.delete": "Delete",
   "common.add": "Add",
   "common.none": "None",
+  "common.undo": "Undo",
+  "common.redo": "Redo",
 
   "field.stationUnavailable": "Station no longer available",
   "field.requestQr": "Ask the trainer for a new QR code.",
@@ -796,6 +798,7 @@ export const en: Record<string, string> = {
   "studio.noteTouch": "Interactive elements react directly to touch.",
   "studio.shortcuts": "SPACE play / pause · R reset · H output",
   "studio.closeConfig": "Close configuration",
+  "studio.resizeConfig": "Resize configuration panel",
   "studio.tab.content": "Content",
   "studio.tab.systems": "Companies",
   "studio.tab.design": "Design",
