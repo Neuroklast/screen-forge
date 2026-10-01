@@ -68,5 +68,5 @@
 | W59 | Flow workspace on the shared `WorkspaceShell` | done |
 | W60 | Derived authoring view (`assetView`) + device profile/surface contract doc | done |
 | W61 | Next: device profile+surface migration in `DeviceSurface` | todo |
-| W62 | Next: guided mode as an assistant pane in the normal workspace | todo |
+| W62 | Guided mode as an assistant pane in the shared workspace (interview / graph / suggestions) | done |
 | W63 | Next: surface-specific preview scenarios (generic states + per-surface demo scenarios) | todo |

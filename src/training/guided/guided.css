@@ -171,3 +171,26 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Guided is an assistant pane inside the shared workspace shell: the interview
+   is the navigator, the live graph is the canvas, suggestions are the inspector. */
+.sf-guided-workspace {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+}
+
+.sf-guided-workspace .workspace-shell {
+  --ws-nav: 340px;
+  --ws-inspector: 320px;
+}
+
+.sf-guided-workspace .guided-graph {
+  height: 100%;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.sf-guided-workspace .guided-canvas {
+  height: 100%;
+  min-height: 0;
+}

@@ -31,6 +31,7 @@ import { lintMission } from "../../core/missionLint";
 import type { Scenario } from "../../core/training";
 import { t } from "../../i18n";
 import { Button } from "../../ui/primitives";
+import { WorkspaceShell } from "../../ui/WorkspaceShell";
 import "./guided.css";
 
 // The guided surface is a constraint-driven interview next to the real graph.
@@ -222,8 +223,11 @@ export function GuidedBuilder({
       : [];
 
   return (
-    <section className="guided" aria-label={t("guided.aria")}>
-      <header className="guided-head">
+    <section className="sf-guided-workspace" aria-label={t("guided.aria")}>
+      <WorkspaceShell
+        label={t("guided.aria")}
+        toolbar={
+        <div className="guided-head">
         <div>
           <span className="eyebrow">{t("guided.eyebrow")}</span>
           <label>
@@ -239,9 +243,9 @@ export function GuidedBuilder({
           <Button onClick={onOpenExpert}>{t("guided.expert")}</Button>
           <Button onClick={onClose}>{t("common.close")}</Button>
         </div>
-      </header>
-
-      <div className="guided-grid">
+        </div>
+        }
+        navigator={
         <div className="guided-interview">
           {!session ? (
             <>
@@ -378,8 +382,8 @@ export function GuidedBuilder({
             </>
           )}
         </div>
-
-        <div className="guided-side">
+        }
+        canvas={
           <section className="panel guided-graph">
             <div className="section-heading">
               <h2>{t("guided.graph.title")}</h2>
@@ -426,7 +430,8 @@ export function GuidedBuilder({
               <p className="builder-hint">{t("guided.graph.empty")}</p>
             )}
           </section>
-
+        }
+        inspector={
           <section className="panel guided-suggestions">
             <h2>{t("guided.suggestions.title")}</h2>
             {model && model.result.add.length === 0 && (
@@ -534,8 +539,8 @@ export function GuidedBuilder({
                 </div>
               )}
           </section>
-        </div>
-      </div>
+        }
+      />
     </section>
   );
 }

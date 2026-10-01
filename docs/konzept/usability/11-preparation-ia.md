@@ -63,6 +63,7 @@ The three editors share one model ([13-editor-workspace.md](13-editor-workspace.
 
 ## Guided setup
 
+- The guided surface is an **assistant pane in the shared workspace** ([13-editor-workspace.md](13-editor-workspace.md)): the interview is the navigator, the live workflow graph is the canvas, and the suggestions/reconciliation are the inspector. It builds exactly what the normal editor shows, so `"Guided → Expert"` is no longer a mental jump.
 - Adaptive interview, not a fixed step sequence: questions are selected from the scenario intent and derived facts; a template or a blank scenario can be the entry ([02-guided.md](02-guided.md)).
 - Interview and the real workflow graph are visible together; suggestions are accepted, modified or skipped, and the user can switch to direct graph editing at any time (`"Im Expertenmodus öffnen"`).
 - Creates a valid draft without module, role, binding, id or inject knowledge; advanced settings stay collapsed.
