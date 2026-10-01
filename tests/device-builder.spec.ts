@@ -111,3 +111,31 @@ test("device builder: the visible surface can be chosen under Advanced", async (
     page.locator(".sf-device-preview-stage .training-terminal"),
   ).toBeVisible();
 });
+
+// The ordnance device can render the shared countdown console, and that console
+// can show a depleting battery instead of a timer.
+test("an ordnance device can render the countdown console as a battery", async ({
+  page,
+}) => {
+  await login(page, "device-builder-battery");
+  const url = new URL(page.url());
+  url.searchParams.set("section", "devices");
+  await page.goto(url.toString());
+  await expect(page.locator(".sf-device-toolbar")).toBeVisible();
+  await addDevice(page, "Sprengkörper-Konsole");
+  await page.getByText("Erweitert").click();
+  // Switch the visible surface to the shared scene renderer.
+  await page
+    .getByLabel("Oberfläche", { exact: true })
+    .selectOption({ label: "Szene" });
+  await page
+    .getByLabel("Szene", { exact: true })
+    .selectOption({ label: "Countdown" });
+  // The countdown console can show a depleting battery instead of a timer.
+  await page
+    .getByLabel("Anzeige", { exact: true })
+    .selectOption({ label: "Batterie / Ressource" });
+  await expect(
+    page.locator(".sf-device-preview-stage .battery-digits"),
+  ).toBeVisible();
+});

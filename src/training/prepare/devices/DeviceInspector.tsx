@@ -1,5 +1,11 @@
-import { sceneIds, type SceneId, type ScenePreset } from "../../../core/config";
+import {
+  sceneIds,
+  sceneOptionsDefaults,
+  type SceneId,
+  type ScenePreset,
+} from "../../../core/config";
 import { deviceSurfaceIds } from "../../../core/devices";
+import { effectiveScene } from "./DevicePreview";
 import type { ScenarioCapabilities } from "../../../core/capabilities";
 import { propKinds, type Scenario, type TrainingStation } from "../../../core/training";
 import { labelFor } from "../../../core/labels";
@@ -342,6 +348,7 @@ export function DeviceInspector({
             <label className="sf-device-field">
               {t("prep.devices.surface")}
               <select
+                aria-label={t("prep.devices.surface")}
                 value={station.surface ?? ""}
                 disabled={readOnly}
                 onChange={(event) =>
@@ -457,6 +464,7 @@ export function DeviceInspector({
             <label className="sf-device-field">
               {t("presentation.scene")}
               <select
+                aria-label={t("presentation.scene")}
                 value={station.presentation?.scene ?? ""}
                 disabled={readOnly}
                 onChange={(event) =>
@@ -473,6 +481,97 @@ export function DeviceInspector({
                 ))}
               </select>
             </label>
+            {effectiveScene(station) === "countdown" &&
+              (() => {
+                const countdown = {
+                  ...sceneOptionsDefaults().countdown,
+                  ...(station.presentation?.config?.sceneOptions?.countdown ??
+                    {}),
+                };
+                const setCountdown = (
+                  patch: Partial<typeof countdown>,
+                ) =>
+                  onPresentation({
+                    config: {
+                      sceneOptions: {
+                        ...(station.presentation?.config?.sceneOptions ?? {}),
+                        countdown: { ...countdown, ...patch },
+                      },
+                    },
+                  });
+                return (
+                  <>
+                    <h4 className="sf-device-group">
+                      {t("studio.countdown.display")}
+                    </h4>
+                    <label className="sf-device-field">
+                      {t("studio.countdown.display")}
+                      <select
+                        aria-label={t("studio.countdown.display")}
+                        value={countdown.display}
+                        disabled={readOnly}
+                        onChange={(event) =>
+                          setCountdown({
+                            display: event.target.value as
+                              | "countdown"
+                              | "battery",
+                          })
+                        }
+                      >
+                        <option value="countdown">
+                          {t("studio.countdown.displayCountdown")}
+                        </option>
+                        <option value="battery">
+                          {t("studio.countdown.displayBattery")}
+                        </option>
+                      </select>
+                    </label>
+                    {countdown.display === "battery" && (
+                      <>
+                        <label className="sf-device-field">
+                          {t("studio.countdown.unit")}
+                          <input
+                            value={countdown.unit}
+                            maxLength={8}
+                            disabled={readOnly}
+                            onChange={(event) =>
+                              setCountdown({ unit: event.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="sf-device-field">
+                          {t("studio.countdown.warnAt")}
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={countdown.warnAt}
+                            disabled={readOnly}
+                            onChange={(event) =>
+                              setCountdown({ warnAt: Number(event.target.value) })
+                            }
+                          />
+                        </label>
+                        <label className="sf-device-field">
+                          {t("studio.countdown.criticalAt")}
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={countdown.criticalAt}
+                            disabled={readOnly}
+                            onChange={(event) =>
+                              setCountdown({
+                                criticalAt: Number(event.target.value),
+                              })
+                            }
+                          />
+                        </label>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             <label className="sf-device-field">
               {t("presentation.accent")}
               <input

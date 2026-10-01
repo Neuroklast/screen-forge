@@ -56,6 +56,8 @@ The countdown scene renders the fictional device console (default title `SEQUENC
 - MUST let the operator configure the device type: `transfer` (transport), `bomb` (fictional), `reactor`, `custom` — with type-specific labels, telemetry names and palette.
 - SHOULD add continuous on-screen activity (rolling logs, telemetry, stage rail) so the element is never static.
 - MUST be configurable via `sceneOptions.countdown` (type, labels, durations, phases).
+- MUST support a `display` mode: `countdown` (hh:mm:ss) or `battery` (a depleting resource with a configurable `unit`, `warnAt` and `criticalAt` percentage). The same console renders both; warning levels follow the configured thresholds.
+- A device (including an `ordnance` device) can render this console by choosing the `scene` surface and the `countdown` scene; the display mode is configured in the device inspector (Advanced).
 
 ## Edge cases
 

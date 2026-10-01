@@ -343,3 +343,17 @@
 .warhead-phase[data-phase="expired"] {
   border-left-color: #f36c75;
 }
+
+/* Battery/resource display: the same console shows a depleting percentage. */
+.battery-digits {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+
+.battery-digits small {
+  font-size: 0.28em;
+  color: var(--theme-secondary);
+}

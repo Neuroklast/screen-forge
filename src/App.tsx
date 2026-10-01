@@ -1077,6 +1077,71 @@ export default function App() {
                       </select>
                     </label>
                   )}
+                  <label>
+                    {t("studio.countdown.display")}
+                    <select
+                      aria-label={t("studio.countdown.display")}
+                      value={config.sceneOptions.countdown.display}
+                      onChange={(e) => {
+                        reset();
+                        updateSceneOptions("countdown", {
+                          display: e.target
+                            .value as Config["sceneOptions"]["countdown"]["display"],
+                        });
+                      }}
+                    >
+                      <option value="countdown">
+                        {t("studio.countdown.displayCountdown")}
+                      </option>
+                      <option value="battery">
+                        {t("studio.countdown.displayBattery")}
+                      </option>
+                    </select>
+                  </label>
+                  {config.sceneOptions.countdown.display === "battery" && (
+                    <>
+                      <label>
+                        {t("studio.countdown.unit")}
+                        <input
+                          value={config.sceneOptions.countdown.unit}
+                          maxLength={8}
+                          onChange={(e) =>
+                            updateSceneOptions("countdown", {
+                              unit: e.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        {t("studio.countdown.warnAt")}
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={config.sceneOptions.countdown.warnAt}
+                          onChange={(e) =>
+                            updateSceneOptions("countdown", {
+                              warnAt: Number(e.target.value),
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        {t("studio.countdown.criticalAt")}
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={config.sceneOptions.countdown.criticalAt}
+                          onChange={(e) =>
+                            updateSceneOptions("countdown", {
+                              criticalAt: Number(e.target.value),
+                            })
+                          }
+                        />
+                      </label>
+                    </>
+                  )}
                 </>
               )}
               {config.scene === "tracking" && (

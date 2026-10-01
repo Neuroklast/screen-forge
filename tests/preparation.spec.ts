@@ -282,15 +282,15 @@ test("a team can be created from a template with staffing", async ({ page }) => 
     .getByRole("button", { name: "Team aus Vorlage", exact: true })
     .click();
   await page
-    .getByRole("button", { name: "Compact Field Team", exact: true })
+    .getByRole("button", { name: "Kompakter Feldtrupp", exact: true })
     .click();
   // The team inspector shows the template and its staffing.
   await expect(page.locator(".sf-force-staffing")).toContainText("4 / 4");
-  // One participant per recommended role slot.
+  // One participant per recommended role slot (labels resolve to German).
   await expect(
-    page.locator(".sf-force-item").filter({ hasText: "Team Leader" }),
+    page.locator(".sf-force-item").filter({ hasText: "Truppführer" }),
   ).toHaveCount(1);
   await expect(
-    page.locator(".sf-force-item").filter({ hasText: "Communications Specialist" }),
+    page.locator(".sf-force-item").filter({ hasText: "Fernmeldespezialist" }),
   ).toHaveCount(1);
 });

@@ -90,6 +90,11 @@ export function sceneOptionsDefaults() {
       type: "bomb" as const,
       variant: "antimatter" as const,
       label: "",
+      // The same console can show a countdown or a depleting resource (battery).
+      display: "countdown" as const,
+      unit: "%",
+      warnAt: 50,
+      criticalAt: 25,
     },
     tracking: { mode: "sensor" as const, callsign: "SENSOR 07" },
     analysis: {
@@ -180,6 +185,10 @@ export const sceneOptionsSchema = z.object({
       type: z.enum(["transfer", "bomb", "reactor", "custom"]).default("bomb"),
       variant: z.enum(["antimatter", "nuclear"]).default("antimatter"),
       label: z.string().max(40).default(""),
+      display: z.enum(["countdown", "battery"]).default("countdown"),
+      unit: z.string().max(8).default("%"),
+      warnAt: z.number().min(0).max(100).default(50),
+      criticalAt: z.number().min(0).max(100).default(25),
     })
     .default(() => sceneOptionsDefaults().countdown),
   tracking: z

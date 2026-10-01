@@ -145,6 +145,11 @@ export function Warhead(props: SceneProps) {
   );
   const aligned = channels.every((v, i) => Math.abs(v - targets[i]) <= 2);
   const state = warheadState(time, config.duration, diagnostic, bypass, hold);
+  const countdown = config.sceneOptions.countdown;
+  const profile = DEVICE_PROFILES[countdown.type] ?? DEVICE_PROFILES.bomb;
+  const display = countdown.display;
+  const percent = Math.round((state.left / Math.max(1, config.duration)) * 100);
+  const timerLabel = countdown.label || profile.timer;
   const diagnosticProgress =
     diagnostic === null ? 0 : Math.max(0, Math.min(1, (time - diagnostic) / 8));
   const bypassProgress =
@@ -170,13 +175,19 @@ export function Warhead(props: SceneProps) {
   const warn =
     state.safe || state.expired
       ? 0
-      : state.left <= 10
-        ? 3
-        : state.left <= config.duration * 0.25
-          ? 2
-          : state.left <= config.duration * 0.5
-            ? 1
-            : 0;
+      : display === "battery"
+        ? percent <= countdown.criticalAt
+          ? 3
+          : percent <= countdown.warnAt
+            ? 2
+            : 0
+        : state.left <= 10
+          ? 3
+          : state.left <= config.duration * 0.25
+            ? 2
+            : state.left <= config.duration * 0.5
+              ? 1
+              : 0;
   useEffect(() => {
     if (!warn) return;
     playSound("alert");
@@ -225,8 +236,6 @@ export function Warhead(props: SceneProps) {
   const cancelHold = () => {
     if (!state.safe) setHold(null);
   };
-  const countdown = config.sceneOptions.countdown;
-  const profile = DEVICE_PROFILES[countdown.type] ?? DEVICE_PROFILES.bomb;
   const family =
     countdown.type === "custom" && countdown.label
       ? countdown.label.toUpperCase()
@@ -328,9 +337,20 @@ export function Warhead(props: SceneProps) {
               ? "CONTAINMENT RESTORED"
               : state.expired
                 ? "LOSS OF CONTAINMENT"
-                : profile.timer}
+                : timerLabel}
           </div>
-          <Timer remaining={state.left} className="countdown-digits" />
+          {display === "battery" ? (
+            <div
+              className="countdown-digits battery-digits"
+              role="status"
+              aria-label={timerLabel}
+            >
+              {percent}
+              <small>{countdown.unit}</small>
+            </div>
+          ) : (
+            <Timer remaining={state.left} className="countdown-digits" />
+          )}
           <div className="warhead-milliseconds">
             {state.safe
               ? "CRYO ONLINE / B-FIELD HOLDING"
