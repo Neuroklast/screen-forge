@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { taskBlock, taskBlockPortsFor } from "./taskBlocks.ts";
+import { generatedMetaSchema } from "./guided/types.ts";
 
 // Shared by the browser and Node 24. Pure data and validation only: the
 // deterministic interpreter (evaluateWorkflow/advanceWorkflow) is added by I3
@@ -40,6 +41,7 @@ const nodeBase = {
   position: z
     .object({ x: z.number().finite(), y: z.number().finite() })
     .optional(),
+  origin: generatedMetaSchema.optional(),
 };
 
 export const workflowNodeSchema = z.discriminatedUnion("type", [
@@ -147,6 +149,7 @@ export const workflowSchema = z
     version: z.literal(1),
     name: label.default("Workflow"),
     trigger: workflowTriggerSchema.default({ type: "manual" }),
+    origin: generatedMetaSchema.optional(),
     entry: id,
     nodes: z.array(workflowNodeSchema).min(2).max(200),
     edges: z.array(workflowEdgeSchema).max(400).default([]),

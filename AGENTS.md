@@ -32,6 +32,7 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 - Element content (scenes, blocks, field consoles) MUST be English; German is only for the studio/training control chrome.
 - The server is authoritative for exercise state; enforce role projections server-side.
 - Mission edits only while `draft`/`ready`/`paused`; every save bumps `revision`; stale saves are rejected, never merged.
+- Guided mode is a projection over the scenario model: rules return suggestions (never mutate), derived state is recomputed, generated content carries `origin`, and user-authored content is never silently overwritten or deleted ([docs/plan/18-adaptive-guided.md](docs/plan/18-adaptive-guided.md)).
 - Abort MUST be reachable in ≤ 2 taps and independent of EXCON availability.
 - Smallest change that fully solves the task; no drive-by refactors, no unrequested UX, no new dependency without a recorded reason.
 - NEVER treat a symptom: always find and fix the root cause, without exception. A patch that hides the defect (clipping, magic-number tuning, swallowed errors) is not a fix; if the root cause is out of scope, record it instead of masking it.
@@ -52,10 +53,12 @@ This file is a **router**, not an encyclopedia. Read only the files the current 
 | Layout / overflow / z-index | [docs/konzept/usability/09-layout-contracts.md](docs/konzept/usability/09-layout-contracts.md) — grid over flex, viewport prison, z registry, truncation, aspect lock |
 | Scenes / blocks / components | [docs/konzept/catalog/](docs/konzept/catalog/19-themes.md) |
 | Tasks / workflows / interaction | [docs/konzept/domain/14-interaction-model.md](docs/konzept/domain/14-interaction-model.md), [docs/plan/14-interaction-engine.md](docs/plan/14-interaction-engine.md) |
+| Guided mode / adaptive authoring | [docs/plan/18-adaptive-guided.md](docs/plan/18-adaptive-guided.md), [docs/konzept/usability/02-guided.md](docs/konzept/usability/02-guided.md) |
 | Training scenarios | [docs/konzept/scenarios/00-realism-and-safety-framework.md](docs/konzept/scenarios/00-realism-and-safety-framework.md) |
 | Data formats / import/export | [docs/konzept/formats/00-format-family.md](docs/konzept/formats/00-format-family.md) |
 | Exercise control | [docs/konzept/control/00-control-model.md](docs/konzept/control/00-control-model.md) |
 | Naming / jargon | [docs/konzept/domain/01-glossary.md](docs/konzept/domain/01-glossary.md) |
+| Terminology / language profiles / density | [docs/konzept/usability/12-terminology.md](docs/konzept/usability/12-terminology.md) |
 | Art direction | [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md) |
 | Assets / cleanup findings | [docs/konzept/catalog/23-asset-and-catalog-gaps.md](docs/konzept/catalog/23-asset-and-catalog-gaps.md) |
 | New feature spec | [docs/templates/feature-spec.md](docs/templates/feature-spec.md) |

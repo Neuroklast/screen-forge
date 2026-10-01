@@ -48,7 +48,7 @@ The builder composes a **mission** ("Einsatz") from devices, entities, and injec
 | --- | --- | --- |
 | Add station | Module `medical`, patient bound | Module `terminal` (neutral), no binding |
 | New mission | SAR template incl. patient | Empty mission, 0 stations, 0 entities |
-| Wizard template | Fixed stations + patient + 3 dossiers | Editable suggestions, removable; patient only where the template's story needs it |
+| Guided suggestion | Fixed stations + patient + 3 dossiers | Editable suggestions, removable; patient only where the scenario's story needs it |
 | Medical module without patient | Schema error at drop | Allowed to drop; linter error until a patient is bound or created |
 
 ## Validation (linter)

@@ -24,7 +24,7 @@
 | `CameraFeed` | WebRTC publish (element) / view (HQ); EXCON cut | ICE via env; no TURN; retry every 5 s | `CameraFeed.tsx` (216) |
 | `TrainingTerminal` | Shunt terminal: STATUS / DIAGNOSTICS / ISOLATION | Diagnostic required before unlock; 3 s lockout | `TrainingTerminal.tsx` (152) |
 | `DossierEditor` / `DossierCards` | Personnel files: fields, events, photo, release flag | Photo ≤ 300 k chars; 40 dossiers | `Dossiers.tsx` (229) |
-| `ScenarioWizard` | 5-step guided setup from 4 templates | Seeds 3 dossiers; fixed stations | `ScenarioWizard.tsx` (239) |
+| `GuidedBuilder` | Adaptive scenario interview: domain intent, questions, suggestions, live graph, reconciliation | Engine in `src/core/guided`; session in `scenario.guided`; user content never deleted | `training/guided/GuidedBuilder.tsx` |
 | `ScenarioEditor` | Form-based scenario editing: devices, patients, rules, map | 820 lines, no drag & drop; defaults to medical | `ScenarioEditor.tsx` (820) |
 
 ## Signal bridge

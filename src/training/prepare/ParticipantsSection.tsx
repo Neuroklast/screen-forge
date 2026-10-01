@@ -8,6 +8,7 @@ import {
 } from "../../core/training";
 import { labelFor } from "../../core/labels";
 import { t } from "../../i18n";
+import { Term } from "../../ui/terminology/Term";
 import { DossierEditor } from "../Dossiers";
 import { uid, type PrepareSectionProps } from "./shared";
 import { Panel } from "../../ui/primitives";
@@ -32,7 +33,9 @@ export function ParticipantsSection({
 
   return (
     <Panel className="prepare">
-      <h2>{t("prep.tab.participants")}</h2>
+      <h2>
+        <Term id="nav.forces" />
+      </h2>
 
       {caps.teams && (
         <section className="prepare-block">

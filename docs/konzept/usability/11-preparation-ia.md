@@ -41,10 +41,11 @@ The trainer preparation surface (EXCON, paused exercise) is one shell with a fix
 
 ## Guided setup
 
-- Five steps: `"Zweck"` (type + template + name), `"Teilnehmer"`, `"Geräte"`, `"Ablauf"`, `"Prüfen"`.
-- Creates a valid draft without module, role, binding, id or inject knowledge; advanced settings stay collapsed; `"Im Expertenmodus öffnen"` remains reachable.
-- The `"Ablauf"` step embeds the real workflow graph, so the graph created here is the same graph edited later under `"Ablauf"`.
-- After creation the shell opens on the first incomplete section, or `"Prüfen"` when the draft is complete — never blindly on `"Geräte"`; the wizard never remains the editor.
+- Adaptive interview, not a fixed step sequence: questions are selected from the scenario intent and derived facts; a template or a blank scenario can be the entry ([02-guided.md](02-guided.md)).
+- Interview and the real workflow graph are visible together; suggestions are accepted, modified or skipped, and the user can switch to direct graph editing at any time (`"Im Expertenmodus öffnen"`).
+- Creates a valid draft without module, role, binding, id or inject knowledge; advanced settings stay collapsed.
+- Changing an earlier answer reconciles generated content; user-created or user-modified content is never deleted silently.
+- After creation the shell opens on the first incomplete section, or `"Prüfen"` when the draft is complete — never blindly on `"Geräte"`; the guided surface never remains the editor.
 
 ## Navigation state
 

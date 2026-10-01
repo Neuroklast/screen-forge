@@ -1,11 +1,7 @@
 import { test, expect, type Page, type Browser } from '@playwright/test';
+import { loadTemplate, login as prepLogin } from './support/prep';
 async function login(page: Page) {
-  await page.goto(
-    `/?role=trainer&room=e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-  );
-  await page.getByLabel('Trainer-Schlüssel').fill('browser-test-key');
-  await page.getByRole('button',{name:'Verbinden',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Was möchtest du als Nächstes tun?'})).toBeVisible();
+  await prepLogin(page, 'e2e');
 }
 async function assign(page: Page, browser: Browser, name: string) {
   await page.getByRole('button',{name:'Geräte',exact:true}).click();
@@ -18,12 +14,7 @@ async function assign(page: Page, browser: Browser, name: string) {
   return {ctx,device,url:url!};
 }
 async function guidedFromTemplate(page: Page, template: string, name: string) {
-  await page.getByRole('button',{name:'Neues Szenario erstellen',exact:false}).click();
-  await page.getByRole('button',{name:template,exact:false}).first().click();
-  await page.getByLabel('Szenarioname',{exact:true}).fill(name);
-  for (let i=0;i<4;i++) await page.getByRole('button',{name:'Weiter',exact:true}).click();
-  await page.getByRole('button',{name:'Szenario anlegen'}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText(name);
+  await loadTemplate(page, template, name);
 }
 test('guided setup, one-time QR, diagnostic code, pause/reset and mobile layout', async ({page,browser}) => {
   await login(page);

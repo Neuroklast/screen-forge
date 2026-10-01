@@ -1,8 +1,12 @@
 # 01 — Glossary & Jargon
 
 > ScreenForge concept set · Target state (Soll) · Status: [12-gap-analysis.md](12-gap-analysis.md)
-> Rule: one concept, one name. **Element content (scenes, blocks, field consoles) is English**; the studio/training control chrome uses German labels; code/schema uses the English term.
+> Rule: one concept, one name. **Element content (scenes, blocks, field consoles) is English**; control-chrome labels resolve through the semantic terminology layer (English canonical, German via profiles — [../usability/12-terminology.md](../usability/12-terminology.md)); code/schema uses the English term.
 > Distinct surfaces: `Firmenportal` (corporate intranet scene), `Betriebssystem` (OS desktop scene), `Terminal` (command line scene) — never call one the other.
+
+## Terminology profiles
+
+The control-chrome label for a concept is resolved through the semantic terminology layer ([../usability/12-terminology.md](../usability/12-terminology.md)), not hardcoded. English is canonical and the German `de-bundeswehr` (military) profile uses established Bundeswehr operational terminology: for example `mission → AUFTRAG`, `exercise_control → ÜBUNGSLEITUNG`, `common_operational_picture → Lagebild`. This intentionally supersedes the single German label column below for the military profile; the `de-professional` profile keeps the established operational German label. The German UI label column stays the reference for the default professional chrome, and the English column stays normative for code/schema.
 
 ## Core terms
 

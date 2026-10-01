@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useTraining } from "../../core/useExercise";
 import { nextIncomplete, prepareReadiness } from "../../core/readiness";
 import { t } from "../../i18n";
+import { sectionTermId, term } from "../../core/terminology";
 import { TacticalMap } from "../TacticalMap";
 import type { PrepareSectionProps } from "./shared";
 import { Panel } from "../../ui/primitives";
@@ -52,7 +53,7 @@ export function OverviewSection({
         <button onClick={() => onGo(nextSection)}>
           <strong>
             {t("prep.overview.next", {
-              section: t(`prep.tab.${nextSection}`),
+              section: term(sectionTermId(nextSection)),
             })}
           </strong>
           <span>{draft.name}</span>

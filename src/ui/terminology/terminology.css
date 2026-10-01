@@ -1,0 +1,38 @@
+.terminology-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+}
+
+.terminology-settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.terminology-settings select {
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+  opacity: 1;
+  min-width: 8rem;
+}
+
+.density-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.density-detail span {
+  white-space: nowrap;
+}

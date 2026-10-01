@@ -37,7 +37,7 @@
 | --- | --- | --- |
 | U0 | [usability/00-principles.md](usability/00-principles.md) | Any UI/UX decision |
 | U1 | [usability/01-start-page.md](usability/01-start-page.md) | Entry, mode/role selection |
-| U2 | [usability/02-guided.md](usability/02-guided.md) | Wizard, defaults, guided flows |
+| U2 | [usability/02-guided.md](usability/02-guided.md) | Adaptive guided interview, defaults, guided flows |
 | U3 | [usability/03-advanced.md](usability/03-advanced.md) | Expert layout, density, shortcuts |
 | U4 | [usability/04-builder-interaction.md](usability/04-builder-interaction.md) | Drag & drop, bindings, touch |
 | U5 | [usability/05-states-feedback.md](usability/05-states-feedback.md) | Empty/error/offline/locked states |
@@ -47,6 +47,7 @@
 | U9 | [usability/09-layout-contracts.md](usability/09-layout-contracts.md) | Any scene/block layout: grid, overflow, z-index, truncation, scaling |
 | U10 | [usability/10-experience-profiles.md](usability/10-experience-profiles.md) | Easy/Advanced/Professional density, provenance, degradation |
 | U11 | [usability/11-preparation-ia.md](usability/11-preparation-ia.md) | Preparation navigation (six sections), flow workspace, legacy expert mode |
+| U12 | [usability/12-terminology.md](usability/12-terminology.md) | Semantic tactical terminology: language, terminology profile, density, fallback |
 
 ## Catalog (scenes, components, assets)
 
@@ -127,7 +128,8 @@
 
 - **MUST / SHOULD / MAY / NEVER** are normative. MUST violations are bugs.
 - Every feature has: purpose, rules, edge cases, acceptance criteria.
-- German UI labels are normative for the product; English terms are normative for code/schema.
+- English is the canonical/default product language; German is resolved through the semantic terminology profiles ([usability/12-terminology.md](usability/12-terminology.md)). English terms are normative for code/schema.
+- Control UI labels resolve through semantic terminology ids; fictional in-world stage content is scenario-authored art direction and is never auto-translated.
 - Scenes are functional surfaces; companies are identities ([catalog/20](catalog/20-companies-and-brands.md)). Never name a scene after a company.
 - No real-world weapons or tactics detail: ordnance, warheads, and systems are fictional props with a safety framing.
 - Files are split by concern (≤150 lines each) so agents read only what the task needs.

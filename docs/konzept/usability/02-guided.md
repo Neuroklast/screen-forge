@@ -1,11 +1,13 @@
 # U2 — Guided Mode
 
 > ScreenForge concept set · Usability concept (target state) · Status: [../domain/12-gap-analysis.md](../domain/12-gap-analysis.md)
-> Builder (expert): [03-advanced.md](03-advanced.md). Templates: [../domain/07-templates.md](../domain/07-templates.md).
+> Builder (expert): [03-advanced.md](03-advanced.md). Engine: [../../plan/18-adaptive-guided.md](../../plan/18-adaptive-guided.md). Templates: [../domain/07-templates.md](../domain/07-templates.md).
 
 ## Purpose
 
 Guided mode lets a first-time user run a complete exercise from a template without understanding the data model. It never hides the escape hatch to expert mode. It corresponds to the **Easy** experience profile ([10-experience-profiles.md](10-experience-profiles.md)).
+
+Guided mode is **not a wizard**: it is a constraint-driven scenario interview that incrementally constructs the scenario graph. It asks only questions whose answers change the structure, capabilities, entities, workflow or validation requirements.
 
 ## Template gallery
 
@@ -25,36 +27,37 @@ Vorlagen                         [Suche…]   Filter: [Training ▾] [Dauer ▾]
 - `"Leerer Einsatz bauen"` jumps to the expert builder (explicit, not hidden).
 - Baseline templates include the airsoft "Relay Recovery", film "Secure Data Transfer" and professional "Distributed Command Incident" ([../scenarios/11-role-sops.md](../scenarios/11-role-sops.md)).
 
-## Wizard steps
+## Adaptive interview
 
-Capability-driven since the preparation refactor ([11-preparation-ia.md](11-preparation-ia.md)); the type decides which blocks appear ([../domain/15-scenario-capabilities.md](../domain/15-scenario-capabilities.md)).
+The interview asks one decision card at a time; a card may bundle closely related choices. Question categories:
 
-| # | Step | Content | Defaults | Skip |
-| --- | --- | --- | --- | --- |
-| 1 | `"Zweck"` | Scenario type, template library, mission name | last used type | no |
-| 2 | `"Teilnehmer"` | Capability-driven people blocks: `"Teilnehmer hinzufügen"`, `"Team hinzufügen"`, `"Darsteller hinzufügen"`, `"Patient hinzufügen"` | none | yes |
-| 3 | `"Geräte"` | Human device presets; ordnance/beacon consoles provision their prop, medical devices provision a patient | none | no (≥1 at end) |
-| 4 | `"Ablauf"` | Optional simple starter flow (`Start → Meldung → Ende`) | none | yes |
-| 5 | `"Prüfen"` | Linter summary, mission name, `"Szenario anlegen"` | name from type/template | no |
+| Category | Example | Effect |
+| --- | --- | --- |
+| Intent | "Was möchtest du simulieren?" (SAR, Medical, Technical, Disposal, Film, Free) | selects the primary domain and the coarse scenario type |
+| Initial knowledge | "Ist der Standort bekannt?" | unknown/approximate adds a search phase; exact removes it |
+| Discovery | "Welche Informationsquellen stehen zur Verfügung?" | adds beacon/radio/area devices and zones |
+| Outcome logic | "Kann das fehlschlagen?" / "Was passiert bei Fehlschlag?" | builds failure, retry, consequence or alternative branches |
+| Participants / devices / events | derived from the generated tasks | entities are suggested, never demanded up front |
 
-- Steps are tabs; free navigation back/forward; progress shown as `3/5`.
-- Validation is inline and non-blocking until step 5 (`"Weiter"` allowed with warnings, blocked by errors only where needed: step 3 empty).
-- Every step shows a persistent `"Im Expertenmodus öffnen"` link; it opens the expert canvas with current input, no data loss.
-- The wizard never asks for modules, station roles, bindings, ids or inject structures; `"Spieler hinzufügen"` is forbidden copy.
+- Questions appear only while they apply (`appliesWhen`) and are not answered yet; priority budget `blocking > structural > useful > optional` prevents question spam.
+- Optional questions stay collapsed behind a toggle.
+- Answered questions remain editable; changing an earlier answer triggers reconciliation, never a silent rebuild.
+- Domains compose: `primaryDomain` plus `enabledDomains` (e.g. Search & Rescue + Medical) contribute questions and suggestions to the same scenario.
+- The interview never exposes internal schema terms (`station`, `inject`, `binding`, `module`); suggestions speak human concepts.
 
-## Step UX details
+## Live graph and suggestions
 
-- **Zweck:** type buttons (`"Sprengkörper entschärfen"`, `"Medizin"`, `"Film"`, `"Feldübung"`, `"Frei"`) plus the full template library; selecting a type resets the draft to that type's capabilities, selecting a template loads it into the draft.
-- **Teilnehmer:** only the blocks the type enables; adding people creates default entities that stay editable later.
-- **Geräte:** preset picker (`"Feldgerät (GPS)"`, `"Funkgerät"`, `"Medizingerät"`, `"Kamera"`, `"Terminal"`, `"Sprengkörper-Konsole"`, `"Bake"`, …) and a rename list; the capability matrix hides impossible presets (no medical device without patients, no ordnance console without props).
-- **Ablauf:** one optional starter flow; events and deeper logic are authored later in the `"Ablauf"` section.
-- **Prüfen:** shows errors (red), warnings (yellow), infos (gray) with links to the offending section; `"Szenario anlegen"` is blocked only by schema errors.
+- Interview, the **real** workflow graph (`WorkflowCanvas`) and the suggestion list are visible together; no modal-only navigation.
+- Every answer that changes workflow logic immediately updates or proposes graph changes; the user can accept, modify or skip each suggestion.
+- Each suggestion shows its reason ("Suchphase vorgeschlagen, weil der Standort nicht bekannt ist") and is applied atomically.
+- Generated content carries provenance; the user can switch to direct graph editing at any time (`"Im Expertenmodus öffnen"` opens the flow workspace with the same draft).
+- Reconciliation distinguishes `generated-unmodified` (may be removed/regenerated), `generated-modified` and `user-created` (never touched). Conflicts ask `[Behalten] [Entfernen] [Details]` instead of deleting silently.
 
 ## After creation
 
-- The preparation shell opens on `"Geräte"` with a readiness checklist in `"Prüfen"`.
+- The preparation shell opens on the first incomplete section, or `"Prüfen"` when the draft is complete.
 - Success banner: `"Szenario gespeichert."`; provisioning continues in `"Geräte"`.
-- The wizard closes; the shell is the editor.
+- The guided surface closes; the shell is the editor.
 
 ## Running a guided exercise
 
@@ -64,15 +67,16 @@ Capability-driven since the preparation refactor ([11-preparation-ia.md](11-prep
 
 ## Edge cases
 
-- User leaves mid-wizard: draft autosaved; re-entry resumes at the last step with a `"Fortsetzen"` banner.
-- Template contains an entity the user deleted: step 4 shows `"Vorlage enthielt Patient — entfernt"` info.
+- User leaves mid-interview: draft and session are autosaved in the scenario; re-entry resumes with the next applicable question.
+- Template contains an entity the user deleted: the next evaluation reports it as a conflict, never re-creates it silently.
 - No server while creating: mission saved locally as draft; provisioning disabled with explanation.
-- Very small screen (tablet): wizard becomes a vertical stepper; each step fits one scroll.
-- User switches to expert in step 5: all previous input preserved; wizard closes.
+- Very small screen (tablet): interview and graph stack; each panel keeps its primary action visible.
+- User switches to expert in any moment: all previous input preserved; guided surface closes.
 
 ## Acceptance criteria
 
-- [ ] Given a first-time user and the SAR template, when all steps are confirmed, then a paused mission exists with a clean linter in ≤ 5 minutes.
-- [ ] Given step 3 with 0 stations, then `"Weiter"` is blocked with `"Mindestens ein Gerät erforderlich."`.
-- [ ] Given `"Im Expertenmodus öffnen"` in any step, then the builder opens with identical data.
-- [ ] Given a closed wizard, when reopened, then the draft resumes at the last step.
+- [ ] Given a first-time user and a SAR interview, when the search and patient questions are answered, then a runnable draft with a clean linter exists in ≤ 5 minutes.
+- [ ] Given "Standort unbekannt", then a search phase is suggested; given "Standort bekannt", then no search phase is suggested.
+- [ ] Given a changed earlier answer, then generated content is reconciled and edited or user-created content is never deleted.
+- [ ] Given `"Im Expertenmodus öffnen"`, then the flow workspace opens with identical data.
+- [ ] Given a closed interview, when reopened, then the session resumes from the persisted answers.

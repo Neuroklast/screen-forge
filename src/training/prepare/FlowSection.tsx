@@ -11,6 +11,7 @@ import {
 } from "../../core/workflowEdit";
 import { type Workflow } from "../../core/workflow";
 import { t } from "../../i18n";
+import { Term } from "../../ui/terminology/Term";
 import { uid, type PrepareSectionProps } from "./shared";
 import { Panel } from "../../ui/primitives";
 import { FlowPalette, type AdvancedNodeType } from "./flow/FlowPalette";
@@ -129,7 +130,9 @@ export function FlowSection({
 
   return (
     <Panel className="prepare">
-      <h2>{t("prep.tab.flow")}</h2>
+      <h2>
+        <Term id="nav.flow" />
+      </h2>
       <div className="flow-workspace">
         <FlowPalette
           workflows={draft.workflows}

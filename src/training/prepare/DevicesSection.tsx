@@ -9,6 +9,7 @@ import {
 import { labelFor } from "../../core/labels";
 import { ordnanceTypes } from "../../core/ordnance";
 import { t } from "../../i18n";
+import { Term } from "../../ui/terminology/Term";
 import { PresentationFields } from "../PresentationFields";
 import { devicePresets, devicePresetsFor, presetLabel } from "./devicePresets";
 import { buildDevice, uid, type PrepareSectionProps } from "./shared";
@@ -127,7 +128,9 @@ export function DevicesSection({
 
   return (
     <Panel className="prepare">
-      <h2>{t("prep.tab.devices")}</h2>
+      <h2>
+        <Term id="nav.assets" />
+      </h2>
 
       <section className="prepare-block">
         <h3>{t("prep.devices.add")}</h3>
@@ -575,9 +578,11 @@ export function DevicesSection({
               </span>
               <h3>{st.name}</h3>
               <p>
-                {presence[st.id]?.online
-                  ? t("trainer.connected")
-                  : t("trainer.notConnected")}{" "}
+                {presence[st.id]?.online ? (
+                  <Term id="connected" />
+                ) : (
+                  t("trainer.notConnected")
+                )}{" "}
                 · {st.team || t("prep.devices.unassigned")}
               </p>
               <small>

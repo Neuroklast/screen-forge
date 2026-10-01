@@ -1,5 +1,6 @@
 import { taskBlock } from "./taskBlocks.ts";
 import * as graph from "./graphEdit.ts";
+import { markGeneratedModified } from "./guided/meta.ts";
 import {
   workflowNodePorts,
   workflowSchema,
@@ -256,7 +257,7 @@ function ensureNumberVariable(workflow: Workflow): {
 }
 
 export function addNode(workflow: Workflow, node: WorkflowNode): Workflow {
-  return graph.addNode(workflow, node);
+  return graph.addNode(markGeneratedModified(workflow), node);
 }
 
 export function addNodeOfType(
@@ -369,28 +370,35 @@ export function addNodeOfType(
 }
 
 export function removeNode(workflow: Workflow, nodeId: string): Workflow {
-  return graph.removeNode(workflow, nodeId);
+  return graph.removeNode(markGeneratedModified(workflow), nodeId);
 }
 
 export function replaceNode(workflow: Workflow, node: WorkflowNode): Workflow {
   const previous = workflow.nodes.find((row) => row.id === node.id);
+  // Editing generated content freezes it against automatic reconciliation.
+  const next: WorkflowNode = previous?.origin
+    ? {
+        ...node,
+        origin: { ...(node.origin ?? previous.origin), userModified: true },
+      }
+    : node;
   // A type or task change can retire outputs; drop their edges so the mission
   // never keeps dangling connections. Config edits keep edges on purpose.
   const changedShape =
     !!previous &&
-    (previous.type !== node.type ||
+    (previous.type !== next.type ||
       (previous.type === "task" &&
-        node.type === "task" &&
-        previous.task !== node.task));
+        next.type === "task" &&
+        previous.task !== next.task));
   const ports = changedShape
-    ? new Set(workflowNodePorts(node))
+    ? new Set(workflowNodePorts(next))
     : undefined;
   return {
     ...workflow,
-    nodes: workflow.nodes.map((row) => (row.id === node.id ? node : row)),
+    nodes: workflow.nodes.map((row) => (row.id === next.id ? next : row)),
     edges: ports
       ? workflow.edges.filter(
-          (edge) => edge.source !== node.id || ports.has(edge.output),
+          (edge) => edge.source !== next.id || ports.has(edge.output),
         )
       : workflow.edges,
   };
@@ -401,15 +409,20 @@ export function setNodePosition(
   nodeId: string,
   position: { x: number; y: number },
 ): Workflow {
-  return graph.moveNode(workflow, nodeId, position);
+  return {
+    ...workflow,
+    nodes: workflow.nodes.map((row) =>
+      row.id === nodeId ? { ...markGeneratedModified(row), position } : row,
+    ),
+  };
 }
 
 export function addEdge(workflow: Workflow, edge: WorkflowEdge): Workflow {
-  return graph.connect(workflow, edge);
+  return graph.connect(markGeneratedModified(workflow), edge);
 }
 
 export function removeEdge(workflow: Workflow, edgeId: string): Workflow {
-  return graph.disconnect(workflow, edgeId);
+  return graph.disconnect(markGeneratedModified(workflow), edgeId);
 }
 
 export function edgeForOutput(
@@ -427,8 +440,12 @@ export function setOutputTarget(
   output: string,
   target: string,
 ): Workflow {
-  return graph.setOutputTarget(workflow, nodeId, output, target, () =>
-    workflowUid("e"),
+  return graph.setOutputTarget(
+    markGeneratedModified(workflow),
+    nodeId,
+    output,
+    target,
+    () => workflowUid("e"),
   );
 }
 
@@ -437,16 +454,18 @@ export function addVariable(
   variable: WorkflowVariable,
 ): Workflow {
   if (workflow.variables.some((v) => v.id === variable.id)) return workflow;
-  return { ...workflow, variables: [...workflow.variables, variable] };
+  const marked = markGeneratedModified(workflow);
+  return { ...marked, variables: [...marked.variables, variable] };
 }
 
 export function replaceVariable(
   workflow: Workflow,
   variable: WorkflowVariable,
 ): Workflow {
+  const marked = markGeneratedModified(workflow);
   return {
-    ...workflow,
-    variables: workflow.variables.map((v) =>
+    ...marked,
+    variables: marked.variables.map((v) =>
       v.id === variable.id ? variable : v,
     ),
   };
@@ -456,9 +475,10 @@ export function removeVariable(
   workflow: Workflow,
   variableId: string,
 ): Workflow {
+  const marked = markGeneratedModified(workflow);
   return {
-    ...workflow,
-    variables: workflow.variables.filter((v) => v.id !== variableId),
+    ...marked,
+    variables: marked.variables.filter((v) => v.id !== variableId),
   };
 }
 
@@ -470,24 +490,28 @@ export function renameVariable(
 ): Workflow {
   if (!to || from === to || workflow.variables.some((v) => v.id === to))
     return workflow;
+  const marked = markGeneratedModified(workflow);
   return {
-    ...workflow,
-    variables: workflow.variables.map((v) =>
+    ...marked,
+    variables: marked.variables.map((v) =>
       v.id === from ? { ...v, id: to } : v,
     ),
-    nodes: workflow.nodes.map((node) => {
+    nodes: marked.nodes.map((node) => {
       if (
         (node.type === "condition" ||
           node.type === "set-variable" ||
           node.type === "increment") &&
         node.variable === from
       )
-        return { ...node, variable: to };
+        return markGeneratedModified({ ...node, variable: to });
       if (
         node.type === "task" &&
         node.config.expectedValueRef === from
       )
-        return { ...node, config: { ...node.config, expectedValueRef: to } };
+        return markGeneratedModified({
+          ...node,
+          config: { ...node.config, expectedValueRef: to },
+        });
       return node;
     }),
   };

@@ -14,19 +14,20 @@ A scenario carries a stable `type`. The type selects which domain concepts the p
 
 ## Capability matrix
 
-| Capability | disposal | medical | film | field | custom |
-| --- | --- | --- | --- | --- | --- |
-| participants | ✓ | ✓ | | ✓ | ✓ |
-| teams | ✓ | | | ✓ | ✓ |
-| actors | | | ✓ | | ✓ |
-| patients | (override) | ✓ | | (override) | ✓ |
-| props | ✓ | | ✓ | ✓ | ✓ |
-| zones | ✓ | | | ✓ | ✓ |
-| dossiers | | | | ✓ | ✓ |
-| devices | ✓ | ✓ | ✓ | ✓ | ✓ |
-| workflows | ✓ | ✓ | ✓ | ✓ | ✓ |
-| objectives | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Capability | disposal | medical | sar | technical | film | field | custom |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| participants | ✓ | ✓ | ✓ | ✓ | | ✓ | ✓ |
+| teams | ✓ | | ✓ | ✓ | | ✓ | ✓ |
+| actors | | | | | ✓ | | ✓ |
+| patients | (override) | ✓ | ✓ | | | (override) | ✓ |
+| props | ✓ | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| zones | ✓ | | ✓ | ✓ | | ✓ | ✓ |
+| dossiers | | | | ✓ | | ✓ | ✓ |
+| devices | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| workflows | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| objectives | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
+- `sar` covers search & rescue: teams, players, patients, zones and props; `technical` covers technical incidents with dossiers but no patients. Both are explicit types only (never inferred from content).
 - Disposal NEVER shows patient controls unless the scenario enables `patients` ("explicitly introduced by the flow").
 - Medical requires a patient as soon as treatment exists (medical device, medical task or patient action); the linter enforces this, not the schema.
 - Film uses actors, props and devices; participants, teams and patients stay hidden.
@@ -39,6 +40,13 @@ A scenario carries a stable `type`. The type selects which domain concepts the p
 - Devices use human presets; ordnance/beacon consoles provision their prop, medical devices provision a patient. Guided setup never asks for bindings, roles, ids or module names.
 - Participants: operators are player stations; teams, actors and patients stay their schema entities. `"Spieler hinzufügen"` is forbidden copy.
 - Participants are a UI projection over stations, teams, actors and patients — no separate participant entity is required for this.
+
+## Guided session and provenance
+
+- `Scenario.guided` (optional, versioned) persists the guided interview: `intent` (primary + enabled domains), `answers`, optional `explicitFacts`, `accepted`/`dismissed` suggestion ids and an append-only `applied` audit log.
+- `ScenarioFacts` are never persisted: they are recomputed from answers and explicit facts on load ([plan 18](../../plan/18-adaptive-guided.md)).
+- Generated elements (stations, patients, props, teams, actors, zones, objectives, workflows, nodes, events) carry optional `origin: { source: "guided", ruleId, subjectKey, userModified }`. Missing `origin` means user-created; `userModified` freezes an element against automatic reconciliation.
+- Guided domains are authoring dimensions independent of `type`: `type` is set once at creation and changes only through an explicit transition.
 
 ## Validation (shared linter, enforced at review and at the server start gate)
 

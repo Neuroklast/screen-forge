@@ -1,31 +1,15 @@
 import { test, expect, type Page } from "@playwright/test";
+import {
+  addDevice,
+  createGuided,
+  DOMAIN,
+  loadTemplate,
+  login,
+  save,
+} from "./support/prep";
 
 // Three complete preparation journeys, one per scenario type. They mirror the
 // acceptance walk-throughs: create, build logic, assign, review, start.
-async function login(page: Page) {
-  await page.goto(
-    `/?role=trainer&room=journey-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-  );
-  await page.getByLabel("Trainer-Schlüssel").fill("browser-test-key");
-  await page.getByRole("button", { name: "Verbinden", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Was möchtest du als Nächstes tun?" }),
-  ).toBeVisible();
-}
-
-async function next(page: Page, times = 1) {
-  for (let i = 0; i < times; i++)
-    await page.getByRole("button", { name: "Weiter", exact: true }).click();
-}
-
-async function save(page: Page) {
-  await page
-    .getByRole("button", { name: "Szenario speichern", exact: true })
-    .click();
-  await expect(page.locator('.notice[role="status"]')).toContainText(
-    "Szenario gespeichert",
-  );
-}
 
 // React Flow re-renders node cards on every workflow edit; target the stable
 // node wrapper by its id instead of text to avoid mid-render races.
@@ -37,23 +21,8 @@ test("journey: disposal setup, branched flow, event, assignment and start", asyn
   page,
 }) => {
   test.setTimeout(60_000);
-  await login(page);
-  await page
-    .getByRole("button", { name: "Neues Szenario erstellen", exact: false })
-    .click();
-  await page
-    .getByRole("button", { name: "Sprengkörper entschärfen", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: "Ordnance Disposal", exact: false })
-    .first()
-    .click();
-  await page.getByLabel("Szenarioname", { exact: true }).fill("Journey Disposal");
-  await next(page, 4);
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Journey Disposal",
-  );
+  await login(page, "journey-disposal");
+  await loadTemplate(page, "Ordnance Disposal", "Journey Disposal");
 
   // Participants and device ownership.
   await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
@@ -120,23 +89,10 @@ test("journey: disposal setup, branched flow, event, assignment and start", asyn
 
 test("journey: medical patient path is fixed through review", async ({ page }) => {
   test.setTimeout(60_000);
-  await login(page);
-  await page
-    .getByRole("button", { name: "Neues Szenario erstellen", exact: false })
-    .click();
-  await page.getByRole("button", { name: "Medizin", exact: true }).click();
-  await page.getByLabel("Szenarioname", { exact: true }).fill("Journey Medical");
-  await next(page);
-  await next(page);
-  await page.getByLabel("Gerätetyp").selectOption({ label: "Medizingerät" });
-  await page
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
-  await next(page, 2);
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Journey Medical",
-  );
+  await login(page, "journey-medical");
+  await createGuided(page, DOMAIN.medical, "Journey Medical");
+  await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await addDevice(page, "Medizingerät");
 
   // Treatment path: the medical action stays connected on success; the failure
   // output is left open on purpose to be caught by the review.
@@ -189,29 +145,16 @@ test("journey: film actor, prop, trigger and flow reach a clean review", async (
   page,
 }) => {
   test.setTimeout(60_000);
-  await login(page);
-  await page
-    .getByRole("button", { name: "Neues Szenario erstellen", exact: false })
-    .click();
-  await page.getByRole("button", { name: "Film", exact: true }).click();
-  await page.getByLabel("Szenarioname", { exact: true }).fill("Journey Film");
-  await next(page);
+  await login(page, "journey-film");
+  await createGuided(page, DOMAIN.film, "Journey Film");
+  await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await page
     .getByRole("button", { name: "Darsteller hinzufügen", exact: true })
     .click();
-  await next(page);
-  await page.getByLabel("Gerätetyp").selectOption({ label: "Projektion" });
-  await page
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
-  await next(page, 2);
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Journey Film",
-  );
+  await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await addDevice(page, "Projektion");
 
   // Prop and a prop-triggered flow.
-  await page.getByRole("button", { name: "Geräte", exact: true }).click();
   await page
     .getByRole("button", { name: "Requisite hinzufügen", exact: true })
     .click();

@@ -22,7 +22,7 @@ MEL v2, the guided builder and the professional layer on top — without a rewri
 | E8 | Mission linter + dependency graph validator | L | `src/core/missionLint.ts`, new `src/core/graph.ts` |
 | E9 | Live-MEL timeline + AAR replay (R10/R11) | L | `src/views/DebriefView.tsx`, new `src/training/MelTimeline.tsx`, `src/core/export.ts` |
 | E10 | TaskBlock registry + generated builder | L | new `src/core/taskBlocks.ts`, `src/builder/MissionBuilder.tsx` |
-| E11 | Easy wizard (story beats, ≤ 5 min) | M | `src/training/ScenarioWizard.tsx` |
+| E11 | Easy wizard (story beats, ≤ 5 min) | M | superseded by [18-adaptive-guided.md](18-adaptive-guided.md) |
 | E12 | Three templates (airsoft, film, professional) + MSEL | M | `src/core/templates.ts`, `presets/missions/*.json` |
 | E13 | Experience profiles + provenance/staleness + degradation | L | new `src/core/profiles.ts`, views |
 | E14 | Patient model split + doctrine packs + MARCH/EOD states | L | `src/core/patient.ts`, `src/core/training.ts` |

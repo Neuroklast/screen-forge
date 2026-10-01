@@ -103,16 +103,15 @@ Templates are pre-composed mission skeletons shown in a gallery. They MUST be fu
 - Uses existing show templates (e.g. `"Activate Locator Beacon"`, `"Archive Extraction"`, `"Warhead Maintenance"`).
 - No server, no entities; stations are stage outputs; rehearsal take log enabled.
 
-## Wizard mapping (guided)
+## Guided mapping
 
-1. **Zweck:** template gallery (filters).
-2. **Gelände:** map center/zoom, `LIVE`/`PLAYBACK`.
-3. **Geräte:** template stations, rename/add/remove; add-player shortcut.
-4. **Entitäten:** optional patient/prop add buttons with defaults; skip allowed.
-5. **Ablauf:** pick an inject by name, set its time/enabled; objective names. The step never assumes a fixed array position or a medical meaning.
-6. **Prüfen & Start:** linter summary, `"Einsatz anlegen"` creates a paused mission.
+1. **Intent:** pick a domain (Search & Rescue, Medical, Technical, Disposal, Film, Free); templates load through the gallery.
+2. **Interview:** only questions that change the flow are asked; answers drive suggestions.
+3. **Suggestions:** accept, modify or skip; the real graph grows next to the interview.
+4. **Reconciliation:** changing an earlier answer marks generated content for remove/keep; user content is never deleted silently.
+5. **Review:** linter summary in `"Prüfen"`; `"Szenario anlegen"` creates a paused mission.
 
-- Advanced builder MUST be reachable from any wizard step via `"Im Expertenmodus öffnen"` without losing input.
+- The expert flow workspace MUST be reachable at any time via `"Im Expertenmodus öffnen"` without losing input.
 
 ## Edge cases
 

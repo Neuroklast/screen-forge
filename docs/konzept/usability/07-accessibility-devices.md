@@ -22,7 +22,7 @@
 - Dialogs: focus trap, `Esc` closes non-destructive dialogs, initial focus on first field.
 - Motion: `prefers-reduced-motion` honored; no parallax in operational UI; no flashing > 3 Hz.
 - Zoom: 200 % without loss of function on control surfaces; 125 % minimum for stage config UI.
-- Language: `lang="de"` on the app; English only in code/dev surfaces.
+- Language: `lang` follows the active locale (default `en`, [12-terminology.md](12-terminology.md)); English is the canonical product language, German is a terminology profile.
 - Screen reader: live regions for clock state changes, inject firing, abort banner (polite; abort assertive).
 
 ## Color and contrast policy

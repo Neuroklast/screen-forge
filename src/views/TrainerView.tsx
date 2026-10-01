@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTraining } from "../core/useExercise";
-import { scenarioSchema, dueAt, type Scenario } from "../core/training";
+import {
+  blankScenario,
+  scenarioSchema,
+  dueAt,
+  type Scenario,
+} from "../core/training";
 import { scenarioCapabilities } from "../core/capabilities";
 import {
   PREP_SECTIONS,
@@ -9,7 +14,7 @@ import {
   type PrepSection,
 } from "../core/readiness";
 import { stationUrl } from "../core/session";
-import { ScenarioWizard } from "../training/ScenarioWizard";
+import { GuidedBuilder } from "../training/guided/GuidedBuilder";
 import { TemplateGallery } from "../training/TemplateGallery";
 import { MelTimeline } from "../training/MelTimeline";
 import { PatientControl } from "../training/PatientControl";
@@ -20,21 +25,19 @@ import { DevicesSection } from "../training/prepare/DevicesSection";
 import { FlowSection } from "../training/prepare/FlowSection";
 import { ReviewSection } from "../training/prepare/ReviewSection";
 import { t } from "../i18n";
+import { sectionTermId } from "../core/terminology";
+import { Term } from "../ui/terminology/Term";
+import { TerminologySettings } from "../ui/terminology/TerminologySettings";
+import { useTerminology } from "../ui/terminology/useTerminology";
 import { Button, Tabs } from "../ui/primitives";
 import "../training/roles.css";
 import "../training/prepare/prepare.css";
+import "../ui/terminology/terminology.css";
 
 // The preparation navigation is fixed: Overview, Scenario, Participants,
 // Devices, Flow, Review. No domain entity, implementation concept or output
-// format gets its own top-level item.
-const PREP_TABS = [
-  ["overview", "prep.tab.overview"],
-  ["scenario", "prep.tab.scenario"],
-  ["participants", "prep.tab.participants"],
-  ["devices", "prep.tab.devices"],
-  ["flow", "prep.tab.flow"],
-  ["review", "prep.tab.review"],
-] as const;
+// format gets its own top-level item. Section ids stay stable; only the visible
+// label is resolved through the terminology layer (sectionTermId).
 
 // Explicit preparation navigation state. Guided setup is a state inside the
 // section, not an isolated boolean modal, so Close/Back/Reload are deterministic
@@ -76,6 +79,7 @@ export function TrainerView({ room }: { room: string }) {
     [gallery, setGallery] = useState(false),
     [msgTo, setMsgTo] = useState("all"),
     [msgText, setMsgText] = useState("");
+  const { term, density } = useTerminology();
   const tab = loc.section;
   const wizard = loc.guidedStep !== undefined;
   const navigate = (next: PreparationLocation, replace = false) => {
@@ -212,9 +216,12 @@ export function TrainerView({ room }: { room: string }) {
             caps={caps}
             connected={connected}
             onGuided={() => {
-              if (ex.state.frozen)
+              if (ex.state.frozen) {
+                // "New scenario" starts from an empty draft; the guided
+                // interview then selects the domain and builds the content.
+                change(blankScenario("custom"));
                 navigate({ ...loc, guidedStep: 0, returnTo: loc.section });
-              else setMessage(t("trainer.pauseFirst"));
+              } else setMessage(t("trainer.pauseFirst"));
             }}
             onGallery={() => setGallery(true)}
             onImport={(file) => void importScenario(file)}
@@ -299,12 +306,12 @@ export function TrainerView({ room }: { room: string }) {
         <a href="/">SCREENFORGE</a>
         <div>
           <span className="eyebrow">
-            {t("trainer.controlEyebrow")} · {room}
+            <Term id="exercise_control" /> · {room}
           </span>
           <h1>{ex.state.scenario.name}</h1>
         </div>
         <span className={ex.online ? "status-up" : "status-down"}>
-          {t(ex.online ? "trainer.connected" : "trainer.offline")}
+          <Term id={ex.online ? "connected" : "disconnected"} />
         </span>
         <div className="training-clock">
           {Math.floor(ex.state.clock / 60)
@@ -314,7 +321,9 @@ export function TrainerView({ room }: { room: string }) {
           {Math.floor(ex.state.clock % 60)
             .toString()
             .padStart(2, "0")}
-          <small>{t(ex.state.frozen ? "common.paused" : "trainer.running")}</small>
+          <small>
+            <Term id={ex.state.frozen ? "paused" : "running"} />
+          </small>
         </div>
         <Button
           disabled={!past.length}
@@ -360,15 +369,33 @@ export function TrainerView({ room }: { room: string }) {
         >
           {t("trainer.abort")}
         </Button>
+        <TerminologySettings />
       </header>
       <Tabs
-        items={(live
-          ? ([["live", "trainer.tab.live"]] as const)
-          : PREP_TABS
-        ).map(([id, label]) => [id, t(label)] as const)}
+        items={(live ? (["live"] as const) : PREP_SECTIONS).map(
+          (id) => [id, term(sectionTermId(id))] as const,
+        )}
         active={tab}
         onSelect={setTab}
       />
+      {density !== "simple" && (
+        <div className="density-detail" aria-label={t("terminology.density")}>
+          <span>
+            {t("trainer.devicesConnected")}: {connected}
+          </span>
+          <span>
+            {t("trainer.hiddenEvents")}: {ex.state.scenario.injects.length}
+          </span>
+          {density === "full" && nextInject && (
+            <span>
+              {t("trainer.nextAction", {
+                name: nextInject.inject.name,
+                seconds: nextInject.at.toFixed(0),
+              })}
+            </span>
+          )}
+        </div>
+      )}
       {message && (
         <p className="notice" role="status">
           {message}
@@ -396,7 +423,12 @@ export function TrainerView({ room }: { room: string }) {
         </p>
       )}
       {wizard ? (
-        <ScenarioWizard
+        <GuidedBuilder
+          draft={draft}
+          change={change}
+          readOnly={!ex.state.frozen}
+          onNotice={setMessage}
+          onOpenExpert={() => navigate({ section: "flow" }, true)}
           onClose={() =>
             navigate(
               {
@@ -571,7 +603,9 @@ export function TrainerView({ room }: { room: string }) {
                     onChange={(e) => setMsgTo(e.target.value)}
                   >
                     <option value="all">{t("trainer.all")}</option>
-                    <option value="hq">HQ</option>
+                    <option value="hq">
+                      <Term id="headquarters" form="acronym" />
+                    </option>
                     {draft.stations.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name}

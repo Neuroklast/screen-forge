@@ -3,6 +3,7 @@ import { labelFor } from "../../core/labels";
 import { scenarioTypes } from "../../core/capabilities";
 import type { Scenario } from "../../core/training";
 import { t } from "../../i18n";
+import { Term } from "../../ui/terminology/Term";
 import { uid, type PrepareSectionProps } from "./shared";
 import { Panel } from "../../ui/primitives";
 
@@ -17,7 +18,9 @@ export function ScenarioSection({
   const patch = (s: Partial<Scenario>) => change({ ...draft, ...s });
   return (
     <Panel className="prepare">
-      <h2>{t("prep.tab.scenario")}</h2>
+      <h2>
+        <Term id="nav.mission" />
+      </h2>
       <div className="form-grid">
         <label>
           {t("trainer.scenarioName")}

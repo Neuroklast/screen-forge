@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { loadTemplate } from "./support/prep";
 
 async function login(page: Page) {
   await page.goto(
@@ -16,18 +17,7 @@ test("workflow pilot links, challenges the code and shows diagnostics", async ({
   browser,
 }) => {
   await login(page);
-  await page
-    .getByRole("button", { name: "Neues Szenario erstellen", exact: false })
-    .click();
-  await page
-    .getByRole("button", { name: "Device Link & Diagnostics", exact: false })
-    .first()
-    .click();
-  await page.getByLabel("Szenarioname", { exact: true }).fill("Link test");
-  for (let i = 0; i < 4; i++)
-    await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Link test");
+  await loadTemplate(page, "Device Link & Diagnostics", "Link test");
 
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
   const card = page

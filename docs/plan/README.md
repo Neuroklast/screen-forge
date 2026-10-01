@@ -43,6 +43,7 @@
 | 9 | Interaction engine | [14-interaction-engine.md](14-interaction-engine.md) | 1–4, 8 | XL | Workflow schema + deterministic interpreter, vertical pilot, graph editor, surfaces |
 | 10 | Runtime identity | [16-runtime-identity.md](16-runtime-identity.md) | any | M | Build identity + control-surface gate, PWA split, single-language boundary |
 | 11 | Legacy parity | [17-legacy-parity.md](17-legacy-parity.md) | 10 | M | Parity checklist for the legacy MissionBuilder, then removal |
+| 12 | Adaptive guided | [18-adaptive-guided.md](18-adaptive-guided.md) | 1–4, 9 | XL | Constraint-driven scenario interview, suggestion engine, live graph, wizard replacement |
 
 - Parallelizable: 2 and 3 after 1; 5 and 6 after 1; 7 throughout.
 - Every phase ships independently: no phase may leave the app in a non-building state.

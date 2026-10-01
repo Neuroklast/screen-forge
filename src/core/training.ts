@@ -5,6 +5,7 @@ import {
   isScenarioType,
   scenarioTypes,
   type CapabilityOverrides,
+  type ScenarioType,
 } from "./capabilities.ts";
 import {
   activeTaskOf,
@@ -24,6 +25,7 @@ import {
   type SceneId,
   type ScenePreset,
 } from "./config.ts";
+import { generatedMetaSchema, guidedSessionSchema } from "./guided/types.ts";
 
 // Shared by the browser and Node 24. No browser-only imports in this module.
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,40}$/);
@@ -105,6 +107,7 @@ export const patientSchema = z.object({
   overrides: vitalSchema.partial().default({}),
   triage: z.enum(["green", "yellow", "red", "black"]).default("green"),
   injuries: text.default(""),
+  origin: generatedMetaSchema.optional(),
 });
 export const dossierSchema = z.object({
   id,
@@ -128,6 +131,7 @@ export const dossierSchema = z.object({
       "Use an uploaded image or bundled media",
     ),
   released: z.boolean().default(false),
+  origin: generatedMetaSchema.optional(),
 });
 export const pointSchema = z.object({
   lat: finite.min(-85).max(85),
@@ -183,6 +187,7 @@ export const stationSchema = z.object({
     .default("7392"),
   route: z.array(pointSchema).max(20).default([]),
   presentation: presentationSchema.optional(),
+  origin: generatedMetaSchema.optional(),
 });
 export const propSchema = z.object({
   id,
@@ -192,6 +197,7 @@ export const propSchema = z.object({
   initial: z.string().max(40).default("off"),
   visible: z.boolean().default(true),
   ordnanceId: z.string().max(40).default(""),
+  origin: generatedMetaSchema.optional(),
 });
 export const teamSchema = z.object({
   id,
@@ -200,6 +206,7 @@ export const teamSchema = z.object({
     .string()
     .regex(/^#[0-9a-f]{6}$/i)
     .default("#80dce5"),
+  origin: generatedMetaSchema.optional(),
 });
 export const actorSchema = z.object({
   id,
@@ -207,13 +214,19 @@ export const actorSchema = z.object({
   character: z.string().max(120).default(""),
   briefing: text.default(""),
   dossierId: z.string().max(40).default(""),
+  origin: generatedMetaSchema.optional(),
 });
 export const zoneSchema = pointSchema.extend({
   id,
   name: label,
   radius: finite.min(5).max(10000),
+  origin: generatedMetaSchema.optional(),
 });
-export const objectiveSchema = z.object({ id, name: label });
+export const objectiveSchema = z.object({
+  id,
+  name: label,
+  origin: generatedMetaSchema.optional(),
+});
 export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("patient"), target: id, kind: z.enum(kinds) }),
   z.object({ type: z.literal("release"), target: id }),
@@ -275,6 +288,7 @@ export const injectSchema = z.object({
   repeatable: z.boolean().default(false),
   maxIterations: z.number().int().min(1).max(50).default(1),
   exitCondition: z.string().max(120).default(""),
+  origin: generatedMetaSchema.optional(),
 });
 export const capabilityOverridesSchema = z
   .object({
@@ -295,6 +309,7 @@ const scenarioV2Schema = z
     version: z.literal(2),
     type: z.enum(scenarioTypes).default("custom"),
     capabilities: capabilityOverridesSchema,
+    guided: guidedSessionSchema.optional(),
     name: label,
     mode: z.enum(["LIVE", "PLAYBACK"]),
     seed: finite.int().min(1).max(2147483647),
@@ -571,6 +586,28 @@ export function newState(
     presence: {},
   };
 }
+const defaultMap = {
+  lat: 51.23,
+  lng: 6.78,
+  zoom: 15,
+  tiles: "",
+  attribution: "",
+};
+
+// A valid, empty scenario of a type. Used when the user starts a new scenario
+// from the guided surface; every collection stays present and empty.
+export function blankScenario(type: ScenarioType = "custom"): Scenario {
+  return scenarioSchema.parse({
+    version: 2,
+    type,
+    name: "New scenario",
+    mode: type === "film" ? "PLAYBACK" : "LIVE",
+    seed: 2048,
+    map: defaultMap,
+    stations: [],
+  });
+}
+
 export function template(
   kind: "sar" | "medical" | "film" | "airsoft",
 ): Scenario {

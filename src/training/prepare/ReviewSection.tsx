@@ -1,10 +1,13 @@
 import { findingCounts, lintMission } from "../../core/missionLint";
 import { briefingFilename, missionBriefing } from "../../core/briefing";
 import { t } from "../../i18n";
+import { sectionTermId, term } from "../../core/terminology";
+import type { PrepSection } from "../../core/readiness";
+import { Term } from "../../ui/terminology/Term";
 import type { PrepareSectionProps } from "./shared";
 import { Panel } from "../../ui/primitives";
 
-const SECTION_OF: Record<string, string> = {
+const SECTION_OF: Record<string, PrepSection> = {
   stations: "devices",
   props: "devices",
   patients: "participants",
@@ -48,11 +51,11 @@ export function ReviewSection({
     counts.error > 0
       ? t("prep.review.blocked", { count: errors.length })
       : !online
-        ? t("trainer.offline")
+        ? term("disconnected")
         : dirty
           ? t("trainer.unsaved")
           : !frozen
-            ? t("trainer.running")
+            ? term("running")
             : t("prep.review.ready");
   const exportJson = () => {
     const url = URL.createObjectURL(
@@ -78,7 +81,9 @@ export function ReviewSection({
   };
   return (
     <Panel className="prepare">
-      <h2>{t("prep.tab.review")}</h2>
+      <h2>
+        <Term id="nav.review" />
+      </h2>
 
       <section className="prepare-block">
         <h3>{t("prep.review.validation")}</h3>
@@ -91,8 +96,8 @@ export function ReviewSection({
                 onClick={() => onGo(SECTION_OF[f.path.collection] ?? "scenario")}
               >
                 {t("prep.review.fixIn", {
-                  section: t(
-                    `prep.tab.${SECTION_OF[f.path.collection] ?? "scenario"}`,
+                  section: term(
+                    sectionTermId(SECTION_OF[f.path.collection] ?? "scenario"),
                   ),
                 })}
               </button>
@@ -106,8 +111,8 @@ export function ReviewSection({
                 onClick={() => onGo(SECTION_OF[f.path.collection] ?? "scenario")}
               >
                 {t("prep.review.fixIn", {
-                  section: t(
-                    `prep.tab.${SECTION_OF[f.path.collection] ?? "scenario"}`,
+                  section: term(
+                    sectionTermId(SECTION_OF[f.path.collection] ?? "scenario"),
                   ),
                 })}
               </button>

@@ -1,58 +1,19 @@
-import { test, expect, type Page } from "@playwright/test";
-
-async function login(page: Page) {
-  await page.goto(
-    `/?role=trainer&room=prep-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-  );
-  await page.getByLabel("Trainer-Schlüssel").fill("browser-test-key");
-  await page.getByRole("button", { name: "Verbinden", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Was möchtest du als Nächstes tun?" }),
-  ).toBeVisible();
-}
-
-async function openWizard(page: Page) {
-  await page
-    .getByRole("button", { name: "Neues Szenario erstellen", exact: false })
-    .click();
-  await expect(page.getByRole("heading", { name: "Zweck" })).toBeVisible();
-}
+import { test, expect } from "@playwright/test";
+import {
+  addDevice,
+  createGuided,
+  DOMAIN,
+  loadTemplate,
+  login,
+  save,
+} from "./support/prep";
 
 test("disposal setup hides patient controls and offers ordnance devices", async ({
   page,
 }) => {
-  await login(page);
-  await openWizard(page);
-  await page
-    .getByRole("button", { name: "Sprengkörper entschärfen", exact: true })
-    .click();
-  await expect(
-    page.getByRole("button", { name: "Patient hinzufügen", exact: true }),
-  ).toHaveCount(0);
-  await expect(page.getByText("Spieler hinzufügen")).toHaveCount(0);
+  await login(page, "prep-disposal");
+  await createGuided(page, DOMAIN.disposal, "Disposal test");
 
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "Patient hinzufügen", exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    page.getByRole("button", { name: "Teilnehmer hinzufügen", exact: true }),
-  ).toBeVisible();
-
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  const preset = page.getByLabel("Gerätetyp");
-  await expect(preset.locator("option", { hasText: "Medizingerät" })).toHaveCount(
-    0,
-  );
-  await preset.selectOption({ label: "Sprengkörper-Konsole" });
-  await page
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
-
-  // Participants stays free of patient controls; the prop was provisioned.
   await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Patient hinzufügen", exact: true }),
@@ -60,48 +21,47 @@ test("disposal setup hides patient controls and offers ordnance devices", async 
   await expect(
     page.getByRole("heading", { name: "Patienten", exact: true }),
   ).toHaveCount(0);
+  await expect(page.getByText("Spieler hinzufügen")).toHaveCount(0);
+
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  const addBlock = page.locator(".prepare-block").filter({
+    has: page.getByRole("heading", { name: "Gerät hinzufügen", exact: true }),
+  });
   await expect(
-    page.getByRole("heading", { name: "Requisiten", exact: true }),
-  ).toBeVisible();
+    addBlock.getByLabel("Gerätetyp").locator("option", { hasText: "Medizingerät" }),
+  ).toHaveCount(0);
+  await addDevice(page, "Sprengkörper-Konsole");
   await expect(page.locator(".prepare-device")).toContainText(
     "Sprengkörper-Konsole 1",
   );
+  await expect(
+    page.getByRole("heading", { name: "Requisiten", exact: true }),
+  ).toBeVisible();
 });
 
 test("medical setup shows patient controls and hides ordnance", async ({
   page,
 }) => {
-  await login(page);
-  await openWizard(page);
-  await page.getByRole("button", { name: "Medizin", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
+  await login(page, "prep-medical");
+  await createGuided(page, DOMAIN.medical, "Medical test");
+
+  await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Patient hinzufügen", exact: true }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Patient hinzufügen", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  const preset = page.getByLabel("Gerätetyp");
-  await expect(
-    preset.locator("option", { hasText: "Sprengkörper-Konsole" }),
-  ).toHaveCount(0);
-  await preset.selectOption({ label: "Medizingerät" });
-  await page
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
 
-  // Bind the patient, then the review is clean.
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
-  const card = page
-    .locator(".prepare-device")
-    .filter({ hasText: "Medizingerät 1" });
-  await card.getByLabel("Patienten").selectOption({ label: "Patient 1" });
-  await page.getByRole("button", { name: "Szenario speichern", exact: true }).click();
+  const addBlock = page.locator(".prepare-block").filter({
+    has: page.getByRole("heading", { name: "Gerät hinzufügen", exact: true }),
+  });
+  await expect(
+    addBlock
+      .getByLabel("Gerätetyp")
+      .locator("option", { hasText: "Sprengkörper-Konsole" }),
+  ).toHaveCount(0);
+  await addDevice(page, "Medizingerät");
+  await save(page);
+
   await page.getByRole("button", { name: "Prüfen", exact: true }).click();
   await expect(page.locator(".prepare-findings")).not.toContainText(
     "benötigt einen Patienten",
@@ -118,10 +78,10 @@ test("medical setup shows patient controls and hides ordnance", async ({
 test("film setup offers actors and hides patient and team controls", async ({
   page,
 }) => {
-  await login(page);
-  await openWizard(page);
-  await page.getByRole("button", { name: "Film", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
+  await login(page, "prep-film");
+  await createGuided(page, DOMAIN.film, "Film test");
+
+  await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Darsteller hinzufügen", exact: true }),
   ).toBeVisible();
@@ -134,15 +94,9 @@ test("film setup offers actors and hides patient and team controls", async ({
   await expect(
     page.getByRole("button", { name: "Team hinzufügen", exact: true }),
   ).toHaveCount(0);
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  const preset = page.getByLabel("Gerätetyp");
-  await preset.selectOption({ label: "Projektion" });
-  await page
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
+
+  await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await addDevice(page, "Projektion");
   await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Darsteller", exact: true }),
@@ -158,26 +112,12 @@ test("film setup offers actors and hides patient and team controls", async ({
 test("existing template is edited and saved from the preparation shell", async ({
   page,
 }) => {
-  await login(page);
-  await openWizard(page);
-  await page
-    .getByRole("button", { name: "Relay Recovery", exact: false })
-    .first()
-    .click();
-  await page.getByLabel("Szenarioname", { exact: true }).fill("Relay edited");
-  for (let i = 0; i < 4; i++)
-    await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Relay edited",
-  );
+  await login(page, "prep-template");
+  await loadTemplate(page, "Relay Recovery", "Relay edited");
 
   await page.getByRole("button", { name: "Szenario", exact: true }).click();
   await page.getByLabel("Szenarioname", { exact: true }).fill("Relay edited 2");
-  await page.getByRole("button", { name: "Szenario speichern", exact: true }).click();
-  await expect(page.locator('.notice[role="status"]')).toContainText(
-    "Szenario gespeichert",
-  );
+  await save(page);
   await page.reload();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Relay edited 2",
@@ -187,7 +127,7 @@ test("existing template is edited and saved from the preparation shell", async (
 test("branched workflow stays connected and reports open outputs", async ({
   page,
 }) => {
-  await login(page);
+  await login(page, "prep-branch");
   await page.getByRole("button", { name: "Ablauf", exact: true }).click();
   await page
     .getByRole("button", { name: "Ablauf anlegen", exact: true })
@@ -220,7 +160,7 @@ test("branched workflow stays connected and reports open outputs", async ({
 });
 
 test("device assignment links equipment to a participant", async ({ page }) => {
-  await login(page);
+  await login(page, "prep-device");
   await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   await page.getByRole("button", { name: "Team hinzufügen", exact: true }).click();
   await page
@@ -252,7 +192,7 @@ test("device assignment links equipment to a participant", async ({ page }) => {
 test("timed event appears on the timeline with a human sentence", async ({
   page,
 }) => {
-  await login(page);
+  await login(page, "prep-timed");
   await page.getByRole("button", { name: "Ablauf", exact: true }).click();
   await page.getByRole("button", { name: "Zeitpunkt", exact: true }).click();
   const chip = page.locator(".flow-chip").filter({ hasText: "1:00" });
@@ -269,7 +209,7 @@ test("timed event appears on the timeline with a human sentence", async ({
 test("event that starts a workflow highlights the entry node", async ({
   page,
 }) => {
-  await login(page);
+  await login(page, "prep-highlight");
   await page.getByRole("button", { name: "Geräte", exact: true }).click();
   await page
     .getByRole("button", { name: "Requisite hinzufügen", exact: true })
@@ -292,22 +232,13 @@ test("event that starts a workflow highlights the entry node", async ({
 test("start validation blocks a medical scenario without a patient", async ({
   page,
 }) => {
-  await login(page);
-  await openWizard(page);
-  await page.getByRole("button", { name: "Medizin", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  const preset = page.getByLabel("Gerätetyp");
-  await preset.selectOption({ label: "Medizingerät" });
-  await page
-    .getByRole("button", { name: "Gerät hinzufügen", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Weiter", exact: true }).click();
-  await page.getByRole("button", { name: "Szenario anlegen" }).click();
+  await login(page, "prep-medical-gate");
+  await createGuided(page, DOMAIN.medical, "Medical validation");
+  await page.getByRole("button", { name: "Geräte", exact: true }).click();
+  await addDevice(page, "Medizingerät");
+  await save(page);
 
-  // The guided setup provisioned a patient; remove it to make the treatment
-  // requirement fail.
+  // Remove the provisioned patient so the treatment requirement fails.
   await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
   const patientCard = page.locator(".prepare-person").filter({
     has: page.getByText("Patienten", { exact: true }),
@@ -331,10 +262,7 @@ test("start validation blocks a medical scenario without a patient", async ({
     .locator(".prepare-device")
     .filter({ hasText: "Medizingerät 1" });
   await card.getByLabel("Patienten").selectOption({ label: "Patient 1" });
-  await page.getByRole("button", { name: "Szenario speichern", exact: true }).click();
-  await expect(page.locator('.notice[role="status"]')).toContainText(
-    "Szenario gespeichert",
-  );
+  await save(page);
 
   await page.getByRole("button", { name: "Prüfen", exact: true }).click();
   const start = page.getByRole("button", {

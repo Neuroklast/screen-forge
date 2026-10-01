@@ -22,6 +22,7 @@ import { StartPage } from "./views/StartPage";
 import { SafetyView } from "./views/SafetyView";
 import { AssessorView } from "./views/AssessorView";
 import { DemoHub } from "./demo/DemoHub";
+import { TerminologyProvider } from "./ui/terminology/TerminologyProvider";
 import "./tokens.css";
 import "./layout.css";
 import "./styles.css";
@@ -89,7 +90,9 @@ function Root() {
 }
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Root />
+    <TerminologyProvider>
+      <Root />
+    </TerminologyProvider>
   </React.StrictMode>,
 );
 

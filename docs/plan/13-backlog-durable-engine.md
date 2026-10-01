@@ -31,7 +31,7 @@
 | E8 | Linter + dependency graph validator | `src/core/missionLint.ts`, `src/core/graph.ts` | E7 | rule classes detected |
 | E9 | Live-MEL timeline + AAR replay (R10/R11) | `src/views/DebriefView.tsx`, `src/training/MelTimeline.tsx`, `src/core/export.ts` | E2 | replay matches run |
 | E10 | TaskBlock registry + generated builder | `src/core/taskBlocks.ts`, `src/builder/MissionBuilder.tsx` | — | new block = one definition |
-| E11 | Easy wizard (story beats) | `src/training/ScenarioWizard.tsx` | E12 | ≤ 5 min valid mission |
+| E11 | Easy wizard (story beats) | superseded by [18-adaptive-guided.md](18-adaptive-guided.md) | E12 | ≤ 5 min valid mission |
 | E12 | Three templates + MSEL | `src/core/templates.ts`, `presets/missions/*.json` | — | templates validate |
 
 ## Wave 3 — Professional
