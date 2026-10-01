@@ -6,7 +6,11 @@ import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
 import { WorkspaceShell } from "../../ui/WorkspaceShell";
 import type { PrepareSectionProps } from "./shared";
-import { devicePresetsFor, type DevicePreset } from "./devicePresets";
+import {
+  devicePresetsFor,
+  splitPresets,
+  type DevicePreset,
+} from "./devicePresets";
 import { DeviceNavigator } from "./devices/DeviceNavigator";
 import { DevicePreview, effectiveScene } from "./devices/DevicePreview";
 import { DeviceInspector } from "./devices/DeviceInspector";
@@ -73,7 +77,9 @@ export function DevicesSection({
   const [preview, setPreview] = useState<PreviewState>("normal");
   const [tool, setTool] = useState<WorkspaceTool>("build");
   const [addOpen, setAddOpen] = useState(false);
+  const [addMore, setAddMore] = useState(false);
   const presets = devicePresetsFor(caps);
+  const { recommended, more } = splitPresets(presets, draft.type);
   const teams = draft.teams;
   const participants = draft.stations.filter((station) => station.player);
   const hasOwnershipOptions =
@@ -267,7 +273,10 @@ export function DevicesSection({
               </button>
               {addOpen && (
                 <div className="sf-device-add-menu">
-                  {presets.map((preset) => (
+                  <span className="sf-device-add-group">
+                    {t("prep.devices.recommended")}
+                  </span>
+                  {recommended.map((preset) => (
                     <button
                       key={preset.id}
                       type="button"
@@ -277,6 +286,27 @@ export function DevicesSection({
                       {t(preset.labelKey)}
                     </button>
                   ))}
+                  {more.length > 0 && (
+                    <button
+                      type="button"
+                      className="sf-device-add-group is-toggle"
+                      aria-expanded={addMore}
+                      onClick={() => setAddMore((value) => !value)}
+                    >
+                      {t("prep.devices.more")}
+                    </button>
+                  )}
+                  {addMore &&
+                    more.map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        disabled={readOnly}
+                        onClick={() => add(preset)}
+                      >
+                        {t(preset.labelKey)}
+                      </button>
+                    ))}
                 </div>
               )}
             </div>

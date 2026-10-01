@@ -58,3 +58,29 @@ export function devicePresetsFor(
     return !capability || caps[capability];
   });
 }
+
+// Scenario-relevant presets first, the rest behind "More…". This is a ranking,
+// not a filter: nothing is removed.
+const RECOMMENDED: Record<string, string[]> = {
+  disposal: ["ordnance", "beacon", "camera", "terminal"],
+  medical: ["medical", "field", "radio", "terminal"],
+  sar: ["field", "radio", "camera", "terminal"],
+  technical: ["terminal", "access", "lock", "dataSheet", "codeTable"],
+  film: ["hologram", "terminal", "countdown", "intranet", "camera"],
+  field: ["field", "radio", "camera", "terminal"],
+  custom: ["field", "terminal", "camera", "medical"],
+};
+
+export function splitPresets(
+  presets: DevicePreset[],
+  type: string,
+): { recommended: DevicePreset[]; more: DevicePreset[] } {
+  const ranked = (RECOMMENDED[type] ?? [])
+    .map((id) => presets.find((preset) => preset.id === id))
+    .filter((preset): preset is DevicePreset => !!preset);
+  const recommended = ranked.length ? ranked : presets.slice(0, 4);
+  return {
+    recommended,
+    more: presets.filter((preset) => !recommended.includes(preset)),
+  };
+}

@@ -20,8 +20,8 @@ const SECTION_OF: Record<string, PrepSection> = {
   injects: "flow",
 };
 
-// Review: the only place that blocks the start. Findings are explained in
-// normal language and link to the section that fixes them.
+// Review: a launch gate. It shows the blocker/warning counts, one next action,
+// and the start button; findings and briefing are secondary detail.
 export function ReviewSection({
   draft,
   online,
@@ -57,6 +57,9 @@ export function ReviewSection({
           : !frozen
             ? term("running")
             : t("prep.review.ready");
+  const next = errors[0] ?? warnings[0] ?? infos[0];
+  const sectionOf = (collection: string) =>
+    SECTION_OF[collection] ?? "scenario";
   const exportJson = () => {
     const url = URL.createObjectURL(
       new Blob([JSON.stringify(draft, null, 2)], {
@@ -85,20 +88,47 @@ export function ReviewSection({
         <Term id="nav.review" />
       </h2>
 
-      <section className="prepare-block">
-        <h3>{t("prep.review.validation")}</h3>
+      <section className="prepare-block launch-gate">
+        <h3>{t("prep.review.readyTitle")}</h3>
+        <div className="launch-counts">
+          <span className={counts.error ? "is-error" : "is-ok"}>
+            {counts.error} {t("prep.review.blockers")}
+          </span>
+          <span className={counts.warning ? "is-warning" : "is-ok"}>
+            {counts.warning} {t("prep.review.warnings")}
+          </span>
+        </div>
+        <div className="button-row">
+          <button
+            disabled={!next}
+            onClick={() => next && onGo(sectionOf(next.path.collection))}
+          >
+            {t("prep.review.fixNext")}
+          </button>
+          <button
+            className="primary"
+            disabled={blocked}
+            onClick={onStart}
+            title={blocked ? blockReason : ""}
+          >
+            {t("trainer.start")}
+          </button>
+        </div>
+        <p className="prepare-hint">{blockReason}</p>
+      </section>
+
+      <details className="prepare-advanced">
+        <summary>{t("prep.review.details")}</summary>
         <ul className="prepare-findings">
           {errors.map((f) => (
             <li key={f.id} className="is-error">
               <span>{f.message}</span>
               <button
                 className="prepare-fix"
-                onClick={() => onGo(SECTION_OF[f.path.collection] ?? "scenario")}
+                onClick={() => onGo(sectionOf(f.path.collection))}
               >
                 {t("prep.review.fixIn", {
-                  section: term(
-                    sectionTermId(SECTION_OF[f.path.collection] ?? "scenario"),
-                  ),
+                  section: term(sectionTermId(sectionOf(f.path.collection))),
                 })}
               </button>
             </li>
@@ -108,12 +138,10 @@ export function ReviewSection({
               <span>{f.message}</span>
               <button
                 className="prepare-fix"
-                onClick={() => onGo(SECTION_OF[f.path.collection] ?? "scenario")}
+                onClick={() => onGo(sectionOf(f.path.collection))}
               >
                 {t("prep.review.fixIn", {
-                  section: term(
-                    sectionTermId(SECTION_OF[f.path.collection] ?? "scenario"),
-                  ),
+                  section: term(sectionTermId(sectionOf(f.path.collection))),
                 })}
               </button>
             </li>
@@ -127,18 +155,7 @@ export function ReviewSection({
             <li className="is-ok">{t("prep.review.noFindings")}</li>
           )}
         </ul>
-        <p className="prepare-hint">{blockReason}</p>
-      </section>
-
-      <section className="prepare-block">
-        <h3>{t("prep.review.deviceReadiness")}</h3>
-        <ul>
-          <li>{t("trainer.ready1")}</li>
-          <li>{t("trainer.ready2")}</li>
-          <li>{t("trainer.ready3")}</li>
-          <li>{t("trainer.ready4")}</li>
-        </ul>
-      </section>
+      </details>
 
       <section className="prepare-block">
         <h3>{t("prep.review.briefing")}</h3>
@@ -158,20 +175,10 @@ export function ReviewSection({
           </button>
           <button onClick={exportJson}>{t("prep.review.saveTemplate")}</button>
         </div>
-        <pre className="briefing-text">{briefing}</pre>
-      </section>
-
-      <section className="prepare-block">
-        <div className="button-row">
-          <button
-            className="primary"
-            disabled={blocked}
-            onClick={onStart}
-            title={blocked ? blockReason : ""}
-          >
-            {t("trainer.start")}
-          </button>
-        </div>
+        <details className="prepare-advanced">
+          <summary>{t("prep.review.details")}</summary>
+          <pre className="briefing-text">{briefing}</pre>
+        </details>
       </section>
     </Panel>
   );

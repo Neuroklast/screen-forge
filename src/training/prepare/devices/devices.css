@@ -66,6 +66,25 @@
   border-color: #80dce5;
 }
 
+.sf-device-add-group {
+  grid-column: 1 / -1;
+  padding: 2px 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4f6570;
+}
+
+.sf-device-add-group.is-toggle {
+  padding: 5px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #8a9aa2;
+  text-align: left;
+  cursor: pointer;
+}
+
 .sf-device-tools {
   display: grid;
   grid-auto-flow: column;

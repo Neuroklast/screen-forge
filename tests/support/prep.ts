@@ -70,5 +70,8 @@ export async function openAddDevice(page: Page) {
 export async function addDevice(page: Page, label: string) {
   const preset = page.getByRole("button", { name: label, exact: true });
   if ((await preset.count()) === 0) await openAddDevice(page);
+  // Less common presets live behind "More…".
+  if ((await preset.count()) === 0)
+    await page.getByRole("button", { name: "Mehr…", exact: true }).click();
   await preset.click();
 }
