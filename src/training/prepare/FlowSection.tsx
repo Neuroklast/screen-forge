@@ -1,14 +1,20 @@
 import { lazy, Suspense, useState } from "react";
-import { injectSchema, type Inject, type Scenario } from "../../core/training";
+import type { Inject, Scenario } from "../../core/training";
 import { lintMission } from "../../core/missionLint";
 import {
   addNodeOfType,
   createNodeOfKind,
-  createWorkflow,
   flowLinks,
-  workflowUid,
   type FlowNodeKind,
 } from "../../core/workflowEdit";
+import {
+  addEvent as addEventCommand,
+  addWorkflow as addWorkflowCommand,
+  removeEvent,
+  removeWorkflow,
+  setInject,
+  setWorkflow,
+} from "./flowCommands";
 import { type Workflow } from "../../core/workflow";
 import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
@@ -61,49 +67,32 @@ export function FlowSection({
       ? draft.injects.find((row) => row.id === selection.id)
       : undefined;
 
-  const patchWorkflow = (next: Workflow) =>
-    change({
-      ...draft,
-      workflows: draft.workflows.map((row) =>
-        row.id === next.id ? next : row,
-      ),
-    });
+  const patchWorkflow = (next: Workflow) => change(setWorkflow(draft, next));
   const patchInject = (id: string, patch: Partial<Inject>) =>
-    change({
-      ...draft,
-      injects: draft.injects.map((row) =>
-        row.id === id ? { ...row, ...patch } : row,
-      ),
-    });
+    change(setInject(draft, id, patch));
   const selectWorkflow = (id: string) => {
     setWorkflowId(id);
     setSelection(null);
   };
   const addWorkflow = () => {
-    const id = workflowUid("wf");
-    change({ ...draft, workflows: [...draft.workflows, createWorkflow(id)] });
-    selectWorkflow(id);
+    const result = addWorkflowCommand(draft);
+    change(result.scenario);
+    selectWorkflow(result.id);
   };
   const deleteWorkflow = () => {
     if (!workflow) return;
     const rest = draft.workflows.filter((row) => row.id !== workflow.id);
-    change({ ...draft, workflows: rest });
+    change(removeWorkflow(draft, workflow.id));
     selectWorkflow(rest[0]?.id ?? "");
   };
   const deleteEvent = (id: string) => {
-    change({ ...draft, injects: draft.injects.filter((row) => row.id !== id) });
+    change(removeEvent(draft, id));
     if (selection?.kind === "event" && selection.id === id) setSelection(null);
   };
   const addEvent = (trigger: Inject["trigger"]) => {
-    const inject = injectSchema.parse({
-      id: uid("event"),
-      name: t(`flow.event.${trigger === "timer" ? "time" : trigger}`),
-      trigger,
-      at: 60,
-      actions: [{ type: "message", text: t("editor.statusCheck") }],
-    });
-    change({ ...draft, injects: [...draft.injects, inject] });
-    setSelection({ kind: "event", id: inject.id });
+    const result = addEventCommand(draft, trigger);
+    change(result.scenario);
+    setSelection({ kind: "event", id: result.id });
   };
   const addNode = (kind: FlowNodeKind) => {
     if (!workflow) return;
