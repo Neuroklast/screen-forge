@@ -128,3 +128,92 @@
   color: #4f6570;
   font-size: 12px;
 }
+
+/* Team template picker + staffing (docs/konzept/domain/16-team-templates.md). */
+.sf-force-template {
+  position: relative;
+}
+
+.sf-force-template-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--sf-z-float);
+  display: grid;
+  gap: 2px;
+  min-width: 280px;
+  padding: 6px;
+  border: 1px solid #263038;
+  background: #0a1016;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.sf-force-template-menu button {
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #d6e2e5;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sf-force-template-menu button:hover:not(:disabled) {
+  border-color: #80dce5;
+}
+
+.sf-force-template-menu small {
+  color: #4f6570;
+  font-size: 10px;
+}
+
+.sf-force-template-group {
+  padding: 2px 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4f6570;
+}
+
+.sf-force-template-group.is-toggle {
+  padding: 6px 8px;
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  color: #8a9aa2;
+  cursor: pointer;
+}
+
+.sf-force-staffing {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #1e2a33;
+  background: #0b131a;
+}
+
+.sf-force-staffing > span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: #8a9aa2;
+}
+
+.sf-force-staffing ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.sf-force-staffing li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.sf-force-staffing b {
+  color: #8a9aa2;
+}

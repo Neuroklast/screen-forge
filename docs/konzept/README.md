@@ -30,6 +30,7 @@
 | 13 | [domain/13-field-client.md](domain/13-field-client.md) | Field shell, background location, offline maps |
 | 14 | [domain/14-interaction-model.md](domain/14-interaction-model.md) | Tasks, workflows, surfaces, interaction runtime |
 | 15 | [domain/15-scenario-capabilities.md](domain/15-scenario-capabilities.md) | Scenario type, capability matrix, capability validation |
+| 16 | [domain/16-team-templates.md](domain/16-team-templates.md) | Team templates, role catalog, callsigns, scenario identity |
 
 ## Usability concept
 

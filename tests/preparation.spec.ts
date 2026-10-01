@@ -274,3 +274,23 @@ test("start validation blocks a medical scenario without a patient", async ({
     page.getByRole("heading", { name: "Verdeckte Ereignisse" }),
   ).toBeVisible();
 });
+
+test("a team can be created from a template with staffing", async ({ page }) => {
+  await login(page, "prep-team-template");
+  await page.getByRole("button", { name: "Teilnehmer", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Team aus Vorlage", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Compact Field Team", exact: true })
+    .click();
+  // The team inspector shows the template and its staffing.
+  await expect(page.locator(".sf-force-staffing")).toContainText("4 / 4");
+  // One participant per recommended role slot.
+  await expect(
+    page.locator(".sf-force-item").filter({ hasText: "Team Leader" }),
+  ).toHaveCount(1);
+  await expect(
+    page.locator(".sf-force-item").filter({ hasText: "Communications Specialist" }),
+  ).toHaveCount(1);
+});

@@ -187,6 +187,10 @@ export const stationSchema = z.object({
     .regex(/^\d{4,12}$/)
     .default("7392"),
   route: z.array(pointSchema).max(20).default([]),
+  // Primary team role + extra qualifications. A role is not a person and not a
+  // qualification (docs/konzept/domain/16-team-templates.md).
+  roleId: z.string().max(40).optional(),
+  qualifications: z.array(z.string().max(40)).max(20).optional(),
   // Explicit visible surface; when unset it is derived from the module
   // (docs/architecture/devices.md).
   surface: z.enum(deviceSurfaceIds).optional(),
@@ -210,6 +214,10 @@ export const teamSchema = z.object({
     .string()
     .regex(/^#[0-9a-f]{6}$/i)
     .default("#80dce5"),
+  // Team template + fictional callsign (docs/konzept/domain/16-team-templates.md).
+  templateId: z.string().max(40).optional(),
+  callsign: z.string().max(40).optional(),
+  parentTeamId: z.string().max(40).optional(),
   origin: generatedMetaSchema.optional(),
 });
 export const actorSchema = z.object({

@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { kinds, type Scenario } from "../../core/training";
 import { labelFor } from "../../core/labels";
+import { teamRoleLabel } from "../../core/roles";
+import {
+  recommendedStaffing,
+  splitTeamTemplates,
+  teamTemplate,
+  teamTemplateLabel,
+} from "../../core/teamTemplates";
 import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
 import { WorkspaceShell } from "../../ui/WorkspaceShell";
@@ -11,6 +18,7 @@ import {
   addParticipant,
   addPatient,
   addTeam,
+  addTeamFromTemplate,
   removeActor,
   removeParticipant,
   removePatient,
@@ -69,6 +77,16 @@ export function ParticipantsSection({
   caps,
 }: PrepareSectionProps) {
   const [selection, setSelection] = useState<ForceSelection>(null);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [templatesMore, setTemplatesMore] = useState(false);
+  const { recommended: recommendedTemplates, more: moreTemplates } =
+    splitTeamTemplates(draft.type);
+  const addFromTemplate = (templateId: string) => {
+    const result = addTeamFromTemplate(draft, templateId);
+    change(result.scenario);
+    if (result.teamId) setSelection({ kind: "team", id: result.teamId });
+    setTemplatesOpen(false);
+  };
   const teams = draft.teams;
   const participants = draft.stations.filter((station) => station.player);
   const teamDevices = (team: string) =>
@@ -148,6 +166,67 @@ export function ParticipantsSection({
                 <button disabled={readOnly} onClick={() => change(addTeam(draft))}>
                   {t("prep.people.addTeam")}
                 </button>
+              )}
+              {caps.teams && (
+                <div className="sf-force-template">
+                  <button
+                    disabled={readOnly}
+                    aria-expanded={templatesOpen}
+                    onClick={() => setTemplatesOpen((value) => !value)}
+                  >
+                    {t("prep.people.addTeamTemplate")}
+                  </button>
+                  {templatesOpen && (
+                    <div className="sf-force-template-menu">
+                      <span className="sf-force-template-group">
+                        {t("prep.people.recommended")}
+                      </span>
+                      {recommendedTemplates.map((template) => (
+                        <button
+                          key={template.id}
+                          disabled={readOnly}
+                          aria-label={teamTemplateLabel(template.id)}
+                          onClick={() => addFromTemplate(template.id)}
+                        >
+                          <strong>{teamTemplateLabel(template.id)}</strong>
+                          <small>
+                            {recommendedStaffing(template)} ·{" "}
+                            {template.roles
+                              .map((role) => teamRoleLabel(role.roleId))
+                              .join(" · ")}
+                          </small>
+                        </button>
+                      ))}
+                      {moreTemplates.length > 0 && (
+                        <button
+                          type="button"
+                          className="sf-force-template-group is-toggle"
+                          aria-expanded={templatesMore}
+                          onClick={() => setTemplatesMore((value) => !value)}
+                        >
+                          {t("prep.people.more")}
+                        </button>
+                      )}
+                      {templatesMore &&
+                        moreTemplates.map((template) => (
+                          <button
+                            key={template.id}
+                            disabled={readOnly}
+                            aria-label={teamTemplateLabel(template.id)}
+                            onClick={() => addFromTemplate(template.id)}
+                          >
+                            <strong>{teamTemplateLabel(template.id)}</strong>
+                            <small>
+                              {recommendedStaffing(template)} ·{" "}
+                              {template.roles
+                                .map((role) => teamRoleLabel(role.roleId))
+                                .join(" · ")}
+                            </small>
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </div>
               )}
               {caps.participants && (
                 <button
@@ -300,6 +379,39 @@ export function ParticipantsSection({
                     }
                   />
                 </label>
+                {(() => {
+                  const template = selectedTeam.templateId
+                    ? teamTemplate(selectedTeam.templateId)
+                    : undefined;
+                  if (!template) return null;
+                  const staff = participants.filter(
+                    (row) => row.team === selectedTeam.id,
+                  );
+                  return (
+                    <div className="sf-force-staffing">
+                      <strong>{teamTemplateLabel(template.id)}</strong>
+                      <span>
+                        {staff.length} / {recommendedStaffing(template)}{" "}
+                        {t("prep.people.staffed")}
+                      </span>
+                      <ul>
+                        {template.roles.map((roleSlot) => (
+                          <li key={roleSlot.roleId}>
+                            <span>{teamRoleLabel(roleSlot.roleId)}</span>
+                            <b>
+                              {
+                                staff.filter(
+                                  (row) => row.roleId === roleSlot.roleId,
+                                ).length
+                              }{" "}
+                              / {roleSlot.recommended}
+                            </b>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })()}
               </>
             )}
             {selectedParticipant && (

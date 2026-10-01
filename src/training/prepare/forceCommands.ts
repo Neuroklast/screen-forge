@@ -5,6 +5,9 @@ import {
   teamSchema,
   type Scenario,
 } from "../../core/training";
+import { randomCallsignRoot, renderCallsign } from "../../core/callsigns";
+import { teamRoleLabel } from "../../core/roles";
+import { teamTemplate } from "../../core/teamTemplates";
 import { t } from "../../i18n";
 import { uid } from "./shared";
 
@@ -25,6 +28,56 @@ export function addTeam(scenario: Scenario): Scenario {
         name: t("prep.people.teamName", { n: scenario.teams.length + 1 }),
       }),
     ],
+  };
+}
+
+// Creates a team from a template: a fictional callsign, then one participant per
+// recommended role slot with the primary role attached. Optional attachments
+// stay suggestions (see the team inspector).
+export function addTeamFromTemplate(
+  scenario: Scenario,
+  templateId: string,
+  rng: () => number = Math.random,
+): { scenario: Scenario; teamId: string } {
+  const template = teamTemplate(templateId);
+  if (!template) return { scenario, teamId: "" };
+  const element =
+    scenario.teams.filter((team) => team.templateId === templateId).length + 1;
+  const scheme = template.callsignScheme
+    ? { ...template.callsignScheme, root: randomCallsignRoot(rng) }
+    : undefined;
+  const callsign = scheme ? renderCallsign(scheme, element) : template.label;
+  const team = teamSchema.parse({
+    id: uid("team").toUpperCase().replace("-", ""),
+    name: callsign,
+    templateId: template.id,
+    callsign,
+  });
+  const stations: Scenario["stations"] = [];
+  let index = 0;
+  for (const slot of template.roles) {
+    for (let count = 0; count < slot.recommended; count++) {
+      index += 1;
+      stations.push(
+        stationSchema.parse({
+          id: uid("participant"),
+          name: `${callsign} ${index} · ${teamRoleLabel(slot.roleId)}`,
+          role: "element",
+          module: "tracking",
+          player: true,
+          team: team.id,
+          roleId: slot.roleId,
+        }),
+      );
+    }
+  }
+  return {
+    scenario: {
+      ...scenario,
+      teams: [...scenario.teams, team],
+      stations: [...scenario.stations, ...stations],
+    },
+    teamId: team.id,
   };
 }
 

@@ -81,3 +81,11 @@
 | W72 | Persisted `station.surface` + authoring control; runtime states win; unit tests | done |
 | W73 | Every element fully configurable: node name + typed enum/reference fields; missing task fields added | done |
 | W74 | Document task completion → success/failure port transition (interaction model) | done |
+| W80 | Role catalog (21 roles, i18n labels) + 9 built-in team templates | done |
+| W81 | Fictional callsign scheme/generator + scenario identity generator | done |
+| W82 | Schema: `team.templateId/callsign/parentTeamId`, `station.roleId/qualifications` (additive) | done |
+| W83 | Forces: `"Team aus Vorlage"` picker + staffing inspector | done |
+| W84 | Next: equipment capability packs (capability-based, device link) | todo |
+| W85 | Next: scenario templates with variants (`base + overrides`) | todo |
+| W86 | Next: MSEL event metadata (inject, expected observation, linked objective) | todo |
+| W87 | Next: guided integration (team kind → recommended composition → deviations) | todo |
