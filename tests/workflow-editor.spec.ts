@@ -24,8 +24,11 @@ test("choice tasks expose dynamic ports", async ({ page }) => {
   await page
     .getByRole("combobox", { name: "b", exact: true })
     .selectOption({ index: 1 });
+  await expect(page.locator(".flow-canvas .react-flow")).toBeVisible();
   const startNode = page.locator(".wf-node").filter({ hasText: "Start" });
-  await expect(startNode).toBeVisible();
+  // React Flow hides a node until it has measured it; under load that can take
+  // longer than the default assertion timeout.
+  await expect(startNode).toBeVisible({ timeout: 15000 });
   await startNode.click();
   await page
     .getByRole("combobox", { name: "Weiter", exact: true })
@@ -52,7 +55,10 @@ test("flow workspace creates, connects and lints a flow", async ({ page }) => {
     .selectOption({ index: 1 });
 
   // Rewire the start output to the task (accessible path, no dragging).
-  await page.locator(".wf-node").filter({ hasText: "Start" }).click();
+  await expect(page.locator(".flow-canvas .react-flow")).toBeVisible();
+  const start = page.locator(".wf-node").filter({ hasText: "Start" });
+  await expect(start).toBeVisible({ timeout: 15000 });
+  await start.click();
   await page
     .getByRole("combobox", { name: "Weiter", exact: true })
     .selectOption({ index: 2 });

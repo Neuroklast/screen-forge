@@ -362,15 +362,17 @@ export function TrainerView({ room }: { room: string }) {
         >
           {t(ex.state.frozen ? "trainer.start" : "trainer.pause")}
         </Button>
-        <Button
-          disabled={!ex.online}
-          onClick={() => {
-            if (confirm(t("trainer.resetConfirm")))
-              ex.send({ type: "transport", command: "reset" });
-          }}
-        >
-          {t("trainer.reset")}
-        </Button>
+        {!live && (
+          <Button
+            disabled={!ex.online}
+            onClick={() => {
+              if (confirm(t("trainer.resetConfirm")))
+                ex.send({ type: "transport", command: "reset" });
+            }}
+          >
+            {t("trainer.reset")}
+          </Button>
+        )}
         <Button
           variant="danger"
           disabled={!ex.online || ex.state.phase === "aborted"}

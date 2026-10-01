@@ -195,7 +195,11 @@
 }
 
 .flow-canvas {
-  min-height: 0;
+  /* React Flow needs a measurable viewport: give the canvas a definite grid row
+     so its `height: 100%` child resolves instead of collapsing to zero. */
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 360px;
   border: 1px solid #1e2a33;
   overflow: hidden;
 }

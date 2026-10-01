@@ -74,3 +74,6 @@
 | W65 | `"Übersicht"` becomes the project/start page; five editor sections (Mission/Forces/Assets/Flow/Review) | done |
 | W66 | Extract `deviceSurfaceKind`: the surface is resolved separately from the renderer | done |
 | W67 | Preview scenarios: one control, generic states + surface-specific situations | done |
+| W68 | Add-device catalog: profile descriptions + hover preview in the canvas | done |
+| W69 | Header phase grouping: reset hidden while the exercise runs | done |
+| W70 | Stabilize the React Flow test flake (measurable canvas, visibility waits, retries) | done |

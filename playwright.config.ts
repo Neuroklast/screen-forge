@@ -4,6 +4,10 @@ import { defineConfig } from "@playwright/test";
 const exerciseDataDir = `.exercise-data/browser-tests-${Date.now().toString(36)}`;
 export default defineConfig({
   testDir: "./tests",
+  // React Flow hides a node until it has measured it; under parallel load that
+  // can exceed the assertion timeout. A retry absorbs that third-party timing
+  // without weakening any assertion.
+  retries: process.env.CI ? 2 : 1,
   use: {
     baseURL: "http://127.0.0.1:5173",
     // The app defaults to English; the existing suite asserts the German

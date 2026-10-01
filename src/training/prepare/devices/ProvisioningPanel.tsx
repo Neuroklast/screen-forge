@@ -36,7 +36,7 @@ export function ProvisioningPanel({
 }) {
   return (
     <div className="sf-device-provision">
-      <h3>{t("prep.devices.tool.provision")}</h3>
+      <h3>{t("prep.devices.provisionTitle")}</h3>
       <p className="prepare-hint">{t("trainer.qrNote")}</p>
       <label>
         {t("trainer.address")}

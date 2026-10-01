@@ -3,32 +3,37 @@ import type { Scenario } from "../../core/training";
 
 // Human device presets: guided setup and the devices section never ask for a
 // module. The module stays the storage format behind the preset.
+// A preset is a device profile: it decides the module (capability), whether the
+// device belongs to a participant, and the one-line description the catalog
+// shows. The user picks a profile; ScreenForge resolves the rest
+// (docs/architecture/devices.md).
 export type DevicePreset = {
   id: string;
   labelKey: string;
+  descriptionKey: string;
   module: Scenario["stations"][number]["module"];
   player?: boolean;
 };
 
 export const devicePresets: DevicePreset[] = [
-  { id: "field", labelKey: "device.preset.field", module: "tracking", player: true },
-  { id: "radio", labelKey: "device.preset.radio", module: "comms" },
-  { id: "medical", labelKey: "device.preset.medical", module: "medical" },
-  { id: "camera", labelKey: "device.preset.camera", module: "camera" },
-  { id: "terminal", labelKey: "device.preset.terminal", module: "terminal" },
-  { id: "access", labelKey: "device.preset.access", module: "access" },
-  { id: "lock", labelKey: "device.preset.lock", module: "lock" },
-  { id: "countdown", labelKey: "device.preset.countdown", module: "countdown" },
-  { id: "ordnance", labelKey: "device.preset.ordnance", module: "ordnance" },
-  { id: "beacon", labelKey: "device.preset.beacon", module: "beacon" },
-  { id: "dataSheet", labelKey: "device.preset.dataSheet", module: "data-sheet" },
-  { id: "codeTable", labelKey: "device.preset.codeTable", module: "code-table" },
-  { id: "rotary", labelKey: "device.preset.rotary", module: "rotary" },
-  { id: "clock", labelKey: "device.preset.clock", module: "clock" },
-  { id: "os", labelKey: "device.preset.os", module: "os" },
-  { id: "intranet", labelKey: "device.preset.intranet", module: "intranet" },
-  { id: "hologram", labelKey: "device.preset.hologram", module: "hologram" },
-  { id: "slide", labelKey: "device.preset.slide", module: "slide" },
+  { id: "field", labelKey: "device.preset.field", descriptionKey: "device.desc.field", module: "tracking", player: true },
+  { id: "radio", labelKey: "device.preset.radio", descriptionKey: "device.desc.radio", module: "comms" },
+  { id: "medical", labelKey: "device.preset.medical", descriptionKey: "device.desc.medical", module: "medical" },
+  { id: "camera", labelKey: "device.preset.camera", descriptionKey: "device.desc.camera", module: "camera" },
+  { id: "terminal", labelKey: "device.preset.terminal", descriptionKey: "device.desc.terminal", module: "terminal" },
+  { id: "access", labelKey: "device.preset.access", descriptionKey: "device.desc.access", module: "access" },
+  { id: "lock", labelKey: "device.preset.lock", descriptionKey: "device.desc.lock", module: "lock" },
+  { id: "countdown", labelKey: "device.preset.countdown", descriptionKey: "device.desc.countdown", module: "countdown" },
+  { id: "ordnance", labelKey: "device.preset.ordnance", descriptionKey: "device.desc.ordnance", module: "ordnance" },
+  { id: "beacon", labelKey: "device.preset.beacon", descriptionKey: "device.desc.beacon", module: "beacon" },
+  { id: "dataSheet", labelKey: "device.preset.dataSheet", descriptionKey: "device.desc.dataSheet", module: "data-sheet" },
+  { id: "codeTable", labelKey: "device.preset.codeTable", descriptionKey: "device.desc.codeTable", module: "code-table" },
+  { id: "rotary", labelKey: "device.preset.rotary", descriptionKey: "device.desc.rotary", module: "rotary" },
+  { id: "clock", labelKey: "device.preset.clock", descriptionKey: "device.desc.clock", module: "clock" },
+  { id: "os", labelKey: "device.preset.os", descriptionKey: "device.desc.os", module: "os" },
+  { id: "intranet", labelKey: "device.preset.intranet", descriptionKey: "device.desc.intranet", module: "intranet" },
+  { id: "hologram", labelKey: "device.preset.hologram", descriptionKey: "device.desc.hologram", module: "hologram" },
+  { id: "slide", labelKey: "device.preset.slide", descriptionKey: "device.desc.slide", module: "slide" },
 ];
 
 export function presetForModule(module: string): DevicePreset | undefined {

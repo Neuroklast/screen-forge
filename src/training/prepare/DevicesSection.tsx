@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { presentationConfig } from "../../core/config";
 import { lintMission } from "../../core/missionLint";
 import type { TrainingStation } from "../../core/training";
 import { t } from "../../i18n";
 import { Term } from "../../ui/terminology/Term";
 import { WorkspaceShell } from "../../ui/WorkspaceShell";
-import type { PrepareSectionProps } from "./shared";
+import { buildDevice, type PrepareSectionProps } from "./shared";
 import {
   devicePresetsFor,
   splitPresets,
@@ -81,8 +81,22 @@ export function DevicesSection({
   const [connect, setConnect] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [addMore, setAddMore] = useState(false);
+  const [hoverPreset, setHoverPreset] = useState<DevicePreset | null>(null);
   const presets = devicePresetsFor(caps);
   const { recommended, more } = splitPresets(presets, draft.type);
+  // Hovering a catalog profile previews it in the canvas before it is created.
+  const hover = useMemo(
+    () => (hoverPreset ? buildDevice(draft, hoverPreset) : null),
+    [hoverPreset, draft],
+  );
+  const hoverScenario = hover
+    ? {
+        ...draft,
+        stations: [...draft.stations, hover.station],
+        props: hover.props,
+        patients: hover.patients,
+      }
+    : null;
   const teams = draft.teams;
   const participants = draft.stations.filter((station) => station.player);
   const hasOwnershipOptions =
@@ -157,6 +171,7 @@ export function DevicesSection({
     change(result.scenario);
     setSelection({ kind: "device", id: result.id });
     setAddOpen(false);
+    setHoverPreset(null);
   };
   const update = (patch: Partial<TrainingStation>) => {
     if (inspectorStation)
@@ -214,6 +229,22 @@ export function DevicesSection({
           setPublicOrigin={setPublicOrigin}
           invitationUrl={invitationUrl}
           onNotice={onNotice}
+        />
+      </div>
+    ) : hover && hoverScenario && hoverPreset ? (
+      <div className="sf-device-hover">
+        <span className="sf-device-hover-badge">
+          {t("prep.devices.previewAdd", { name: t(hoverPreset.labelKey) })}
+        </span>
+        <DevicePreview
+          station={hover.station}
+          scenario={hoverScenario}
+          preview="normal"
+          selectedAnchor=""
+          onSelectAnchor={() => undefined}
+          readOnly
+          onUpdateName={() => undefined}
+          onUpdatePresentation={() => undefined}
         />
       </div>
     ) : canvasStation ? (
@@ -286,12 +317,18 @@ export function DevicesSection({
                 type="button"
                 aria-expanded={addOpen}
                 disabled={readOnly}
-                onClick={() => setAddOpen((value) => !value)}
+                onClick={() => {
+                  setAddOpen((value) => !value);
+                  setHoverPreset(null);
+                }}
               >
                 <span aria-hidden="true">＋</span> {t("prep.devices.add")}
               </button>
               {addOpen && (
-                <div className="sf-device-add-menu">
+                <div
+                  className="sf-device-add-menu"
+                  onMouseLeave={() => setHoverPreset(null)}
+                >
                   <span className="sf-device-add-group">
                     {t("prep.devices.recommended")}
                   </span>
@@ -299,10 +336,14 @@ export function DevicesSection({
                     <button
                       key={preset.id}
                       type="button"
+                      className="sf-device-add-item"
+                      aria-label={t(preset.labelKey)}
                       disabled={readOnly}
+                      onMouseEnter={() => setHoverPreset(preset)}
                       onClick={() => add(preset)}
                     >
-                      {t(preset.labelKey)}
+                      <strong>{t(preset.labelKey)}</strong>
+                      <small>{t(preset.descriptionKey)}</small>
                     </button>
                   ))}
                   {more.length > 0 && (
@@ -320,10 +361,14 @@ export function DevicesSection({
                       <button
                         key={preset.id}
                         type="button"
+                        className="sf-device-add-item"
+                        aria-label={t(preset.labelKey)}
                         disabled={readOnly}
+                        onMouseEnter={() => setHoverPreset(preset)}
                         onClick={() => add(preset)}
                       >
-                        {t(preset.labelKey)}
+                        <strong>{t(preset.labelKey)}</strong>
+                        <small>{t(preset.descriptionKey)}</small>
                       </button>
                     ))}
                 </div>
