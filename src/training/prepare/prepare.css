@@ -251,6 +251,81 @@
   font-size: 12px;
 }
 
+.prepare-aar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.prepare-aar-list > li {
+  border: 1px solid #1e2a33;
+  background: #0e171f;
+  padding: 8px 10px;
+}
+
+.prepare-aar-list > li > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.prepare-aar-list > li.is-done > header strong {
+  color: #7ddc9a;
+}
+
+.prepare-aar-list > li > header span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a9aa2;
+}
+
+.prepare-aar-list ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.prepare-aar-list ul li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 8px;
+  font-size: 12px;
+}
+
+.prepare-aar-list ul li b {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #80dce5;
+}
+
+.prepare-aar-list ul li b.is-fired {
+  color: #7ddc9a;
+}
+
+.prepare-aar-list ul li b.is-skipped {
+  color: #e5c07b;
+}
+
+.prepare-aar-list ul li small {
+  grid-column: 1 / -1;
+  color: #8a9aa2;
+}
+
+.prepare-aar-list .is-warning,
+.prepare-aar-unlinked {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #e5c07b;
+}
+
 .prepare-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

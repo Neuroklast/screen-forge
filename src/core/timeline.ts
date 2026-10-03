@@ -1,3 +1,4 @@
+import { csvRow } from "./csv";
 import type { TrainingState } from "./training";
 
 export type TimelineKind = "planned" | "rescheduled" | "actual";
@@ -39,18 +40,10 @@ export function buildTimeline(state: TrainingState): TimelineEntry[] {
 }
 
 export function timelineCsv(entries: TimelineEntry[]): string {
-  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
   return [
     "time,kind,inject,label,from,to",
     ...entries.map((e) =>
-      [
-        e.at,
-        e.kind,
-        escape(e.injectId ?? ""),
-        escape(e.label),
-        e.from ?? "",
-        e.to ?? "",
-      ].join(","),
+      csvRow([e.at, e.kind, e.injectId ?? "", e.label, e.from ?? "", e.to ?? ""]),
     ),
   ].join("\n");
 }

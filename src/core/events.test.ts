@@ -32,6 +32,20 @@ describe("domain events", () => {
     expect(s.moduleEvents["files-1"]).toEqual(["shell.success"]);
   });
 
+  it("separates a suppressed inject from a fired one", () => {
+    const s = newState("room", scenario);
+    // `rule-1` carries `unless: "treated"`; report the treatment first.
+    applyEvent(s, {
+      type: "intervention.reported",
+      station: "med-1",
+      value: "treated",
+    });
+    applyEvent(s, { type: "inject.fired", inject: "rule-1" });
+    expect(s.fired).toContain("rule-1");
+    expect(s.skipped).toContain("rule-1");
+    expect(s.log.at(-1)?.message).toContain("Skipped");
+  });
+
   it("replays the same event log to identical state", () => {
     const events: DomainEvent[] = [
       { type: "scenario.saved", scenario },

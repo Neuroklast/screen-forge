@@ -1,7 +1,10 @@
 import { useRef } from "react";
 import { useTraining } from "../../core/useExercise";
+import { csvCell } from "../../core/csv";
+import { buildDebrief } from "../../core/debrief";
 import { nextIncomplete, prepareReadiness } from "../../core/readiness";
 import { t } from "../../i18n";
+import { Term } from "../../ui/terminology/Term";
 import { sectionTermId, term } from "../../core/terminology";
 import { TacticalMap } from "../TacticalMap";
 import type { PrepareSectionProps } from "./shared";
@@ -26,6 +29,10 @@ export function OverviewSection({
   const ex = useTraining();
   const readiness = prepareReadiness(draft);
   const nextSection = nextIncomplete(readiness);
+  // After a run the debrief reports what actually executed (the server's
+  // scenario); before the first fire it is a planning checklist over the draft.
+  const ran = ex.state.fired.length > 0 || ex.state.completed.length > 0;
+  const debrief = buildDebrief(ran ? ex.state.scenario : draft, ex.state);
   const exportFile = (value: unknown, filename: string, type: string) => {
     const url = URL.createObjectURL(
       new Blob([JSON.stringify(value, null, 2)], { type }),
@@ -113,7 +120,7 @@ export function OverviewSection({
           <button
             onClick={() =>
               exportFile(
-                { scenario: draft.name, log: ex.state.log },
+                { scenario: draft.name, log: ex.state.log, debrief },
                 "screenforge-debrief.json",
                 "application/json",
               )
@@ -124,15 +131,35 @@ export function OverviewSection({
           <button
             onClick={() => {
               const rows = [
-                ["time", "message"],
-                ...ex.state.log.map((e) => [
-                  e.at.toFixed(1),
-                  e.message.replace(/"/g, '""'),
+                ["objective", "event", "status", "expected", "evidence"],
+                ...debrief.events.map((event) => [
+                  event.objectiveName || "",
+                  event.name,
+                  event.status,
+                  event.expectedOutcome.join(" | "),
+                  event.evidence.join(" | "),
                 ]),
               ];
-              const csv = rows
-                .map((r) => r.map((c) => `"${c}"`).join(","))
-                .join("\n");
+              const csv = rows.map((r) => r.map(csvCell).join(",")).join("\n");
+              const url = URL.createObjectURL(
+                new Blob([csv], { type: "text/csv" }),
+              );
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "screenforge-aar.csv";
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }}
+          >
+            {t("prep.aar.export")}
+          </button>
+          <button
+            onClick={() => {
+              const rows = [
+                ["time", "message"],
+                ...ex.state.log.map((e) => [e.at.toFixed(1), e.message]),
+              ];
+              const csv = rows.map((r) => r.map(csvCell).join(",")).join("\n");
               const url = URL.createObjectURL(
                 new Blob([csv], { type: "text/csv" }),
               );
@@ -147,6 +174,73 @@ export function OverviewSection({
           </button>
         </section>
       </div>
+
+      <section className="panel prepare-aar">
+        <div className="section-heading">
+          <h2>
+            <Term id="after_action_review" />
+          </h2>
+          <span className="eyebrow">
+            {t("prep.aar.summary", {
+              done: debrief.summary.completed,
+              objectives: debrief.summary.objectives,
+              fired: debrief.summary.fired,
+              events: debrief.summary.events,
+              skipped: debrief.summary.skipped,
+            })}
+          </span>
+        </div>
+        {debrief.objectives.length === 0 ? (
+          <p className="builder-hint">{t("prep.aar.noObjectives")}</p>
+        ) : (
+          <ul className="prepare-aar-list">
+            {debrief.objectives.map((objective) => (
+              <li
+                key={objective.id}
+                className={objective.completed ? "is-done" : ""}
+              >
+                <header>
+                  <strong>{objective.name}</strong>
+                  <span>
+                    {t(objective.completed ? "prep.aar.met" : "prep.aar.open")}
+                  </span>
+                </header>
+                {objective.events.length === 0 ? (
+                  <p className="is-warning">{t("prep.aar.uncovered")}</p>
+                ) : (
+                  <ul>
+                    {objective.events.map((event) => (
+                      <li key={event.id}>
+                        <span>{event.name}</span>
+                        <b className={`is-${event.status}`}>
+                          {t(`prep.aar.${event.status}`)}
+                        </b>
+                        {event.purpose && <small>{event.purpose}</small>}
+                        {event.expectedOutcome.length > 0 && (
+                          <small>
+                            {t("prep.aar.expected")}:{" "}
+                            {event.expectedOutcome.join(", ")}
+                          </small>
+                        )}
+                        {event.evidence.length > 0 && (
+                          <small>
+                            {t("prep.aar.evidence")}: {event.evidence.join(", ")}
+                          </small>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {debrief.unlinked.length > 0 && (
+          <p className="prepare-aar-unlinked">
+            {t("prep.aar.unlinked", { n: debrief.unlinked.length })}
+          </p>
+        )}
+      </section>
     </Panel>
   );
 }

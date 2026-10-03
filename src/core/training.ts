@@ -577,6 +577,9 @@ export type TrainingState = {
   phase: Phase;
   revision: number;
   fired: string[];
+  // Inject ids whose actions were suppressed by their `unless` guard. Kept
+  // separate from `fired` so the AAR can tell "ran" from "skipped".
+  skipped: string[];
   interventions: Record<string, string[]>;
   moduleEvents: Record<string, string[]>;
   positions: Record<string, Position>;
@@ -605,6 +608,7 @@ export function newState(
     phase: "ready",
     revision: 0,
     fired: [],
+    skipped: [],
     interventions: {},
     moduleEvents: {},
     positions: {},
@@ -808,6 +812,9 @@ export function evaluate(
     if (!ready) continue;
     s.fired.push(r.id);
     if (r.unless && s.interventions[r.station]?.includes(r.unless)) {
+      // Keep the skip distinguishable from a real fire, exactly like the
+      // event reducer: the AAR must never report a suppressed inject as fired.
+      (s.skipped ??= []).push(r.id);
       logEvent(s, `Skipped: ${r.name}`);
       continue;
     }
@@ -1008,6 +1015,8 @@ export function projectState(
   });
   out.scenario.dossiers = out.scenario.dossiers.filter((d) => d.released);
   out.fired = [];
+  // Hidden injects are hidden: their skip ids must not leak to field devices.
+  out.skipped = [];
   out.interventions =
     role === "element" ? { [station]: out.interventions[station] || [] } : {};
   if (role === "element")

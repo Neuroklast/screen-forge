@@ -331,6 +331,18 @@ test("a template variant loads its overrides onto the base", async ({ page }) =>
   ).toBeVisible();
 });
 
+test("the overview debrief links events to training objectives", async ({
+  page,
+}) => {
+  await login(page, "prep-aar");
+  const aar = page.locator(".prepare-aar");
+  await expect(aar).toBeVisible();
+  await expect(aar).toContainText("Auswertung");
+  await expect(aar).toContainText("Locate and report casualty");
+  // The default scenario's timer event carries no objective yet.
+  await expect(aar).toContainText("ohne Trainingsziel");
+});
+
 test("the gallery shows what each section of a template starts with", async ({
   page,
 }) => {

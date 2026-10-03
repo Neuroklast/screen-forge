@@ -97,6 +97,8 @@ export function applyEvent(state: TrainingState, event: DomainEvent): void {
         inject.unless &&
         state.interventions[inject.station]?.includes(inject.unless)
       ) {
+        // Replayed state from before this field existed has no array yet.
+        (state.skipped ??= []).push(inject.id);
         logEvent(state, `Skipped: ${inject.name}`);
         return;
       }

@@ -91,5 +91,5 @@
 | W85 | Scenario templates with variants (`base + overrides`) | done |
 | W91 | Sectioned scenario templates (intent/environment/… sections) | done |
 | W86 | MSEL event metadata: objective link + editor exposure + summary | done |
-| W90 | MSEL evidence in the AAR/debrief + per-event objective reporting | todo |
+| W90 | MSEL evidence in the AAR/debrief + per-event objective reporting | done |
 | W87 | Guided integration (team kind → recommended composition → deviations) | done |

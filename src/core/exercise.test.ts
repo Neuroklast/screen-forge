@@ -33,6 +33,18 @@ describe("exercise runtime", () => {
     evaluate(s);
     expect(s.scenario.patients[0].kind).toBe("stable");
     expect(s.fired).toContain("rule-1");
+    // The suppressed event is recorded as skipped, not as a real fire.
+    expect(s.skipped).toContain("rule-1");
+  });
+
+  it("does not leak skipped inject ids to a field device", () => {
+    const s = newState("test");
+    s.frozen = false;
+    s.clock = 180;
+    s.interventions["med-1"] = ["treated"];
+    evaluate(s);
+    expect(s.skipped).toContain("rule-1");
+    expect(projectState(s, "element", "med-1").skipped).toEqual([]);
   });
   it("does not leak rules, codes or unreleased dossiers", () => {
     const s = newState("test");

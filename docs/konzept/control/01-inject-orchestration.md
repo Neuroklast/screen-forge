@@ -74,6 +74,16 @@ T+09:00  Patient verschlechtert     (timer)   [Jetzt] [Halten] [Skip]
 | Effect preview | plain-language summary of actions before firing |
 | Undo | within 10 s for message/camera/objective actions; patient changes are not undoable |
 
+## AAR / debrief
+
+The debrief is a projection of the authored scenario plus the exercise state (`buildDebrief` in `src/core/debrief.ts`): every event is grouped under the training objective it serves and carries its `purpose`, `expectedOutcome` and `evidence`; each objective shows whether it was met and which of its events fired.
+
+- Events without an objective and objectives without an event are surfaced as gaps, not hidden.
+- Status is `planned`, `fired` or `skipped`. A suppressed inject (`unless` guard met) is **skipped**, never fired: the runtime keeps `state.skipped` next to `state.fired` for exactly this reason.
+- The AAR panel lives in the Overview (heading from the `after_action_review` terminology term), next to the existing debrief log export. The JSON export includes the report; a separate CSV lists objective / event / status / expected / evidence.
+- After a run the report projects the executed scenario (`state.scenario`); before the first fire it is a planning checklist over `draft`, so unsaved MEL edits are visible while preparing.
+- Every CSV export goes through the shared `csvCell` encoder, which neutralises spreadsheet formula injection (a leading `=`/`+`/`-`/`@`/tab/CR gets an apostrophe).
+
 ## Macros
 
 - A macro is a named set of actions + optional delay, fired from a hotkey or button (e.g. `"Funkausfall 60 s"`).
